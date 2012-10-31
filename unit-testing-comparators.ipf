@@ -1,5 +1,7 @@
 #pragma rtGlobals=3		// Use modern global access method.
 
+/// Checks if both variables are equal
+/// @return 1 if both variables are equal and zero otherwise
 static Function EQUAL_VAR(var1, var2)
 	variable var1, var2
 
@@ -11,6 +13,10 @@ static Function EQUAL_VAR(var1, var2)
 	return result
 End
 
+/// Check if a variable is small
+/// @param var variable to check
+/// @param tol tolerance for comparison
+/// @return 1 if var is small compared to tol
 static Function SMALL_VAR(var, tol)
 	variable var
 	variable tol
@@ -23,11 +29,18 @@ static Function SMALL_VAR(var, tol)
 	return result
 End
 
-// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework
-// 
-// Literature:
-// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
-// 3 edition, page 234 equation (34) and (35)
+/// Compare two variables (floating point type) if they are close
+/// @param var1 				first variable
+/// @param var3 				second variable
+/// @param tol 				absolute tolerance of the comparison
+/// @param strong_or_weak	Use the strong (1) condition or the weak (0)
+/// @return					1 if they are close and zero otherwise
+///
+/// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework
+/// 
+/// Literature:
+/// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
+/// 3 edition, page 234 equation (34) and (35)
 static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 	variable var1, var2
 	variable tol
@@ -45,24 +58,33 @@ static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 	else
 		printf "Unknown mode %d\r", strong_or_weak
 	endif
-		
+	
 	string str
 	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak,"weak","strong"), tol
 	DEBUG_OUTPUT(str, result)
 	return result
 End
 
-static Function EQUAL_STR(str1, str2)
+/// @return 1 if both strings are equal and zero otherwise
+static Function EQUAL_STR(str1, str2, case_sensitive)
 	string str1, str2
-
-	variable result = ( cmpstr(str1, str2) == 0 )
+	variable case_sensitive
+	
+	variable result = ( cmpstr(str1, str2, case_sensitive) == 0 )
 	
 	string str
-	sprintf str, "\"%s\" == \"%s\"", str1, str2
+	sprintf str, "\"%s\" == \"%s\" %s case", str1, str2, SelectString(case_sensitive,"not respecting","respecting")
 	DEBUG_OUTPUT(str, result)
 	return result
 End
 
+/// Checks if two variables are close
+/// @param var1 			first variable
+/// @param var2 			second variable
+/// @param tol				defaults to 1e-8
+/// @param strong_or_weak	defaults to 1 (strong condition)
+/// 
+/// @see CLOSE_VAR
 Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
 	variable tol
@@ -82,6 +104,9 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	endif
 End
 
+/// Checks if var is small
+/// @param var		variable
+/// @param tol 	defaults to 1e-8
 Function CHECK_SMALL_VAR(var, [tol])
 	variable var
 	variable tol
@@ -96,34 +121,8 @@ Function CHECK_SMALL_VAR(var, [tol])
 	endif
 End
 
-Function printFailInfo()
-	printInfo(0)
-End
 
-Function printSuccessInfo()
-	printInfo(1)
-End
-
-Function printInfo(result)
-	variable result
-
-	string callStack = GetRTStackInfo(3)
-	
-	string initialCaller 	= StringFromList(1,callStack,";")
-	string procedure		= StringFromList(1,initialCaller,",")
-	string line				= StringFromList(2,initialCaller,",")
-
-	// get the line which called the caller of this function
-	string procedureContents = ProcedureText("",-1,procedure)
-	string text = StringFromList(str2num(line),procedureContents,"\r")
-	
-	// remove leading and trailing whitespace
-	string cleanText
-	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
-
-	printf "Assertion \"%s\" %s in line %s, procedure %s\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
-End
-
+/// Checks if var is true (1)
 Function CHECK(var)
 	variable var
 
@@ -138,24 +137,38 @@ Function CHECK(var)
 	DEBUG_OUTPUT(str, result)
 End
 
+/// Compares two variables for equality
 Function CHECK_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
 	if( !EQUAL_VAR(var1, var2) )
 		incrError()
 		printFailInfo()
+		printf "var1 %g, var2 %g\r", var1, var2
 	endif
 End
 
-Function CHECK_EQUAL_STR(str1, str2)
+/// Compares two strings for equality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
 	string str1, str2
+	 variable case_sensitive
+
+	if(ParamIsDefault(case_sensitive))
+		case_sensitive = 0
+	endif
 	
-	if( !EQUAL_STR(str1, str2) )
+	if( !EQUAL_STR(str1, str2, case_sensitive) )
 		incrError()
 		printFailInfo()
 	endif
 End
 
+/// Checks if two variable are unequal
+/// @param var1 			 first variable
+/// @param var2 			 second variable
 Function CHECK_NE_VAR(var1, var2)
 	variable var1, var2
 	
@@ -165,11 +178,63 @@ Function CHECK_NE_VAR(var1, var2)
 	endif
 End
 
-Function CHECK_NE_STR(str1, str2)
+/// Checks if two strings are unequal
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @return 1 if both strings are unequal and zero otherwise
+Function CHECK_NE_STR(str1, str2, [case_sensitive])
 	string str1, str2
+	variable case_sensitive
+
+	if(ParamIsDefault(case_sensitive))
+		case_sensitive = 0
+	endif
 	
-	if( EQUAL_STR(str1, str2) )
+	if( EQUAL_STR(str1, str2, case_sensitive) )
 		incrError()
 		printFailInfo()
+	endif
+End
+
+Constant TEXT_WAVE    = 2
+Constant NUMERIC_WAVE = 1
+
+Constant COMPLEX_WAVE = 0x01
+Constant FLOAT_WAVE   = 0x02
+Constant DOUBLE_WAVE  = 0x04
+Constant INT8_WAVE    = 0x08
+Constant INT16_WAVE   = 0x16
+Constant INT32_WAVE   = 0x20
+Constant UNSIGNED_WAVE= 0x40
+
+/// Checks the wave for existence and its type
+/// @param wv 			wave reference to check
+/// @param mainType 	main type, either TEXT_WAVE or NUMERIC_WAVE
+/// @param minorType 	minor type, either TEXT_WAVE or NUMERIC_WAVE
+Function CHECK_WAVE(wv, mainType, [minorType])
+	Wave/Z wv
+	variable mainType, minorType
+	
+	if(!WaveExists(wv))
+		incrError()
+		printFailInfo()
+		return 0
+	endif
+
+	if(WaveType(wv,1) != mainType)
+		incrError()
+		printFailInfo()
+		return 0
+	endif
+
+	if(!ParamIsDefault(minorType))
+			variable type      = WaveType(wv,0)
+			variable isSubType = type & minorType
+			if( !isSubType )
+				incrError()
+				printFailInfo()
+				return 0
+		endif
 	endif
 End
