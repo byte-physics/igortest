@@ -67,13 +67,20 @@ End
 
 /// Prints an informative message about the test's success or failure
 /// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function, 
-/// that means the call stack is e. g. CHECK_SMALL_VAR -> printFailInfo -> printInfo(0)
+/// that means the call stack is e. g. RUN_TEST_SUITE -> testCase -> CHECK_SMALL_VAR -> printFailInfo -> printInfo
 static Function printInfo(result)
 	variable result
 
 	string callStack = GetRTStackInfo(3)
 	
-	string initialCaller 	= StringFromList(1,callStack,";")
+	variable indexThisFunction  = ItemsInList(callStack) - 1 // 0-based indizes
+	variable indexCheckFunction = indexThisFunction - 3
+	
+	if(indexCheckFunction < 0 || indexCheckFunction > indexThisFunction)
+		return 0
+	endif
+	
+	string initialCaller 	= StringFromList(indexCheckFunction,callStack,";")
 	string procedure	= StringFromList(1,initialCaller,",")
 	string line		= StringFromList(2,initialCaller,",")
 
@@ -168,48 +175,101 @@ static Function getLocalHooks(hooks, procName)
 End
 
 /// Returns the full name of a function including its module
-static Function/S getFullFunctionName(funcName, procName)
+Function/S getFullFunctionName(funcName, procName)
 	string funcName, procName
 
 	string infoString = FunctionInfo(funcName, procName)
+	if(strlen(infoString) <= 0)
+		string errMsg
+		sprintf errMsg, "Function %s in procedure file %s is unknown\r", funcName, procName
+		Abort errMsg
+	endif
 	string module = StringByKey("MODULE", infoString)
-	if(strlen(module) == 0 )
+	if(strlen(module) <= 0 )
 		module = "ProcGlobal"
 	endif
 	
 	return module + "#" + funcName
 End
 
-// add possibility to run only a single function
-Function RUN_TEST_SUITE(procName)
-	string procName
+/// Runs all test cases of test suite or just a single test case
+/// @param 	testSuite		Can be a procedure or module name
+/// @param 	testCase		(optional) function, one test case, which should be executed only
+/// @return					number of errors 
+Function RUN_TEST(testSuite, [testCase])
+	string testSuite, testCase
 	
-	if(strlen(procName) == 0)
-		procName = "Procedure"
+	string procWinList = ""
+	variable i, j
+	
+	// check if testSuite is a procedure window
+	string allProcWindows = WinList("*",";","WIN:128")
+	if(FindListItem(testSuite, allProcWindows) != -1)
+		procWinList = testSuite
+	else
+		// if not we collect all procedure windows which hold a function in a regular module named $testSuite
+		for(i = 0; i < ItemsInList(allProcWindows); i += 1)
+			string procWin  		= StringFromList(i,allProcWindows)
+			string funcList 		= FunctionList("!*_IGNORE",";","KIND:18,NPARAMS:0,WIN:" + procWin)
+			for(j = 0; j < ItemsInList(funcList); j+=1)
+				string func 		= StringFromList(j,funcList)
+				string funcInfo 	= FunctionInfo(func,procWin)
+				string module 		= StringByKey("MODULE",funcInfo)
+				
+//				printf "procWin=%s, module=%s, testSuite=%s, procWinList=%s\r", procWin, module, testSuite, procWinList
+			
+				if(cmpstr(module, testSuite) == 0 && FindListItem(procWin, procWinList) == -1)
+					procWinList = AddListItem(procWin,procWinList)
+				endif
+				
+				break
+			endfor
+
+		endfor
 	endif
 	
-	// 18 == 16 (static function) or 2 (userdefined functions)
-	string testCaseList = FunctionList("!*_IGNORE",";","KIND:18,NPARAMS:0,WIN:" + procName)
-
-	struct TestHooks hooks
-	// 1.) set the hooks to the default implementations
-	SetDefaultHooks(hooks)
-	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
-	getGlobalHooks(hooks)
-	// 3.) get local user hooks which reside in the same Module as the requested procedure
-	getLocalHooks(hooks, procName)
+	if(ItemsInList(procWinList) == 0)
+		printf "A procedure window/regular module named %s could not be found.\r", testSuite
+		return 0
+	endif
 	
-	Execute	hooks.testSuiteBegin + "(\"" + procName + "\")"
-
-	variable i
-	for(i = 0; i < ItemsInList(testCaseList); i+=1)
-		string funcName = StringFromList(i,testCaseList)
-		string fullFuncName = getFullFunctionName(funcName, procName)
+	for(i = 0; i < ItemsInList(procWinList); i+=1)
 	
-		Execute	hooks.testCaseBegin + "(\"" + funcName + "\")"
-		Execute/Q fullFuncName + "()"
-		Execute	hooks.testCaseEnd + "(\"" + funcName + "\")"
+		procWin = StringFromList(i, procWinList)
+	
+		string testCaseList
+		if(ParamIsDefault(testCase))
+			// 18 == 16 (static function) or 2 (userdefined functions)
+			testCaseList = FunctionList("!*_IGNORE",";","KIND:18,NPARAMS:0,WIN:" + procWin)
+		else
+			testCaseList = testCase
+		endif	
+	
+		struct TestHooks hooks
+		// 1.) set the hooks to the default implementations
+		SetDefaultHooks(hooks)
+		// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
+		getGlobalHooks(hooks)
+		// 3.) get local user hooks which reside in the same Module as the requested procedure
+		getLocalHooks(hooks, procWin)
+		
+		Execute	hooks.testSuiteBegin + "(\"" + procWin + "\")"
+	
+		for(j = 0; j < ItemsInList(testCaseList); j += 1)
+			string funcName = StringFromList(j,testCaseList)
+			string fullFuncName = getFullFunctionName(funcName, procWin)
+		
+			Execute	hooks.testCaseBegin + "(\"" + funcName + "\")"
+			Execute/Q fullFuncName + "()"
+			Execute	hooks.testCaseEnd + "(\"" + funcName + "\")"
+		endfor
+	
+		Execute	hooks.testSuiteEnd + "(\"" + procWin + "\")"
 	endfor
-
-	Execute	hooks.testSuiteEnd + "(\"" + procName + "\")"
+	
+	NVAR/Z error_count = root:error_count
+	if(!NVAR_Exists(error_count))
+		return 0
+	endif
+	return error_count
 End

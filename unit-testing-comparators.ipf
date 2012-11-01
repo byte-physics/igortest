@@ -13,7 +13,7 @@ static Function EQUAL_VAR(var1, var2)
 	return result
 End
 
-/// Check if a variable is small
+/// Checks if a variable is small
 /// @param var variable to check
 /// @param tol tolerance for comparison
 /// @return 1 if var is small compared to tol
@@ -29,7 +29,7 @@ static Function SMALL_VAR(var, tol)
 	return result
 End
 
-/// Compare two variables (floating point type) if they are close
+/// Compares two variables (floating point type) if they are close
 /// @param var1 				first variable
 /// @param var3 				second variable
 /// @param tol 				absolute tolerance of the comparison
@@ -216,9 +216,12 @@ Function CHECK_WAVE(wv, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
 	
+	string errMsg
+	
 	if(!WaveExists(wv))
 		incrError()
 		printFailInfo()
+		DEBUG_OUTPUT("Assumption that the wave exists",0)
 		return 0
 	endif
 
