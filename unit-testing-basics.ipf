@@ -1,5 +1,7 @@
 #pragma rtGlobals=3		// Use modern global access method.
 
+//#define USE_THREADS
+
 Function ENABLE_DEBUG_OUTPUT()
 	variable/G root:verbose
 	NVAR verbose = root:verbose
@@ -12,7 +14,7 @@ Function DISABLE_DEBUG_OUTPUT()
 	verbose = 0
 End
 
-Function ENABLED_DEBUG()
+ThreadSafe Function ENABLED_DEBUG()
 	NVAR/Z verbose = root:verbose
 
 	if(NVAR_EXISTS(verbose) && verbose == 1)
@@ -22,7 +24,7 @@ Function ENABLED_DEBUG()
 	return 0
 End
 
-Function DEBUG_OUTPUT(str, booleanValue)
+ThreadSafe Function DEBUG_OUTPUT(str, booleanValue)
 	string str
 	variable booleanValue
 	
@@ -32,7 +34,7 @@ Function DEBUG_OUTPUT(str, booleanValue)
 	endif
 End
 
-Function incrError()
+ThreadSafe Function incrError()
 	NVAR/Z error_count = root:error_count
 	
 	if(!NVAR_Exists(error_count))
@@ -68,21 +70,21 @@ End
 /// Prints an informative message about the test's success or failure
 /// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function, 
 /// that means the call stack is e. g. RUN_TEST_SUITE -> testCase -> CHECK_SMALL_VAR -> printFailInfo -> printInfo
-static Function printInfo(result)
+Function printInfo(result)
 	variable result
-
-	string callStack = GetRTStackInfo(3)
 	
+	string callStack = GetRTStackInfo(3)
+
 	variable indexThisFunction  = ItemsInList(callStack) - 1 // 0-based indizes
-	variable indexCheckFunction = indexThisFunction - 3
+	variable indexCheckFunction = indexThisFunction - 4
 	
 	if(indexCheckFunction < 0 || indexCheckFunction > indexThisFunction)
 		return 0
 	endif
 	
 	string initialCaller 	= StringFromList(indexCheckFunction,callStack,";")
-	string procedure	= StringFromList(1,initialCaller,",")
-	string line		= StringFromList(2,initialCaller,",")
+	string procedure		= StringFromList(1,initialCaller,",")
+	string line				= StringFromList(2,initialCaller,",")
 
 	// get the line which called the caller of this function
 	string procedureContents = ProcedureText("",-1,procedure)
@@ -192,6 +194,15 @@ Function/S getFullFunctionName(funcName, procName)
 	return module + "#" + funcName
 End
 
+/// Prototype for test cases
+Function TEST_CASE_PROTO()
+End
+
+/// Prototype for hook functions
+Function USER_HOOK_PROTO(str)
+	string str
+End
+
 /// Runs all test cases of test suite or just a single test case
 /// @param 	testSuite		Can be a procedure or module name
 /// @param 	testCase		(optional) function, one test case, which should be executed only
@@ -221,10 +232,8 @@ Function RUN_TEST(testSuite, [testCase])
 				if(cmpstr(module, testSuite) == 0 && FindListItem(procWin, procWinList) == -1)
 					procWinList = AddListItem(procWin,procWinList)
 				endif
-				
 				break
 			endfor
-
 		endfor
 	endif
 	
@@ -233,6 +242,7 @@ Function RUN_TEST(testSuite, [testCase])
 		return 0
 	endif
 	
+	variable abortNow = 0
 	for(i = 0; i < ItemsInList(procWinList); i+=1)
 	
 		procWin = StringFromList(i, procWinList)
@@ -253,18 +263,38 @@ Function RUN_TEST(testSuite, [testCase])
 		// 3.) get local user hooks which reside in the same Module as the requested procedure
 		getLocalHooks(hooks, procWin)
 		
-		Execute	hooks.testSuiteBegin + "(\"" + procWin + "\")"
+		FUNCREF USER_HOOK_PROTO testSuiteBegin = $hooks.testSuiteBegin
+		FUNCREF USER_HOOK_PROTO testSuiteEnd   = $hooks.testSuiteEnd
+		FUNCREF USER_HOOK_PROTO testCaseBegin	  = $hooks.testCaseBegin
+		FUNCREF USER_HOOK_PROTO testCaseEnd	  = $hooks.testCaseEnd
+
+		testSuiteBegin(procWin)
 	
 		for(j = 0; j < ItemsInList(testCaseList); j += 1)
 			string funcName = StringFromList(j,testCaseList)
 			string fullFuncName = getFullFunctionName(funcName, procWin)
+			
+			FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
 		
-			Execute	hooks.testCaseBegin + "(\"" + funcName + "\")"
-			Execute/Q fullFuncName + "()"
-			Execute	hooks.testCaseEnd + "(\"" + funcName + "\")"
+			testCaseBegin(funcName)
+			try
+				testCaseFunc()
+			catch
+				abortNow = 1
+			endtry
+
+			testCaseEnd(funcName)
+
+			if( abortNow )
+				break
+			endif
 		endfor
 	
-		Execute	hooks.testSuiteEnd + "(\"" + procWin + "\")"
+		testSuiteEnd(procWin)
+
+		if( abortNow )
+			break
+		endif
 	endfor
 	
 	NVAR/Z error_count = root:error_count

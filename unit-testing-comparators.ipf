@@ -78,6 +78,278 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
 	return result
 End
 
+///@name CheckWaveModes Available modes for CHECK_EQUAL_WAVE
+///@{
+Constant WAVE_DATA			=   1
+Constant WAVE_DATA_TYPE   =   2
+Constant WAVE_SCALING 		=   4
+Constant DATA_UNITS 		=   8
+Constant DIMENSION_UNITS  =  16
+Constant DIMENSION_LABELS =  32		
+Constant WAVE_NOTE        =  64
+Constant WAVE_LOCK_STATE  = 128
+Constant DATA_FULL_SCALE  = 256
+Constant DIMENSION_SIZES  = 512
+///@}
+
+/// Compares two waves
+/// @param wv1		first wave
+/// @param wv2		second wave
+/// @param mode	features of both waves to compare, @see CheckWaveModes
+/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA)
+ThreadSafe Function CHECK_EQUAL_WAVE(wv1, wv2, [mode, tol])
+	Wave/Z wv1, wv2
+	variable mode, tol
+	
+	if(!WaveExists(wv1))
+		incrError()
+//		printFailInfo()
+		DEBUG_OUTPUT("Assumption that the first wave exists",0)
+		return 0
+	elseif(!WaveExists(wv1))
+		incrError()
+//		printFailInfo()
+		DEBUG_OUTPUT("Assumption that the first wave exists",0)
+		return 0
+	elseif(WaveRefsEqual(wv1, wv2))
+		incrError()
+//		printFailInfo()
+		DEBUG_OUTPUT("Assumption that both waves are distinct",0)
+		return 0
+	endif
+	
+	if(ParamIsDefault(mode))
+		Make/U/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+	else
+		Make/U/I/FREE modes = { mode }
+	endif
+	
+	if(ParamIsDefault(tol))
+		tol = 0.0
+	endif
+
+	variable i
+	for(i = 0; i < DimSize(modes,0); i+=1)
+		mode = modes[i]
+		variable equal = EqualWaves(wv1, wv2, mode, tol)
+		string str
+		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
+		DEBUG_OUTPUT(str,equal)
+	
+		if(!equal)
+			incrError()
+//			printFailInfo()
+		endif
+	endfor
+End
+
+///@name actionFlags Action flags
+///@{
+Constant OUTPUT_MESSAGE = 0x01
+Constant INCREASE_ERROR = 0x02
+Constant ABORT_FUNCTION = 0x04
+Constant WARN_MODE      = 0x01 // == OUTPUT_MESSAGE
+Constant CHECK_MODE     = 0x03 // == OUTPUT_MESSAGE | INCREASE_ERROR
+Constant REQU_MODE      = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUNCTION
+///@}
+
+/// Tests if var is true (1)
+/// @param var 	variable to test
+/// @param flags   actions flags
+static Function TRUE_WRAPPER(var, flags)
+	variable var
+	variable flags
+
+	variable result = ( var == 1 )
+	DEBUG_OUTPUT(num2istr(var), result)
+	
+	if( !result )
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
+	endif
+End
+
+/// Warns if var is not true (1)
+Function WARN(var)
+	variable var
+	
+	return TRUE_WRAPPER(var, WARN_MODE)
+End
+
+/// Checks that var is true (1)
+Function CHECK(var)
+	variable var
+	
+	return TRUE_WRAPPER(var, CHECK_MODE)
+End
+
+/// Requires that var is true (1)
+Function REQUIRE(var)
+	variable var
+	
+	return TRUE_WRAPPER(var, REQU_MODE)
+End
+
+/// Tests two variables for equality
+/// @param var1 	first variable
+/// @param var2 	second variable
+/// @param flags   actions flags
+static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
+	variable var1, var2
+	variable flags
+
+	if( !EQUAL_VAR(var1, var2) )
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
+	endif
+End
+
+/// Tests two variables for equality
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function WARN_EQUAL_VAR(var1, var2)
+	variable var1, var2
+	
+	return EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// Checks two variables for equality
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function CHECK_EQUAL_VAR(var1, var2)
+	variable var1, var2
+	
+	return EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// Requires that two variables are equal
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function REQU_EQUAL_VAR(var1, var2)
+	variable var1, var2
+	
+	return EQUAL_VAR_WRAPPER(var1, var2, REQU_MODE)
+End
+
+/// Compares two strings for equality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
+	string str1, str2
+    variable case_sensitive
+    variable flags
+
+	if(ParamIsDefault(case_sensitive))
+		case_sensitive = 0
+	endif
+
+
+	if( !EQUAL_STR(str1, str2, case_sensitive) )
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
+	endif
+End
+
+/// Tests two strings for equality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
+	string str1, str2
+	 variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return EQUAL_STR_WRAPPER(str1, str2, WARN_MODE)
+	else
+	    return EQUAL_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// FIXME START HERE
+
+/// Checks two strings for equality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
+	string str1, str2
+	 variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE)
+	else
+	    return EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// Requires that two strings are equal
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function REQU_EQUAL_STR(str1, str2, [case_sensitive])
+	string str1, str2
+    variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
+	else
+	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// Checks if two variable are unequal
+/// @param var1 			 first variable
+/// @param var2 			 second variable
+Function CHECK_NE_VAR(var1, var2)
+	variable var1, var2
+	
+	if( EQUAL_VAR(var1, var2) )
+		incrError()
+		printFailInfo()
+	endif
+End
+
+/// Checks if two strings are unequal
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @return 1 if both strings are unequal and zero otherwise
+Function CHECK_NE_STR(str1, str2, [case_sensitive])
+	string str1, str2
+	variable case_sensitive
+
+	if(ParamIsDefault(case_sensitive))
+		case_sensitive = 0
+	endif
+	
+	if( EQUAL_STR(str1, str2, case_sensitive) )
+		incrError()
+		printFailInfo()
+	endif
+End
+
 /// Checks if two variables are close
 /// @param var1 			first variable
 /// @param var2 			second variable
@@ -121,82 +393,6 @@ Function CHECK_SMALL_VAR(var, [tol])
 	endif
 End
 
-
-/// Checks if var is true (1)
-Function CHECK(var)
-	variable var
-
-	variable result = ( var == 1 )
-	if( !result )
-		incrError()
-		printFailInfo()
-	endif
-	
-	string str
-	sprintf str, "%g", var
-	DEBUG_OUTPUT(str, result)
-End
-
-/// Compares two variables for equality
-Function CHECK_EQUAL_VAR(var1, var2)
-	variable var1, var2
-	
-	if( !EQUAL_VAR(var1, var2) )
-		incrError()
-		printFailInfo()
-		printf "var1 %g, var2 %g\r", var1, var2
-	endif
-End
-
-/// Compares two strings for equality
-/// @param str1 			 first string
-/// @param str2 			 second string
-/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
-	string str1, str2
-	 variable case_sensitive
-
-	if(ParamIsDefault(case_sensitive))
-		case_sensitive = 0
-	endif
-	
-	if( !EQUAL_STR(str1, str2, case_sensitive) )
-		incrError()
-		printFailInfo()
-	endif
-End
-
-/// Checks if two variable are unequal
-/// @param var1 			 first variable
-/// @param var2 			 second variable
-Function CHECK_NE_VAR(var1, var2)
-	variable var1, var2
-	
-	if( EQUAL_VAR(var1, var2) )
-		incrError()
-		printFailInfo()
-	endif
-End
-
-/// Checks if two strings are unequal
-/// @param str1 			 first string
-/// @param str2 			 second string
-/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-/// @return 1 if both strings are unequal and zero otherwise
-Function CHECK_NE_STR(str1, str2, [case_sensitive])
-	string str1, str2
-	variable case_sensitive
-
-	if(ParamIsDefault(case_sensitive))
-		case_sensitive = 0
-	endif
-	
-	if( EQUAL_STR(str1, str2, case_sensitive) )
-		incrError()
-		printFailInfo()
-	endif
-End
-
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
 
@@ -218,26 +414,37 @@ Function CHECK_WAVE(wv, mainType, [minorType])
 	
 	string errMsg
 	
-	if(!WaveExists(wv))
+	variable result = WaveExists(wv)
+	DEBUG_OUTPUT("Assumption that the wave exists",result)
+	
+	if(!result)
 		incrError()
 		printFailInfo()
-		DEBUG_OUTPUT("Assumption that the wave exists",0)
 		return 0
 	endif
 
-	if(WaveType(wv,1) != mainType)
+	result = ( WaveType(wv,1) != mainType )
+	string str
+	sprintf str, "Assumption that the wave's main type is %d", mainType
+	DEBUG_OUTPUT(str,result)
+
+	if(!result)
 		incrError()
 		printFailInfo()
 		return 0
 	endif
 
 	if(!ParamIsDefault(minorType))
-			variable type      = WaveType(wv,0)
-			variable isSubType = type & minorType
-			if( !isSubType )
-				incrError()
-				printFailInfo()
-				return 0
+		variable type      = WaveType(wv,0)
+		variable isminorType = type & minorType
+
+		sprintf str, "Assumption that the wave's sub type is %d", minorType
+		DEBUG_OUTPUT(str,isminorType)
+
+		if( !isminorType )
+			incrError()
+			printFailInfo()
+			return 0
 		endif
 	endif
 End
