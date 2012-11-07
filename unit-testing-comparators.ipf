@@ -1,6 +1,6 @@
 #pragma rtGlobals=3		// Use modern global access method.
 
-/// Checks if both variables are equal
+/// Tests two variables for equality
 /// @return 1 if both variables are equal and zero otherwise
 static Function EQUAL_VAR(var1, var2)
 	variable var1, var2
@@ -76,71 +76,6 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
 	sprintf str, "\"%s\" == \"%s\" %s case", str1, str2, SelectString(case_sensitive,"not respecting","respecting")
 	DEBUG_OUTPUT(str, result)
 	return result
-End
-
-///@name CheckWaveModes Available modes for CHECK_EQUAL_WAVE
-///@{
-Constant WAVE_DATA			=   1
-Constant WAVE_DATA_TYPE   =   2
-Constant WAVE_SCALING 		=   4
-Constant DATA_UNITS 		=   8
-Constant DIMENSION_UNITS  =  16
-Constant DIMENSION_LABELS =  32		
-Constant WAVE_NOTE        =  64
-Constant WAVE_LOCK_STATE  = 128
-Constant DATA_FULL_SCALE  = 256
-Constant DIMENSION_SIZES  = 512
-///@}
-
-/// Compares two waves
-/// @param wv1		first wave
-/// @param wv2		second wave
-/// @param mode	features of both waves to compare, @see CheckWaveModes
-/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA)
-ThreadSafe Function CHECK_EQUAL_WAVE(wv1, wv2, [mode, tol])
-	Wave/Z wv1, wv2
-	variable mode, tol
-	
-	if(!WaveExists(wv1))
-		incrError()
-//		printFailInfo()
-		DEBUG_OUTPUT("Assumption that the first wave exists",0)
-		return 0
-	elseif(!WaveExists(wv1))
-		incrError()
-//		printFailInfo()
-		DEBUG_OUTPUT("Assumption that the first wave exists",0)
-		return 0
-	elseif(WaveRefsEqual(wv1, wv2))
-		incrError()
-//		printFailInfo()
-		DEBUG_OUTPUT("Assumption that both waves are distinct",0)
-		return 0
-	endif
-	
-	if(ParamIsDefault(mode))
-		Make/U/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
-	else
-		Make/U/I/FREE modes = { mode }
-	endif
-	
-	if(ParamIsDefault(tol))
-		tol = 0.0
-	endif
-
-	variable i
-	for(i = 0; i < DimSize(modes,0); i+=1)
-		mode = modes[i]
-		variable equal = EqualWaves(wv1, wv2, mode, tol)
-		string str
-		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
-		DEBUG_OUTPUT(str,equal)
-	
-		if(!equal)
-			incrError()
-//			printFailInfo()
-		endif
-	endfor
 End
 
 ///@name actionFlags Action flags
@@ -287,8 +222,6 @@ Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
 	endif
 End
 
-/// FIXME START HERE
-
 /// Checks two strings for equality
 /// @param str1 			 first string
 /// @param str2 			 second string
@@ -319,46 +252,137 @@ Function REQU_EQUAL_STR(str1, str2, [case_sensitive])
 	endif
 End
 
-/// Checks if two variable are unequal
-/// @param var1 			 first variable
-/// @param var2 			 second variable
-Function CHECK_NE_VAR(var1, var2)
+/// Tests two variables for unequality
+/// @param var1    first variable
+/// @param var2    second variable
+/// @param flags   actions flags
+static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2
-	
+	variable flags
+
 	if( EQUAL_VAR(var1, var2) )
-		incrError()
-		printFailInfo()
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 End
 
-/// Checks if two strings are unequal
+/// Tests two variables for unequality
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function WARN_NEQ_VAR(var1, var2)
+	variable var1, var2
+	
+	return NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// Checks two variables for unequality
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function CHECK_NEQ_VAR(var1, var2)
+	variable var1, var2
+	
+	return NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// Requires that two variables are unequal
+/// @param str1 			 first variable
+/// @param str2 			 second variable
+Function REQU_NEQ_VAR(var1, var2)
+	variable var1, var2
+	
+	return NEQ_VAR_WRAPPER(var1, var2, REQU_MODE)
+End
+
+/// Compares two strings for unequality
 /// @param str1 			 first string
 /// @param str2 			 second string
+/// @param flags           actions flags
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-/// @return 1 if both strings are unequal and zero otherwise
-Function CHECK_NE_STR(str1, str2, [case_sensitive])
+Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string str1, str2
-	variable case_sensitive
+    variable case_sensitive
+    variable flags
 
 	if(ParamIsDefault(case_sensitive))
 		case_sensitive = 0
 	endif
-	
+
 	if( EQUAL_STR(str1, str2, case_sensitive) )
-		incrError()
-		printFailInfo()
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 End
 
-/// Checks if two variables are close
+/// Tests two strings for unequality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function WARN_NEQ_STR(str1, str2, [case_sensitive])
+	string str1, str2
+	 variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return NEQ_STR_WRAPPER(str1, str2, WARN_MODE)
+	else
+	    return NEQ_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// Checks two strings for unequality
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
+	string str1, str2
+	 variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return NEQ_STR_WRAPPER(str1, str2, CHECK_MODE)
+	else
+	    return NEQ_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// Requires that two strings are unequal
+/// @param str1 			 first string
+/// @param str2 			 second string
+/// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
+Function REQU_NEQ_STR(str1, str2, [case_sensitive])
+	string str1, str2
+    variable case_sensitive
+	 
+	if(ParamIsDefault(case_sensitive))
+	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
+	else
+	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
+	endif
+End
+
+/// Compares two variables and determines if they are close
 /// @param var1 			first variable
 /// @param var2 			second variable
-/// @param tol				defaults to 1e-8
+/// @param flags          actions flags
+/// @param tol				tolerance, defaults to 1e-8
 /// @param strong_or_weak	defaults to 1 (strong condition)
 /// 
 /// @see CLOSE_VAR
-Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	variable var1, var2
+	variable flags
 	variable tol
 	variable strong_or_weak
 	
@@ -371,16 +395,88 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	endif
 
 	if( !CLOSE_VAR(var1, var2, tol, strong_or_weak) )
-		incrError()
-		printFailInfo()
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 End
 
-/// Checks if var is small
+/// Compares two variables and determines if they are close
+/// @param var1 			first variable
+/// @param var2 			second variable
+/// @param tol				tolerance, defaults to 1e-8
+/// @param strong_or_weak	defaults to 1 (strong condition)
+Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+	variable var1, var2
+    variable tol
+    variable strong_or_weak
+	 
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE)
+	elseif(ParamIsDefault(tol))
+	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+	else
+	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
+/// Checks if two variables are close
+/// @param var1 			first variable
+/// @param var2 			second variable
+/// @param tol				tolerance, defaults to 1e-8
+/// @param strong_or_weak	defaults to 1 (strong condition)
+Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+	variable var1, var2
+    variable tol
+    variable strong_or_weak
+	 
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE)
+	elseif(ParamIsDefault(tol))
+	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+	else
+	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
+/// Requires that two variables are close
+/// @param var1 			first variable
+/// @param var2 			second variable
+/// @param tol 	       tolerance, defaults to 1e-8
+/// @param strong_or_weak	defaults to 1 (strong condition)
+Function REQU_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+	variable var1, var2
+    variable tol
+    variable strong_or_weak
+	 
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE)
+	elseif(ParamIsDefault(tol))
+	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol)
+	else
+	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
+/// Tests if var is small
 /// @param var		variable
-/// @param tol 	defaults to 1e-8
-Function CHECK_SMALL_VAR(var, [tol])
+/// @param flags   actions flags
+/// @param tol 	tolerance, defaults to 1e-8
+static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable var
+	variable flags
 	variable tol
 
 	if(ParamIsDefault(tol))
@@ -388,14 +484,68 @@ Function CHECK_SMALL_VAR(var, [tol])
 	endif
 
 	if( !SMALL_VAR(var, tol) )
-		incrError()
-		printFailInfo()
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 End
 
+/// Tests if var is small
+/// @param var 			 variable
+/// @param tol 			 tolerance, defaults to 1e-8
+Function WARN_SMALL_VAR(var, [tol])
+	variable var
+	 variable tol
+	 
+	if(ParamIsDefault(tol))
+	    return SMALL_VAR_WRAPPER(var, WARN_MODE)
+	else
+	    return SMALL_VAR_WRAPPER(var, WARN_MODE, tol=tol)
+	endif
+End
+
+/// Checks that var is small
+/// @param var 			 variable
+/// @param tol 			 tolerance, defaults to 1e-8
+Function CHECK_SMALL_VAR(var, [tol])
+	variable var
+	 variable tol
+	 
+	if(ParamIsDefault(tol))
+	    return SMALL_VAR_WRAPPER(var, CHECK_MODE)
+	else
+	    return SMALL_VAR_WRAPPER(var, CHECK_MODE, tol=tol)
+	endif
+End
+
+/// Requires that var is small
+/// @param var 			 variable
+/// @param tol 			 tolerance, defaults to 1e-8
+Function REQU_SMALL_VAR(var, [tol])
+	variable var
+	 variable tol
+	 
+	if(ParamIsDefault(tol))
+	    return SMALL_VAR_WRAPPER(var, REQU_MODE)
+	else
+	    return SMALL_VAR_WRAPPER(var, REQU_MODE, tol=tol)
+	endif
+End
+
+///@name mainWaveTypes Main wave types
+///@{
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
+///@}
 
+///@name minorWaveTypes Minor wave types
+///@{
 Constant COMPLEX_WAVE = 0x01
 Constant FLOAT_WAVE   = 0x02
 Constant DOUBLE_WAVE  = 0x04
@@ -403,24 +553,31 @@ Constant INT8_WAVE    = 0x08
 Constant INT16_WAVE   = 0x16
 Constant INT32_WAVE   = 0x20
 Constant UNSIGNED_WAVE= 0x40
+///@}
 
-/// Checks the wave for existence and its type
-/// @param wv 			wave reference to check
-/// @param mainType 	main type, either TEXT_WAVE or NUMERIC_WAVE
-/// @param minorType 	minor type, either TEXT_WAVE or NUMERIC_WAVE
-Function CHECK_WAVE(wv, mainType, [minorType])
+/// Tests a wave for existence and its type
+/// @param wv 			wave reference
+/// @param flags      actions flags
+/// @param mainType 	main type, @see mainWaveTypes
+/// @param minorType 	minor type,  @see minorWaveTypes
+static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
-	
-	string errMsg
+	variable flags
 	
 	variable result = WaveExists(wv)
 	DEBUG_OUTPUT("Assumption that the wave exists",result)
 	
 	if(!result)
-		incrError()
-		printFailInfo()
-		return 0
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 
 	result = ( WaveType(wv,1) != mainType )
@@ -429,22 +586,240 @@ Function CHECK_WAVE(wv, mainType, [minorType])
 	DEBUG_OUTPUT(str,result)
 
 	if(!result)
-		incrError()
-		printFailInfo()
-		return 0
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			Abort
+		endif
 	endif
 
 	if(!ParamIsDefault(minorType))
-		variable type      = WaveType(wv,0)
-		variable isminorType = type & minorType
+		result = WaveType(wv,0) & minorType
 
 		sprintf str, "Assumption that the wave's sub type is %d", minorType
-		DEBUG_OUTPUT(str,isminorType)
+		DEBUG_OUTPUT(str,result)
 
-		if( !isminorType )
-			incrError()
-			printFailInfo()
-			return 0
+		if(!result)
+			if( flags & OUTPUT_MESSAGE )
+				printFailInfo()
+			endif
+			if( flags & INCREASE_ERROR )
+				incrError()
+			endif
+			if( flags & ABORT_FUNCTION )
+				Abort
+			endif
 		endif
 	endif
+End
+
+/// Tests a wave for existence and its type
+/// @param wv 			wave reference
+/// @param mainType 	main type, @see mainWaveTypes
+/// @param minorType 	minor type,  @see minorWaveTypes
+Function WARN_WAVE(wv, mainType, [minorType])
+	Wave/Z wv
+	variable mainType, minorType
+	
+	if(ParamIsDefault(minorType))
+		return TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE)
+	else
+		return TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE, minorType=minorType)
+	endif
+End
+
+/// Checks a wave for existence and its type
+/// @param wv 			wave reference
+/// @param mainType 	main type, @see mainWaveTypes
+/// @param minorType 	minor type,  @see minorWaveTypes
+Function CHECK_WAVE(wv, mainType, [minorType])
+	Wave/Z wv
+	variable mainType, minorType
+	
+	if(ParamIsDefault(minorType))
+		return TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE)
+	else
+		return TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE, minorType=minorType)
+	endif
+End
+
+/// Tests a wave for existence and its type
+/// @param wv 			wave reference
+/// @param mainType 	main type, @see mainWaveTypes
+/// @param minorType 	minor type,  @see minorWaveTypes
+Function REQU_WAVE(wv, mainType, [minorType])
+	Wave/Z wv
+	variable mainType, minorType
+	
+	if(ParamIsDefault(minorType))
+		return TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE)
+	else
+		return TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE, minorType=minorType)
+	endif
+End
+
+///@name CheckWaveModes Available modes for *_EQUAL_WAVES
+///@{
+Constant WAVE_DATA			=   1
+Constant WAVE_DATA_TYPE   =   2
+Constant WAVE_SCALING 		=   4
+Constant DATA_UNITS 		=   8
+Constant DIMENSION_UNITS  =  16
+Constant DIMENSION_LABELS =  32		
+Constant WAVE_NOTE        =  64
+Constant WAVE_LOCK_STATE  = 128
+Constant DATA_FULL_SCALE  = 256
+Constant DIMENSION_SIZES  = 512
+///@}
+
+/// Tests two waves for equality
+/// @param wv1		first wave
+/// @param wv2		second wave
+/// @param flags   actions flags
+/// @param mode	features of both waves to compare, defaults to all modes, @see CheckWaveModes
+/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+ThreadSafe static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
+	Wave/Z wv1, wv2
+	variable flags
+	variable mode, tol
+	
+	variable result = !WaveExists(wv1)
+	DEBUG_OUTPUT("Assumption that the first wave (wv1) exists",result)
+
+	if(!result)
+		if( flags & OUTPUT_MESSAGE )
+//			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+//			Abort
+		endif
+	endif
+
+	result = !WaveExists(wv2)
+	DEBUG_OUTPUT("Assumption that the second wave (wv2) exists",result)
+
+	if(!result)
+		if( flags & OUTPUT_MESSAGE )
+//			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+//			Abort
+		endif
+	endif
+	
+	result = !WaveRefsEqual(wv1, wv2)
+	DEBUG_OUTPUT("Assumption that both waves are distinct",result)
+	
+	if(!result)
+		if( flags & OUTPUT_MESSAGE )
+//			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+//			Abort
+		endif
+	endif
+	
+	if(ParamIsDefault(mode))
+		Make/U/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+	else
+		Make/U/I/FREE modes = { mode }
+	endif
+	
+	if(ParamIsDefault(tol))
+		tol = 0.0
+	endif
+
+	variable i
+	for(i = 0; i < DimSize(modes,0); i+=1)
+		mode = modes[i]
+		result = EqualWaves(wv1, wv2, mode, tol)
+		string str
+		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
+		DEBUG_OUTPUT(str,result)
+	
+		if(!result)
+			if( flags & OUTPUT_MESSAGE )
+//				printFailInfo()
+			endif
+			if( flags & INCREASE_ERROR )
+				incrError()
+			endif
+			if( flags & ABORT_FUNCTION )
+//				Abort
+			endif
+		endif
+	endfor
+End
+
+/// Tests two waves for equality
+/// @param wv1		first wave
+/// @param wv2		second wave
+/// @param mode	features of both waves to compare, defaults to all modes, @see CheckWaveModes
+/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+ThreadSafe Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
+	Wave/Z wv1, wv2
+	variable mode, tol
+
+	if(ParamIsDefault(mode) && ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
+	elseif(ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+	elseif(ParamIsDefault(mode))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol)
+	else
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol, mode=mode)
+	endif	
+End
+
+/// Checks two waves for equality
+/// @param wv1		first wave
+/// @param wv2		second wave
+/// @param mode	features of both waves to compare, defaults to all modes, @see CheckWaveModes
+/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+ThreadSafe Function CHECK_EQUAL_WAVE(wv1, wv2, [mode, tol])
+	Wave/Z wv1, wv2
+	variable mode, tol
+
+	if(ParamIsDefault(mode) && ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
+	elseif(ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+	elseif(ParamIsDefault(mode))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol)
+	else
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol, mode=mode)
+	endif	
+End
+
+/// Checks two waves for equality
+/// @param wv1		first wave
+/// @param wv2		second wave
+/// @param mode	features of both waves to compare, defaults to all modes, @see CheckWaveModes
+/// @param tol		tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+ThreadSafe Function REQU_EQUAL_WAVE(wv1, wv2, [mode, tol])
+	Wave/Z wv1, wv2
+	variable mode, tol
+
+	if(ParamIsDefault(mode) && ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE)
+	elseif(ParamIsDefault(tol))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, mode=mode)
+	elseif(ParamIsDefault(mode))
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol)
+	else
+	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol, mode=mode)
+	endif	
 End
