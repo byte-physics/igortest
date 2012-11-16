@@ -2,7 +2,7 @@
 
 /// Tests two variables for equality
 /// @return 1 if both variables are equal and zero otherwise
-static Function EQUAL_VAR(var1, var2)
+ThreadSafe static Function EQUAL_VAR(var1, var2)
 	variable var1, var2
 
 	variable result = ( var1 == var2 )
@@ -17,7 +17,7 @@ End
 /// @param var variable to check
 /// @param tol tolerance for comparison
 /// @return 1 if var is small compared to tol
-static Function SMALL_VAR(var, tol)
+ThreadSafe static Function SMALL_VAR(var, tol)
 	variable var
 	variable tol
 	
@@ -41,7 +41,7 @@ End
 /// Literature:
 /// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
 /// 3 edition, page 234 equation (34) and (35)
-static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
+ThreadSafe static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 	variable var1, var2
 	variable tol
 	variable strong_or_weak
@@ -66,7 +66,7 @@ static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 End
 
 /// @return 1 if both strings are equal and zero otherwise
-static Function EQUAL_STR(str1, str2, case_sensitive)
+ThreadSafe static Function EQUAL_STR(str1, str2, case_sensitive)
 	string str1, str2
 	variable case_sensitive
 	
@@ -91,9 +91,13 @@ Constant REQU_MODE      = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 /// Tests if var is true (1)
 /// @param var 	variable to test
 /// @param flags   actions flags
-static Function TRUE_WRAPPER(var, flags)
+ThreadSafe static Function TRUE_WRAPPER(var, flags)
 	variable var
 	variable flags
+	
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 
 	variable result = ( var == 1 )
 	DEBUG_OUTPUT(num2istr(var), result)
@@ -106,27 +110,27 @@ static Function TRUE_WRAPPER(var, flags)
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
 
 /// Warns if var is not true (1)
-Function WARN(var)
+ThreadSafe Function WARN(var)
 	variable var
 	
 	return TRUE_WRAPPER(var, WARN_MODE)
 End
 
 /// Checks that var is true (1)
-Function CHECK(var)
+ThreadSafe Function CHECK(var)
 	variable var
 	
 	return TRUE_WRAPPER(var, CHECK_MODE)
 End
 
 /// Requires that var is true (1)
-Function REQUIRE(var)
+ThreadSafe Function REQUIRE(var)
 	variable var
 	
 	return TRUE_WRAPPER(var, REQU_MODE)
@@ -136,9 +140,13 @@ End
 /// @param var1 	first variable
 /// @param var2 	second variable
 /// @param flags   actions flags
-static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
+ThreadSafe static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2
 	variable flags
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 
 	if( !EQUAL_VAR(var1, var2) )
 		if( flags & OUTPUT_MESSAGE )
@@ -148,7 +156,7 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -156,7 +164,7 @@ End
 /// Tests two variables for equality
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function WARN_EQUAL_VAR(var1, var2)
+ThreadSafe Function WARN_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
 	return EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
@@ -165,7 +173,7 @@ End
 /// Checks two variables for equality
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function CHECK_EQUAL_VAR(var1, var2)
+ThreadSafe Function CHECK_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
 	return EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
@@ -174,7 +182,7 @@ End
 /// Requires that two variables are equal
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function REQU_EQUAL_VAR(var1, var2)
+ThreadSafe Function REQU_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
 	return EQUAL_VAR_WRAPPER(var1, var2, REQU_MODE)
@@ -184,15 +192,18 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
+ThreadSafe Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string str1, str2
     variable case_sensitive
     variable flags
 
+	if( ShouldDoAbort() )
+		return NaN
+	endif
+
 	if(ParamIsDefault(case_sensitive))
 		case_sensitive = 0
 	endif
-
 
 	if( !EQUAL_STR(str1, str2, case_sensitive) )
 		if( flags & OUTPUT_MESSAGE )
@@ -202,7 +213,7 @@ Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -211,7 +222,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
+ThreadSafe Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
 	string str1, str2
 	 variable case_sensitive
 	 
@@ -226,7 +237,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
+ThreadSafe Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
 	string str1, str2
 	 variable case_sensitive
 	 
@@ -241,7 +252,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function REQU_EQUAL_STR(str1, str2, [case_sensitive])
+ThreadSafe Function REQU_EQUAL_STR(str1, str2, [case_sensitive])
 	string str1, str2
     variable case_sensitive
 	 
@@ -256,9 +267,13 @@ End
 /// @param var1    first variable
 /// @param var2    second variable
 /// @param flags   actions flags
-static Function NEQ_VAR_WRAPPER(var1, var2, flags)
+ThreadSafe static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2
 	variable flags
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 
 	if( EQUAL_VAR(var1, var2) )
 		if( flags & OUTPUT_MESSAGE )
@@ -268,7 +283,7 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -276,7 +291,7 @@ End
 /// Tests two variables for unequality
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function WARN_NEQ_VAR(var1, var2)
+ThreadSafe Function WARN_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
 	return NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
@@ -285,7 +300,7 @@ End
 /// Checks two variables for unequality
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function CHECK_NEQ_VAR(var1, var2)
+ThreadSafe Function CHECK_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
 	return NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
@@ -294,7 +309,7 @@ End
 /// Requires that two variables are unequal
 /// @param str1 			 first variable
 /// @param str2 			 second variable
-Function REQU_NEQ_VAR(var1, var2)
+ThreadSafe Function REQU_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
 	return NEQ_VAR_WRAPPER(var1, var2, REQU_MODE)
@@ -305,10 +320,14 @@ End
 /// @param str2 			 second string
 /// @param flags           actions flags
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
+ThreadSafe Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string str1, str2
     variable case_sensitive
     variable flags
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 
 	if(ParamIsDefault(case_sensitive))
 		case_sensitive = 0
@@ -322,7 +341,7 @@ Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -331,7 +350,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function WARN_NEQ_STR(str1, str2, [case_sensitive])
+ThreadSafe Function WARN_NEQ_STR(str1, str2, [case_sensitive])
 	string str1, str2
 	 variable case_sensitive
 	 
@@ -346,7 +365,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
+ThreadSafe Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
 	string str1, str2
 	 variable case_sensitive
 	 
@@ -361,7 +380,7 @@ End
 /// @param str1 			 first string
 /// @param str2 			 second string
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
-Function REQU_NEQ_STR(str1, str2, [case_sensitive])
+ThreadSafe Function REQU_NEQ_STR(str1, str2, [case_sensitive])
 	string str1, str2
     variable case_sensitive
 	 
@@ -380,11 +399,15 @@ End
 /// @param strong_or_weak	defaults to 1 (strong condition)
 /// 
 /// @see CLOSE_VAR
-static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
+ThreadSafe static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	variable var1, var2
 	variable flags
 	variable tol
 	variable strong_or_weak
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 	
 	if(ParamIsDefault(strong_or_weak))
 		strong_or_weak	= 1
@@ -402,7 +425,7 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -412,7 +435,7 @@ End
 /// @param var2 			second variable
 /// @param tol				tolerance, defaults to 1e-8
 /// @param strong_or_weak	defaults to 1 (strong condition)
-Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+ThreadSafe Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
     variable tol
     variable strong_or_weak
@@ -433,7 +456,7 @@ End
 /// @param var2 			second variable
 /// @param tol				tolerance, defaults to 1e-8
 /// @param strong_or_weak	defaults to 1 (strong condition)
-Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+ThreadSafe Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
     variable tol
     variable strong_or_weak
@@ -454,7 +477,7 @@ End
 /// @param var2 			second variable
 /// @param tol 	       tolerance, defaults to 1e-8
 /// @param strong_or_weak	defaults to 1 (strong condition)
-Function REQU_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+ThreadSafe Function REQU_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
     variable tol
     variable strong_or_weak
@@ -474,10 +497,14 @@ End
 /// @param var		variable
 /// @param flags   actions flags
 /// @param tol 	tolerance, defaults to 1e-8
-static Function SMALL_VAR_WRAPPER(var, flags, [tol])
+ThreadSafe static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable var
 	variable flags
 	variable tol
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 
 	if(ParamIsDefault(tol))
 		tol = 1e-8
@@ -491,7 +518,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 End
@@ -499,7 +526,7 @@ End
 /// Tests if var is small
 /// @param var 			 variable
 /// @param tol 			 tolerance, defaults to 1e-8
-Function WARN_SMALL_VAR(var, [tol])
+ThreadSafe Function WARN_SMALL_VAR(var, [tol])
 	variable var
 	 variable tol
 	 
@@ -513,7 +540,7 @@ End
 /// Checks that var is small
 /// @param var 			 variable
 /// @param tol 			 tolerance, defaults to 1e-8
-Function CHECK_SMALL_VAR(var, [tol])
+ThreadSafe Function CHECK_SMALL_VAR(var, [tol])
 	variable var
 	 variable tol
 	 
@@ -527,7 +554,7 @@ End
 /// Requires that var is small
 /// @param var 			 variable
 /// @param tol 			 tolerance, defaults to 1e-8
-Function REQU_SMALL_VAR(var, [tol])
+ThreadSafe Function REQU_SMALL_VAR(var, [tol])
 	variable var
 	 variable tol
 	 
@@ -560,10 +587,14 @@ Constant UNSIGNED_WAVE= 0x40
 /// @param flags      actions flags
 /// @param mainType 	main type, @see mainWaveTypes
 /// @param minorType 	minor type,  @see minorWaveTypes
-static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
+ThreadSafe static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
 	variable flags
+
+	if( ShouldDoAbort() )
+		return NaN
+	endif
 	
 	variable result = WaveExists(wv)
 	DEBUG_OUTPUT("Assumption that the wave exists",result)
@@ -576,7 +607,7 @@ static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 
@@ -593,7 +624,7 @@ static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-			Abort
+			AbortNow()
 		endif
 	endif
 
@@ -611,7 +642,7 @@ static Function TEST_WAVE_WRAPPER(wv, flags, mainType, [minorType])
 				incrError()
 			endif
 			if( flags & ABORT_FUNCTION )
-				Abort
+				AbortNow()
 			endif
 		endif
 	endif
@@ -621,7 +652,7 @@ End
 /// @param wv 			wave reference
 /// @param mainType 	main type, @see mainWaveTypes
 /// @param minorType 	minor type,  @see minorWaveTypes
-Function WARN_WAVE(wv, mainType, [minorType])
+ThreadSafe Function WARN_WAVE(wv, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
 	
@@ -636,7 +667,7 @@ End
 /// @param wv 			wave reference
 /// @param mainType 	main type, @see mainWaveTypes
 /// @param minorType 	minor type,  @see minorWaveTypes
-Function CHECK_WAVE(wv, mainType, [minorType])
+ThreadSafe Function CHECK_WAVE(wv, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
 	
@@ -651,7 +682,7 @@ End
 /// @param wv 			wave reference
 /// @param mainType 	main type, @see mainWaveTypes
 /// @param minorType 	minor type,  @see minorWaveTypes
-Function REQU_WAVE(wv, mainType, [minorType])
+ThreadSafe Function REQU_WAVE(wv, mainType, [minorType])
 	Wave/Z wv
 	variable mainType, minorType
 	
@@ -687,33 +718,37 @@ ThreadSafe static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable flags
 	variable mode, tol
 	
-	variable result = !WaveExists(wv1)
+	if( ShouldDoAbort() )
+		return NaN
+	endif
+	
+	variable result = WaveExists(wv1)
 	DEBUG_OUTPUT("Assumption that the first wave (wv1) exists",result)
 
 	if(!result)
 		if( flags & OUTPUT_MESSAGE )
-//			printFailInfo()
+			printFailInfo()
 		endif
 		if( flags & INCREASE_ERROR )
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-//			Abort
+			AbortNow()
 		endif
 	endif
 
-	result = !WaveExists(wv2)
+	result = WaveExists(wv2)
 	DEBUG_OUTPUT("Assumption that the second wave (wv2) exists",result)
 
 	if(!result)
 		if( flags & OUTPUT_MESSAGE )
-//			printFailInfo()
+			printFailInfo()
 		endif
 		if( flags & INCREASE_ERROR )
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-//			Abort
+			AbortNow()
 		endif
 	endif
 	
@@ -722,13 +757,13 @@ ThreadSafe static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	
 	if(!result)
 		if( flags & OUTPUT_MESSAGE )
-//			printFailInfo()
+			printFailInfo()
 		endif
 		if( flags & INCREASE_ERROR )
 			incrError()
 		endif
 		if( flags & ABORT_FUNCTION )
-//			Abort
+			AbortNow()
 		endif
 	endif
 	
@@ -752,13 +787,13 @@ ThreadSafe static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	
 		if(!result)
 			if( flags & OUTPUT_MESSAGE )
-//				printFailInfo()
+				printFailInfo()
 			endif
 			if( flags & INCREASE_ERROR )
 				incrError()
 			endif
 			if( flags & ABORT_FUNCTION )
-//				Abort
+				AbortNow()
 			endif
 		endif
 	endfor

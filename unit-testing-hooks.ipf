@@ -3,7 +3,7 @@
 Function TEST_SUITE_BEGIN(testSuite)
 	string testSuite
 	
-	KillVariables/Z root:error_count
+	KillDataFolder $PKG_FOLDER
 
 	printf "Entering test suite \"%s\"\r", testSuite
 End
@@ -11,10 +11,11 @@ End
 Function TEST_SUITE_END(testSuite)
 	string testSuite
 
-	NVAR/Z error_count = root:error_count
+	dfref dfr = GetPackageFolder()
+	NVAR/Z/SDFR=dfr error_count
 	
 	if(!NVAR_Exists(error_count) || error_count == 0)
-		printf "Finished with no errors\r",
+		printf "Finished with no errors\r"
 	else
 		printf "Failed with %d errors\r", error_count
 	endif
@@ -29,10 +30,11 @@ Function TEST_CASE_BEGIN(testCase)
 	KillPath/A/Z
 
 	// create a new unique folder as working folder
-	SetDataFolder root:
-	string/G lastDF = GetDataFolder(1)
-	string/G workDF = "root:" + UniqueName("tempFolder", 11, 0)
-	NewDataFolder/S $workDF
+	dfref dfr = GetPackageFolder()
+	string/G dfr:lastFolder = GetDataFolder(1)
+	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
+	SVAR/SDFR=dfr workFolder
+	NewDataFolder/S $workFolder
 	
 	printf "Entering test case \"%s\"\r", testCase
 End
@@ -40,13 +42,15 @@ End
 Function TEST_CASE_END(testCase)
 	string testCase
 
-	// delete the working folder if it exists
-	SVAR/Z lastDF = root:lastDF
-	SVAR/Z workDF = root:workDF
+	dfref dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr lastFolder
+	SVAR/Z/SDFR=dfr workFolder
 
-	if(SVAR_Exists(lastDF) && DataFolderExists(lastDF) && SVAR_Exists(workDF) && DataFolderExists(workDF))
-		SetDataFolder $lastDF
-		KillDataFolder $workDF
+	if( SVAR_Exists(lastFolder) && DataFolderExists(lastFolder) )
+		SetDataFolder $lastFolder
+	endif
+	if( SVAR_Exists(workFolder) && DataFolderExists(workFolder) )
+		KillDataFolder $workFolder
 	endif
 
 	printf "Leaving test case \"%s\"\r", testCase

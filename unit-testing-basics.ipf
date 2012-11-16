@@ -1,21 +1,33 @@
 #pragma rtGlobals=3		// Use modern global access method.
 
-//#define USE_THREADS
+StrConstant PKG_FOLDER = "root:Packages:UnitTestingFramework"
 
-Function ENABLE_DEBUG_OUTPUT()
-	variable/G root:verbose
-	NVAR verbose = root:verbose
-	verbose = 1
+ThreadSafe Function/DF GetPackageFolder()
+	if( !DataFolderExists(PKG_FOLDER) )
+		NewDataFolder/O root:Packages
+		NewDataFolder/O root:Packages:UnitTestingFramework
+	endif
+	
+	dfref dfr = $PKG_FOLDER
+	return dfr
 End
 
-Function DISABLE_DEBUG_OUTPUT()
-	variable/G root:verbose
-	NVAR verbose = root:verbose
-	verbose = 0
+/// Turns debug output on
+ThreadSafe Function ENABLE_DEBUG_OUTPUT()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:verbose = 1
 End
 
+/// Turns debug output off
+ThreadSafe Function DISABLE_DEBUG_OUTPUT()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:verbose = 0
+End
+
+/// Returns 1 if debug output is enabled and zero otherwise
 ThreadSafe Function ENABLED_DEBUG()
-	NVAR/Z verbose = root:verbose
+	dfref dfr = GetPackageFolder()
+	NVAR/Z/SDFR=dfr verbose
 
 	if(NVAR_EXISTS(verbose) && verbose == 1)
 		return 1
@@ -24,6 +36,7 @@ ThreadSafe Function ENABLED_DEBUG()
 	return 0
 End
 
+/// Debug output for assertions
 ThreadSafe Function DEBUG_OUTPUT(str, booleanValue)
 	string str
 	variable booleanValue
@@ -34,20 +47,21 @@ ThreadSafe Function DEBUG_OUTPUT(str, booleanValue)
 	endif
 End
 
+/// Increments the error count, creates the global variable root:error_count if it does not exist
 ThreadSafe Function incrError()
-	NVAR/Z error_count = root:error_count
+	dfref dfr = GetPackageFolder()
+	NVAR/SDFR=dfr/Z error_count
 	
 	if(!NVAR_Exists(error_count))
-		variable/G root:error_count
-		NVAR error_count = root:error_count
+		variable/G dfr:error_count
+		NVAR/SDFR=dfr error_count
 		error_count = 0
 	endif
 	
 	error_count +=1
 End
 
-Function CHECK_EMPTY_FOLDER()
-
+ThreadSafe Function CHECK_EMPTY_FOLDER()
 	string folder = ":"
 	if ( CountObjects(folder,1) + CountObjects(folder,2) + CountObjects(folder,3) + CountObjects(folder,4)  == 0 )
 		// debug out
@@ -57,29 +71,64 @@ Function CHECK_EMPTY_FOLDER()
 	endif
 End
 
-// Prints an informative message that the test failed
-Function printFailInfo()
-	printInfo(0)
+Function/S getFailInfo()
+	return getInfo(0)
 End
 
-// Prints an informative message that the test suceeded
-Function printSuccessInfo()
-	printInfo(1)
+Function/S getSuccessInfo()
+	return getInfo(1)
+End
+
+/// Prints an informative message that the test failed
+ThreadSafe Function printFailInfo()
+	string msg = threadSafeWrapper("getFailInfo")
+	if( strlen(msg) > 0 )
+		print msg
+	else
+		print "Assertion failed"
+	endif
+End
+
+/// Prints an informative message that the test suceeded
+ThreadSafe Function printSuccessInfo()
+	string msg = threadSafeWrapper("getSuccessInfo")
+	if( strlen(msg) > 0 )
+		print msg
+	else
+		print "Assertion tested successfully"
+	endif
+End
+
+/// Returns 1 if the abortFlag is set and zero otherwise
+ThreadSafe Function ShouldDoAbort()
+	NVAR/Z/SDFR=GetPackageFolder() abortFlag
+	if(NVAR_Exists(abortFlag) && abortFlag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+// Sets the abort flag
+ThreadSafe Function AbortNow()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:abortFlag = 1
 End
 
 /// Prints an informative message about the test's success or failure
 /// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function, 
 /// that means the call stack is e. g. RUN_TEST_SUITE -> testCase -> CHECK_SMALL_VAR -> printFailInfo -> printInfo
-Function printInfo(result)
+Function/S getInfo(result)
 	variable result
 	
 	string callStack = GetRTStackInfo(3)
+	print callStack
 
 	variable indexThisFunction  = ItemsInList(callStack) - 1 // 0-based indizes
 	variable indexCheckFunction = indexThisFunction - 4
 	
 	if(indexCheckFunction < 0 || indexCheckFunction > indexThisFunction)
-		return 0
+		return ""
 	endif
 	
 	string initialCaller 	= StringFromList(indexCheckFunction,callStack,";")
@@ -94,7 +143,9 @@ Function printInfo(result)
 	string cleanText
 	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
 
-	printf "Assertion \"%s\" %s in line %s, procedure %s\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
+	string errMsg
+	sprintf errMsg, "Assertion \"%s\" %s in line %s, procedure %s\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
+	return errMsg
 End
 
 /// Groups all hooks which are executed at test case/suite begin/end
@@ -177,7 +228,7 @@ static Function getLocalHooks(hooks, procName)
 End
 
 /// Returns the full name of a function including its module
-Function/S getFullFunctionName(funcName, procName)
+static Function/S getFullFunctionName(funcName, procName)
 	string funcName, procName
 
 	string infoString = FunctionInfo(funcName, procName)
@@ -277,28 +328,23 @@ Function RUN_TEST(testSuite, [testCase])
 			FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
 		
 			testCaseBegin(funcName)
-			try
-				testCaseFunc()
-			catch
-				abortNow = 1
-			endtry
-
+			testCaseFunc()
 			testCaseEnd(funcName)
 
-			if( abortNow )
+			if( ShouldDoAbort() )
 				break
 			endif
 		endfor
 	
 		testSuiteEnd(procWin)
 
-		if( abortNow )
+		if( ShouldDoAbort() )
 			break
 		endif
 	endfor
 	
-	NVAR/Z error_count = root:error_count
-	if(!NVAR_Exists(error_count))
+	NVAR/Z/SDFR=GetPackageFolder() error_count
+	if( !NVAR_Exists(error_count) )
 		return 0
 	endif
 	return error_count
