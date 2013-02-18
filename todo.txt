@@ -1,7 +1,5 @@
 // TODO
 // return value CHECK* and alike functions?
-// properly implement and document save_log and friends
-// nicify run script 
 // Later TODO
 // - printFailInfo does not work with Threadsafe, therefore postponing the threadsafe version
 // - jump into debugger on error as option? this would require that we can tell the debugger to go back in the stack trace
