@@ -30,9 +30,9 @@ static Function SMALL_VAR(var, tol)
 End
 
 /// Compares two variables (floating point type) if they are close
-/// @param var1 				first variable
-/// @param var3 				second variable
-/// @param tol 				absolute tolerance of the comparison
+/// @param var1 			first variable
+/// @param var3 			second variable
+/// @param tol 			absolute tolerance of the comparison
 /// @param strong_or_weak	Use the strong (1) condition or the weak (0)
 /// @return					1 if they are close and zero otherwise
 ///
@@ -121,21 +121,26 @@ End
 Function WARN(var)
 	variable var
 	
-	return TRUE_WRAPPER(var, WARN_MODE)
+	TRUE_WRAPPER(var, WARN_MODE)
 End
 
 /// Checks that var is true (1)
 Function CHECK(var)
 	variable var
 	
-	return TRUE_WRAPPER(var, CHECK_MODE)
+	TRUE_WRAPPER(var, CHECK_MODE)
 End
 
 /// Requires that var is true (1)
 Function REQUIRE(var)
 	variable var
 	
-	return TRUE_WRAPPER(var, REQU_MODE)
+	TRUE_WRAPPER(var, REQU_MODE)
+End
+
+/// Force the test to fail
+Function FAIL()
+	TRUE_WRAPPER(0, REQU_MODE)
 End
 
 /// Tests two variables for equality
@@ -171,7 +176,7 @@ End
 Function WARN_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
-	return EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
+	EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
 /// Checks two variables for equality
@@ -180,7 +185,7 @@ End
 Function CHECK_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
-	return EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
+	EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
 /// Requires that two variables are equal
@@ -189,7 +194,7 @@ End
 Function REQU_EQUAL_VAR(var1, var2)
 	variable var1, var2
 	
-	return EQUAL_VAR_WRAPPER(var1, var2, REQU_MODE)
+	EQUAL_VAR_WRAPPER(var1, var2, REQU_MODE)
 End
 
 /// Compares two strings for equality
@@ -230,12 +235,12 @@ End
 /// @param case_sensitive  should the comparison be done case sensitive (1) or case insensitive (0, the default)
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
 	string str1, str2
-	 variable case_sensitive
+	variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return EQUAL_STR_WRAPPER(str1, str2, WARN_MODE)
+	    EQUAL_STR_WRAPPER(str1, str2, WARN_MODE)
 	else
-	    return EQUAL_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+	    EQUAL_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -248,9 +253,9 @@ Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
 	 variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE)
+	    EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE)
 	else
-	    return EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+	    EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -263,9 +268,9 @@ Function REQU_EQUAL_STR(str1, str2, [case_sensitive])
     variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
+	    EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
 	else
-	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
+	    EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -302,7 +307,7 @@ End
 Function WARN_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
-	return NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
+	NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
 /// Checks two variables for unequality
@@ -311,7 +316,7 @@ End
 Function CHECK_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
-	return NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
+	NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
 /// Requires that two variables are unequal
@@ -320,7 +325,7 @@ End
 Function REQU_NEQ_VAR(var1, var2)
 	variable var1, var2
 	
-	return NEQ_VAR_WRAPPER(var1, var2, REQU_MODE)
+	NEQ_VAR_WRAPPER(var1, var2, REQU_MODE)
 End
 
 /// Compares two strings for unequality
@@ -365,9 +370,9 @@ Function WARN_NEQ_STR(str1, str2, [case_sensitive])
 	 variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return NEQ_STR_WRAPPER(str1, str2, WARN_MODE)
+	    NEQ_STR_WRAPPER(str1, str2, WARN_MODE)
 	else
-	    return NEQ_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+	    NEQ_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -380,9 +385,9 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
 	 variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return NEQ_STR_WRAPPER(str1, str2, CHECK_MODE)
+	    NEQ_STR_WRAPPER(str1, str2, CHECK_MODE)
 	else
-	    return NEQ_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+	    NEQ_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -395,9 +400,9 @@ Function REQU_NEQ_STR(str1, str2, [case_sensitive])
     variable case_sensitive
 	 
 	if(ParamIsDefault(case_sensitive))
-	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
+	    EQUAL_STR_WRAPPER(str1, str2, REQU_MODE)
 	else
-	    return EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
+	    EQUAL_STR_WRAPPER(str1, str2, REQU_MODE, case_sensitive=case_sensitive)
 	endif
 End
 
@@ -453,13 +458,13 @@ Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
     variable strong_or_weak
 	 
 	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE)
+	    CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
 	elseif(ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+	    CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol)
 	else
-	    return CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
 	endif
 End
 
@@ -474,13 +479,13 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
     variable strong_or_weak
 	 
 	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE)
+	    CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
 	elseif(ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+	    CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
 	else
-	    return CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
 	endif
 End
 
@@ -495,13 +500,13 @@ Function REQU_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
     variable strong_or_weak
 	 
 	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE)
+	    CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE)
 	elseif(ParamIsDefault(tol))
-	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, strong_or_weak=strong_or_weak)
 	elseif(ParamIsDefault(strong_or_weak))
-	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol)
+	    CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol)
 	else
-	    return CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	    CLOSE_VAR_WRAPPER(var1, var2, REQU_MODE, tol=tol, strong_or_weak=strong_or_weak)
 	endif
 End
 
@@ -545,9 +550,9 @@ Function WARN_SMALL_VAR(var, [tol])
 	 variable tol
 	 
 	if(ParamIsDefault(tol))
-	    return SMALL_VAR_WRAPPER(var, WARN_MODE)
+	    SMALL_VAR_WRAPPER(var, WARN_MODE)
 	else
-	    return SMALL_VAR_WRAPPER(var, WARN_MODE, tol=tol)
+	    SMALL_VAR_WRAPPER(var, WARN_MODE, tol=tol)
 	endif
 End
 
@@ -559,9 +564,9 @@ Function CHECK_SMALL_VAR(var, [tol])
 	 variable tol
 	 
 	if(ParamIsDefault(tol))
-	    return SMALL_VAR_WRAPPER(var, CHECK_MODE)
+	    SMALL_VAR_WRAPPER(var, CHECK_MODE)
 	else
-	    return SMALL_VAR_WRAPPER(var, CHECK_MODE, tol=tol)
+	    SMALL_VAR_WRAPPER(var, CHECK_MODE, tol=tol)
 	endif
 End
 
@@ -573,9 +578,9 @@ Function REQU_SMALL_VAR(var, [tol])
 	 variable tol
 	 
 	if(ParamIsDefault(tol))
-	    return SMALL_VAR_WRAPPER(var, REQU_MODE)
+	    SMALL_VAR_WRAPPER(var, REQU_MODE)
 	else
-	    return SMALL_VAR_WRAPPER(var, REQU_MODE, tol=tol)
+	    SMALL_VAR_WRAPPER(var, REQU_MODE, tol=tol)
 	endif
 End
 
@@ -673,9 +678,9 @@ Function WARN_WAVE(wv, mainType, [minorType])
 	variable mainType, minorType
 	
 	if(ParamIsDefault(minorType))
-		return TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE)
+		TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE)
 	else
-		return TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE, minorType=minorType)
+		TEST_WAVE_WRAPPER(wv, mainType, WARN_MODE, minorType=minorType)
 	endif
 End
 
@@ -688,13 +693,13 @@ Function CHECK_WAVE(wv, mainType, [minorType])
 	variable mainType, minorType
 	
 	if(ParamIsDefault(minorType))
-		return TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE)
+		TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE)
 	else
-		return TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE, minorType=minorType)
+		TEST_WAVE_WRAPPER(wv, mainType, CHECK_MODE, minorType=minorType)
 	endif
 End
 
-/// Tests a wave for existence and its type
+/// Requires that a wave exists and has a certain type
 /// @param wv 			wave reference
 /// @param mainType 	main type, @see mainWaveTypes
 /// @param minorType 	minor type,  @see minorWaveTypes
@@ -703,9 +708,9 @@ Function REQU_WAVE(wv, mainType, [minorType])
 	variable mainType, minorType
 	
 	if(ParamIsDefault(minorType))
-		return TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE)
+		TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE)
 	else
-		return TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE, minorType=minorType)
+		TEST_WAVE_WRAPPER(wv, mainType, REQU_MODE, minorType=minorType)
 	endif
 End
 
@@ -830,13 +835,13 @@ Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
 	elseif(ParamIsDefault(mode))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol)
 	else
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol, mode=mode)
 	endif	
 End
 
@@ -850,13 +855,13 @@ Function CHECK_EQUAL_WAVE(wv1, wv2, [mode, tol])
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
 	elseif(ParamIsDefault(mode))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol)
 	else
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol, mode=mode)
 	endif	
 End
 
@@ -870,12 +875,12 @@ Function REQU_EQUAL_WAVE(wv1, wv2, [mode, tol])
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE)
 	elseif(ParamIsDefault(tol))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, mode=mode)
 	elseif(ParamIsDefault(mode))
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol)
 	else
-	    return EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol, mode=mode)
+	    EQUAL_WAVE_WRAPPER(wv1, wv2, REQU_MODE, tol=tol, mode=mode)
 	endif	
 End
