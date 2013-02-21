@@ -1,4 +1,7 @@
-#pragma rtGlobals=3		// Use modern global access method.
+#pragma rtGlobals=3
+#pragma version=0.1
+
 #include "unit-testing-basics"
 #include "unit-testing-comparators"
 #include "unit-testing-hooks"
+

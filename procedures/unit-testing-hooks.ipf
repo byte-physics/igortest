@@ -1,5 +1,9 @@
-#pragma rtGlobals=3		// Use modern global access method.
+#pragma rtGlobals=3
 
+/// Default hook for test begin
+///
+/// The hook is immediately called after startup
+/// @param testName   name of the test
 Function TEST_BEGIN(testName)
 	string testName
 
@@ -9,6 +13,10 @@ Function TEST_BEGIN(testName)
 	printf "Start of test \"%s\"\r", testName
 End
 
+/// Default hook for test case end
+///
+/// The hook is called after all tests suites
+/// @param testName   name of the test
 Function TEST_END(testName)
 	string testName
 
@@ -16,14 +24,18 @@ Function TEST_END(testName)
 	NVAR/SDFR=dfr global_error_count
 	
 	if(global_error_count == 0)
-		printf "Complete test finished with no errors\r"
+		printf "Test finished with no errors\r"
 	else
-		printf "Complete test finished with %d errors\r", global_error_count
+		printf "Test finished with %d errors\r", global_error_count
 	endif
 	
 	printf "End of test \"%s\"\r", testName
 End
 
+/// Default hook for test suite end
+///
+/// The hook is called before executing the first test case of every test suite
+/// @param testSuite name of the test suite 
 Function TEST_SUITE_BEGIN(testSuite)
 	string testSuite
 	
@@ -31,6 +43,10 @@ Function TEST_SUITE_BEGIN(testSuite)
 	printf "Entering test suite \"%s\"\r", testSuite
 End
 
+/// Default hook for test suite begin 
+///
+/// The hook is called after executing the last test case of every test suite
+/// @param testSuite name of the test suite 
 Function TEST_SUITE_END(testSuite)
 	string testSuite
 
@@ -49,6 +65,10 @@ Function TEST_SUITE_END(testSuite)
 	printf "Leaving test suite \"%s\"\r", testSuite
 End
 
+/// Default hook for test case begin
+///
+/// The hook is called before executing the test case
+/// @param testCase name of the test case
 Function TEST_CASE_BEGIN(testCase)
 	string testCase
 	
@@ -67,6 +87,10 @@ Function TEST_CASE_BEGIN(testCase)
 	printf "Entering test case \"%s\"\r", testCase
 End
 
+/// Default hook for test case end
+///
+/// The hook is called after executing the test case
+/// @param testCase name of the test case
 Function TEST_CASE_END(testCase)
 	string testCase
 
@@ -88,3 +112,4 @@ Function TEST_CASE_END(testCase)
 
 	printf "Leaving test case \"%s\"\r", testCase
 End
+

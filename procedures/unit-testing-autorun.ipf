@@ -1,4 +1,5 @@
-#pragma rtGlobals=3		// Use modern global access method and strict wave access.
+#pragma rtGlobals=3
+#pragma version=0.1
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
@@ -7,7 +8,11 @@ static Function CreateHistoryLog()
 	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
 End
 
-/// This hook is executed after an Igor experiment is loaded
+/// Hook function which is executed after opening a file
+/// 
+/// This function calls the user supplied run routine if
+/// #- the opened file is an igor experiment
+/// #- the file DO_AUTORUN.TXT exists in the igor home path
 static Function AfterFileOpenHook(refNum,file,pathName,type,creator,kind)
 Variable refNum,kind
 String file,pathName,type,creator
@@ -17,9 +22,8 @@ String file,pathName,type,creator
 		return 0
 	endif
 
-	string stateFile = "DO_AUTORUN.TXT"
 	// return if the state file does exist
-	GetFileFolderInfo/Q/Z/P=home stateFile
+	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN.TXT"
 	if(V_flag != 0)
 		return 0
 	endif
@@ -46,3 +50,4 @@ static Function SaveHistoryLog()
 
 	SaveNoteBook/S=3/P=home HistoryCarbonCopy as historyLog
 End
+
