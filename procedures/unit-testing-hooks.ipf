@@ -1,5 +1,10 @@
 #pragma rtGlobals=3
 
+///@addtogroup PublicApi
+///@{
+///@addtogroup HookFunctions
+///@{
+
 /// Default hook for test begin
 ///
 /// The hook is immediately called after startup
@@ -112,4 +117,6 @@ Function TEST_CASE_END(testCase)
 
 	printf "Leaving test case \"%s\"\r", testCase
 End
+///@}
+///@}
 

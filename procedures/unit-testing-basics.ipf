@@ -1,9 +1,6 @@
 #pragma rtGlobals=3
 #pragma version=0.1
 
-/// Settings folder
-StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
-
 /// Returns the package folder
 ThreadSafe Function/DF GetPackageFolder()
   if( !DataFolderExists(PKG_FOLDER) )
@@ -174,7 +171,7 @@ ThreadSafe static Function setDefaultHooks(hooks)
   hooks.testBegin      = "TEST_BEGIN"
   hooks.testEnd        = "TEST_END"
   hooks.testSuiteBegin = "TEST_SUITE_BEGIN"
-  hooks.testSuiteEnd    = "TEST_SUITE_END"
+  hooks.testSuiteEnd   = "TEST_SUITE_END"
   hooks.testCaseBegin  = "TEST_CASE_BEGIN"
   hooks.testCaseEnd    = "TEST_CASE_END"
 End
@@ -273,6 +270,8 @@ Function USER_HOOK_PROTO(str)
   string str
 End
 
+///@ingroup PublicApi
+///
 /// Runs all test cases of test suite or just a single test case
 /// @param   testSuiteList  list of procedure files
 /// @param   testName      (optional) descriptive name for all test suites 
