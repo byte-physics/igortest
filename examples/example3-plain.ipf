@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma ModuleName=Example3
 
 #include "unit-testing"
 

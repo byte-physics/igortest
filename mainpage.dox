@@ -16,26 +16,26 @@
 
 /**
 
-\example example1-plain.ipf
+@example example1-plain.ipf
 Test suite showing the basic working principles. See Example1.pxp.
 
-\example example2-plain.ipf
+@example example2-plain.ipf
 Test suite with run routine and module/static usage. See Example2.pxp.
 See section @ref secTestCase why the function run_IGNORE() is not considered a test case.
 
-\example example3-plain.ipf
+@example example3-plain.ipf
 Test suite emphasising the difference between the WARN_, CHECK_ and REQUIRE_ variants. See Example3.pxp.
 See also @ref secAssertionTypes
 
-\example example4-wavechecking.ipf
+@example example4-wavechecking.ipf
 Test suite showing some test assertions for waves. See Example4.pxp.
 See also @ref secAssertionTypes
 
-\example example5-overridehooks.ipf
+@example example5-overridehooks.ipf
 Two test suites showing how to use test hook overrides. See Example5.pxp.
 \include example5-overridehooks-otherSuite.ipf
 
-@page page1 Introduction
+@mainpage
 
 All test cases have on calling their current data folder set to an empty temporary folder.
 

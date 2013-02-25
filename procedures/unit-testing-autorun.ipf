@@ -1,5 +1,5 @@
 #pragma rtGlobals=3
-#pragma version=0.1
+#pragma version=1.0
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
@@ -40,7 +40,7 @@ End
 static Function SaveHistoryLog()
 	
 	string historyLog
-	sprintf historyLog, "run_%s_%s.log", Secs2Date(DateTime,-2), ReplaceString(":",Secs2Time(DateTime,1),"-")
+	sprintf historyLog, "%s_%s_%s.log", IgorInfo(1), Secs2Date(DateTime,-2), ReplaceString(":",Secs2Time(DateTime,1),"-")
 	
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)

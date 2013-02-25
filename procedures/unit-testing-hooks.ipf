@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma version=1.0
 
 ///@addtogroup HookFunctions
 ///@{

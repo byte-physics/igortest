@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma version=1.0
 
 // documentation guidelines:
 // -document the _WRAPPER function using "@class *_DOCU" without the flags parameter

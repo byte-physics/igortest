@@ -1,5 +1,5 @@
 #pragma rtGlobals=3
-#pragma version=0.1
+#pragma version=1.0
 
 ///@cond HIDDEN_SYMBOL
 

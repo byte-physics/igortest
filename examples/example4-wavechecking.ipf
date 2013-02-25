@@ -1,5 +1,5 @@
 #pragma rtGlobals=3
-#pragma ModuleName=WaveChecking
+#pragma ModuleName=Example4
 
 #include "unit-testing"
 

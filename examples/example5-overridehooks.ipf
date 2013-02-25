@@ -1,5 +1,5 @@
 #pragma rtGlobals=3
-#pragma ModuleName=CheckSquareRoot
+#pragma ModuleName=Example5
 
 #include "unit-testing"
 
