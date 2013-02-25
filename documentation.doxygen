@@ -1,8 +1,18 @@
 
-///@defgroup HookFunctions      Default hook functions
-///@defgroup WaveAssertions     Wave Assertions
-///@defgroup VariableAssertions Variable Assertions
-///@defgroup StringAssertions   String Assertions
+/// @defgroup HookFunctions Default hook functions
+/// Default implementation of test hook functions
+
+/// @defgroup WaveAssertions Wave Assertions
+/// Test assertions for waves
+
+/// @defgroup VariableAssertions Variable Assertions
+/// Test assertions for variables
+
+/// @defgroup StringAssertions String Assertions
+/// Test assertions for strings
+
+/// @defgroup FolderAssertions Folder Assertions
+/// Test assertions for data folders
 
 /**
 
@@ -25,7 +35,7 @@ See also @ref secAssertionTypes
 Two test suites showing how to use test hook overrides. See Example5.pxp.
 \include example5-overridehooks-otherSuite.ipf
 
-@page page1 My header
+@page page1 Introduction
 
 All test cases have on calling their current data folder set to an empty temporary folder.
 

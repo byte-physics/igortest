@@ -4,7 +4,7 @@
 ///@cond HIDDEN_SYMBOL
 
 /// Returns the package folder
-ThreadSafe Function/DF GetPackageFolder()
+Function/DF GetPackageFolder()
   if( !DataFolderExists(PKG_FOLDER) )
     NewDataFolder/O root:Packages
     NewDataFolder/O root:Packages:UnitTesting
@@ -15,7 +15,7 @@ ThreadSafe Function/DF GetPackageFolder()
 End
 
 /// Returns 1 if debug output is enabled and zero otherwise
-ThreadSafe Function EnabledDebug()
+Function EnabledDebug()
   dfref dfr = GetPackageFolder()
   NVAR/Z/SDFR=dfr verbose
 
@@ -29,7 +29,7 @@ End
 /// Output debug string in assertions
 /// @param str            debug string
 /// @param booleanValue   assertion state
-ThreadSafe Function DebugOutput(str, booleanValue)
+Function DebugOutput(str, booleanValue)
   string str
   variable booleanValue
 
@@ -41,20 +41,20 @@ End
 
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
-ThreadSafe Function initGlobalError()
+Function initGlobalError()
   dfref dfr = GetPackageFolder()
   variable/G dfr:global_error_count = 0
 End
 
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
-ThreadSafe Function initError()
+Function initError()
   dfref dfr = GetPackageFolder()
   variable/G dfr:error_count = 0
 End
 
 /// Increments the error_count in PKG_FOLDER and creates it if necessary
-ThreadSafe Function incrError()
+Function incrError()
   dfref dfr = GetPackageFolder()
   NVAR/Z/SDFR=dfr error_count
 
@@ -68,13 +68,13 @@ End
 
 /// Creates the variable assert_count in PKG_FOLDER
 /// and initializes it to zero
-ThreadSafe Function initAssertCount()
+Function initAssertCount()
   dfref dfr = GetPackageFolder()
   variable/G dfr:assert_count = 0
 End
 
 /// Increments the assert_count in PKG_FOLDER and creates it if necessary
-ThreadSafe Function incrAssert()
+Function incrAssert()
   dfref dfr = GetPackageFolder()
   NVAR/SDFR=dfr/Z assert_count
 
@@ -98,7 +98,7 @@ Function printSuccessInfo()
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
-ThreadSafe Function shouldDoAbort()
+Function shouldDoAbort()
   NVAR/Z/SDFR=GetPackageFolder() abortFlag
   if(NVAR_Exists(abortFlag) && abortFlag == 1)
     return 1
@@ -158,7 +158,7 @@ static Structure TestHooks
 EndStructure
 
 /// Sets the hooks to the builtin defaults
-ThreadSafe static Function setDefaultHooks(hooks)
+static Function setDefaultHooks(hooks)
   Struct TestHooks &hooks
 
   hooks.testBegin      = "TEST_BEGIN"
@@ -275,13 +275,13 @@ End
 ///@endcond // HIDDEN_SYMBOL
 
 /// Turns debug output on
-ThreadSafe Function EnableDebugOutput()
+Function EnableDebugOutput()
   dfref dfr = GetPackageFolder()
   variable/G dfr:verbose = 1
 End
 
 /// Turns debug output off
-ThreadSafe Function DisableDebugOutput()
+Function DisableDebugOutput()
   dfref dfr = GetPackageFolder()
   variable/G dfr:verbose = 0
 End

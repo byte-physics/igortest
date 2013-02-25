@@ -1,9 +1,129 @@
 #pragma rtGlobals=3
 
-/// Tests two variables for unequality
+// documentation guidelines:
+// -document the _WRAPPER function using "@class *_DOCU" without the flags parameter
+// -use "copydoc *_DOCU" for the WARN_* function and "see WARN_*" for REQUIRE_* and CHECK_* 
+
+/// @class CDF_EMPTY_DOCU
+/// Tests if the current data folder is empty
+///
+/// Counted are objects with type waves, strings, variables and folders
+static Function CDF_EMPTY_WRAPPER(flags)
+  variable flags
+
+  incrAssert()
+
+  if( shouldDoAbort() )
+    return NaN
+  endif
+
+  string folder = ":"
+  variable result = ( CountObjects(folder,1) + CountObjects(folder,2) + CountObjects(folder,3) + CountObjects(folder,4)  == 0 )
+
+  if( !result )
+    if( flags & OUTPUT_MESSAGE )
+      printFailInfo()
+    endif
+    if( flags & INCREASE_ERROR )
+      incrError()
+    endif
+    if( flags & ABORT_FUNCTION )
+      abortNow()
+    endif
+  endif
+
+  DebugOutput("Assumption that the current data folder is empty is", result)
+  return result
+End
+
+/// @class TRUE_DOCU
+/// Tests if var is true (1).
+/// @param var    variable to test
+static Function TRUE_WRAPPER(var, flags)
+  variable var
+  variable flags
+
+  incrAssert()
+
+  if( shouldDoAbort() )
+    return NaN
+  endif
+
+  variable result = ( var == 1 )
+  DebugOutput(num2istr(var), result)
+
+  if( !result )
+    if( flags & OUTPUT_MESSAGE )
+      printFailInfo()
+    endif
+    if( flags & INCREASE_ERROR )
+      incrError()
+    endif
+    if( flags & ABORT_FUNCTION )
+      abortNow()
+    endif
+  endif
+End
+
+/// @class NULL_STR_DOCU
+/// Tests if str is null
+/// @param str    string to test
+static Function NULL_STR_WRAPPER(str, flags)
+  string &str
+  variable flags
+
+  incrAssert()
+
+  if( shouldDoAbort() )
+    return NaN
+  endif
+
+  if( !NULL_STR(str) )
+    if( flags & OUTPUT_MESSAGE )
+      printFailInfo()
+    endif
+    if( flags & INCREASE_ERROR )
+      incrError()
+    endif
+    if( flags & ABORT_FUNCTION )
+      abortNow()
+    endif
+  endif
+End
+
+/// @class EMPTY_STR_DOCU
+/// Tests if str is empty
+/// @param str  string to test
+static Function EMPTY_STR_WRAPPER(str, flags)
+  string &str
+  variable flags
+
+  incrAssert()
+
+  if( shouldDoAbort() )
+    return NaN
+  endif
+
+  variable result = ( strlen(str) == 0 )
+  DebugOutput("Assumption that the string is empty is",result)
+
+  if( !result )
+    if( flags & OUTPUT_MESSAGE )
+      printFailInfo()
+    endif
+    if( flags & INCREASE_ERROR )
+      incrError()
+    endif
+    if( flags & ABORT_FUNCTION )
+      abortNow()
+    endif
+  endif
+End
+
+/// @class NEQ_VAR_DOCU
+/// Tests two variables for inequality
 /// @param var1    first variable
 /// @param var2    second variable
-/// @param flags   actions flags
 static Function NEQ_VAR_WRAPPER(var1, var2, flags)
   variable var1, var2
   variable flags
@@ -27,10 +147,10 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
   endif
 End
 
+/// @class NEQ_STR_DOCU
 /// Compares two strings for unequality
 /// @param str1            first string
 /// @param str2            second string
-/// @param flags           actions flags
 /// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
 static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
   string &str1, &str2
@@ -60,12 +180,18 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
   endif
 End
 
-/// Compares two variables and determines if they are close
+/// @class CLOSE_VAR_DOCU
+/// Compares two variables and determines if they are close<br>
+/// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework
+///<br><br>
+/// Literature:<br>
+/// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
+/// 3 edition, page 234 equation (34) and (35)
+///<br>
 /// @param var1            first variable
 /// @param var2            second variable
-/// @param flags           actions flags
 /// @param tol             (optional) tolerance, defaults to 1e-8
-/// @param strong_or_weak  (optional) defaults to 1 (strong condition)
+/// @param strong_or_weak  (optional) type of condition, can be 0 for weak or 1 for strong (default)
 static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
   variable var1, var2
   variable flags
@@ -99,9 +225,9 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
   endif
 End
 
-/// Tests if var is small
+/// @class SMALL_VAR_DOCU
+/// Tests if a variable is small using the inequality @f$  | var | < | tol |  @f$
 /// @param var        variable
-/// @param flags      actions flags
 /// @param tol        (optional) tolerance, defaults to 1e-8
 static Function SMALL_VAR_WRAPPER(var, flags, [tol])
   variable var
@@ -131,10 +257,10 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
   endif
 End
 
+/// @class EQUAL_STR_DOCU
 /// Compares two strings for equality
 /// @param str1           first string
 /// @param str2           second string
-/// @param flags          actions flags
 /// @param case_sensitive (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
 static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
   string &str1, &str2
@@ -164,9 +290,9 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
   endif
 End
 
+/// @class WAVE_DOCU
 /// Tests a wave for existence and its type
 /// @param wv         wave reference
-/// @param flags      actions flags
 /// @param majorType  major wave type
 /// @param minorType  (optional) minor wave type
 /// @see waveTypes
@@ -233,10 +359,10 @@ static Function TEST_WAVE_WRAPPER(wv, flags, majorType, [minorType])
   endif
 End
 
+/// @class EQUAL_VAR_DOCU
 /// Tests two variables for equality
 /// @param var1   first variable
 /// @param var2   second variable
-/// @param flags  actions flags
 static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
   variable var1, var2
   variable flags
@@ -260,10 +386,10 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
   endif
 End
 
+/// @class EQUAL_WAVE_DOCU
 /// Tests two waves for equality
 /// @param wv1    first wave
 /// @param wv2    second wave
-/// @param flags  actions flags
 /// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref CheckWaveModes
 /// @param tol    (optional) tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
 static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
@@ -357,9 +483,6 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
   endfor
 End
 
-/// Checks if a string is null
-/// @param str string to check
-/// @return 1 for null strings and zero otherwise
 static Function NULL_STR(str)
   string &str
 
@@ -369,10 +492,6 @@ static Function NULL_STR(str)
   return result
 End
 
-/// Tests two variables for equality
-/// @param var1           first variable
-/// @param var2           second variable
-/// @return 1 if both variables are equal and zero otherwise
 static Function EQUAL_VAR(var1, var2)
   variable var1, var2
 
@@ -392,10 +511,6 @@ static Function EQUAL_VAR(var1, var2)
   return result
 End
 
-/// Checks if a variable is small
-/// @param var variable to check
-/// @param tol tolerance for comparison
-/// @return 1 if var is small compared to tol
 static Function SMALL_VAR(var, tol)
   variable var
   variable tol
@@ -408,18 +523,6 @@ static Function SMALL_VAR(var, tol)
   return result
 End
 
-/// Compares two variables (floating point type) if they are close
-/// @param var1           first variable
-/// @param var2           second variable
-/// @param tol            absolute tolerance of the comparison
-/// @param strong_or_weak Use the strong (1) condition or the weak (0)
-/// @return          1 if they are close and zero otherwise
-///
-/// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework
-///
-/// Literature:
-/// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
-/// 3 edition, page 234 equation (34) and (35)
 static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
   variable var1, var2
   variable tol
@@ -465,122 +568,6 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
   return result
 End
 
-/// Tests if the current data folder is empty
-///
-/// Counted are all objects like waves, strings, variables, folders
-/// @return 1 if empty and zero otherwise
-static Function CDF_EMPTY_WRAPPER(flags)
-  variable flags
-
-  incrAssert()
-
-  if( shouldDoAbort() )
-    return NaN
-  endif
-
-  string folder = ":"
-  variable result = ( CountObjects(folder,1) + CountObjects(folder,2) + CountObjects(folder,3) + CountObjects(folder,4)  == 0 )
-
-  if( !result )
-    if( flags & OUTPUT_MESSAGE )
-      printFailInfo()
-    endif
-    if( flags & INCREASE_ERROR )
-      incrError()
-    endif
-    if( flags & ABORT_FUNCTION )
-      abortNow()
-    endif
-  endif
-
-  DebugOutput("Assumption that the current data folder is empty is", result)
-  return result
-End
-
-/// Tests if var is true (1)
-/// @param var    variable to test
-/// @param flags  actions flags
-static Function TRUE_WRAPPER(var, flags)
-  variable var
-  variable flags
-
-  incrAssert()
-
-  if( shouldDoAbort() )
-    return NaN
-  endif
-
-  variable result = ( var == 1 )
-  DebugOutput(num2istr(var), result)
-
-  if( !result )
-    if( flags & OUTPUT_MESSAGE )
-      printFailInfo()
-    endif
-    if( flags & INCREASE_ERROR )
-      incrError()
-    endif
-    if( flags & ABORT_FUNCTION )
-      abortNow()
-    endif
-  endif
-End
-
-/// Tests if str is null
-/// @param var    string to test
-/// @param flags  actions flags
-static Function NULL_STR_WRAPPER(str, flags)
-  string &str
-  variable flags
-
-  incrAssert()
-
-  if( shouldDoAbort() )
-    return NaN
-  endif
-
-  if( !NULL_STR(str) )
-    if( flags & OUTPUT_MESSAGE )
-      printFailInfo()
-    endif
-    if( flags & INCREASE_ERROR )
-      incrError()
-    endif
-    if( flags & ABORT_FUNCTION )
-      abortNow()
-    endif
-  endif
-End
-
-/// Tests if str is empty
-/// @param var    string to test
-/// @param flags  actions flags
-static Function EMPTY_STR_WRAPPER(str, flags)
-  string &str
-  variable flags
-
-  incrAssert()
-
-  if( shouldDoAbort() )
-    return NaN
-  endif
-
-  variable result = ( strlen(str) == 0 )
-  DebugOutput("Assumption that the string is empty is",result)
-
-  if( !result )
-    if( flags & OUTPUT_MESSAGE )
-      printFailInfo()
-    endif
-    if( flags & INCREASE_ERROR )
-      incrError()
-    endif
-    if( flags & ABORT_FUNCTION )
-      abortNow()
-    endif
-  endif
-End
-
 /// Force the test case to fail
 Function FAIL()
   TRUE_WRAPPER(0, REQUIRE_MODE)
@@ -589,89 +576,70 @@ End
 ///@addtogroup VariableAssertions
 ///@{
 
-/// Warns if var is not true (1)
-/// @param var variable
+/// @copydoc TRUE_DOCU
 Function WARN(var)
   variable var
 
   TRUE_WRAPPER(var, WARN_MODE)
 End
 
-/// Checks that var is true (1)
-/// @param var variable
+/// @see WARN
 Function CHECK(var)
   variable var
 
   TRUE_WRAPPER(var, CHECK_MODE)
 End
 
-/// Requires that var is true (1)
-/// @param var variable
+/// @see WARN
 Function REQUIRE(var)
   variable var
 
   TRUE_WRAPPER(var, REQUIRE_MODE)
 End
 
-/// Tests two variables for equality
-/// @param var1        first variable
-/// @param var2        second variable
+/// @copydoc EQUAL_VAR_DOCU
 Function WARN_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
-/// Checks two variables for equality
-/// @param var1        first variable
-/// @param var2        second variable
+/// @see WARN_EQUAL_VAR
 Function CHECK_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
-/// Requires that two variables are equal
-/// @param var1        first variable
-/// @param var2        second variable
+/// @see WARN_EQUAL_VAR
 Function REQUIRE_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-/// Tests two variables for unequality
-/// @param var1     first variable
-/// @param var2     second variable
+/// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
-/// Checks two variables for unequality
-/// @param var1        first variable
-/// @param var2        second variable
+/// @see WARN_NEQ_VAR
 Function CHECK_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
-/// Requires that two variables are unequal
-/// @param var1        first variable
-/// @param var2        second variable
+/// @see WARN_NEQ_VAR
 Function REQUIRE_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-/// Compares two variables and determines if they are close
-/// @param var1            first variable
-/// @param var2            second variable
-/// @param tol             (optional) tolerance, defaults to 1e-8
-/// @param strong_or_weak  (optional) defaults to 1 (strong condition)
+/// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -688,11 +656,7 @@ Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// Checks if two variables are close
-/// @param var1            first variable
-/// @param var2            second variable
-/// @param tol             (optional) tolerance, defaults to 1e-8
-/// @param strong_or_weak  (optional) defaults to 1 (strong condition)
+/// @see WARN_CLOSE_VAR 
 Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -709,11 +673,7 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// Requires that two variables are close
-/// @param var1            first variable
-/// @param var2            second variable
-/// @param tol             (optional) tolerance, defaults to 1e-8
-/// @param strong_or_weak  (optional) defaults to 1 (strong condition)
+/// @see WARN_CLOSE_VAR 
 Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -730,12 +690,10 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// Tests if var is small
-/// @param var        variable
-/// @param tol        (optional) tolerance, defaults to 1e-8
+/// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
   variable var
-   variable tol
+  variable tol
 
   if(ParamIsDefault(tol))
       SMALL_VAR_WRAPPER(var, WARN_MODE)
@@ -744,9 +702,7 @@ Function WARN_SMALL_VAR(var, [tol])
   endif
 End
 
-/// Checks that var is small
-/// @param var        variable
-/// @param tol        (optional) tolerance, defaults to 1e-8
+/// @see WARN_SMALL_VAR 
 Function CHECK_SMALL_VAR(var, [tol])
   variable var
    variable tol
@@ -758,9 +714,7 @@ Function CHECK_SMALL_VAR(var, [tol])
   endif
 End
 
-/// Requires that var is small
-/// @param var        variable
-/// @param tol        (optional) tolerance, defaults to 1e-8
+/// @see WARN_SMALL_VAR 
 Function REQUIRE_SMALL_VAR(var, [tol])
   variable var
    variable tol
@@ -776,58 +730,49 @@ End
 ///@addtogroup StringAssertions
 ///@{
 
-/// Warns if str is not null
-/// @param str string
+/// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, WARN_MODE)
 End
 
-/// Checks that str is null
-/// @param str string
+/// @see WARN_EMPTY_STR
 Function CHECK_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, CHECK_MODE)
 End
 
-/// Requires that str is null
-/// @param str string
+/// @see WARN_EMPTY_STR
 Function REQUIRE_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
-/// Warns if str is not empty
-/// @param str string
+/// @copydoc NULL_STR_DOCU
 Function WARN_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, WARN_MODE)
 End
 
-/// Checks that str is empty
-/// @param str string
+/// @see WARN_NULL_STR
 Function CHECK_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, CHECK_MODE)
 End
 
-/// Requires that str is empty
-/// @param str string
+/// @see WARN_NULL_STR
 Function REQUIRE_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
-/// Tests two strings for equality
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @copydoc EQUAL_STR_DOCU
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
   variable case_sensitive
@@ -839,10 +784,7 @@ Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// Checks two strings for equality
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @see WARN_EQUAL_STR
 Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -854,10 +796,7 @@ Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// Requires that two strings are equal
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @see WARN_EQUAL_STR
 Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
     variable case_sensitive
@@ -869,10 +808,7 @@ Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// Tests two strings for unequality
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @copydoc NEQ_STR_DOCU
 Function WARN_NEQ_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -884,10 +820,7 @@ Function WARN_NEQ_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// Checks two strings for unequality
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @see WARN_NEQ_STR
 Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -899,18 +832,15 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// Requires that two strings are unequal
-/// @param str1            first string
-/// @param str2            second string
-/// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @see WARN_NEQ_STR
 Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
   string str1, str2
     variable case_sensitive
 
   if(ParamIsDefault(case_sensitive))
-      EQUAL_STR_WRAPPER(str1, str2, REQUIRE_MODE)
+      NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE)
   else
-      EQUAL_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive=case_sensitive)
+      NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive=case_sensitive)
   endif
 End
 
@@ -918,11 +848,7 @@ End
 ///@addtogroup WaveAssertions
 ///@{
 
-/// Tests a wave for existence and its type
-/// @param wv         wave reference
-/// @param majorType  major wave type
-/// @param minorType  (optional) minor wave type
-/// @see waveTypes
+/// @copydoc WAVE_DOCU 
 Function WARN_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -934,11 +860,7 @@ Function WARN_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// Checks a wave for existence and its type
-/// @param wv         wave reference
-/// @param majorType  major wave type
-/// @param minorType  (optional) minor wave type
-/// @see waveTypes
+/// @see WARN_WAVE 
 Function CHECK_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -950,11 +872,7 @@ Function CHECK_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// Requires that a wave exists and has a certain type
-/// @param wv         wave reference
-/// @param majorType  major wave type
-/// @param minorType  (optional) minor wave type
-/// @see waveTypes
+/// @see WARN_WAVE 
 Function REQUIRE_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -966,11 +884,7 @@ Function REQUIRE_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// Tests two waves for equality
-/// @param wv1   first wave
-/// @param wv2   second wave
-/// @param mode  (optional) features of both waves to compare, defaults to all modes, defined at @ref CheckWaveModes
-/// @param tol   (optional) tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+/// @copydoc EQUAL_WAVE_DOCU
 Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -986,11 +900,7 @@ Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
   endif
 End
 
-/// Checks two waves for equality
-/// @param wv1    first wave
-/// @param wv2    second wave
-/// @param mode   (optional) features of both waves to compare, defaults to all modes, defined at @ref CheckWaveModes
-/// @param tol    (optional) tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+/// @see WARN_EQUAL_WAVES
 Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -1006,11 +916,7 @@ Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
   endif
 End
 
-/// Checks two waves for equality
-/// @param wv1    first wave
-/// @param wv2    second wave
-/// @param mode   (optional) features of both waves to compare, defaults to all modes, defined at @ref CheckWaveModes
-/// @param tol    (optional) tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+/// @see WARN_EQUAL_WAVES
 Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -1031,19 +937,20 @@ End
 ///@addtogroup FolderAssertions
 ///@{
 
-/// Warns if the current data folder is not empty
+/// @copydoc CDF_EMPTY_DOCU
 Function WARN_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(WARN_MODE)
 End
 
-/// Checks that the current data folder is empty
+/// @see WARN_EMPTY_FOLDER
 Function CHECK_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(CHECK_MODE)
 End
 
-/// Requires that the current data folder is empty
+/// @see WARN_EMPTY_FOLDER
 Function REQUIRE_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(REQUIRE_MODE)
 End
+
 ///@}
 
