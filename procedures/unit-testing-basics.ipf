@@ -1,48 +1,39 @@
 #pragma rtGlobals=3
 #pragma version=0.1
 
+///@cond HIDDEN_SYMBOL
+
 /// Returns the package folder
 ThreadSafe Function/DF GetPackageFolder()
   if( !DataFolderExists(PKG_FOLDER) )
     NewDataFolder/O root:Packages
     NewDataFolder/O root:Packages:UnitTesting
   endif
-  
+
   dfref dfr = $PKG_FOLDER
   return dfr
 End
 
-/// Turns debug output on
-ThreadSafe Function EnableDebugOutput()
-  dfref dfr = GetPackageFolder()
-  variable/G dfr:verbose = 1
-End
-
-/// Turns debug output off
-ThreadSafe Function DISABLE_DEBUG_OUTPUT()
-  dfref dfr = GetPackageFolder()
-  variable/G dfr:verbose = 0
-End
-
 /// Returns 1 if debug output is enabled and zero otherwise
-ThreadSafe Function ENABLED_DEBUG()
+ThreadSafe Function EnabledDebug()
   dfref dfr = GetPackageFolder()
   NVAR/Z/SDFR=dfr verbose
 
   if(NVAR_EXISTS(verbose) && verbose == 1)
     return 1
   endif
+
   return 0
 End
 
 /// Output debug string in assertions
 /// @param str            debug string
 /// @param booleanValue   assertion state
-ThreadSafe Function DEBUG_OUTPUT(str, booleanValue)
+ThreadSafe Function DebugOutput(str, booleanValue)
   string str
   variable booleanValue
-  
-  if(ENABLED_DEBUG())
+
+  if(EnabledDebug())
     str += ": is " + SelectString(booleanValue,"false","true")
     print str
   endif
@@ -66,12 +57,12 @@ End
 ThreadSafe Function incrError()
   dfref dfr = GetPackageFolder()
   NVAR/Z/SDFR=dfr error_count
-  
+
   if(!NVAR_Exists(error_count))
     initError()
     NVAR/SDFR=dfr error_count
   endif
-  
+
   error_count +=1
 End
 
@@ -86,13 +77,13 @@ End
 ThreadSafe Function incrAssert()
   dfref dfr = GetPackageFolder()
   NVAR/SDFR=dfr/Z assert_count
-  
+
   if(!NVAR_Exists(assert_count))
     initAssertCount()
     NVAR/SDFR=dfr assert_count
     assert_count = 0
   endif
-  
+
   assert_count +=1
 End
 
@@ -117,26 +108,28 @@ ThreadSafe Function shouldDoAbort()
 End
 
 /// Sets the abort flag
-ThreadSafe Function abortNow()
+Function abortNow()
   dfref dfr = GetPackageFolder()
   variable/G dfr:abortFlag = 1
+
+  Abort
 End
 
 /// Prints an informative message about the test's success or failure
-/// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function, 
+/// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function,
 /// that means the call stack is e. g. RUN_TEST_SUITE -> testCase -> CHECK_SMALL_VAR -> printFailInfo -> printInfo
 static Function/S getInfo(result)
   variable result
-  
+
   string callStack = GetRTStackInfo(3)
 
   variable indexThisFunction  = ItemsInList(callStack) - 1 // 0-based indizes
   variable indexCheckFunction = indexThisFunction - 4
-  
+
   if(indexCheckFunction < 0 || indexCheckFunction > indexThisFunction)
     return ""
   endif
-  
+
   string initialCaller   = StringFromList(indexCheckFunction,callStack,";")
   string procedure    = StringFromList(1,initialCaller,",")
   string line        = StringFromList(2,initialCaller,",")
@@ -144,7 +137,7 @@ static Function/S getInfo(result)
   // get the line which called the caller of this function
   string procedureContents = ProcedureText("",-1,procedure)
   string text = StringFromList(str2num(line),procedureContents,"\r")
-  
+
   // remove leading and trailing whitespace
   string cleanText
   SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
@@ -167,7 +160,7 @@ EndStructure
 /// Sets the hooks to the builtin defaults
 ThreadSafe static Function setDefaultHooks(hooks)
   Struct TestHooks &hooks
-  
+
   hooks.testBegin      = "TEST_BEGIN"
   hooks.testEnd        = "TEST_END"
   hooks.testSuiteBegin = "TEST_SUITE_BEGIN"
@@ -180,8 +173,8 @@ End
 static Function getGlobalHooks(hooks)
   Struct TestHooks& hooks
 
-  string userHooks = FunctionList("*_OVERRIDE",";","KIND:2,NPARAMS:1,VALTYPE:1")
-  
+  string userHooks = FunctionList("*_OVERRIDE",";","KIND:2,NPARAMS:1")
+
   variable i
   for(i = 0; i < ItemsInList(userHooks); i+=1)
     string userHook = StringFromList(i,userHooks)
@@ -205,7 +198,7 @@ static Function getGlobalHooks(hooks)
         hooks.testCaseEnd = userHook
         break
       default:
-        printf "Found unknown override function \"%s\"\r", userHook
+        // ignore unknown functions
         break
     endswitch
   endfor
@@ -215,13 +208,13 @@ End
 static Function getLocalHooks(hooks, procName)
   string procName
   Struct TestHooks& hooks
-  
-  string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,NPARAMS:1,VALTYPE:1,WIN:" + procName)
+
+  string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,NPARAMS:1,WIN:" + procName)
 
   variable i
   for(i = 0; i < ItemsInList(userHooks); i+=1)
     string userHook = StringFromList(i,userHooks)
-    
+
     string fullFunctionName = getFullFunctionName(userHook, procName)
     strswitch(userHook)
       case "TEST_SUITE_BEGIN_OVERRIDE":
@@ -237,7 +230,7 @@ static Function getLocalHooks(hooks, procName)
         hooks.testCaseEnd = fullFunctionName
         break
       default:
-        printf "Found unknown override function \"%s\"\r", userHook
+        // ignore unknown functions
         break
     endswitch
   endfor
@@ -247,17 +240,26 @@ End
 static Function/S getFullFunctionName(funcName, procName)
   string funcName, procName
 
-  string infoString = FunctionInfo(funcName, procName)
-  if(strlen(infoString) <= 0)
-    string errMsg
+  string infoStr = FunctionInfo(funcName, procName)
+  string errMsg
+
+  if(strlen(infoStr) <= 0)
     sprintf errMsg, "Function %s in procedure file %s is unknown\r", funcName, procName
     Abort errMsg
   endif
-  string module = StringByKey("MODULE", infoString)
+
+  string module = StringByKey("MODULE", infoStr)
+
   if(strlen(module) <= 0 )
     module = "ProcGlobal"
+
+    // we can only use static functions if they live in a module
+  	if( cmpstr(StringByKey("SPECIAL",infoStr),"static") == 0 )
+      sprintf errMsg, "The procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.\r", procName
+      Abort errMsg
+    endif
   endif
-  
+
   return module + "#" + funcName
 End
 
@@ -270,17 +272,29 @@ Function USER_HOOK_PROTO(str)
   string str
 End
 
-///@ingroup PublicApi
-///
+///@endcond // HIDDEN_SYMBOL
+
+/// Turns debug output on
+ThreadSafe Function EnableDebugOutput()
+  dfref dfr = GetPackageFolder()
+  variable/G dfr:verbose = 1
+End
+
+/// Turns debug output off
+ThreadSafe Function DisableDebugOutput()
+  dfref dfr = GetPackageFolder()
+  variable/G dfr:verbose = 0
+End
+
 /// Runs all test cases of test suite or just a single test case
-/// @param   testSuiteList  list of procedure files
-/// @param   testName      (optional) descriptive name for all test suites 
+/// @param   procWinList 	 list of procedure files
+/// @param   name      	   (optional) descriptive name for all test suites
 /// @param   testCase      (optional) function, one test case, which should be executed only
-/// @return                total number of errors 
-Function RUN_TEST(testSuiteList, [testName, testCase])
-  string testSuiteList, testCase, testName
-  
-  if(strlen(testSuiteList) <= 0)
+/// @return                total number of errors
+Function RunTest(procWinList, [name, testCase])
+  string procWinList, testCase, name
+
+  if(strlen(procWinList) <= 0)
     printf "The list of procedure windows is empty\r"
     return NaN
   endif
@@ -289,34 +303,34 @@ Function RUN_TEST(testSuiteList, [testName, testCase])
 
   string allProcWindows = WinList("*",";","WIN:128")
 
-  for(i = 0; i < ItemsInList(testSuiteList); i+=1)
-    string procWin = StringFromList(i, testSuiteList)
+  for(i = 0; i < ItemsInList(procWinList); i+=1)
+    string procWin = StringFromList(i, procWinList)
     if(FindListItem(procWin, allProcWindows) == -1)
       printf "A procedure window named %s could not be found.\r", procWin
       return NaN
     endif
   endfor
-  
-  if(ParamIsDefault(testName))
-    testName = "Unnamed"
+
+  if(ParamIsDefault(name))
+    name = "Unnamed"
   endif
-  
+
   struct TestHooks hooks
   // 1.) set the hooks to the default implementations
-  SetDefaultHooks(hooks)
+  setDefaultHooks(hooks)
   // 2.) get global user hooks which reside in ProcGlobal and replace the default ones
   getGlobalHooks(hooks)
 
   FUNCREF USER_HOOK_PROTO testBegin = $hooks.testBegin
   FUNCREF USER_HOOK_PROTO testEnd   = $hooks.testEnd
 
-  testBegin(testName)
-  
+  testBegin(name)
+
   variable abortNow = 0
-  for(i = 0; i < ItemsInList(testSuiteList); i+=1)
-  
-    procWin = StringFromList(i, testSuiteList)
-  
+  for(i = 0; i < ItemsInList(procWinList); i+=1)
+
+    procWin = StringFromList(i, procWinList)
+
     string testCaseList
     if(ParamIsDefault(testCase))
       // 18 == 16 (static function) or 2 (userdefined functions)
@@ -329,20 +343,20 @@ Function RUN_TEST(testSuiteList, [testName, testCase])
     procHooks = hooks
     // 3.) get local user hooks which reside in the same Module as the requested procedure
     getLocalHooks(procHooks, procWin)
-    
+
     FUNCREF USER_HOOK_PROTO testSuiteBegin = $procHooks.testSuiteBegin
     FUNCREF USER_HOOK_PROTO testSuiteEnd   = $procHooks.testSuiteEnd
     FUNCREF USER_HOOK_PROTO testCaseBegin  = $procHooks.testCaseBegin
-    FUNCREF USER_HOOK_PROTO testCaseEnd     = $procHooks.testCaseEnd
-    
+    FUNCREF USER_HOOK_PROTO testCaseEnd    = $procHooks.testCaseEnd
+
     testSuiteBegin(procWin)
-  
+
     for(j = 0; j < ItemsInList(testCaseList); j += 1)
       string funcName = StringFromList(j,testCaseList)
       string fullFuncName = getFullFunctionName(funcName, procWin)
-      
+
       FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
-    
+
       testCaseBegin(funcName)
       testCaseFunc()
       testCaseEnd(funcName)
@@ -351,16 +365,16 @@ Function RUN_TEST(testSuiteList, [testName, testCase])
         break
       endif
     endfor
-  
+
     testSuiteEnd(procWin)
 
     if( shouldDoAbort() )
       break
     endif
   endfor
-  
-  testEnd(testName)
-  
+
+  testEnd(name)
+
   NVAR/SDFR=GetPackageFolder() error_count
   return error_count
 End

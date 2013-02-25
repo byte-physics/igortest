@@ -355,7 +355,7 @@ LOOKUP_CACHE_SIZE      = 0
 # Private class members and static file members will be hidden unless
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = NO 
+EXTRACT_ALL            = YES 
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -557,7 +557,7 @@ SHOW_USED_FILES        = YES
 # This will remove the Files entry from the Quick Index and from the
 # Folder Tree View (if specified). The default is YES.
 
-SHOW_FILES             = NO 
+SHOW_FILES             = YES 
 
 # Set the SHOW_NAMESPACES tag to NO to disable the generation of the
 # Namespaces page.
@@ -655,7 +655,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  =
+INPUT                  = procedures documentation.doxygen
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -715,7 +715,7 @@ EXCLUDE_SYMBOLS        =
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
@@ -746,8 +746,7 @@ IMAGE_PATH             =
 # If FILTER_PATTERNS is specified, this tag will be
 # ignored.
 
-
-INPUT_FILTER           = "gawk -f ../../doxygen-filter-ipf/doxygen-filter-ipf.awk" 
+INPUT_FILTER           = "gawk -f ../doxygen-filter-ipf/doxygen-filter-ipf.awk" 
 
 # The FILTER_PATTERNS tag can be used to specify filters on a per file pattern
 # basis.
@@ -758,13 +757,13 @@ INPUT_FILTER           = "gawk -f ../../doxygen-filter-ipf/doxygen-filter-ipf.aw
 # info on how filters are used. If FILTER_PATTERNS is empty or if
 # non of the patterns match the file name, INPUT_FILTER is applied.
 
-FILTER_PATTERNS        =
+FILTER_PATTERNS        = *.doxygen=
 
 # If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using
 # INPUT_FILTER) will be used to filter the input files when producing source
 # files to browse (i.e. when SOURCE_BROWSER is set to YES).
 
-FILTER_SOURCE_FILES    = YES 
+FILTER_SOURCE_FILES    = NO 
 
 # The FILTER_SOURCE_PATTERNS tag can be used to specify source filters per file
 # pattern. A pattern will override the setting for FILTER_PATTERN (if any)

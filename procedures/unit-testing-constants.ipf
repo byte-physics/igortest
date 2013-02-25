@@ -1,6 +1,8 @@
 #pragma rtGlobals=3
 #pragma version=0.1
 
+///@cond HIDDEN_SYMBOL
+
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
 
@@ -14,20 +16,14 @@ Constant CHECK_MODE     = 0x03 // == OUTPUT_MESSAGE | INCREASE_ERROR
 Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUNCTION
 ///@}
 
-///@addtogroup PublicApi
-///@{
+///@endcond // HIDDEN_SYMBOL
 
-///@defgroup mainWaveTypes Major wave types
-/// Possible values of the parameter mainType in @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
+///@defgroup waveTypes Major and minor wave types
+/// See parameter majorType and minorType of of @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
 ///@{
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
-///@}
 
-///@defgroup minorWaveTypes Minor wave types
-///
-/// Possible values of the parameter minorType in @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
-///@{
 Constant COMPLEX_WAVE = 0x01
 Constant FLOAT_WAVE   = 0x02
 Constant DOUBLE_WAVE  = 0x04
@@ -50,7 +46,5 @@ Constant WAVE_NOTE        =  64
 Constant WAVE_LOCK_STATE  = 128
 Constant DATA_FULL_SCALE  = 256
 Constant DIMENSION_SIZES  = 512
-///@}
-
 ///@}
 

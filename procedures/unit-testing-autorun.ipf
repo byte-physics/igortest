@@ -9,10 +9,10 @@ static Function CreateHistoryLog()
 End
 
 /// Hook function which is executed after opening a file
-/// 
+///
 /// This function calls the user supplied run routine if
-/// #- the opened file is an igor experiment
-/// #- the file DO_AUTORUN.TXT exists in the igor home path
+/// - the opened file is an igor experiment
+/// - the file DO_AUTORUN.TXT exists in the igor home path
 static Function AfterFileOpenHook(refNum,file,pathName,type,creator,kind)
 Variable refNum,kind
 String file,pathName,type,creator
