@@ -38,7 +38,7 @@ PROJECT_NUMBER         = 1.0
 # for a project that appears at the top of each page and should give viewer
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Unit testing for Igor Pro procedures"
+PROJECT_BRIEF          =
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is
 # included in the documentation. The maximum height of the logo should not
@@ -471,7 +471,7 @@ SORT_MEMBER_DOCS       = YES
 # by member name. If set to NO (the default) the members will appear in
 # declaration order.
 
-SORT_BRIEF_DOCS        = NO
+SORT_BRIEF_DOCS        = YES
 
 # If the SORT_MEMBERS_CTORS_1ST tag is set to YES then doxygen
 # will sort the (brief and detailed) documentation of class members so that
@@ -574,7 +574,7 @@ SHOW_NAMESPACES        = YES
 # provided by doxygen. Whatever the program writes to standard output
 # is used as the file version. See the manual for examples.
 
-FILE_VERSION_FILTER    = "sh -c 'git log -n 1 --pretty=format:%cd'"
+FILE_VERSION_FILTER    =
 
 # The LAYOUT_FILE tag can be used to specify a layout file which will be parsed
 # by doxygen. The layout file controls the global structure of the generated
@@ -644,7 +644,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written
 # to stderr.
 
-WARN_LOGFILE           =
+WARN_LOGFILE           = doxygen.log
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -850,7 +850,7 @@ COLS_IN_ALPHA_INDEX    = 5
 # The IGNORE_PREFIX tag can be used to specify one or more prefixes that
 # should be ignored while generating the index headers.
 
-IGNORE_PREFIX          =
+IGNORE_PREFIX          = WARN_ CHECK_ REQUIRE_
 
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
@@ -859,7 +859,7 @@ IGNORE_PREFIX          =
 # If the GENERATE_HTML tag is set to YES (the default) Doxygen will
 # generate HTML output.
 
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO 
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
@@ -1253,14 +1253,14 @@ PAPER_TYPE             = a4
 # The EXTRA_PACKAGES tag can be to specify one or more names of LaTeX
 # packages that should be included in the LaTeX output.
 
-EXTRA_PACKAGES         = custom-doxygen
+EXTRA_PACKAGES         =
 
 # The LATEX_HEADER tag can be used to specify a personal LaTeX header for
 # the generated latex document. The header should contain everything until
 # the first chapter. If it is left blank doxygen will generate a
 # standard header. Notice: only use this tag if you know what you are doing!
 
-LATEX_HEADER           =
+LATEX_HEADER           = header.tex
 
 # The LATEX_FOOTER tag can be used to specify a personal LaTeX footer for
 # the generated latex document. The footer should contain everything after
