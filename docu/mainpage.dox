@@ -1,4 +1,8 @@
-/// @defgroup TestRunnerAndHelper Run tests
+
+// Author: Thomas Braun (c) 2013
+// Email: thomas dot braun at byte-physics dott de
+
+/// @defgroup TestRunnerAndHelper Helper functions 
 /// Runner and helper functions
 
 /// @defgroup Assertions Test Assertions
