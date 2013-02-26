@@ -1,6 +1,9 @@
 #pragma rtGlobals=3
 #pragma version=1.0
 
+// Author: Thomas Braun (c) 2013
+// Email: thomas dot braun at byte-physics dott de
+
 // documentation guidelines:
 // -document the _WRAPPER function using "@class *_DOCU" without the flags parameter
 // -use "copydoc *_DOCU" for the CHECK_* function and don't document the other functions
@@ -34,7 +37,6 @@ static Function CDF_EMPTY_WRAPPER(flags)
   endif
 
   DebugOutput("Assumption that the current data folder is empty is", result)
-  return result
 End
 
 /// @class TRUE_DOCU
