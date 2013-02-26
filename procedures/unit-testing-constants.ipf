@@ -18,15 +18,14 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 
 ///@endcond // HIDDEN_SYMBOL
 
-/// @addtogroup assertionFlags 
+/// @addtogroup assertionFlags
 ///@{
+
 /// @addtogroup testWaveFlags 
-/// Values for @c majorType / @c minorType of @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
 ///@{
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
-///@}
-///@{
+
 Constant COMPLEX_WAVE = 0x01
 Constant FLOAT_WAVE   = 0x02
 Constant DOUBLE_WAVE  = 0x04
@@ -37,7 +36,6 @@ Constant UNSIGNED_WAVE= 0x40
 ///@}
 
 /// @addtogroup equalWaveFlags 
-/// Values for @c mode in @ref WARN_EQUAL_WAVES, @ref CHECK_EQUAL_WAVES, @ref REQUIRE_EQUAL_WAVES
 ///@{
 Constant WAVE_DATA        =   1
 Constant WAVE_DATA_TYPE   =   2

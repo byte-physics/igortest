@@ -267,6 +267,10 @@ End
 Function TEST_CASE_PROTO()
 End
 
+/// Prototype for run functions in autorun mode
+Function AUTORUN_MODE_PROTO()
+End
+
 /// Prototype for hook functions
 Function USER_HOOK_PROTO(str)
   string str
@@ -289,10 +293,10 @@ Function DisableDebugOutput()
   variable/G dfr:verbose = 0
 End
 
-/// Runs all test cases of test suite or just a single test case
-/// @param   procWinList 	 list of procedure files
-/// @param   name      	   (optional) descriptive name for all test suites
-/// @param   testCase      (optional) function, one test case, which should be executed only
+/// Main function to execute one or more test suites.
+/// @param   procWinList 	 semicolon (";") separated list of procedure files
+/// @param   name      	   (optional) descriptive name for the executed test suites
+/// @param   testCase      (optional) function name, resembling one test case, which should be executed only
 /// @return                total number of errors
 Function RunTest(procWinList, [name, testCase])
   string procWinList, testCase, name
@@ -361,7 +365,13 @@ Function RunTest(procWinList, [name, testCase])
       FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
 
       testCaseBegin(funcName)
-      testCaseFunc()
+      
+      try
+	      testCaseFunc()
+      catch
+	      // do nothing
+      endtry
+      
       testCaseEnd(funcName)
 
       if( shouldDoAbort() )

@@ -67,7 +67,9 @@ static Function TRUE_WRAPPER(var, flags)
 End
 
 /// @class NULL_STR_DOCU
-/// Tests if str is null
+/// Tests if str is null.
+///
+/// An empty string is never null.
 /// @param str    string to test
 static Function NULL_STR_WRAPPER(str, flags)
   string &str
@@ -93,7 +95,9 @@ static Function NULL_STR_WRAPPER(str, flags)
 End
 
 /// @class EMPTY_STR_DOCU
-/// Tests if str is empty
+/// Tests if str is empty.
+///
+/// A null string is never empty.
 /// @param str  string to test
 static Function EMPTY_STR_WRAPPER(str, flags)
   string &str
@@ -182,13 +186,14 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 End
 
 /// @class CLOSE_VAR_DOCU
-/// Compares two variables and determines if they are close<br>
-/// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework
-///<br><br>
+/// Compares two variables and determines if they are close.
+///
+/// Based on the implementation of "Floating-point comparison algorithms" in the C++ Boost unit testing framework.
+///
 /// Literature:<br>
 /// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
-/// 3 edition, page 234 equation (34) and (35)
-///<br>
+/// 3 edition, page 234 equation (34) and (35).
+///
 /// @param var1            first variable
 /// @param var2            second variable
 /// @param tol             (optional) tolerance, defaults to 1e-8
@@ -259,7 +264,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 End
 
 /// @class EQUAL_STR_DOCU
-/// Compares two strings for equality
+/// Compares two strings for equality.
 /// @param str1           first string
 /// @param str2           second string
 /// @param case_sensitive (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
@@ -296,7 +301,7 @@ End
 /// @param wv         wave reference
 /// @param majorType  major wave type
 /// @param minorType  (optional) minor wave type
-/// @see waveTypes
+/// @see testWaveFlags 
 static Function TEST_WAVE_WRAPPER(wv, flags, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -361,7 +366,9 @@ static Function TEST_WAVE_WRAPPER(wv, flags, majorType, [minorType])
 End
 
 /// @class EQUAL_VAR_DOCU
-/// Tests two variables for equality
+/// Tests two variables for equality.
+///
+/// For variables holding floating point values it is often more desirable use CHECK_CLOSE_VAR instead. To fullfill semantic correctness this assertion treats two variables with both holding NaN as equal.
 /// @param var1   first variable
 /// @param var2   second variable
 static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
@@ -391,8 +398,8 @@ End
 /// Tests two waves for equality
 /// @param wv1    first wave
 /// @param wv2    second wave
-/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref CheckWaveModes
-/// @param tol    (optional) tolerance for comparison, by default 0.0 which means do byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
+/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
+/// @param tol    (optional) tolerance for comparison, by default 0.0 which does byte-by-byte comparison ( relevant only for mode=WAVE_DATA )
 static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
   Wave/Z wv1, wv2
   variable flags
@@ -569,19 +576,13 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
   return result
 End
 
-/// @addtogroup TestRunnerAndHelper
+/// @addtogroup Assertions
 /// @{
 
 /// Force the test case to fail
 Function FAIL()
   TRUE_WRAPPER(0, REQUIRE_MODE)
 End
-
-/// @}
-
-/// @addtogroup VariableAssertions
-/// @{
-
 
 Function WARN(var)
   variable var
@@ -723,10 +724,6 @@ Function REQUIRE_SMALL_VAR(var, [tol])
   endif
 End
 
-///@}
-///@addtogroup StringAssertions
-///@{
-
 Function WARN_EMPTY_STR(str)
   string &str
 
@@ -823,7 +820,7 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
 End
 
 Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
-  string str1, str2
+  string &str1, &str2
     variable case_sensitive
 
   if(ParamIsDefault(case_sensitive))
@@ -832,10 +829,6 @@ Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
       NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive=case_sensitive)
   endif
 End
-
-///@}
-///@addtogroup WaveAssertions
-///@{
 
 Function WARN_WAVE(wv, majorType, [minorType])
   Wave/Z wv
@@ -916,11 +909,6 @@ Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
       EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, tol=tol, mode=mode)
   endif
 End
-
-///@}
-
-///@addtogroup FolderAssertions
-///@{
 
 Function WARN_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(WARN_MODE)

@@ -4,10 +4,10 @@
 ///@addtogroup HookFunctions
 ///@{
 
-/// Default hook for test begin
+/// Default test begin hook.
 ///
-/// The hook is immediately called after startup
-/// @param name   name of the test
+/// The hook is immediately called after RunTest starts.
+/// @param name   name of the test suite group
 Function TEST_BEGIN(name)
 	string name
 
@@ -24,10 +24,10 @@ Function TEST_BEGIN(name)
 	printf "Start of test \"%s\"\r", name
 End
 
-/// Default hook for test case end
+/// Default test end hook.
 ///
-/// The hook is called after all tests suites
-/// @param name   name of the test
+/// The hook is called after all tests suites.
+/// @param name   name of the test suite group
 Function TEST_END(name)
 	string name
 
@@ -43,9 +43,9 @@ Function TEST_END(name)
 	printf "End of test \"%s\"\r", name
 End
 
-/// Default hook for test suite begin
+/// Default hook for test suite begin.
 ///
-/// The hook is called before executing the first test case of every test suite
+/// The hook is called before executing the first test case of every test suite.
 /// @param testSuite name of the test suite
 Function TEST_SUITE_BEGIN(testSuite)
 	string testSuite
@@ -54,9 +54,9 @@ Function TEST_SUITE_BEGIN(testSuite)
 	printf "Entering test suite \"%s\"\r", testSuite
 End
 
-/// Default hook for test suite end
+/// Default hook for test suite end.
 ///
-/// The hook is called after executing the last test case of every test suite
+/// The hook is called after executing the last test case of every test suite.
 /// @param testSuite name of the test suite
 Function TEST_SUITE_END(testSuite)
 	string testSuite
@@ -76,9 +76,9 @@ Function TEST_SUITE_END(testSuite)
 	printf "Leaving test suite \"%s\"\r", testSuite
 End
 
-/// Default hook for test case begin
+/// Default hook for test case begin.
 ///
-/// The hook is called before executing the test case
+/// The hook is called before executing the test case.
 /// @param testCase name of the test case
 Function TEST_CASE_BEGIN(testCase)
 	string testCase
@@ -100,7 +100,7 @@ End
 
 /// Default hook for test case end
 ///
-/// The hook is called after executing the test case
+/// The hook is called after executing the test case.
 /// @param testCase name of the test case
 Function TEST_CASE_END(testCase)
 	string testCase
