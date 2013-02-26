@@ -4,29 +4,25 @@
 #include "unit-testing"
 
 // Command: RunTest("example3-plain.ipf")
-// The error count of this test suite is 1
+// The error count of this test suite is 2
 
 // WARN_* does not increment the error count
-Function WarnTestComplexSqrt()
+Function WarnTest()
 
-  variable/C c1 = cmplx(0,0) 
-  WARN_EQUAL_VAR(sqrt(c1),c1)   
+  WARN_EQUAL_VAR(1.0,0.0)   
 End
 
 // CHECK_* increments the error count
-Function CheckTestComplexSqrt()
+Function CheckTest()
 
-  variable/C c1 = cmplx(0,0) 
-  WARN_EQUAL_VAR(sqrt(c1),c1)   
+  CHECK_EQUAL_VAR(1.0,0.0)   
 End
 
-// REQUIRE_* increments the error count and will stop execution after this test case
-Function RequireTestComplexSqrt()
+// REQUIRE_* increments the error count and will stop execution
+// of the test case immediately.
+// Nevertheless the test end hooks are still executed.
+Function RequireTest()
 
-  variable/C c1 = cmplx(0,0) 
-  REQUIRE_EQUAL_VAR(sqrt(c1),c1)   
-
-  // a failing require test will stop execution immediatley
-  REQUIRE_EQUAL_VAR(0,1)
+  REQUIRE_EQUAL_VAR(1.0,0.0)
   print "I'm never reached :("
 End

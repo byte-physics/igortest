@@ -2,8 +2,8 @@
 
 #include "unit-testing"
 
-// Command: RunTest("example5-overridehooks.ipf;example5-overridehooks-otherSuite.ipf")
-// As this procedure file is in ProcGlobal context, the test hook overrides are globally.
+// As this procedure file is in ProcGlobal context
+// the test hook overrides are global.
 
 Function TEST_BEGIN_OVERRIDE(name)
   string name

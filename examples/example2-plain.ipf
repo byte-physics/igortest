@@ -18,24 +18,25 @@ Function run_IGNORE()
 End
 
 // Making the function static prevents name clashes with other procedure files.
-// Using static functions requires also the "#pragma ModuleName" above.
+// Using static functions requires also the line "#pragma ModuleName" from
+// above.
 static Function VerifyDefaultStringBehaviour()
  
   string nullString
   string emptyString = ""
-  string str         = "1234a"
+  string strLow      = "1234a"
   string strUP       = "1234A"
 
   // by default string comparison is done case insensitive
-  CHECK_EQUAL_STR(str,strUP)
-  CHECK_EQUAL_STR(str,strUP,case_sensitive=0)
+  CHECK_EQUAL_STR(strLow,strUP)
+  CHECK_EQUAL_STR(strLow,strUP,case_sensitive=0)
   // the next test fails
-  WARN_EQUAL_STR(str,strUP,case_sensitive=1)
+  WARN_EQUAL_STR(strLow,strUP,case_sensitive=1)
 
   CHECK_NEQ_STR(emptyString,nullString)
-  CHECK_NEQ_STR(str,nullString)
+  CHECK_NEQ_STR(strLow,nullString)
   CHECK_EMPTY_STR(emptyString)
   CHECK_NULL_STR(nullString) 
-  CHECK_EQUAL_VAR(strlen(str),5)
+  CHECK_EQUAL_VAR(strlen(strLow),5)
 End
 

@@ -2,7 +2,8 @@
 
 #include "unit-testing"
 
-// Execute the test suite, named the same as this procedure file, with RunTest("example1-plain.ipf")
+// Execute the test suite, same named as this procedure file
+// with RunTest("example1-plain.ipf")
 
 Function TestModulo()
 

@@ -3,7 +3,7 @@
 
 #include "unit-testing"
 
-// Command: RunTest("example5-overridehooks.ipf;example5-overridehooks-otherSuite.ipf")
+// RunTest("example5-overridehooks.ipf;example5-overridehooks-otherSuite.ipf")
 
 static Function TEST_CASE_BEGIN_OVERRIDE(name)
   string name
