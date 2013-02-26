@@ -14,82 +14,93 @@
 /// @defgroup FolderAssertions Folder Assertions
 /// Test assertions for data folders
 
+/// @example example1-plain.ipf
+/// Test suite showing the basic working principles.
+
+///  @example example2-plain.ipf
+/// Test suite with run routine and module/static usage.
+/// See the section about [test cases](@ref secTestCase) why the function run_IGNORE() is not considered a test case.
+ 
+/// @example example3-plain.ipf
+/// Test suite emphasising the difference between the WARN, CHECK and REQUIRE assertion variants.
+/// See also @ref secAssertionTypes.
+ 
+/// @example example4-wavechecking.ipf
+/// Test suite showing some test assertions for waves.
+ 
+/// @example example5-overridehooks.ipf
+/// Two test suites showing how to use test hook overrides.
+/// \include example5-overridehooks-otherSuite.ipf
+ 
+/// @example Example6/example6-automatic-invocation.ipf
+/// Test suite showing how to automate testing from the command line.
+/// See also @ref secAutomaticExecution.
+/// \include Example6/example6-runner.ipf
+
 /**
-
-@example example1-plain.ipf
-Test suite showing the basic working principles. See Example1.pxp.
-
-@example example2-plain.ipf
-Test suite with run routine and module/static usage. See Example2.pxp.
-See section @ref secTestCase why the function run_IGNORE() is not considered a test case.
-
-@example example3-plain.ipf
-Test suite emphasising the difference between the WARN_, CHECK_ and REQUIRE_ variants. See Example3.pxp.
-See also @ref secAssertionTypes
-
-@example example4-wavechecking.ipf
-Test suite showing some test assertions for waves. See Example4.pxp.
-See also @ref secAssertionTypes
-
-@example example5-overridehooks.ipf
-Two test suites showing how to use test hook overrides. See Example5.pxp.
-\include example5-overridehooks-otherSuite.ipf
 
 @mainpage
 
-All test cases have on calling their current data folder set to an empty temporary folder.
+This package empowers a programmer to utilize unit testing for Igor Pro procedures and XOPs.
+For a quick start have a look at the [first example](@ref example1-plain.ipf).
 
+The basic building blocks of this package are [Assertions](@ref secAssertionTypes) (for checking if an entity fullfills some properties), [Test cases](@ref secTestCase) (group of assertions) and [Test Suites](@ref secTestSuite) (group of test cases).
+
+Interface design and naming is inspired by the [Boost Test Library](http://www.boost.org/libs/test).
+ 
 @section secAssertionTypes Assertion Types
 
-For every test assertion three different variants are defined, e. g. for comparing two variables these are called @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR and @ref REQUIRE_EQUAL_VAR.
+Test assertions are defined for strings, variables and waves and have names with all caps. They always come in tripletts and differ how they react on a failed assertion. For example comparing two variables can be done with @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR or @ref REQUIRE_EQUAL_VAR.
 
-The following table summarizes the properties:
+The following table summarizes the action on a failed assertion:
 <table border>
 <tr>
   <td>Type</td>
-  <td>Log Message</td>
+  <td>Create Log Message</td>
   <td>Increment Error Count</td>
-  <td>Abort execution immediately on failure</td>
+  <td>Abort execution immediately</td>
 </tr>
 <tr>
-  <td>WARN_*</td>
+  <td>WARN</td>
   <td>YES</td>
   <td>NO</td>
   <td>NO</td>
 </tr>
 <tr>
-  <td>CHECK_*</td>
+  <td>CHECK</td>
   <td>YES</td>
   <td>YES</td>
   <td>NO</td>
 </tr>
 <tr>
-  <td>REQUIRE_*</td>
+  <td>REQUIRE</td>
   <td>YES</td>
   <td>YES</td>
   <td>YES</td>
 </tr>
 </table>
 
+The most common used assertion type is CHECK.
+
 @section secTestCase Test Case
+
+A test case is one of the basic building blocks grouping assertions together.
 
 A function in a procedure file is considered a test case if it fullfills
 all of the following properties:
 - takes no parameters
 - its name does not end with "_IGNORE"
-- is either non-static or is part of a regular module
+- is either non-static or static and part of a regular module
 
-The second rule allows advanced users to add their own helper functions in the same procedure
-files as test cases. It is generally a good idea to make all test cases static functions and to create
+The second rule allows advanced users to add their own helper functions in procedure
+files. It is generally a good idea to make all test cases static functions and to create
 one regular module per procedure file.
 
 A single test case can be run with the @c testCase parameter of @ref RunTest.
 
 @section secTestSuite Test Suite
 
-A test suite is a group of test cases which belong together with every procedure file being a complete test suite.
-The name of the test suite is the same as the procedure file name.
-The per test suite error counter is resetted at the beginning of each test suite.
+A test suite is a group of test cases which belong together. Every procedure file forms a test suite.
 
 Tests suits can not be nested, although multiple test suites can be run in a row using the fact that the parameter @c procWinList of @ref RunTest is a semicolon (";") separated list.
 
@@ -97,20 +108,25 @@ All test suites called in a row can be named using the @c name parameter of @ref
 
 @section secTestHooks Test Hooks
 
-To ensure proper test case execution and enable book keeping of errors etc. a handful of functions are called before/after distinct code points.
-The hook functions always come in pairs ending on "_BEGIN" and "_END".
+To ensure proper test case execution and enable book keeping of errors, a handful of functions are called before/after distinct events code.
+These hook functions always come in pairs ending on "_BEGIN" and "_END".
 Before the first test case of the first test suite is executed, the hook @ref TEST_BEGIN is called, therefore @ref TEST_END marks the last function being called immediately before @ref RunTest returns.
 Similarly the hooks @ref TEST_SUITE_BEGIN and @ref TEST_SUITE_END are called before every test suite and after, @ref TEST_CASE_BEGIN and @ref TEST_CASE_END before and after every test case.
 
-In case the default hook functions don't suite your needs it is explicitly @b not advised to just adapt them. Instead please see @ref secTestHooksOverride for instructions on how to override them on a global or per test suite level.
+In case the default hook functions don't suite your needs, it is explicitly @b not advised to just adapt them. Instead use [test hook overrides](@ref secTestHooksOverride) and override them on a global or per test suite level.
 
-@subsection secTestHooksOverride Override the test hooks
+@subsection secTestHooksOverride Override Test Hooks
 
-The default test hooks can be overridden by defining your own version of the hooks suffixed with "_OVERRIDE". The override hooks for @ref TEST_BEGIN and @ref TEST_END can only be overriden by functions in ProcGlobal. The override hooks for test suites/cases can be overriden globally if they reside in ProcGlobal context, or for a specific test suite only if they are defined in the same regular module.
+The default test hooks can be overridden by defining your own version of the hooks suffixed with "_OVERRIDE". The override hooks for @ref TEST_BEGIN and @ref TEST_END can only be overriden by functions in ProcGlobal. The override hooks for test suites/cases can be overriden globally if they reside in ProcGlobal context, or for a specific test suite only if they are defined in the same regular module as that test suite. Overriding here means that the default test hook is @b not executed. In case you still want to have the default test hook executed, you have to call it yourself in the override function as done in this [example](@ref example5-overridehooks.ipf).
 
-The function prototypes of the override test hooks have to be equal to the prototypes of the default test hooks, so they have to accept exactly one string parameter.
+The override test hooks have to accept exactly one string parameter, which is the name of the test suite group, test suite name or test case name.
 
-See also the example @ref example5-overridehooks.ipf.
+@section secAutomaticExecution Automate Test Runs
+
+To further simplify test execution it is possible to automate test runs from the command line.
+For this you have to implement a function "run()" taking no parameters. This function then must perform all necessary steps to run your test suites, which for common cases would be just one call to @ref RunTest. For each experiment a copy of the history is saved as log file.
+
+See also @ref Example6/example6-automatic-invocation.ipf.
 
 **/
 
