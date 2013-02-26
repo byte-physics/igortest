@@ -62,7 +62,7 @@ Interface design and naming is inspired by the [Boost Test Library](http://www.b
 @section secAssertionTypes Assertion Types
 
 Test assertions are defined for strings, variables and waves and have names with all caps. They always come in tripletts and differ how they react on a failed assertion. For example comparing two variables can be done with @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR or @ref REQUIRE_EQUAL_VAR.
-
+@par
 The following table summarizes the action on a failed assertion:
 <table border>
 <tr>
@@ -91,7 +91,7 @@ The following table summarizes the action on a failed assertion:
 </tr>
 </table>
 
-The most common used assertion type is CHECK.
+If in doubt use the CHECK type. For the sake of clarity only the CHECK variants are documented, as the interface of REQUIRE and WARN variants is the same. 
 
 @section secTestCase Test Case
 

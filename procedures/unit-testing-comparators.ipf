@@ -3,7 +3,7 @@
 
 // documentation guidelines:
 // -document the _WRAPPER function using "@class *_DOCU" without the flags parameter
-// -use "copydoc *_DOCU" for the WARN_* function and "see WARN_*" for REQUIRE_* and CHECK_* 
+// -use "copydoc *_DOCU" for the CHECK_* function and don't document the other functions
 
 /// @class CDF_EMPTY_DOCU
 /// Tests if the current data folder is empty
@@ -576,75 +576,70 @@ End
 Function FAIL()
   TRUE_WRAPPER(0, REQUIRE_MODE)
 End
+
 /// @}
 
 /// @addtogroup VariableAssertions
 /// @{
 
-/// @copydoc TRUE_DOCU
+
 Function WARN(var)
   variable var
 
   TRUE_WRAPPER(var, WARN_MODE)
 End
 
-/// @see WARN
+/// @copydoc TRUE_DOCU
 Function CHECK(var)
   variable var
 
   TRUE_WRAPPER(var, CHECK_MODE)
 End
 
-/// @see WARN
 Function REQUIRE(var)
   variable var
 
   TRUE_WRAPPER(var, REQUIRE_MODE)
 End
 
-/// @copydoc EQUAL_VAR_DOCU
 Function WARN_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
-/// @see WARN_EQUAL_VAR
+/// @copydoc EQUAL_VAR_DOCU
 Function CHECK_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
-/// @see WARN_EQUAL_VAR
 Function REQUIRE_EQUAL_VAR(var1, var2)
   variable var1, var2
 
   EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-/// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, WARN_MODE)
 End
 
-/// @see WARN_NEQ_VAR
+/// @copydoc NEQ_VAR_DOCU
 Function CHECK_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
-/// @see WARN_NEQ_VAR
 Function REQUIRE_NEQ_VAR(var1, var2)
   variable var1, var2
 
   NEQ_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-/// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -661,7 +656,7 @@ Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// @see WARN_CLOSE_VAR 
+/// @copydoc CLOSE_VAR_DOCU
 Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -678,7 +673,6 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// @see WARN_CLOSE_VAR 
 Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   variable var1, var2
     variable tol
@@ -695,7 +689,6 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
   endif
 End
 
-/// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
   variable var
   variable tol
@@ -707,7 +700,7 @@ Function WARN_SMALL_VAR(var, [tol])
   endif
 End
 
-/// @see WARN_SMALL_VAR 
+/// @copydoc SMALL_VAR_DOCU
 Function CHECK_SMALL_VAR(var, [tol])
   variable var
    variable tol
@@ -719,7 +712,6 @@ Function CHECK_SMALL_VAR(var, [tol])
   endif
 End
 
-/// @see WARN_SMALL_VAR 
 Function REQUIRE_SMALL_VAR(var, [tol])
   variable var
    variable tol
@@ -735,49 +727,44 @@ End
 ///@addtogroup StringAssertions
 ///@{
 
-/// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, WARN_MODE)
 End
 
-/// @see WARN_EMPTY_STR
+/// @copydoc EMPTY_STR_DOCU
 Function CHECK_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, CHECK_MODE)
 End
 
-/// @see WARN_EMPTY_STR
 Function REQUIRE_EMPTY_STR(str)
   string &str
 
   EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
-/// @copydoc NULL_STR_DOCU
 Function WARN_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, WARN_MODE)
 End
 
-/// @see WARN_NULL_STR
+/// @copydoc NULL_STR_DOCU
 Function CHECK_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, CHECK_MODE)
 End
 
-/// @see WARN_NULL_STR
 Function REQUIRE_NULL_STR(str)
   string &str
 
   NULL_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
-/// @copydoc EQUAL_STR_DOCU
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
   variable case_sensitive
@@ -789,7 +776,7 @@ Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// @see WARN_EQUAL_STR
+/// @copydoc EQUAL_STR_DOCU
 Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -801,7 +788,6 @@ Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// @see WARN_EQUAL_STR
 Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
   string &str1, &str2
     variable case_sensitive
@@ -813,7 +799,6 @@ Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// @copydoc NEQ_STR_DOCU
 Function WARN_NEQ_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -825,7 +810,7 @@ Function WARN_NEQ_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// @see WARN_NEQ_STR
+/// @copydoc NEQ_STR_DOCU
 Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
   string &str1, &str2
    variable case_sensitive
@@ -837,7 +822,6 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
   endif
 End
 
-/// @see WARN_NEQ_STR
 Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
   string str1, str2
     variable case_sensitive
@@ -853,7 +837,6 @@ End
 ///@addtogroup WaveAssertions
 ///@{
 
-/// @copydoc WAVE_DOCU 
 Function WARN_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -865,7 +848,7 @@ Function WARN_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// @see WARN_WAVE 
+/// @copydoc WAVE_DOCU 
 Function CHECK_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -877,7 +860,6 @@ Function CHECK_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// @see WARN_WAVE 
 Function REQUIRE_WAVE(wv, majorType, [minorType])
   Wave/Z wv
   variable majorType, minorType
@@ -889,7 +871,6 @@ Function REQUIRE_WAVE(wv, majorType, [minorType])
   endif
 End
 
-/// @copydoc EQUAL_WAVE_DOCU
 Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -905,7 +886,7 @@ Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
   endif
 End
 
-/// @see WARN_EQUAL_WAVES
+/// @copydoc EQUAL_WAVE_DOCU
 Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -921,7 +902,6 @@ Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
   endif
 End
 
-/// @see WARN_EQUAL_WAVES
 Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
   Wave/Z wv1, wv2
   variable mode, tol
@@ -942,17 +922,15 @@ End
 ///@addtogroup FolderAssertions
 ///@{
 
-/// @copydoc CDF_EMPTY_DOCU
 Function WARN_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(WARN_MODE)
 End
 
-/// @see WARN_EMPTY_FOLDER
+/// @copydoc CDF_EMPTY_DOCU
 Function CHECK_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(CHECK_MODE)
 End
 
-/// @see WARN_EMPTY_FOLDER
 Function REQUIRE_EMPTY_FOLDER()
   CDF_EMPTY_WRAPPER(REQUIRE_MODE)
 End
