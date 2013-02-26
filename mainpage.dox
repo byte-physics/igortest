@@ -1,6 +1,5 @@
-
-/// @defgroup HookFunctions Default hook functions
-/// Default implementation of test hook functions
+/// @defgroup TestRunnerAndHelper Run tests
+/// Runner and helper functions
 
 /// @defgroup WaveAssertions Wave Assertions
 /// Test assertions for waves
@@ -13,6 +12,18 @@
 
 /// @defgroup FolderAssertions Folder Assertions
 /// Test assertions for data folders
+
+/// @defgroup assertionFlags Assertions flags
+/// Constants for assertion test tuning
+
+/// @defgroup testWaveFlags Wave existence 
+/// Values for @c majorType / @c minorType of @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
+
+/// @defgroup equalWaveFlags Wave equality
+/// Values for @c mode in @ref WARN_EQUAL_WAVES, @ref CHECK_EQUAL_WAVES, @ref REQUIRE_EQUAL_WAVES
+
+/// @defgroup HookFunctions Default hook functions
+/// Default implementation of test hook functions
 
 /// @example example1-plain.ipf
 /// Test suite showing the basic working principles.

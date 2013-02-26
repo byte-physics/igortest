@@ -18,8 +18,10 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 
 ///@endcond // HIDDEN_SYMBOL
 
-/// @defgroup waveTypes Major and minor wave types
-/// See parameter @c majorType / @c minorType of @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
+/// @addtogroup assertionFlags 
+///@{
+/// @addtogroup testWaveFlags 
+/// Values for @c majorType / @c minorType of @ref WARN_WAVE, @ref CHECK_WAVE, @ref REQUIRE_WAVE
 ///@{
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
@@ -34,8 +36,8 @@ Constant INT32_WAVE   = 0x20
 Constant UNSIGNED_WAVE= 0x40
 ///@}
 
-/// @defgroup CheckWaveModes Equal wave modes
-/// See parameter @c mode in @ref WARN_EQUAL_WAVES, @ref CHECK_EQUAL_WAVES, @ref REQUIRE_EQUAL_WAVES
+/// @addtogroup equalWaveFlags 
+/// Values for @c mode in @ref WARN_EQUAL_WAVES, @ref CHECK_EQUAL_WAVES, @ref REQUIRE_EQUAL_WAVES
 ///@{
 Constant WAVE_DATA        =   1
 Constant WAVE_DATA_TYPE   =   2
@@ -47,5 +49,6 @@ Constant WAVE_NOTE        =  64
 Constant WAVE_LOCK_STATE  = 128
 Constant DATA_FULL_SCALE  = 256
 Constant DIMENSION_SIZES  = 512
+///@}
 ///@}
 

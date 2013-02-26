@@ -569,13 +569,17 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
   return result
 End
 
+/// @addtogroup TestRunnerAndHelper
+/// @{
+
 /// Force the test case to fail
 Function FAIL()
   TRUE_WRAPPER(0, REQUIRE_MODE)
 End
+/// @}
 
-///@addtogroup VariableAssertions
-///@{
+/// @addtogroup VariableAssertions
+/// @{
 
 /// @copydoc TRUE_DOCU
 Function WARN(var)

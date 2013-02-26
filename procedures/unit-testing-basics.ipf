@@ -274,6 +274,9 @@ End
 
 ///@endcond // HIDDEN_SYMBOL
 
+///@addtogroup TestRunnerAndHelper
+///@{
+
 /// Turns debug output on
 Function EnableDebugOutput()
   dfref dfr = GetPackageFolder()
@@ -378,4 +381,6 @@ Function RunTest(procWinList, [name, testCase])
   NVAR/SDFR=GetPackageFolder() error_count
   return error_count
 End
+
+///@}
 
