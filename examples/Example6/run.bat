@@ -1,4 +1,8 @@
 @echo off
+
+REM Script for automatic test execution and logging from the command line
+REM Opens all experiment files in the current directory in autorun mode
+
 set IgorPath="%PROGRAMFILES(x86)%\WaveMetrics\Igor Pro Folder\Igor.exe"
 set StateFile="DO_AUTORUN.TXT"
 
@@ -8,14 +12,13 @@ goto done
 
 :foundIgor
 
-if "%1" NEQ "" goto hasArgument
-echo Missing experiment file
-goto done
-
-:hasArgument
-
 echo "" > %StateFile%
-%IgorPath% /I "%1"
+
+for /F "tokens=*" %%f IN ('dir /b *.pxp') do (
+  echo Running experiment %%f  
+  %IgorPath% /I "%%f"
+)
+
 del %StateFile%
 
 :done
