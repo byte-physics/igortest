@@ -1,0 +1,13 @@
+Requirements:
+- Igor Pro version 6.2.0 or later
+- Only tested on Windows, but is expected to run on MacOSX as well
+
+Installation:
+1.) Install Igor
+2.) Start Igor, this will create a folder called WaveMetrics in Documents
+3.) Extract the zip file into the a folder, e. g.  thomas/unitTestingFramework somewhere on your disc
+4.) Create a link from unitTestingFramework/procedures to  Documents\WaveMetrics\Igor Pro 6 User Files\User Procedures
+5.) Have a look at the manual or the example experiments
+
+**Please** report all bugs and major/minor annoyances to (thomas <dot> braun <aehht> byte <minus> physics <dottt> de)!
+
