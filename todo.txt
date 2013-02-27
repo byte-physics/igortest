@@ -1,9 +1,10 @@
 [*] nicify docu and proof read
 [*] alphabetical function name sorting
 [*] add copyright headers to all files
-[ ] add INSTALL.txt
-[ ] write release script
-[ ] release
+[*] add INSTALL.txt
+[*] write release script
+[*] release
+[*] test matrix file reader again
 
 Later TODO
 - printFailInfo does not work with Threadsafe, therefore postponing the threadsafe version

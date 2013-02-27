@@ -2,8 +2,9 @@
 
 set -e
 
-revision=HEAD
 newVersion=1.0
+#revision=HEAD
+revision=UnitTestingFramework-v1.0
 
 filesToWatch="procedures docu helper INSTALL.txt"
 
