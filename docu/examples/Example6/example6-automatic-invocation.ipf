@@ -3,7 +3,7 @@
 
 #include "unit-testing"
 
-// Command: Call "run.bat" without Igor Pro running
+// Command: Call "autorun-test.bat" without Igor Pro running
 
 static Function CheckTrigonometricFunctions()
   CHECK_EQUAL_VAR(sin(0.0),0.0)
