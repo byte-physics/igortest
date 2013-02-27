@@ -117,10 +117,13 @@ The override test hooks have to accept exactly one string parameter, which is th
 
 @section secAutomaticExecution Automate Test Runs
 
-To further simplify test execution it is possible to automate test runs from the command line.
-For this you have to implement a function @c run() taking no parameters. This function must perform all necessary steps to run your test suites, which for common cases would be just a call to @ref RunTest. For each experiment a copy of the history is saved as a plaintext log file.
-
-See also @ref Example6/example6-automatic-invocation.ipf.
-
+To further simplify test execution it is possible to automate test runs from the command line.<br>
+Steps to do that include:
+- Implement a function called @c run in ProcGlobal context taking no parameters. This function must perform all necessary steps for test execution, which is at least one call to @ref RunTest.
+- Put the test experiment together with your test suites (procedure files) and the script helper/autorun-test.bat into its own folder
+- Run the batch file autorun-test.bat
+- Inspect the created log file
+ 
+See also @ref Example6/example6-automatic-invocation.ipf
 **/
 
