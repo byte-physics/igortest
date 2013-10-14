@@ -572,7 +572,7 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
   endif
 
   string str
-  sprintf str, "\"%s\" == \"%s\" %s case", SelectString(NULL_STR(str1),"(null)",str1), SelectString(NULL_STR(str2),"(null)",str2), SelectString(case_sensitive,"not respecting","respecting")
+  sprintf str, "\"%s\" == \"%s\" %s case", SelectString(NULL_STR(str1),str1,"(null)"), SelectString(NULL_STR(str2),str2,"(null)"), SelectString(case_sensitive,"not respecting","respecting")
   DebugOutput(str, result)
 
   return result
