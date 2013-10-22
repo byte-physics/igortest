@@ -2,9 +2,9 @@
 
 set -e
 
-newVersion=1.0
+newVersion=1.01
 #revision=HEAD
-revision=UnitTestingFramework-v1.0
+revision=UnitTestingFramework-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
 
@@ -13,7 +13,7 @@ if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	exit 0
 fi
 
-basename=UnitTestingFramework-v$newVersion
+basename=$revision
 zipFile=$basename.zip
 folder=releases/$basename
 
