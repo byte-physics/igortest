@@ -23,7 +23,7 @@
 /// @example example1-plain.ipf
 /// Test suite showing the basic working principles.
 
-///  @example example2-plain.ipf
+/// @example example2-plain.ipf
 /// Test suite with run routine and module/static usage.
 /// See the section about [test cases](@ref secTestCase) why the function run_IGNORE() is not considered a test case.
  
@@ -43,6 +43,8 @@
 /// See also @ref secAutomaticExecution.
 /// \include Example6/example6-runner.ipf
 
+/// @example example7-fail-pass.ipf
+/// Test suite showing how to check for aborts using PASS() and FAIL() assertions.
 /**
 
 @mainpage
@@ -56,7 +58,7 @@ Interface design and naming is inspired by the [Boost Test Library](http://www.b
  
 @section secAssertionTypes Assertion Types
 
-An assertion checks that a given condition is true. Or in more general terms that an entity fullfills specific properties. Test assertions are defined for strings, variables and waves and have ALL CAPS names. They always come in tripletts which differ only in how they react on a failed assertion. Comparing two variables for example can be done with @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR or @ref REQUIRE_EQUAL_VAR.
+An assertion checks that a given condition is true. Or in more general terms that an entity fullfills specific properties. Test assertions are defined for strings, variables and waves and have ALL CAPS names. They usually come in tripletts which differ only in how they react on a failed assertion. Comparing two variables for example can be done with @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR or @ref REQUIRE_EQUAL_VAR.
 @par
 The following table summarizes the action on a failed assertion:
 <table border>
@@ -87,7 +89,7 @@ The following table summarizes the action on a failed assertion:
 </table>
 
 If in doubt use the CHECK variant. For the sake of clarity only the CHECK variants are documented, as the interface for REQUIRE and WARN is equivalent.
-
+The assertions with only one variant are @ref PASS and @ref FAIL, see also @ref example7-fail-pass.ipf.
 @section secTestCase Test Case
 
 A test case is one of the basic building blocks grouping assertions together. A function is considered a test case if it fullfills all of the following properties:

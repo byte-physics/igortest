@@ -581,6 +581,11 @@ End
 /// @addtogroup Assertions
 /// @{
 
+/// Increase the assertion counter only
+Function PASS()
+  TRUE_WRAPPER(1, REQUIRE_MODE)
+End
+
 /// Force the test case to fail
 Function FAIL()
   TRUE_WRAPPER(0, REQUIRE_MODE)
