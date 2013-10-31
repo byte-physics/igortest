@@ -2,7 +2,7 @@
 
 set -e
 
-newVersion=1.01
+newVersion=1.02
 #revision=HEAD
 revision=UnitTestingFramework-v$newVersion
 
