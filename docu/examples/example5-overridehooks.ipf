@@ -8,13 +8,13 @@
 static Function TEST_CASE_BEGIN_OVERRIDE(name)
   string name
 
-  print "I'm for all test cases in this test suite overriding the test case begin"
+  print "I'm for all test cases in *this* test suite"
 End
 
 static Function TEST_CASE_END_OVERRIDE(name)
   string name
 
-  printf "I'm overriding test case end for (%s) in this test suite only but still call the default hook\r", name
+  printf "I'm overriding test case end for (%s) in this test suite only\r", name
   TEST_CASE_END(name)
 End
 

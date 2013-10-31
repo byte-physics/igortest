@@ -17,9 +17,9 @@ Function run_IGNORE()
   RunTest("example2-plain.ipf",name="My first test")
 End
 
-// Making the function static prevents name clashes with other procedure files.
-// Using static functions requires also the line "#pragma ModuleName" from
-// above.
+// Making the function static prevents name clashes with other
+// procedure files. Using static functions requires also the
+// line "#pragma ModuleName" from above.
 static Function VerifyDefaultStringBehaviour()
  
   string nullString

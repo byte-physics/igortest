@@ -45,6 +45,15 @@
 \setlength{\emergencystretch}{15pt}
 \hbadness=750
 \tolerance=750
+% BEGIN CHANGES
+
+\usepackage{minted}
+\usemintedstyle{igor}
+
+\newcommand{\includeexample}[1]{%
+\inputminted[frame=lines]{igor}{../examples/#1}}
+
+%END CHANGES
 \begin{document}
 \hypersetup{pageanchor=false,citecolor=blue}
 \begin{titlepage}

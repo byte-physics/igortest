@@ -1,4 +1,4 @@
-
+﻿
 // Author: Thomas Braun (c) 2013
 // Email: thomas dot braun at byte-physics dott de
 
@@ -20,37 +20,12 @@
 /// @defgroup HookFunctions Default hook functions
 /// Default implementation of test hook functions
 
-/// @example example1-plain.ipf
-/// Test suite showing the basic working principles.
-
-/// @example example2-plain.ipf
-/// Test suite with run routine and module/static usage.
-/// See the section about [test cases](@ref secTestCase) why the function run_IGNORE() is not considered a test case.
- 
-/// @example example3-plain.ipf
-/// Test suite emphasising the difference between the WARN, CHECK and REQUIRE assertion variants.
-/// See also @ref secAssertionTypes.
- 
-/// @example example4-wavechecking.ipf
-/// Test suite showing some test assertions for waves.
- 
-/// @example example5-overridehooks.ipf
-/// Two test suites showing how to use test hook overrides.
-/// \include example5-overridehooks-otherSuite.ipf
- 
-/// @example Example6/example6-automatic-invocation.ipf
-/// Test suite showing how to automate testing from the command line.
-/// See also @ref secAutomaticExecution.
-/// \include Example6/example6-runner.ipf
-
-/// @example example7-fail-pass.ipf
-/// Test suite showing how to check for aborts using PASS() and FAIL() assertions.
 /**
 
 @mainpage
 
 This package empowers a programmer to utilize unit testing for Igor Pro procedures and XOPs.
-For a quick start have a look at the [first example](@ref example1-plain.ipf).
+For a quick start have a look at the [first example](@ref example1).
 
 The basic building blocks of this package are [Assertions](@ref secAssertionTypes) (for checking if an entity fullfills specific properties), [Test Cases](@ref secTestCase) (group of assertions) and [Test Suites](@ref secTestSuite) (group of test cases).
 
@@ -89,7 +64,7 @@ The following table summarizes the action on a failed assertion:
 </table>
 
 If in doubt use the CHECK variant. For the sake of clarity only the CHECK variants are documented, as the interface for REQUIRE and WARN is equivalent.
-The assertions with only one variant are @ref PASS and @ref FAIL, see also @ref example7-fail-pass.ipf.
+The assertions with only one variant are @ref PASS and @ref FAIL, see also @ref example7.
 @section secTestCase Test Case
 
 A test case is one of the basic building blocks grouping assertions together. A function is considered a test case if it fullfills all of the following properties:
@@ -113,7 +88,7 @@ In case the default hook functions don't suite your needs, it is explicitly @b n
 
 @subsection secTestHooksOverride Override Test Hooks
 
-The default test hooks can be overridden by defining your own version of the hooks suffixed with _OVERRIDE. The override hooks for @ref TEST_BEGIN and @ref TEST_END can only be overriden by functions in ProcGlobal. The override hooks for test suites/cases can be overriden globally if they reside in ProcGlobal context, or for a specific test suite only if they are defined in the same regular module as that test suite. Overriding here means that the default test hook is @b not executed. In case you still want to have the default test hook executed, you have to call it yourself in the override function as done in [example 5](@ref example5-overridehooks.ipf).
+The default test hooks can be overridden by defining your own version of the hooks suffixed with _OVERRIDE. The override hooks for @ref TEST_BEGIN and @ref TEST_END can only be overriden by functions in ProcGlobal. The override hooks for test suites/cases can be overriden globally if they reside in ProcGlobal context, or for a specific test suite only if they are defined in the same regular module as that test suite. Overriding here means that the default test hook is @b not executed. In case you still want to have the default test hook executed, you have to call it yourself in the override function as done in [example 5](@ref example5).
 
 The override test hooks have to accept exactly one string parameter, which is the name of the test suite group, test suite name or test case name.
 
@@ -126,6 +101,54 @@ Steps to do that include:
 - Run the batch file autorun-test.bat
 - Inspect the created log file
  
-See also @ref Example6/example6-automatic-invocation.ipf
-**/
+See also @ref example6.
 
+@page secExamples Example Documentation
+
+@section example1 example1-plain.ipf
+Test suite showing the basic working principles.
+@latexonly
+\includeexample{example1-plain.ipf}
+@endlatexonly
+
+@section example2 example2-plain.ipf
+Test suite with run routine and module/static usage. See the section about [test cases](@ref secTestCase) why the function run_IGNORE() is not considered a test case.
+@latexonly
+\includeexample{example2-plain.ipf}
+@endlatexonly
+
+@section example3 example3-plain.ipf
+Test suite emphasising the difference between the WARN(), CHECK() and REQUIRE() assertion variants.
+@latexonly
+\includeexample{example3-plain.ipf}
+@endlatexonly
+See also @ref secAssertionTypes.
+
+@section example4 example4-wavechecking.ipf
+Test suite showing some test assertions Xfor waves.
+@latexonly
+\includeexample{example4-wavechecking.ipf}
+@endlatexonly
+
+@section example5 example5-overridehooks.ipf
+Two test suites showing how to use test hook overrides.
+@latexonly
+\includeexample{example5-overridehooks.ipf}
+\includeexample{example5-overridehooks-otherSuite.ipf}
+@endlatexonly
+
+@section example6 example6-automatic-invocation.ipf
+Test suite showing how to automate testing from the command line.
+See also @ref secAutomaticExecution.
+@latexonly
+\includeexample{Example6/example6-automatic-invocation.ipf}
+\includeexample{Example6/example6-runner.ipf}
+@endlatexonly
+
+@section example7 example7-fail-pass.ipf
+Test suite showing how to check for aborts using @ref PASS and @ref FAIL assertions.
+@latexonly
+\includeexample{example7-fail-pass.ipf}
+@endlatexonly
+
+**/

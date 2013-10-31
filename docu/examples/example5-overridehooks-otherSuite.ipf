@@ -20,7 +20,7 @@ End
 Function TEST_CASE_END_OVERRIDE(name)
   string name
 
-  print "I'm for all test suites overriding the test case end but still call the default hook"
+  print "I'm for all test suites overriding the test case end"
   TEST_CASE_END(name)
 End
 
