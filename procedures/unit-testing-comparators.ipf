@@ -233,6 +233,43 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	endif
 End
 
+/// @class CLOSE_CMPLX_DOCU
+/// @copydoc CLOSE_VAR_DOCU
+///
+/// Variant for complex numbers.
+static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
+	variable/C var1, var2
+	variable flags
+	variable tol
+	variable strong_or_weak
+
+	incrAssert()
+
+	if( shouldDoAbort() )
+		return NaN
+	endif
+
+	if(ParamIsDefault(strong_or_weak))
+		strong_or_weak  = CLOSE_COMPARE_STRONG_OR_WEAK
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE
+	endif
+
+	if( !CLOSE_VAR(real(var1), real(var2), tol, strong_or_weak) || !CLOSE_VAR(imag(var1), imag(var2), tol, strong_or_weak))
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			abortNow()
+		endif
+	endif
+End
+
 /// @class SMALL_VAR_DOCU
 /// Tests if a variable is small using the inequality @f$  | var | < | tol |  @f$
 /// @param var        variable
@@ -253,6 +290,38 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	endif
 
 	if( !SMALL_VAR(var, tol) )
+		if( flags & OUTPUT_MESSAGE )
+			printFailInfo()
+		endif
+		if( flags & INCREASE_ERROR )
+			incrError()
+		endif
+		if( flags & ABORT_FUNCTION )
+			abortNow()
+		endif
+	endif
+End
+
+/// @class SMALL_CMPLX_DOCU
+/// @copydoc SMALL_VAR_DOCU
+///
+/// Variant for complex numbers
+static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
+	variable/C var
+	variable flags
+	variable tol
+
+	incrAssert()
+
+	if( shouldDoAbort() )
+		return NaN
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE
+	endif
+
+	if( !SMALL_VAR(cabs(var), tol))
 		if( flags & OUTPUT_MESSAGE )
 			printFailInfo()
 		endif
@@ -697,6 +766,52 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	endif
 End
 
+Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+	variable/C var1, var2
+	variable tol, strong_or_weak
+
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE)
+	elseif(ParamIsDefault(tol))
+		CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+	else
+		CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
+/// @copydoc CLOSE_CMPLX_DOCU
+Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+	variable/C var1, var2
+	variable tol, strong_or_weak
+
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE)
+	elseif(ParamIsDefault(tol))
+		CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+	else
+		CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
+Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+	variable/C var1, var2
+	variable tol, strong_or_weak
+
+	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE)
+	elseif(ParamIsDefault(tol))
+		CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, strong_or_weak=strong_or_weak)
+	elseif(ParamIsDefault(strong_or_weak))
+		CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+	else
+		CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong_or_weak=strong_or_weak)
+	endif
+End
+
 Function WARN_SMALL_VAR(var, [tol])
 	variable var
 	variable tol
@@ -728,6 +843,40 @@ Function REQUIRE_SMALL_VAR(var, [tol])
 		SMALL_VAR_WRAPPER(var, REQUIRE_MODE)
 	else
 		SMALL_VAR_WRAPPER(var, REQUIRE_MODE, tol=tol)
+	endif
+End
+
+Function WARN_SMALL_CMPLX(var, [tol])
+	variable/C var
+	variable tol
+
+	if(ParamIsDefault(tol))
+		SMALL_CMPLX_WRAPPER(var, WARN_MODE)
+	else
+		SMALL_CMPLX_WRAPPER(var, WARN_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_CMPLX_DOCU
+Function CHECK_SMALL_CMPLX(var, [tol])
+	variable/C var
+	variable tol
+
+	if(ParamIsDefault(tol))
+		SMALL_CMPLX_WRAPPER(var, CHECK_MODE)
+	else
+		SMALL_CMPLX_WRAPPER(var, CHECK_MODE, tol=tol)
+	endif
+End
+
+Function REQUIRE_SMALL_CMPLX(var, [tol])
+	variable/C var
+	variable tol
+
+	if(ParamIsDefault(tol))
+		SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE)
+	else
+		SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE, tol=tol)
 	endif
 End
 
