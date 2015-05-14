@@ -9,6 +9,9 @@
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
 
+Constant CLOSE_COMPARE_STRONG_OR_WEAK = 1
+Constant DEFAULT_TOLERANCE            = 1e-8
+
 /// Action flags
 ///@{
 Constant OUTPUT_MESSAGE = 0x01

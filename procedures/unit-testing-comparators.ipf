@@ -213,11 +213,11 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	endif
 
 	if(ParamIsDefault(strong_or_weak))
-		strong_or_weak  = 1
+		strong_or_weak  = CLOSE_COMPARE_STRONG_OR_WEAK
 	endif
 
 	if(ParamIsDefault(tol))
-		tol = 1e-8
+		tol = DEFAULT_TOLERANCE
 	endif
 
 	if( !CLOSE_VAR(var1, var2, tol, strong_or_weak) )
@@ -249,7 +249,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	endif
 
 	if(ParamIsDefault(tol))
-		tol = 1e-8
+		tol = DEFAULT_TOLERANCE
 	endif
 
 	if( !SMALL_VAR(var, tol) )
