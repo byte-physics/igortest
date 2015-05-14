@@ -145,10 +145,10 @@ See also @ref secAutomaticExecution.
 \includeexample{Example6/example6-runner.ipf}
 @endlatexonly
 
-@section example7 example7-fail-pass.ipf
-Test suite showing how to check for aborts using @ref PASS and @ref FAIL assertions.
+@section example7 example7-uncaught-aborts.ipf
+Test suite showing how unhandled aborts in test cases are handled.
 @latexonly
-\includeexample{example7-fail-pass.ipf}
+\includeexample{example7-uncaught-aborts.ipf}
 @endlatexonly
 
 **/
