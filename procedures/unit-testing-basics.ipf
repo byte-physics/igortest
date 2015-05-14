@@ -119,35 +119,49 @@ Function abortNow()
 End
 
 /// Prints an informative message about the test's success or failure
-/// It is assumed that the test function CHECK_*_*, REQUIRE_*_*, WARN_*_* is the caller of the calling function,
-/// that means the call stack is e. g. RUN_TEST_SUITE -> testCase -> CHECK_SMALL_VAR -> printFailInfo -> printInfo
 static Function/S getInfo(result)
 	variable result
 
-	string callStack = GetRTStackInfo(3)
+	string caller, procedure, callStack, contents
+	string text, cleanText, line
+	variable numCallers, i
+	variable callerIndex = NaN
 
-	variable indexThisFunction  = ItemsInList(callStack) - 1 // 0-based indizes
-	variable indexCheckFunction = indexThisFunction - 4
+	callStack = GetRTStackInfo(3)
+	numCallers = ItemsInList(callStack)
 
-	if(indexCheckFunction < 0 || indexCheckFunction > indexThisFunction)
-		return ""
+	// traverse the callstack from bottom up,
+	// the first function not in one of the unit testing procedures is
+	// the one we want to report.
+	for(i = numCallers - 1; i >= 0; i -= 1)
+		caller    = StringFromList(i, callStack)
+		procedure = StringFromList(1, caller, ",")
+
+		if(StringMatch(procedure, "unit-testing*"))
+			continue
+		else
+			callerIndex = i
+			break
+		endif
+
+	endfor
+
+	if(numtype(callerIndex) != 0)
+		return "Assertion failed in unknown location"
 	endif
 
-	string initialCaller   = StringFromList(indexCheckFunction,callStack,";")
-	string procedure    = StringFromList(1,initialCaller,",")
-	string line        = StringFromList(2,initialCaller,",")
+	caller    = StringFromList(callerIndex, callStack)
+	procedure = StringFromList(1, caller, ",")
+	line      = StringFromList(2, caller, ",")
 
-	// get the line which called the caller of this function
-	string procedureContents = ProcedureText("",-1,procedure)
-	string text = StringFromList(str2num(line),procedureContents,"\r")
+	contents = ProcedureText("",-1,procedure)
+	text = StringFromList(str2num(line), contents, "\r")
 
 	// remove leading and trailing whitespace
-	string cleanText
 	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
 
-	string errMsg
-	sprintf errMsg, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
-	return errMsg
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
+	return text
 End
 
 /// Groups all hooks which are executed at test case/suite begin/end
