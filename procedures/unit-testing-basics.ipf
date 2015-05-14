@@ -323,7 +323,7 @@ Function RunTest(procWinList, [name, testCase])
 		return NaN
 	endif
 
-	variable i, j
+	variable i, j, err
 
 	string allProcWindows = WinList("*",";","WIN:128")
 
@@ -384,9 +384,14 @@ Function RunTest(procWinList, [name, testCase])
 			testCaseBegin(funcName)
 
 			try
-				testCaseFunc()
+				testCaseFunc(); AbortOnRTE
 			catch
-				// do nothing
+				// only complain here if the error counter if the abort happened not in our code
+				if(!shouldDoAbort())
+					printf "Uncaught runtime error \"%s\" in test case \"%s\", procedure \"%s\"\r", GetRTErrMessage(), funcName, procWin
+					err = GetRTError(1)
+					incrError()
+				endif
 			endtry
 
 			testCaseEnd(funcName)
