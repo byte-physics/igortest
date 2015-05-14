@@ -14,15 +14,15 @@
 Function TEST_BEGIN(name)
 	string name
 
-  // we have to remember the state of debugging
-  variable reEnableDebugOutput=EnabledDebug()
+	// we have to remember the state of debugging
+	variable reEnableDebugOutput=EnabledDebug()
 
-  KillDataFolder/Z $PKG_FOLDER
-  initGlobalError()
+	KillDataFolder/Z $PKG_FOLDER
+	initGlobalError()
 
-  if(reEnableDebugOutput)
-    EnableDebugOutput()
-  endif
+	if(reEnableDebugOutput)
+		EnableDebugOutput()
+	endif
 
 	printf "Start of test \"%s\"\r", name
 End
@@ -128,4 +128,3 @@ Function TEST_CASE_END(testCase)
 End
 
 ///@}
-

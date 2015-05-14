@@ -24,7 +24,7 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 /// @addtogroup assertionFlags
 ///@{
 
-/// @addtogroup testWaveFlags 
+/// @addtogroup testWaveFlags
 ///@{
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
@@ -38,7 +38,7 @@ Constant INT32_WAVE   = 0x20
 Constant UNSIGNED_WAVE= 0x40
 ///@}
 
-/// @addtogroup equalWaveFlags 
+/// @addtogroup equalWaveFlags
 ///@{
 Constant WAVE_DATA        =   1
 Constant WAVE_DATA_TYPE   =   2
@@ -52,4 +52,3 @@ Constant DATA_FULL_SCALE  = 256
 Constant DIMENSION_SIZES  = 512
 ///@}
 ///@}
-

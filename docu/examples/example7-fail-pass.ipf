@@ -17,7 +17,7 @@ End
 // Command: RunTest("example7-fail-pass.ipf")
 // Helper functions to use with try/catch
 static Function CheckAddNormalNumbers_a_nan()
-	
+
 	variable a = NaN
 	variable b = 1.0
 	try
@@ -30,7 +30,7 @@ static Function CheckAddNormalNumbers_a_nan()
 End
 
 static Function CheckAddNormalNumbers_b_nan()
-	
+
 	variable a = 1.0
 	variable b = NaN
 	try
@@ -43,7 +43,7 @@ static Function CheckAddNormalNumbers_b_nan()
 End
 
 static Function CheckAddNormalNumbers_both_nan()
-	
+
 	variable a = NaN
 	variable b = NaN
 	try

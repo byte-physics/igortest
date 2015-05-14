@@ -6,38 +6,38 @@
 // the test hook overrides are global.
 
 Function TEST_BEGIN_OVERRIDE(name)
-  string name
+	string name
 
-  print "I can only be overriden globally"
+	print "I can only be overriden globally"
 End
 
 Function TEST_END_OVERRIDE(name)
-  string name
+	string name
 
-  print "I can only be overriden globally, too"
+	print "I can only be overriden globally, too"
 End
 
 Function TEST_CASE_END_OVERRIDE(name)
-  string name
+	string name
 
-  print "I'm for all test suites overriding the test case end"
-  TEST_CASE_END(name)
+	print "I'm for all test suites overriding the test case end"
+	TEST_CASE_END(name)
 End
 
 Function TEST_SUITE_BEGIN_OVERRIDE(name)
-  string name
+	string name
 
-  print "Global test suite begin override"
+	print "Global test suite begin override"
 End
 
 Function TEST_SUITE_END_OVERRIDE(name)
-  string name
+	string name
 
-  print "Global test suite end override"
-  TEST_SUITE_END(name)
+	print "Global test suite end override"
+	TEST_SUITE_END(name)
 End
 
 Function CheckBasicMath()
 
-  CHECK_EQUAL_VAR(1+2,3)
+	CHECK_EQUAL_VAR(1+2,3)
 End
