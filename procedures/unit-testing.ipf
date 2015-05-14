@@ -1,7 +1,7 @@
 #pragma rtGlobals=3
 #pragma version=1.01
 
-// Author: Thomas Braun (c) 2013
+// Author: Thomas Braun (c) 2015
 // Email: thomas dot braun at byte-physics dott de
 
 #include "unit-testing-constants"
