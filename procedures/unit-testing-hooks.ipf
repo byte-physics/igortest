@@ -94,6 +94,7 @@ Function TEST_CASE_BEGIN(testCase)
 	// create a new unique folder as working folder
 	dfref dfr = GetPackageFolder()
 	string/G dfr:lastFolder = GetDataFolder(1)
+	SetDataFolder root:
 	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
 	SVAR/SDFR=dfr workFolder
 	NewDataFolder/O/S $workFolder
