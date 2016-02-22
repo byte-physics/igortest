@@ -41,8 +41,8 @@ static Function AfterFileOpenHook(refNum,file,pathName,type,creator,kind)
 	// state file exists, call the run routine and quit Igor afterwards
 	CreateHistoryLog()
 	f()
-	SaveHistoryLog()
-	Execute/P "Quit/N"
+
+	Execute/P "SaveHistoryLog(); Quit/N"
 End
 
 /// Save the contents of the history notebook on disk
