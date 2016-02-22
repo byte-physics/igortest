@@ -17,8 +17,8 @@ End
 /// - the opened file is an igor experiment
 /// - the file DO_AUTORUN.TXT exists in the igor home path
 static Function AfterFileOpenHook(refNum,file,pathName,type,creator,kind)
-Variable refNum,kind
-String file,pathName,type,creator
+	variable refNum,kind
+	string file,pathName,type,creator
 
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
