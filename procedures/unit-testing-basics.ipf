@@ -8,7 +8,7 @@
 
 /// Returns the package folder
 Function/DF GetPackageFolder()
-	if( !DataFolderExists(PKG_FOLDER) )
+	if(!DataFolderExists(PKG_FOLDER))
 		NewDataFolder/O root:Packages
 		NewDataFolder/O root:Packages:UnitTesting
 	endif
@@ -37,7 +37,7 @@ Function DebugOutput(str, booleanValue)
 	variable booleanValue
 
 	if(EnabledDebug())
-		str += ": is " + SelectString(booleanValue,"false","true")
+		str += ": is " + SelectString(booleanValue, "false", "true")
 		print str
 	endif
 End
@@ -154,13 +154,13 @@ static Function/S getInfo(result)
 	procedure = StringFromList(1, caller, ",")
 	line      = StringFromList(2, caller, ",")
 
-	contents = ProcedureText("",-1,procedure)
+	contents = ProcedureText("", -1, procedure)
 	text = StringFromList(str2num(line), contents, "\r")
 
 	// remove leading and trailing whitespace
 	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
 
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result,"failed","suceeded"), line, procedure
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "suceeded"), line, procedure
 	return text
 End
 
@@ -190,11 +190,11 @@ End
 static Function getGlobalHooks(hooks)
 	Struct TestHooks& hooks
 
-	string userHooks = FunctionList("*_OVERRIDE",";","KIND:2,NPARAMS:1")
+	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2,NPARAMS:1")
 
 	variable i
-	for(i = 0; i < ItemsInList(userHooks); i+=1)
-		string userHook = StringFromList(i,userHooks)
+	for(i = 0; i < ItemsInList(userHooks); i += 1)
+		string userHook = StringFromList(i, userHooks)
 		strswitch(userHook)
 			case "TEST_BEGIN_OVERRIDE":
 				hooks.testBegin = userHook
@@ -226,11 +226,11 @@ static Function getLocalHooks(hooks, procName)
 	string procName
 	Struct TestHooks& hooks
 
-	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,NPARAMS:1,WIN:" + procName)
+	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,NPARAMS:1, WIN:" + procName)
 
 	variable i
-	for(i = 0; i < ItemsInList(userHooks); i+=1)
-		string userHook = StringFromList(i,userHooks)
+	for(i = 0; i < ItemsInList(userHooks); i += 1)
+		string userHook = StringFromList(i, userHooks)
 
 		string fullFunctionName = getFullFunctionName(userHook, procName)
 		strswitch(userHook)
@@ -267,11 +267,11 @@ static Function/S getFullFunctionName(funcName, procName)
 
 	string module = StringByKey("MODULE", infoStr)
 
-	if(strlen(module) <= 0 )
+	if(strlen(module) <= 0)
 		module = "ProcGlobal"
 
 		// we can only use static functions if they live in a module
-		if( cmpstr(StringByKey("SPECIAL",infoStr),"static") == 0 )
+		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
 			sprintf errMsg, "The procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.\r", procName
 			Abort errMsg
 		endif
@@ -311,8 +311,8 @@ Function DisableDebugOutput()
 End
 
 /// Main function to execute one or more test suites.
-/// @param   procWinList 	 semicolon (";") separated list of procedure files
-/// @param   name      	   (optional) descriptive name for the executed test suites
+/// @param   procWinList   semicolon (";") separated list of procedure files
+/// @param   name          (optional) descriptive name for the executed test suites
 /// @param   testCase      (optional) function name, resembling one test case, which should be executed only
 /// @return                total number of errors
 Function RunTest(procWinList, [name, testCase])
@@ -325,9 +325,9 @@ Function RunTest(procWinList, [name, testCase])
 
 	variable i, j, err
 
-	string allProcWindows = WinList("*",";","WIN:128")
+	string allProcWindows = WinList("*", ";", "WIN:128")
 
-	for(i = 0; i < ItemsInList(procWinList); i+=1)
+	for(i = 0; i < ItemsInList(procWinList); i += 1)
 		string procWin = StringFromList(i, procWinList)
 		if(FindListItem(procWin, allProcWindows) == -1)
 			printf "A procedure window named %s could not be found.\r", procWin
@@ -351,14 +351,14 @@ Function RunTest(procWinList, [name, testCase])
 	testBegin(name)
 
 	variable abortNow = 0
-	for(i = 0; i < ItemsInList(procWinList); i+=1)
+	for(i = 0; i < ItemsInList(procWinList); i += 1)
 
 		procWin = StringFromList(i, procWinList)
 
 		string testCaseList
 		if(ParamIsDefault(testCase))
 			// 18 == 16 (static function) or 2 (userdefined functions)
-			testCaseList = FunctionList("!*_IGNORE",";","KIND:18,NPARAMS:0,WIN:" + procWin)
+			testCaseList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin)
 		else
 			testCaseList = testCase
 		endif
@@ -376,7 +376,7 @@ Function RunTest(procWinList, [name, testCase])
 		testSuiteBegin(procWin)
 
 		for(j = 0; j < ItemsInList(testCaseList); j += 1)
-			string funcName = StringFromList(j,testCaseList)
+			string funcName = StringFromList(j, testCaseList)
 			string fullFuncName = getFullFunctionName(funcName, procWin)
 
 			FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
@@ -396,14 +396,14 @@ Function RunTest(procWinList, [name, testCase])
 
 			testCaseEnd(funcName)
 
-			if( shouldDoAbort() )
+			if(shouldDoAbort())
 				break
 			endif
 		endfor
 
 		testSuiteEnd(procWin)
 
-		if( shouldDoAbort() )
+		if(shouldDoAbort())
 			break
 		endif
 	endfor
