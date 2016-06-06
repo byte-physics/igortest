@@ -186,11 +186,42 @@ static Function setDefaultHooks(hooks)
 	hooks.testCaseEnd    = "TEST_CASE_END"
 End
 
+/// Check that all hook functions, default and override,
+/// have the expected signature and abort if not.
+static Function abortWithInvalidHooks(hooks)
+	Struct TestHooks& hooks
+
+	variable i, numEntries
+	string msg
+
+	Make/T/N=6/FREE info
+
+	info[0] = FunctionInfo(hooks.testBegin)
+	info[1] = FunctionInfo(hooks.testEnd)
+	info[2] = FunctionInfo(hooks.testSuiteBegin)
+	info[3] = FunctionInfo(hooks.testSuiteEnd)
+	info[4] = FunctionInfo(hooks.testCaseBegin)
+	info[5] = FunctionInfo(hooks.testCaseEnd)
+
+	numEntries = DimSize(info, 0)
+	for(i = 0; i < numEntries; i += 1)
+		if(NumberByKey("N_PARAMS", info[i]) != 1 || NumberByKey("N_OPT_PARAMS", info[i]) != 0 || NumberByKey("PARAM_0_TYPE", info[i]) != 0x2000)
+			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.\r", StringByKey("NAME", info[i])
+			Abort msg
+		endif
+
+		if(NumberByKey("RETURNTYPE", info[i]) != 0x4)
+			sprintf msg, "The override test hook \"%s\" must return a numeric variable.\r", StringByKey("NAME", info[i])
+			Abort msg
+		endif
+	endfor
+End
+
 /// Looks for global override hooks in the module ProcGlobal
 static Function getGlobalHooks(hooks)
 	Struct TestHooks& hooks
 
-	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2,NPARAMS:1")
+	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2")
 
 	variable i
 	for(i = 0; i < ItemsInList(userHooks); i += 1)
@@ -219,6 +250,8 @@ static Function getGlobalHooks(hooks)
 				break
 		endswitch
 	endfor
+
+	abortWithInvalidHooks(hooks)
 End
 
 /// Looks for local override hooks in a specific procedure file
@@ -226,7 +259,7 @@ static Function getLocalHooks(hooks, procName)
 	string procName
 	Struct TestHooks& hooks
 
-	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,NPARAMS:1, WIN:" + procName)
+	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,WIN:" + procName)
 
 	variable i
 	for(i = 0; i < ItemsInList(userHooks); i += 1)
@@ -251,6 +284,8 @@ static Function getLocalHooks(hooks, procName)
 				break
 		endswitch
 	endfor
+
+	abortWithInvalidHooks(hooks)
 End
 
 /// Returns the full name of a function including its module
