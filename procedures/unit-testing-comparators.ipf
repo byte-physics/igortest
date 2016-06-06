@@ -607,9 +607,9 @@ static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 	variable tol
 	variable strong_or_weak
 
-	variable diff  = abs(var1 - var2)
-	variable d1   = diff/var1
-	variable d2   = diff/var2
+	variable diff = abs(var1 - var2)
+	variable d1   = diff / abs(var1)
+	variable d2   = diff / abs(var2)
 
 	variable result
 	if(strong_or_weak == 1)
