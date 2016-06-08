@@ -6,7 +6,7 @@
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
- Function CreateHistoryLog()
+Function CreateHistoryLog()
 	DoWindow/K HistoryCarbonCopy
 	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
 End
