@@ -399,7 +399,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		endif
 	endif
 
-	result = (WaveType(wv, 1) != majorType)
+	result = (WaveType(wv, 1) == majorType)
 	string str
 	sprintf str, "Assumption that the wave's main type is %d", majorType
 	DebugOutput(str, result)
