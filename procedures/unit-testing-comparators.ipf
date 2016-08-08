@@ -373,7 +373,7 @@ End
 /// @param majorType  major wave type
 /// @param minorType  (optional) minor wave type
 /// @see testWaveFlags
-static Function TEST_WAVE_WRAPPER(wv, flags, majorType, [minorType])
+static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	Wave/Z wv
 	variable majorType, minorType
 	variable flags
