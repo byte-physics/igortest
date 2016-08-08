@@ -1223,6 +1223,82 @@ Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
 	endif
 End
 
+#if (IgorVersion() >=7.00)
+
+Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/Z/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+	endif
+End
+
+Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/Z/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+	endif
+End
+
+Function REQUIRE_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/Z/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode=mode)
+	endif
+End
+
+#else
+
+Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+	endif
+End
+
+/// Tests two text waves for equality
+/// @param wv1    first text wave, can be invalid for Igor Pro 7 or later
+/// @param wv2    second text wave, can be invalid for Igor Pro 7 or later
+/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
+Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+	endif
+End
+
+Function REQUIRE_EQUAL_TEXTWAVES(wv1, wv2, [mode])
+	Wave/T wv1, wv2
+	variable mode
+
+	if(ParamIsDefault(mode))
+		EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE)
+	else
+		EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode=mode)
+	endif
+End
+
+#endif
+
 Function WARN_EMPTY_FOLDER()
 	CDF_EMPTY_WRAPPER(WARN_MODE)
 End
