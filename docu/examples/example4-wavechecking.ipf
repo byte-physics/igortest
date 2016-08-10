@@ -24,10 +24,10 @@ End
 static Function CheckMakeText()
 	CHECK_EMPTY_FOLDER()
 
-	Make/T/D myWave
+	Make/T myWave
 	CHECK_WAVE(myWave,TEXT_WAVE)
 	CHECK_EQUAL_VAR(DimSize(myWave,0),128)
 
-	Duplicate myWave, myWaveCopy
+	Duplicate/T myWave, myWaveCopy
 	CHECK_EQUAL_WAVES(myWave,myWaveCopy)
 End
