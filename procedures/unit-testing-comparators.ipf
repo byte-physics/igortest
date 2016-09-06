@@ -127,6 +127,65 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 	endif
 End
 
+/// @class NON_NULL_STR_DOCU
+/// Tests if str is not null.
+///
+/// An empty string is always non null.
+/// @param str    string to test
+static Function NON_NULL_STR_WRAPPER(str, flags)
+	string &str
+	variable flags
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(!NON_NULL_STR(str))
+		if(flags & OUTPUT_MESSAGE)
+			printFailInfo()
+		endif
+		if(flags & INCREASE_ERROR)
+			incrError()
+		endif
+		if(flags & ABORT_FUNCTION)
+			abortNow()
+		endif
+	endif
+End
+
+/// @class NON_EMPTY_STR_DOCU
+/// Tests if str is not empty.
+///
+/// A null string is a non empty string too.
+/// @param str  string to test
+static Function NON_EMPTY_STR_WRAPPER(str, flags)
+	string &str
+	variable flags
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	variable result = (strlen(str) > 0 || NULL_STR(str))
+	DebugOutput("Assumption that the string is non empty is", result)
+
+	if(!result)
+		if(flags & OUTPUT_MESSAGE)
+			printFailInfo()
+		endif
+		if(flags & INCREASE_ERROR)
+			incrError()
+		endif
+		if(flags & ABORT_FUNCTION)
+			abortNow()
+		endif
+	endif
+End
+
 /// @class NEQ_VAR_DOCU
 /// Tests two variables for inequality
 /// @param var1    first variable
@@ -562,6 +621,15 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endfor
 End
 
+static Function NON_NULL_STR(str)
+	string &str
+
+	variable result = (numtype(strlen(str)) == 0)
+
+	DebugOutput("Assumption of str being non null is ", result)
+	return result
+End
+
 static Function NULL_STR(str)
 	string &str
 
@@ -899,6 +967,25 @@ Function REQUIRE_EMPTY_STR(str)
 	EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+Function WARN_NON_EMPTY_STR(str)
+	string &str
+
+	NON_EMPTY_STR_WRAPPER(str, WARN_MODE)
+End
+
+/// @copydoc NON_EMPTY_STR_DOCU
+Function CHECK_NON_EMPTY_STR(str)
+	string &str
+
+	NON_EMPTY_STR_WRAPPER(str, CHECK_MODE)
+End
+
+Function REQUIRE_NON_EMPTY_STR(str)
+	string &str
+
+	NON_EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
+End
+
 Function WARN_NULL_STR(str)
 	string &str
 
@@ -916,6 +1003,25 @@ Function REQUIRE_NULL_STR(str)
 	string &str
 
 	NULL_STR_WRAPPER(str, REQUIRE_MODE)
+End
+
+Function WARN_NON_NULL_STR(str)
+	string &str
+
+	NON_NULL_STR_WRAPPER(str, WARN_MODE)
+End
+
+/// @copydoc NON_NULL_STR_DOCU
+Function CHECK_NON_NULL_STR(str)
+	string &str
+
+	NON_NULL_STR_WRAPPER(str, CHECK_MODE)
+End
+
+Function REQUIRE_NON_NULL_STR(str)
+	string &str
+
+	NON_NULL_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
