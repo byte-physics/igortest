@@ -3,5 +3,5 @@
 #include "unit-testing"
 
 Function run()
-	RunTest("example6-automatic-invocation.ipf")	
+	RunTest("example6-automatic-invocation.ipf")
 End
