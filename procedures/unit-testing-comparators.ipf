@@ -186,6 +186,38 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 	endif
 End
 
+/// @class PROPER_STR_DOCU
+/// Tests if str is a "proper" string, i.e. a string with a length larger than
+/// zero.
+///
+/// Neither null strings nor empty strings are proper strings.
+/// @param str  string to test
+static Function PROPER_STR_WRAPPER(str, flags)
+	string &str
+	variable flags
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	variable result = (strlen(str) > 0)
+	DebugOutput("Assumption that the string is a proper string is", result)
+
+	if(!result)
+		if(flags & OUTPUT_MESSAGE)
+			printFailInfo()
+		endif
+		if(flags & INCREASE_ERROR)
+			incrError()
+		endif
+		if(flags & ABORT_FUNCTION)
+			abortNow()
+		endif
+	endif
+End
+
 /// @class NEQ_VAR_DOCU
 /// Tests two variables for inequality
 /// @param var1    first variable
@@ -984,6 +1016,25 @@ Function REQUIRE_NON_EMPTY_STR(str)
 	string &str
 
 	NON_EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
+End
+
+Function WARN_PROPER_STR(str)
+	string &str
+
+	PROPER_STR_WRAPPER(str, WARN_MODE)
+End
+
+/// @copydoc PROPER_STR_DOCU
+Function CHECK_PROPER_STR(str)
+	string &str
+
+	PROPER_STR_WRAPPER(str, CHECK_MODE)
+End
+
+Function REQUIRE_PROPER_STR(str)
+	string &str
+
+	PROPER_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
 Function WARN_NULL_STR(str)
