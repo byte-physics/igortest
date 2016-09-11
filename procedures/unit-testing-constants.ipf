@@ -32,13 +32,16 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 Constant TEXT_WAVE    = 2
 Constant NUMERIC_WAVE = 1
 
-Constant COMPLEX_WAVE = 0x01
-Constant FLOAT_WAVE   = 0x02
-Constant DOUBLE_WAVE  = 0x04
-Constant INT8_WAVE    = 0x08
-Constant INT16_WAVE   = 0x16
-Constant INT32_WAVE   = 0x20
-Constant UNSIGNED_WAVE= 0x40
+Constant COMPLEX_WAVE    = 0x01
+Constant FLOAT_WAVE      = 0x02
+Constant DOUBLE_WAVE     = 0x04
+Constant INT8_WAVE       = 0x08
+Constant INT16_WAVE      = 0x10
+Constant INT32_WAVE      = 0x20
+Constant INT64_WAVE      = 0x80
+Constant UNSIGNED_WAVE   = 0x40
+Constant DATAFOLDER_WAVE = 0x100
+Constant WAVE_WAVE       = 0x4000
 ///@}
 
 /// @addtogroup equalWaveFlags
