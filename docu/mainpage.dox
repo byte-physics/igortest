@@ -151,4 +151,10 @@ Test suite showing how unhandled aborts in test cases are handled.
 \includeexample{example7-uncaught-aborts.ipf}
 @endlatexonly
 
+@section example8 example8-pass-fail.ipf
+Test suite showing how PASS/FAIL can be used.
+@latexonly
+\includeexample{example8-pass-fail.ipf}
+@endlatexonly
+
 **/
