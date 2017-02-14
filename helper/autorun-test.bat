@@ -15,11 +15,10 @@ goto done
 echo "" > %StateFile%
 
 for /F "tokens=*" %%f IN ('dir /b *.pxp') do (
-  echo Running experiment %%f  
+  echo Running experiment %%f
   %IgorPath% /I "%%f"
 )
 
 del %StateFile%
 
 :done
-
