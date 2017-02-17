@@ -30,8 +30,8 @@ cp -r procedures docu/examples Readme.md helper $folder
 # copy and rename manual
 cp docu/refman.pdf $folder/Manual-$basename.pdf
 
-# copy autorun script into example6 folder
-cp $folder/helper/autorun-test.bat $folder/examples/Example6
+# copy autorun scripts into example6 folder
+cp $folder/helper/autorun*.bat $folder/examples/Example6
 
 git rev-parse $revision > internalVersion
 
