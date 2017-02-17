@@ -7,6 +7,10 @@ revision=UnitTestingFramework-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
 
+for i in `ls procedures/*.ipf`; do
+	sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
+done
+
 if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	echo "Aborting, please commit the changes first"
 	exit 0
