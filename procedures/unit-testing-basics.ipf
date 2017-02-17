@@ -42,6 +42,26 @@ Function DebugOutput(str, booleanValue)
 	endif
 End
 
+/// Disable the Igor Pro Debugger and return its state prior to deactivation
+Function DisableIgorDebugger()
+
+	variable debuggerState
+
+	DebuggerOptions
+	debuggerState = V_enable
+
+	DebuggerOptions enable=0
+
+	return debuggerState
+End
+
+/// Restore the Igor Pro Debugger to its prior state
+Function RestoreIgorDebugger(debuggerState)
+	variable debuggerState
+
+	DebuggerOptions enable=debuggerState
+End
+
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
 Function initGlobalError()
