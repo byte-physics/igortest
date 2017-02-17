@@ -1,8 +1,8 @@
-﻿
+
 // Author: Thomas Braun (c) 2015
 // Email: thomas dot braun at byte-physics dott de
 
-/// @defgroup TestRunnerAndHelper Helper functions 
+/// @defgroup TestRunnerAndHelper Helper functions
 /// Runner and helper functions
 
 /// @defgroup Assertions Test Assertions
@@ -30,7 +30,7 @@ For a quick start have a look at the [first example](@ref example1).
 The basic building blocks of this package are [Assertions](@ref secAssertionTypes) (for checking if an entity fullfills specific properties), [Test Cases](@ref secTestCase) (group of assertions) and [Test Suites](@ref secTestSuite) (group of test cases).
 
 Interface design and naming is inspired by the [Boost Test Library](http://www.boost.org/libs/test).
- 
+
 @section secAssertionTypes Assertion Types
 
 An assertion checks that a given condition is true. Or in more general terms that an entity fullfills specific properties. Test assertions are defined for strings, variables and waves and have ALL CAPS names. They usually come in tripletts which differ only in how they react on a failed assertion. Comparing two variables for example can be done with @ref WARN_EQUAL_VAR, @ref CHECK_EQUAL_VAR or @ref REQUIRE_EQUAL_VAR.
@@ -100,7 +100,7 @@ Steps to do that include:
 - Put the test experiment together with your test suites (procedure files) and the script helper/autorun-test.bat into its own folder
 - Run the batch file autorun-test.bat
 - Inspect the created log file
- 
+
 See also @ref example6.
 
 @page secExamples Example Documentation
