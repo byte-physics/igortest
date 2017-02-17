@@ -62,6 +62,13 @@ Function RestoreIgorDebugger(debuggerState)
 	DebuggerOptions enable=debuggerState
 End
 
+/// Create the variable igorDebugState in PKG_FOLDER
+/// and initialize it to zero
+Function InitIgorDebugState()
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:igor_debug_state = 0
+End
+
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
 Function initGlobalError()
