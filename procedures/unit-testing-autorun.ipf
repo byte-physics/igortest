@@ -1,8 +1,8 @@
 #pragma rtGlobals=3
 #pragma version=1.03
 
-// Author: Thomas Braun (c) 2015
-// Email: thomas dot braun at byte-physics dott de
+// Author: Thomas Braun and contributors (c) 2013-2017
+// Email: support at byte-physics dott de
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
