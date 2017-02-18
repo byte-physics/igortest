@@ -1,8 +1,8 @@
 #pragma rtGlobals=3
 #pragma version=1.03
 
-// Author: Thomas Braun (c) 2015
-// Email: thomas dot braun at byte-physics dott de
+// Author: Thomas Braun and contributors (c) 2013-2017
+// Email: support at byte-physics dott de
 
 ///@cond HIDDEN_SYMBOL
 
@@ -40,6 +40,33 @@ Function DebugOutput(str, booleanValue)
 		str += ": is " + SelectString(booleanValue, "false", "true")
 		print str
 	endif
+End
+
+/// Disable the Igor Pro Debugger and return its state prior to deactivation
+Function DisableIgorDebugger()
+
+	variable debuggerState
+
+	DebuggerOptions
+	debuggerState = V_enable
+
+	DebuggerOptions enable=0
+
+	return debuggerState
+End
+
+/// Restore the Igor Pro Debugger to its prior state
+Function RestoreIgorDebugger(debuggerState)
+	variable debuggerState
+
+	DebuggerOptions enable=debuggerState
+End
+
+/// Create the variable igorDebugState in PKG_FOLDER
+/// and initialize it to zero
+Function InitIgorDebugState()
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:igor_debug_state = 0
 End
 
 /// Creates the variable global_error_count in PKG_FOLDER

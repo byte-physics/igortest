@@ -1,8 +1,8 @@
 #pragma rtGlobals=3
 #pragma version=1.03
 
-// Author: Thomas Braun (c) 2015
-// Email: thomas dot braun at byte-physics dott de
+// Author: Thomas Braun and contributors (c) 2013-2017
+// Email: support at byte-physics dott de
 
 ///@addtogroup HookFunctions
 ///@{
@@ -24,6 +24,12 @@ Function TEST_BEGIN(name)
 		EnableDebugOutput()
 	endif
 
+	initIgorDebugState()
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr igor_debug_state
+	igor_debug_state = DisableIgorDebugger()
+
 	printf "Start of test \"%s\"\r", name
 End
 
@@ -44,6 +50,11 @@ Function TEST_END(name)
 	endif
 
 	printf "End of test \"%s\"\r", name
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr igor_debug_state
+
+	RestoreIgorDebugger(igor_debug_state)
 End
 
 /// Default hook for test suite begin.
