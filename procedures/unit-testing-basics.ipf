@@ -391,7 +391,7 @@ Function RunTest(procWinList, [name, testCase])
 
 	for(i = 0; i < ItemsInList(procWinList); i += 1)
 		string procWin = StringFromList(i, procWinList)
-		if(FindListItem(procWin, allProcWindows) == -1)
+		if(FindListItem(procWin, allProcWindows, ";", 0, 0) == -1)
 			printf "A procedure window named %s could not be found.\r", procWin
 			return NaN
 		endif
