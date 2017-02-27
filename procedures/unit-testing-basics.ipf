@@ -145,6 +145,13 @@ Function abortNow()
 	Abort
 End
 
+/// Resets the abort flag
+Function InitAbortFlag()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:abortFlag = 0
+End
+
+
 /// Prints an informative message about the test's success or failure
 static Function/S getInfo(result)
 	variable result

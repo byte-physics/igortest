@@ -29,6 +29,8 @@ Function TEST_BEGIN(name)
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr igor_debug_state
 	igor_debug_state = DisableIgorDebugger()
+	
+	InitAbortFlag()
 
 	printf "Start of test \"%s\"\r", name
 End
