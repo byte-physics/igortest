@@ -145,6 +145,13 @@ Function abortNow()
 	Abort
 End
 
+/// Resets the abort flag
+Function InitAbortFlag()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:abortFlag = 0
+End
+
+
 /// Prints an informative message about the test's success or failure
 static Function/S getInfo(result)
 	variable result
@@ -391,7 +398,7 @@ Function RunTest(procWinList, [name, testCase])
 
 	for(i = 0; i < ItemsInList(procWinList); i += 1)
 		string procWin = StringFromList(i, procWinList)
-		if(FindListItem(procWin, allProcWindows) == -1)
+		if(FindListItem(procWin, allProcWindows, ";", 0, 0) == -1)
 			printf "A procedure window named %s could not be found.\r", procWin
 			return NaN
 		endif
