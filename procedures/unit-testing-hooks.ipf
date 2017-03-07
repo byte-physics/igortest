@@ -36,6 +36,8 @@ Function TEST_BEGIN(name)
 	string/G dfr:type = "0"
 	string/G dfr:systemErr = ""
 
+	ClearBaseFilename()
+
 	printf "Start of test \"%s\"\r", name
 End
 

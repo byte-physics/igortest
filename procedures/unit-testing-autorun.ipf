@@ -45,12 +45,35 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	Execute/P "SaveHistoryLog(); Quit/N"
 End
 
+/// resets a global filename template string for output
+Function ClearBaseFilename()
+	dfref dfr = GetPackageFolder()
+	string/G dfr:baseFilename = ""
+End
+
+/// creates a new filename template, if template already present return current
+Function/S GetBaseFilename()
+	dfref dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr baseFilename
+
+	if(!SVAR_Exists(baseFilename))
+		string/G dfr:baseFilename = ""
+		SVAR/SDFR=dfr baseFilename
+	endif
+
+	if(strlen(baseFilename))
+		return baseFilename
+	endif
+	sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 1), "-")
+	return baseFilename
+End
+
 /// Save the contents of the history notebook on disk
 /// in the same folder as this experiment as timestamped file "run_*_*.log"
 Function SaveHistoryLog()
 
 	string historyLog
-	sprintf historyLog, "%s_%s_%s.log", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 1), "-")
+	historyLog = GetBaseFilename() + ".log"
 
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)
