@@ -379,6 +379,51 @@ Function DisableDebugOutput()
 	variable/G dfr:verbose = 0
 End
 
+/// Evaluates an RTE and puts a composite error message into message/type
+Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
+	variable err
+	string errmessage
+	variable abortCode
+	string funcName
+	string procWin
+
+	dfref dfr = GetPackageFolder()
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	string str
+
+	type = ""
+	message = ""
+	if(err)
+		sprintf str, "Uncaught runtime error %d:\"%s\" in test case \"%s\", procedure file \"%s\"\r", err, errmessage, funcName, procWin
+		message = str
+		type = "RUNTIME ERROR"
+	endif
+	if(abortCode != -4)
+		if(!strlen(type))
+			type = "ABORT"
+		endif
+		str = ""
+		switch(abortCode)
+			case -1:
+				sprintf str, "User aborted Test Run manually in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			case -2:
+				sprintf str, "Stack Overflow in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			case -3:
+				sprintf str, "Encountered \"Abort\" in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			default:
+		endswitch
+		message += str
+		if(abortCode > 0)
+			sprintf str, "Encountered \"AbortOnvalue\" Code %d in test case \"%s\", procedure file \"%s\"\r", abortCode, funcName, procWin
+			message += str
+		endif
+	endif
+End
+
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
 /// @param   name          (optional) descriptive name for the executed test suites
@@ -386,6 +431,8 @@ End
 /// @return                total number of errors
 Function RunTest(procWinList, [name, testCase])
 	string procWinList, testCase, name
+
+	DFREF dfr = GetPackageFolder()
 
 	if(strlen(procWinList) <= 0)
 		printf "The list of procedure windows is empty\r"
@@ -418,6 +465,10 @@ Function RunTest(procWinList, [name, testCase])
 	FUNCREF USER_HOOK_PROTO testEnd   = $hooks.testEnd
 
 	testBegin(name)
+	
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	SVAR/SDFR=dfr systemErr
 
 	variable abortNow = 0
 	for(i = 0; i < ItemsInList(procWinList); i += 1)
@@ -457,8 +508,12 @@ Function RunTest(procWinList, [name, testCase])
 			catch
 				// only complain here if the error counter if the abort happened not in our code
 				if(!shouldDoAbort())
-					printf "Uncaught runtime error \"%s\" in test case \"%s\", procedure \"%s\"\r", GetRTErrMessage(), funcName, procWin
+					message = GetRTErrMessage()
 					err = GetRTError(1)
+					EvaluateRTE(err, message, V_AbortCode, funcName, procWin)
+					printf message
+					systemErr = message
+										
 					incrError()
 				endif
 			endtry

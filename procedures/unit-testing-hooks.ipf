@@ -31,6 +31,10 @@ Function TEST_BEGIN(name)
 	igor_debug_state = DisableIgorDebugger()
 	
 	InitAbortFlag()
+	
+	string/G dfr:message = ""
+	string/G dfr:type = "0"
+	string/G dfr:systemErr = ""
 
 	printf "Start of test \"%s\"\r", name
 End
