@@ -470,7 +470,6 @@ Function RunTest(procWinList, [name, testCase])
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
-	variable abortNow = 0
 	for(i = 0; i < ItemsInList(procWinList); i += 1)
 
 		procWin = StringFromList(i, procWinList)
