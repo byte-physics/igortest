@@ -426,8 +426,9 @@ End
 
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
-Function TestBegin(name)
+Function TestBegin(name, allowDebug)
 	string name
+	variable allowDebug
 
 	// we have to remember the state of debugging
 	variable reEnableDebugOutput=EnabledDebug()
@@ -435,17 +436,19 @@ Function TestBegin(name)
 	KillDataFolder/Z $PKG_FOLDER
 	initGlobalError()
 
+	DFREF dfr = GetPackageFolder()
+
 	if(reEnableDebugOutput)
 		EnableDebugOutput()
 	endif
 
-	initIgorDebugState()
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_state
-	igor_debug_state = DisableIgorDebugger()
-
 	InitAbortFlag()
+
+	if (!allowDebug)
+		initIgorDebugState()
+		NVAR/SDFR=dfr igor_debug_state
+		igor_debug_state = DisableIgorDebugger()
+	endif
 	
 	string/G dfr:message = ""
 	string/G dfr:type = "0"
@@ -458,8 +461,9 @@ End
 
 /// Internal Cleanup for Testrun
 /// @param name   name of the test suite group
-Function TestEnd(name)
+Function TestEnd(name, allowDebug)
 	string name
+	variable allowDebug
 
 	dfref dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
@@ -472,10 +476,10 @@ Function TestEnd(name)
 
 	printf "End of test \"%s\"\r", name
 
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_state
-
-	RestoreIgorDebugger(igor_debug_state)
+	if (!allowDebug)
+		NVAR/SDFR=dfr igor_debug_state
+		RestoreIgorDebugger(igor_debug_state)
+	endif
 End
 
 /// Internal Setup for Test Suite
@@ -551,11 +555,15 @@ End
 
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
-/// @param   name          (optional) descriptive name for the executed test suites
-/// @param   testCase      (optional) function name, resembling one test case, which should be executed only
-/// @return                total number of errors
-Function RunTest(procWinList, [name, testCase])
+/// @param   name           (optional) descriptive name for the executed test suites
+/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
+/// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
+/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @return                 total number of errors
+Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	string procWinList, testCase, name
+	variable allowDebug, keepDataFolder
 
 	DFREF dfr = GetPackageFolder()
 
@@ -579,6 +587,11 @@ Function RunTest(procWinList, [name, testCase])
 	if(ParamIsDefault(name))
 		name = "Unnamed"
 	endif
+	if(ParamIsDefault(allowDebug))
+		allowDebug = 0
+	else
+		allowDebug = !!allowDebug
+	endif
 
 	struct TestHooks hooks
 	// 1.) set the hooks to the default implementations
@@ -589,7 +602,7 @@ Function RunTest(procWinList, [name, testCase])
 	FUNCREF USER_HOOK_PROTO TestBeginUser = $hooks.testBegin
 	FUNCREF USER_HOOK_PROTO TestEndUser   = $hooks.testEnd
 
-	TestBegin(name)
+	TestBegin(name, allowDebug)
 	TestBeginUser(name)
 	
 	SVAR/SDFR=dfr message
@@ -661,7 +674,7 @@ Function RunTest(procWinList, [name, testCase])
 		endif
 	endfor
 
-	TestEnd(name)
+	TestEnd(name, allowDebug)
 	TestEndUser(name)
 
 	NVAR/SDFR=GetPackageFolder() error_count
