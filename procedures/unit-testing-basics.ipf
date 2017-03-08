@@ -531,8 +531,9 @@ End
 
 /// Internal Cleanup for Test Case
 /// @param testCase name of the test case
-Function TestCaseEnd(testCase)
+Function TestCaseEnd(testCase, keepDataFolder)
 	string testCase
+	variable keepDataFolder
 
 	dfref dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr lastFolder
@@ -546,8 +547,10 @@ Function TestCaseEnd(testCase)
 	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
 		SetDataFolder $lastFolder
 	endif
-	if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
-		KillDataFolder $workFolder
+	if (!keepDataFolder)
+		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
+			KillDataFolder $workFolder
+		endif
 	endif
 
 	printf "Leaving test case \"%s\"\r", testCase
@@ -591,6 +594,11 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 		allowDebug = 0
 	else
 		allowDebug = !!allowDebug
+	endif
+	if(ParamIsDefault(keepDataFolder))
+		keepDataFolder = 0
+	else
+		keepDataFolder = !!keepDataFolder
 	endif
 
 	struct TestHooks hooks
@@ -658,7 +666,7 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 				endif
 			endtry
 
-			TestCaseEnd(funcName)
+			TestCaseEnd(funcName, keepDataFolder)
 			TestCaseEndUser(funcName)
 
 			if(shouldDoAbort())
