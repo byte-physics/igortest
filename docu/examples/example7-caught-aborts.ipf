@@ -3,13 +3,10 @@
 
 #include "unit-testing"
 
-// Command: RunTest("example7-uncaught-aborts.ipf")
-// Showing the error message from uncaught aborts in User code
-// The Test environment catches such conditions and treats them accordingly
+// Command: RunTest("example7-caught-aborts.ipf")
+// Showing the error message from caught aborts
 // works with: Abort, AbortOnValue
-
 // PASS() just increases the assertion counter
-
 Function CheckNumber(a)
 	variable a
 

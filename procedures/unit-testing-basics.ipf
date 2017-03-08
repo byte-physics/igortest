@@ -449,7 +449,7 @@ Function TestBegin(name, allowDebug)
 		NVAR/SDFR=dfr igor_debug_state
 		igor_debug_state = DisableIgorDebugger()
 	endif
-	
+
 	string/G dfr:message = ""
 	string/G dfr:type = "0"
 	string/G dfr:systemErr = ""
@@ -612,7 +612,7 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 
 	TestBegin(name, allowDebug)
 	TestBeginUser(name)
-	
+
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
