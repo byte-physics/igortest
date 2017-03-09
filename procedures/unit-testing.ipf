@@ -1,5 +1,6 @@
 #pragma rtGlobals=3
 #pragma version=1.03
+#pragma TextEncoding="UTF-8"
 
 // Author: Thomas Braun and contributors (c) 2013-2017
 // Email: support at byte-physics dott de
