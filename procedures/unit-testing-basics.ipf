@@ -1,5 +1,6 @@
 #pragma rtGlobals=3
 #pragma version=1.03
+#pragma TextEncoding="UTF-8"
 
 // Author: Thomas Braun and contributors (c) 2013-2017
 // Email: support at byte-physics dott de
@@ -379,13 +380,196 @@ Function DisableDebugOutput()
 	variable/G dfr:verbose = 0
 End
 
+/// Evaluates an RTE and puts a composite error message into message/type
+Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
+	variable err
+	string errmessage
+	variable abortCode
+	string funcName
+	string procWin
+
+	dfref dfr = GetPackageFolder()
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	string str
+
+	type = ""
+	message = ""
+	if(err)
+		sprintf str, "Uncaught runtime error %d:\"%s\" in test case \"%s\", procedure file \"%s\"\r", err, errmessage, funcName, procWin
+		message = str
+		type = "RUNTIME ERROR"
+	endif
+	if(abortCode != -4)
+		if(!strlen(type))
+			type = "ABORT"
+		endif
+		str = ""
+		switch(abortCode)
+			case -1:
+				sprintf str, "User aborted Test Run manually in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			case -2:
+				sprintf str, "Stack Overflow in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			case -3:
+				sprintf str, "Encountered \"Abort\" in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				break
+			default:
+		endswitch
+		message += str
+		if(abortCode > 0)
+			sprintf str, "Encountered \"AbortOnvalue\" Code %d in test case \"%s\", procedure file \"%s\"\r", abortCode, funcName, procWin
+			message += str
+		endif
+	endif
+End
+
+/// Internal Setup for Testrun
+/// @param name   name of the test suite group
+Function TestBegin(name, allowDebug)
+	string name
+	variable allowDebug
+
+	// we have to remember the state of debugging
+	variable reEnableDebugOutput=EnabledDebug()
+
+	KillDataFolder/Z $PKG_FOLDER
+	initGlobalError()
+
+	DFREF dfr = GetPackageFolder()
+
+	if(reEnableDebugOutput)
+		EnableDebugOutput()
+	endif
+
+	InitAbortFlag()
+
+	if (!allowDebug)
+		initIgorDebugState()
+		NVAR/SDFR=dfr igor_debug_state
+		igor_debug_state = DisableIgorDebugger()
+	endif
+
+	string/G dfr:message = ""
+	string/G dfr:type = "0"
+	string/G dfr:systemErr = ""
+
+	ClearBaseFilename()
+
+	printf "Start of test \"%s\"\r", name
+End
+
+/// Internal Cleanup for Testrun
+/// @param name   name of the test suite group
+Function TestEnd(name, allowDebug)
+	string name
+	variable allowDebug
+
+	dfref dfr = GetPackageFolder()
+	NVAR/SDFR=dfr global_error_count
+
+	if(global_error_count == 0)
+		printf "Test finished with no errors\r"
+	else
+		printf "Test finished with %d errors\r", global_error_count
+	endif
+
+	printf "End of test \"%s\"\r", name
+
+	if (!allowDebug)
+		NVAR/SDFR=dfr igor_debug_state
+		RestoreIgorDebugger(igor_debug_state)
+	endif
+End
+
+/// Internal Setup for Test Suite
+/// @param testSuite name of the test suite
+Function TestSuiteBegin(testSuite)
+	string testSuite
+
+	initError()
+	printf "Entering test suite \"%s\"\r", testSuite
+End
+
+/// Internal Cleanup for Test Suite
+/// @param testSuite name of the test suite
+Function TestSuiteEnd(testSuite)
+	string testSuite
+
+	dfref dfr = GetPackageFolder()
+	NVAR/SDFR=dfr error_count
+
+	if(error_count == 0)
+		printf "Finished with no errors\r"
+	else
+		printf "Failed with %d errors\r", error_count
+	endif
+
+	NVAR/SDFR=dfr global_error_count
+	global_error_count += error_count
+
+	printf "Leaving test suite \"%s\"\r", testSuite
+End
+
+/// Internal Setup for Test Case
+/// @param testCase name of the test case
+Function TestCaseBegin(testCase)
+	string testCase
+
+	initAssertCount()
+
+	// create a new unique folder as working folder
+	dfref dfr = GetPackageFolder()
+	string/G dfr:lastFolder = GetDataFolder(1)
+	SetDataFolder root:
+	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
+	SVAR/SDFR=dfr workFolder
+	NewDataFolder/O/S $workFolder
+
+	printf "Entering test case \"%s\"\r", testCase
+End
+
+/// Internal Cleanup for Test Case
+/// @param testCase name of the test case
+Function TestCaseEnd(testCase, keepDataFolder)
+	string testCase
+	variable keepDataFolder
+
+	dfref dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr lastFolder
+	SVAR/Z/SDFR=dfr workFolder
+	NVAR/SDFR=dfr assert_count
+
+	if(assert_count == 0)
+		printf "The test case \"%s\" did not make any assertions!\r", testCase
+	endif
+
+	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
+		SetDataFolder $lastFolder
+	endif
+	if (!keepDataFolder)
+		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
+			KillDataFolder $workFolder
+		endif
+	endif
+
+	printf "Leaving test case \"%s\"\r", testCase
+End
+
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
-/// @param   name          (optional) descriptive name for the executed test suites
-/// @param   testCase      (optional) function name, resembling one test case, which should be executed only
-/// @return                total number of errors
-Function RunTest(procWinList, [name, testCase])
+/// @param   name           (optional) descriptive name for the executed test suites
+/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
+/// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
+/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @return                 total number of errors
+Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	string procWinList, testCase, name
+	variable allowDebug, keepDataFolder
+
+	DFREF dfr = GetPackageFolder()
 
 	if(strlen(procWinList) <= 0)
 		printf "The list of procedure windows is empty\r"
@@ -407,6 +591,16 @@ Function RunTest(procWinList, [name, testCase])
 	if(ParamIsDefault(name))
 		name = "Unnamed"
 	endif
+	if(ParamIsDefault(allowDebug))
+		allowDebug = 0
+	else
+		allowDebug = !!allowDebug
+	endif
+	if(ParamIsDefault(keepDataFolder))
+		keepDataFolder = 0
+	else
+		keepDataFolder = !!keepDataFolder
+	endif
 
 	struct TestHooks hooks
 	// 1.) set the hooks to the default implementations
@@ -414,12 +608,16 @@ Function RunTest(procWinList, [name, testCase])
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	FUNCREF USER_HOOK_PROTO testBegin = $hooks.testBegin
-	FUNCREF USER_HOOK_PROTO testEnd   = $hooks.testEnd
+	FUNCREF USER_HOOK_PROTO TestBeginUser = $hooks.testBegin
+	FUNCREF USER_HOOK_PROTO TestEndUser   = $hooks.testEnd
 
-	testBegin(name)
+	TestBegin(name, allowDebug)
+	TestBeginUser(name)
 
-	variable abortNow = 0
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	SVAR/SDFR=dfr systemErr
+
 	for(i = 0; i < ItemsInList(procWinList); i += 1)
 
 		procWin = StringFromList(i, procWinList)
@@ -437,47 +635,56 @@ Function RunTest(procWinList, [name, testCase])
 		// 3.) get local user hooks which reside in the same Module as the requested procedure
 		getLocalHooks(procHooks, procWin)
 
-		FUNCREF USER_HOOK_PROTO testSuiteBegin = $procHooks.testSuiteBegin
-		FUNCREF USER_HOOK_PROTO testSuiteEnd   = $procHooks.testSuiteEnd
-		FUNCREF USER_HOOK_PROTO testCaseBegin  = $procHooks.testCaseBegin
-		FUNCREF USER_HOOK_PROTO testCaseEnd    = $procHooks.testCaseEnd
+		FUNCREF USER_HOOK_PROTO TestSuiteBeginUser = $procHooks.testSuiteBegin
+		FUNCREF USER_HOOK_PROTO TestSuiteEndUser   = $procHooks.testSuiteEnd
+		FUNCREF USER_HOOK_PROTO TestCaseBeginUser  = $procHooks.testCaseBegin
+		FUNCREF USER_HOOK_PROTO TestCaseEndUser    = $procHooks.testCaseEnd
 
-		testSuiteBegin(procWin)
+		TestSuiteBegin(procWin)
+		TestSuiteBeginUser(procWin)
 
 		for(j = 0; j < ItemsInList(testCaseList); j += 1)
 			string funcName = StringFromList(j, testCaseList)
 			string fullFuncName = getFullFunctionName(funcName, procWin)
 
-			FUNCREF TEST_CASE_PROTO testCaseFunc = $fullFuncName
+			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
-			testCaseBegin(funcName)
+			TestCaseBegin(funcName)
+			TestCaseBeginUser(funcName)
 
 			try
-				testCaseFunc(); AbortOnRTE
+				TestCaseFunc(); AbortOnRTE
 			catch
 				// only complain here if the error counter if the abort happened not in our code
 				if(!shouldDoAbort())
-					printf "Uncaught runtime error \"%s\" in test case \"%s\", procedure \"%s\"\r", GetRTErrMessage(), funcName, procWin
+					message = GetRTErrMessage()
 					err = GetRTError(1)
+					EvaluateRTE(err, message, V_AbortCode, funcName, procWin)
+					printf message
+					systemErr = message
+										
 					incrError()
 				endif
 			endtry
 
-			testCaseEnd(funcName)
+			TestCaseEnd(funcName, keepDataFolder)
+			TestCaseEndUser(funcName)
 
 			if(shouldDoAbort())
 				break
 			endif
 		endfor
 
-		testSuiteEnd(procWin)
+		TestSuiteEnd(procWin)
+		TestSuiteEndUser(procWin)
 
 		if(shouldDoAbort())
 			break
 		endif
 	endfor
 
-	testEnd(name)
+	TestEnd(name, allowDebug)
+	TestEndUser(name)
 
 	NVAR/SDFR=GetPackageFolder() error_count
 	return error_count

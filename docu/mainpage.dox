@@ -17,9 +17,6 @@
 /// @defgroup equalWaveFlags Wave equality flags
 /// Values for @c mode in @ref WARN_EQUAL_WAVES, @ref CHECK_EQUAL_WAVES and @ref REQUIRE_EQUAL_WAVES
 
-/// @defgroup HookFunctions Default hook functions
-/// Default implementation of test hook functions
-
 /**
 
 @mainpage
@@ -72,25 +69,100 @@ A test case is one of the basic building blocks grouping assertions together. A 
 - its name does not end on _IGNORE
 - is either non-static or static and part of a regular module
 
-The second rule allows advanced users to add their own helper functions. It is advised to define all test cases as static functions and to create one regular module per procedure file.
+The second rule allows advanced users to add their own helper functions. It is advised to define all test cases as static functions and to create one regular distinctive module per procedure file.
 
-A single test case from a test suite can be run using the optional @c testCase parameter of @ref RunTest.
+A single test case from a test suite can be run using the optional @c testCase parameter of @ref RunTest. This is also true when multiple test suites are executed in a test run and each has such a test case.
+If the given test case does not exist in any test suite it is treated as error.
+
+Example: In test suite \p TestSuite_1.ipf test cases \p static \p Step1 and \p static \p Step2 are defined and in test suite \p TestSuite_2.ipf test cases \p static \p Step1 , \p static \p Step2 and \p static \p Step3 are defined.
+Calling \code Runtest("TestSuite_1.ipf;TestSuite_2.ipf", testCase="Step1") \endcode executes two test cases, \p Step1 in test suite 1 and \p Step1 in test suite 2.
 
 @section secTestSuite Test Suite
 
-A test suite is a group of test cases which should belong together and is equal to a procedure file. Therefore tests suites can not be nested, although multiple test suites can be run with once command using the parameter @c procWinList of @ref RunTest.
+A test suite is a group of test cases which should belong together and is equal to a procedure file. Therefore tests suites can not be nested, although multiple test suites can be run with one command using the parameter @c procWinList of @ref RunTest.
 
 @section secTestHooks Test Hooks
 
-To ensure proper test case execution and enable book keeping, specific hook functions are called before/after distinct events. These hook functions always come in pairs with their names ending on _BEGIN and _END. Before the first test case of the first test suite is executed, the hook @ref TEST_BEGIN is called, therefore @ref TEST_END marks the last function being called immediately before @ref RunTest returns. Similarly the hooks @ref TEST_SUITE_BEGIN and @ref TEST_SUITE_END are called before and after every test suite, @ref TEST_CASE_BEGIN and @ref TEST_CASE_END before and after every test case.
+At certain points in the execution of a test run the user can add own code by including functions with reserved names.
 
-In case the default hook functions don't suite your needs, it is explicitly @b not advised to just adapt them. Instead use [test hook overrides](@ref secTestHooksOverride) and override them on a global or per test suite level.
+The following functions are reserved:
+<table border>
+  <tr>
+    <td>@ref TEST_BEGIN_OVERRIDE(name)</td>
+    <td>Executed at the begin of a test run
 
-@subsection secTestHooksOverride Override Test Hooks
+     name is a string with the tests name</td>
+  </tr>
+  <tr>
+    <td>@ref TEST_END_OVERRIDE(Name)</td>
+    <td>Executed at the end of a test run
 
-The default test hooks can be overridden by defining your own version of the hooks suffixed with _OVERRIDE. The override hooks for @ref TEST_BEGIN and @ref TEST_END can only be overriden by functions in ProcGlobal. The override hooks for test suites/cases can be overriden globally if they reside in ProcGlobal context, or for a specific test suite only if they are defined in the same regular module as that test suite. Overriding here means that the default test hook is @b not executed. In case you still want to have the default test hook executed, you have to call it yourself in the override function as done in [example 5](@ref example5).
+    Name is a string with the tests name
 
-The override test hooks have to accept exactly one string parameter, which is the name of the test suite group, test suite name or test case name.
+    note: As this function is executed at the very end of a test run the Igor debugger state is already reset to the state it had before RunTest was executed.</td>
+  </tr>
+  <tr>
+    <td>@ref TEST_SUITE_BEGIN_OVERRIDE(TestSuiteName)</td>
+    <td>Executed at the begin of a test suite (test functions that are defined within a single procedure)
+
+     TestSuiteName is a string with the test suites name (procedure name)
+
+     This function can also be defined locally in a test suite with the \p static keyword.</td>
+  </tr>
+  <tr>
+    <td>@ref TEST_SUITE_END_OVERRIDE(TestSuiteName)</td>
+    <td>Executed at the end of a test suite (test functions that are defined within a single procedure)
+
+     TestSuiteName is a string with the test suites name (procedure name)
+
+     This function can also be defined locally in a test suite with the \p static keyword.</td>
+
+  </tr>
+  <tr>
+    <td>@ref TEST_CASE_BEGIN_OVERRIDE(TestCaseName)</td>
+    <td>Executed at the begin of a test case
+
+     TestCaseName is a string with the test case name (function name)
+
+     This function can also be defined locally in a test suite with the \p static keyword.</td>
+  </tr>
+  <tr>
+    <td>@ref TEST_CASE_END_OVERRIDE(TestCaseName)</td>
+    <td>Executed at the end of a test case
+
+     TestCaseName is a string with the test case name (function name)
+
+     This function can also be defined locally in a test suite with the \p static keyword.</td>
+  </tr>
+</table>
+
+When defined these function are executed globally, e.g. @ref TEST_CASE_BEGIN_OVERRIDE gets executed at the beginning of each test case.
+For the case that a user would like to have code executed only in a specific test suite these function can be defined locally within the test suite by declaring them \p static. Then the local function replaces the globally defined function.
+If the local defined function should only extend a global function the user can call the global function with:
+\code
+FUNCREF USER_HOOK_PROTO tcbegin_global = $"ProcGlobal#TEST_CASE_BEGIN_OVERRIDE"
+tcbegin_global(TestCaseName)
+\endcode
+
+While a test run is executed the Igor debugger is by default disabled.
+
+To give one example: By default each test case is executed in its own temporary data folder. @ref TEST_CASE_BEGIN_OVERRIDE can now be used to set the data folder to root: such that each test case gets executed in root and no cleanup is executed afterwards. The next test case starts with the data the previous test case left in root:.
+
+The functionality with additional user code at certain points of a test run is demonstrated in @ref example5.
+
+@section secOptionalparameters Optional Parameters for RunTest
+
+<table border>
+  <tr>
+    <td>@ref allowDebug = 1</td>
+    <td>Runtest will leave the Igor debugger in its current state. This is useful for a brief look where user code generates an exception.</td>
+  </tr>
+  <tr>
+    <td>@ref keepDataFolder = 1</td>
+    <td>The temporary data folder wherein each test case is executed is not cleaned up at the end of the test case. This allows to review the data produced.</td>
+  </tr>
+</table>
+
 
 @section secAutomaticExecution Automate Test Runs
 
@@ -130,11 +202,11 @@ Test suite showing some test assertions Xfor waves.
 \includeexample{example4-wavechecking.ipf}
 @endlatexonly
 
-@section example5 example5-overridehooks.ipf
+@section example5 example5-extensionhooks.ipf
 Two test suites showing how to use test hook overrides.
 @latexonly
-\includeexample{example5-overridehooks.ipf}
-\includeexample{example5-overridehooks-otherSuite.ipf}
+\includeexample{example5-extensionhooks.ipf}
+\includeexample{example5-extensionhooks-otherSuite.ipf}
 @endlatexonly
 
 @section example6 example6-automatic-invocation.ipf
@@ -151,10 +223,10 @@ Test suite showing how unhandled aborts in test cases are handled.
 \includeexample{example7-uncaught-aborts.ipf}
 @endlatexonly
 
-@section example8 example8-pass-fail.ipf
-Test suite showing how PASS/FAIL can be used.
+@section example8 example8-uncaught-runtime-errors.ipf
+Test suite showing how runtime errors are treated.
 @latexonly
-\includeexample{example8-pass-fail.ipf}
+\includeexample{example8-uncaught-runtime-errors.ipf}
 @endlatexonly
 
 **/

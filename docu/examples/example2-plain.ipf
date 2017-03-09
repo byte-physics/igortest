@@ -1,10 +1,13 @@
 #pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
 #pragma ModuleName=Example2
 
 #include "unit-testing"
 
 // Command: run_IGNORE()
-// Shows how to use ignore routines
+// Show the use of optional arguments
+// testCase: specify only a single function to execute as Test Case
+// name: Name the whole test run
 
 Function run_IGNORE()
 	// All of these commands run the test suite "example2-plain.ipf"
@@ -29,9 +32,9 @@ static Function VerifyDefaultStringBehaviour()
 
 	// by default string comparison is done case insensitive
 	CHECK_EQUAL_STR(strLow,strUP)
-	CHECK_EQUAL_STR(strLow,strUP,case_sensitive=0)
+	CHECK_EQUAL_STR(strLow,strUP,case_sensitive = 0)
 	// the next test fails
-	WARN_EQUAL_STR(strLow,strUP,case_sensitive=1)
+	WARN_EQUAL_STR(strLow,strUP,case_sensitive = 1)
 
 	CHECK_NEQ_STR(emptyString,nullString)
 	CHECK_NEQ_STR(strLow,nullString)
