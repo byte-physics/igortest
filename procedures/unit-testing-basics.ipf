@@ -791,8 +791,7 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	TestEnd(name, allowDebug)
 	TestEndUser(name)
 
-	NVAR/SDFR=GetPackageFolder() error_count
-	return error_count
+	return global_error_count
 End
 
 ///@}
