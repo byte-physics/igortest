@@ -7,9 +7,9 @@
 
 ///@cond HIDDEN_SYMBOL
 
-Constant FFNAME_OK	 			= 0x00
+Constant FFNAME_OK	 = 0x00
 Constant FFNAME_NOT_FOUND = 0x01
-Constant FFNAME_NO_MODULE	= 0x02
+Constant FFNAME_NO_MODULE = 0x02
 
 /// Returns the package folder
 Function/DF GetPackageFolder()
@@ -155,7 +155,6 @@ Function InitAbortFlag()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
 End
-
 
 /// Prints an informative message about the test's success or failure
 static Function/S getInfo(result)
@@ -584,7 +583,7 @@ Function/S getCompleteTestCaseList(procWinList)
 	string allCaseList
 	variable numpWL, numtCL
 	variable err
-	variable i	, j
+	variable i, j
 
 	allCaseList = ""
 	numpWL = ItemsInList(procWinList)
@@ -624,7 +623,6 @@ Function/S getTestCasesMatch(procWinList, funcName)
 	endfor
 	return testCaseList
 End
-
 
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
