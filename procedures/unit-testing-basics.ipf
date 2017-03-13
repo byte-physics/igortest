@@ -642,15 +642,18 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	string allTestCasesList
 	string FuncName
 	string fullFuncName
+	string fullFuncNameList
 	variable numItemsPW
 	variable numItemsTC
+	variable numItemsFFN
 	DFREF dfr = GetPackageFolder()
 	struct TestHooks hooks
 	struct TestHooks procHooks
 	variable i, j, err
 
+	// Arguments check
 	if(strlen(procWinList) <= 0)
-		printf "The list of procedure windows is empty\r"
+		printf "Error: The list of procedure windows is empty\r"
 		return NaN
 	endif
 
@@ -660,16 +663,25 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
 		if(FindListItem(procWin, allProcWindows, ";", 0, 0) == -1)
-			printf "A procedure window named %s could not be found.\r", procWin
+			printf "Error: A procedure window named %s could not be found.\r", procWin
 			return NaN
 		endif
+		testCaseList = getTestCaseList(procWin)
+		numItemsTC = ItemsInList(testCaseList)
+		if(!numItemsTC)
+			printf "Error: Procedure window %s does not define any test case(s).\r", procWin
+			return NaN
+		endif
+		for(j = 0; j < numItemsTC; j += 1)
+			funcName = StringFromList(j, testCaseList)
+			fullFuncName = getFullFunctionName(err, funcName, procWin)
+			if(err)
+				printf fullFuncName
+				return NaN
+			endif
+		endfor
 	endfor
 
-	if(ParamIsDefault(testCase))
-		allTestCasesList = getCompleteTestCaseList(procWinList)
-	else
-		allTestCasesList = getTestCasesMatch(procWinList, testCase)
-	endif
 	if(ParamIsDefault(name))
 		name = "Unnamed"
 	endif
@@ -682,6 +694,15 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 		keepDataFolder = 0
 	else
 		keepDataFolder = !!keepDataFolder
+	endif
+	if(ParamIsDefault(testCase))
+		allTestCasesList = getCompleteTestCaseList(procWinList)
+	else
+		allTestCasesList = getTestCasesMatch(procWinList, testCase)
+		if(!strlen(allTestCasesList))
+			printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
+			return NaN
+		endif
 	endif
 
 	// 1.) set the hooks to the default implementations
@@ -701,18 +722,6 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	NVAR/SDFR=dfr global_error_count
 	NVAR/SDFR=dfr abortFlag
 
-	// Abort early if no Test Cases in List
-	if(!strlen(allTestCasesList))
-		if(numtype(strlen(testCase)) == 2)
-			sprintf message, "Error: Could not find any test case(s) in procedure(s) \"%s\"\r", procWinList
-		else
-			sprintf message, "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
-		endif
-		printf "%s", message
-		
-		global_error_count += 1
-	endif
-
 	for(i = 0; i < numItemsPW; i += 1)
 
 		procWin = StringFromList(i, procWinList)
@@ -721,6 +730,18 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 			testCaseList = getTestCaseList(procWin)
 		else
 			testCaseList = testCase
+		endif
+		fullFuncNameList = ""
+		numItemsTC = ItemsInList(testCaseList)
+		for(j = 0; j < numItemsTC; j += 1)
+			funcName = StringFromList(j, testCaseList)
+			fullFuncName = getFullFunctionName(err, funcName, procWin)
+			if(!err)
+				fullFuncNameList = AddListItem(fullFuncName, fullFuncNameList, ";")
+			endif
+		endfor
+		if (!strlen(fullFuncNameList))
+			continue
 		endif
 
 		procHooks = hooks
@@ -735,44 +756,31 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 		TestSuiteBegin(procWin)
 		TestSuiteBeginUser(procWin)
 
-		numItemsTC = ItemsInList(testCaseList)
-		for(j = 0; j < numItemsTC; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			switch(err)
-				case FFNAME_OK:
-					FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
+		numItemsFFN = ItemsInList(fullFuncNameList)
+		for(j = 0; j < numItemsFFN; j += 1)
+			fullFuncName = StringFromList(j, fullFuncNameList)
+			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
-					TestCaseBegin(funcName)
-					TestCaseBeginUser(funcName)
+			TestCaseBegin(fullFuncName)
+			TestCaseBeginUser(fullFuncName)
 
-					try
-						TestCaseFunc(); AbortOnRTE
-					catch
-						// only complain here if the error counter if the abort happened not in our code
-						if(!shouldDoAbort())
-							message = GetRTErrMessage()
-							err = GetRTError(1)
-							EvaluateRTE(err, message, V_AbortCode, funcName, procWin)
-							printf message
-							systemErr = message
+			try
+				TestCaseFunc(); AbortOnRTE
+			catch
+				// only complain here if the error counter if the abort happened not in our code
+				if(!shouldDoAbort())
+					message = GetRTErrMessage()
+					err = GetRTError(1)
+					EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
+					printf message
+					systemErr = message
+					incrError()
+				endif
+			endtry
 
-							incrError()
-						endif
-					endtry
+			TestCaseEnd(fullFuncName, keepDataFolder)
+			TestCaseEndUser(fullFuncName)
 
-					TestCaseEnd(funcName, keepDataFolder)
-					TestCaseEndUser(funcName)
-
-					break
-				case FFNAME_NOT_FOUND:
-					continue
-				case FFNAME_NO_MODULE:
-					printf fullFuncName
-					message = fullFuncName
-					abortFlag = 1
-					break
-			endswitch
 			if(shouldDoAbort())
 				break
 			endif
