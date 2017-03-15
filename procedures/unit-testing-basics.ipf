@@ -784,7 +784,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFol
 		juTestCaseListOut = ""
 
 		numItemsFFN = ItemsInList(fullFuncNameList)
-		for(j = 0; j < numItemsFFN; j += 1)
+		for(j = numItemsFFN-1; j >= 0; j -= 1)
 			fullFuncName = StringFromList(j, fullFuncNameList)
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
