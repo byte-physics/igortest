@@ -13,7 +13,7 @@ Function CreateHistoryLog([recreate])
 	if(ParamIsDefault(recreate))
 		recreate = 1
 	endif
-	DoWindow $"HistoryCarbonCopy"
+	DoWindow HistoryCarbonCopy
 	if (V_flag)
 		if (recreate)
 			DoWindow/K HistoryCarbonCopy

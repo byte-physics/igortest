@@ -10,3 +10,4 @@
 #include "unit-testing-comparators"
 #include "unit-testing-hooks"
 #include "unit-testing-autorun"
+#include "unit-testing-junit"
