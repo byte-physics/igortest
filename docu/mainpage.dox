@@ -150,12 +150,22 @@ To give one example: By default each test case is executed in its own temporary 
 
 The functionality with additional user code at certain points of a test run is demonstrated in @ref example5.
 
+@section secJUNIT JUNIT Output
+
+The igor unit testing framework supports output of test run results in JUNIT compatible format. The output can be enabled by adding the optional parameter `enableJU=1` to `RunTest`.
+The XML output files are written to the experiments `home` directory with naming `JU_Experiment_Date_Time.xml`. If a file with the same name already exists a three digit number is added to the name.
+The JUNIT Output also contains the history log of each test case and test suite.
+
 @section secOptionalparameters Optional Parameters for RunTest
 
 <table border>
   <tr>
+    <td>@ref enableJU = 1</td>
+    <td>A JUNIT compatible XML file is written at the end of the test run. It allows the combination of this framework with continious integration servers like Atlassian Bamboo.</td>
+  </tr>
+  <tr>
     <td>@ref allowDebug = 1</td>
-    <td>Runtest will leave the Igor debugger in its current state. This is useful for a brief look where user code generates an exception.</td>
+    <td>RunTest will leave the Igor debugger in its current state. This is useful for a brief look where user code generates an exception.</td>
   </tr>
   <tr>
     <td>@ref keepDataFolder = 1</td>
