@@ -94,5 +94,12 @@ Function SaveHistoryLog()
 		return NaN
 	endif
 
+	PathInfo home
+	historyLog = getUnusedFileName(S_path + historyLog)
+	if(!strlen(historyLog))
+		printf "Error: Unable to determine unused file name for History Log output in path %s !", S_path
+		return NaN
+	endif
+
 	SaveNoteBook/S=3/P=home HistoryCarbonCopy as historyLog
 End

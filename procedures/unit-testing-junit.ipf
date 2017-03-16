@@ -263,6 +263,13 @@ Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
 #else
 	sout = JU_UTF8Filter(sout)
 #endif
+	PathInfo home
+	juFileName = getUnusedFileName(S_path + juFileName)
+	if(!strlen(juFileName))
+		printf "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
+		return NaN
+	endif
+	
 	open/Z/P=home fnum as juFileName
 	if(!V_flag)
 		fBinWrite fnum, sout

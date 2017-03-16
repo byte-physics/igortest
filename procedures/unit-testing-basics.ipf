@@ -22,6 +22,39 @@ Function/DF GetPackageFolder()
 	return dfr
 End
 
+/// Returns 0 if the file exists, !0 otherwise
+Function FileNotExists(fname)
+	string fname
+
+	GetFileFolderInfo/Q/Z fname
+	return V_Flag
+End
+
+/// returns a non existing file name an empty string
+Function/S getUnusedFileName(fname)
+	string fname
+
+	variable count
+	string fn, fnext, fnn
+
+	if (FileNotExists(fname))
+		return fname
+	endif
+	fname = ParseFilePath(5, fname, "\\", 0, 0)
+	fnext = "." + ParseFilePath(4, fname, "\\", 0, 0)
+	fnn = RemoveEnding(fname, fnext)
+
+	count = -1
+	do
+		count += 1
+		sprintf fn, "%s_%03d%s", fnn, count, fnext
+	while(!FileNotExists(fn) && count < 999)
+	if(!FileNotExists(fn))
+		return ""
+	endif
+	return fn
+End
+
 /// Returns 1 if debug output is enabled and zero otherwise
 Function EnabledDebug()
 	dfref dfr = GetPackageFolder()
