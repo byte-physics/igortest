@@ -649,9 +649,14 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	DFREF dfr = GetPackageFolder()
 	struct TestHooks hooks
 	struct TestHooks procHooks
+	string history
+	string str
 	variable i, j, err
 
 	// Arguments check
+
+	CreateHistoryLog(recreate=0)
+
 	if(strlen(procWinList) <= 0)
 		printf "Error: The list of procedure windows is empty\r"
 		return NaN
