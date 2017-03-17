@@ -30,4 +30,19 @@ Installation:
 4. Create a link from unitTestingFramework/procedures to Documents\WaveMetrics\Igor Pro 6 User Files\User Procedures
 5. Have a look at the manual or the example experiments
 
+Building the documentation in Windows:
+
+Requirements:
+- Doxygen
+- git
+- [GAWK](http://gnuwin32.sourceforge.net/packages/gawk.htm).
+- [MikTex](https://miktex.org/download) or [TeX Live](https://www.tug.org/texlive/acquire-netinstall.html).
+- [Python](https://www.python.org/downloads/) (2.7.5 is recommended, but 2.7.6 works too)
+- Install the phython-pip package and then the Pygments package following these [instructions](http://tex.stackexchange.com/questions/108661/how-to-use-minted-under-miktex-and-windows-7)
+- Download the [Doxygen filter for Igor procedure files](http://www.igorexchange.com/project/doxIPFFilter) and put the doxygen-filter-ipf.awk in /docu
+
+Run build.bat
+
+MikTex will download and install the minted package for latex and its dependencies automatically.
+
 **Please** report all bugs and major/minor annoyances to (thomas \<dot\> braun \<aehht\> byte \<minus\> physics \<dottt\> de)!
