@@ -1,3 +1,4 @@
 doxygen.log
 latex
 refman.pdf
+doxygen-filter-ipf.awk
