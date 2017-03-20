@@ -7,9 +7,21 @@
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
-Function CreateHistoryLog()
-	DoWindow/K HistoryCarbonCopy
-	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+Function CreateHistoryLog([recreate])
+	variable recreate
+
+	if(ParamIsDefault(recreate))
+		recreate = 1
+	endif
+	DoWindow HistoryCarbonCopy
+	if (V_flag)
+		if (recreate)
+			DoWindow/K HistoryCarbonCopy
+			NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+		endif
+	else
+		NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+	endif
 End
 
 /// Hook function which is executed after opening a file
@@ -40,7 +52,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
 	// state file exists, call the run routine and quit Igor afterwards
-	CreateHistoryLog()
+	CreateHistoryLog(recreate=0)
 	f()
 
 	Execute/P "SaveHistoryLog(); Quit/N"
@@ -79,6 +91,13 @@ Function SaveHistoryLog()
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)
 		print "No log notebook found, please call CreateHistoryLog() before."
+		return NaN
+	endif
+
+	PathInfo home
+	historyLog = getUnusedFileName(S_path + historyLog)
+	if(!strlen(historyLog))
+		printf "Error: Unable to determine unused file name for History Log output in path %s !", S_path
 		return NaN
 	endif
 

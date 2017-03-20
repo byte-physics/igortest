@@ -22,6 +22,39 @@ Function/DF GetPackageFolder()
 	return dfr
 End
 
+/// Returns 0 if the file exists, !0 otherwise
+Function FileNotExists(fname)
+	string fname
+
+	GetFileFolderInfo/Q/Z fname
+	return V_Flag
+End
+
+/// returns a non existing file name an empty string
+Function/S getUnusedFileName(fname)
+	string fname
+
+	variable count
+	string fn, fnext, fnn
+
+	if (FileNotExists(fname))
+		return fname
+	endif
+	fname = ParseFilePath(5, fname, "\\", 0, 0)
+	fnext = "." + ParseFilePath(4, fname, "\\", 0, 0)
+	fnn = RemoveEnding(fname, fnext)
+
+	count = -1
+	do
+		count += 1
+		sprintf fn, "%s_%03d%s", fnn, count, fnext
+	while(!FileNotExists(fn) && count < 999)
+	if(!FileNotExists(fn))
+		return ""
+	endif
+	return fn
+End
+
 /// Returns 1 if debug output is enabled and zero otherwise
 Function EnabledDebug()
 	dfref dfr = GetPackageFolder()
@@ -124,7 +157,16 @@ End
 
 /// Prints an informative message that the test failed
 Function printFailInfo()
-	print getInfo(0)
+	dfref dfr = GetPackageFolder()
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	SVAR/SDFR=dfr systemErr
+
+	message = getInfo(0)
+
+	print message
+	type = "FAIL"
+	systemErr = message
 End
 
 /// Prints an informative message that the test succeeded
@@ -425,6 +467,7 @@ Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 				sprintf str, "Encountered \"Abort\" in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
 				break
 			default:
+				break
 		endswitch
 		message += str
 		if(abortCode > 0)
@@ -628,12 +671,13 @@ End
 /// @param   procWinList   semicolon (";") separated list of procedure files
 /// @param   name           (optional) descriptive name for the executed test suites
 /// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @param   enableJU       (optional) enables JUNIT xml output when set to 1
 /// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
 /// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
-/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
-	string procWinList, testCase, name
+Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFolder])
+	string procWinList, name, testCase
+	variable enableJU
 	variable allowDebug, keepDataFolder
 
 	string procWin
@@ -647,11 +691,26 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	variable numItemsTC
 	variable numItemsFFN
 	DFREF dfr = GetPackageFolder()
+	string juTestSuitesOut
+	string juTestCaseListOut
+	STRUCT strTestSuite juTS
+	STRUCT strSuiteProperties juTSProp
+	STRUCT strTestCase juTC
 	struct TestHooks hooks
 	struct TestHooks procHooks
 	variable i, j, err
 
 	// Arguments check
+
+	ClearBaseFilename()
+	CreateHistoryLog(recreate=0)
+	
+	PathInfo home
+	if(!V_flag)
+		printf "Error: Please Save experiment first.\r"
+		return NaN
+	endif
+
 	if(strlen(procWinList) <= 0)
 		printf "Error: The list of procedure windows is empty\r"
 		return NaN
@@ -720,10 +779,9 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 	NVAR/SDFR=dfr global_error_count
-	NVAR/SDFR=dfr abortFlag
 
+	juTestSuitesOut = ""
 	for(i = 0; i < numItemsPW; i += 1)
-
 		procWin = StringFromList(i, procWinList)
 
 		if(ParamIsDefault(testCase))
@@ -754,15 +812,20 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 		FUNCREF USER_HOOK_PROTO TestCaseEndUser    = $procHooks.testCaseEnd
 
 		TestSuiteBegin(procWin)
+		JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name, i)
 		TestSuiteBeginUser(procWin)
+		juTestCaseListOut = ""
 
 		numItemsFFN = ItemsInList(fullFuncNameList)
-		for(j = 0; j < numItemsFFN; j += 1)
+		for(j = numItemsFFN-1; j >= 0; j -= 1)
 			fullFuncName = StringFromList(j, fullFuncNameList)
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
+			JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
 			TestCaseBegin(fullFuncName)
 			TestCaseBeginUser(fullFuncName)
+
+			systemErr = ""
 
 			try
 				TestCaseFunc(); AbortOnRTE
@@ -774,11 +837,13 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 					EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
 					printf message
 					systemErr = message
+
 					incrError()
 				endif
 			endtry
 
 			TestCaseEnd(fullFuncName, keepDataFolder)
+			juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
 			TestCaseEndUser(fullFuncName)
 
 			if(shouldDoAbort())
@@ -787,12 +852,14 @@ Function RunTest(procWinList, [name, testCase, allowDebug, keepDataFolder])
 		endfor
 
 		TestSuiteEnd(procWin)
+		juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
 		TestSuiteEndUser(procWin)
 
 		if(shouldDoAbort())
 			break
 		endif
 	endfor
+	JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
 
 	TestEnd(name, allowDebug)
 	TestEndUser(name)
