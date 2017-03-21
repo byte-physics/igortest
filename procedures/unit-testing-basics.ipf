@@ -4,6 +4,7 @@
 
 // Author: Thomas Braun and contributors (c) 2013-2017
 // Email: support at byte-physics dott de
+// Test Anything Protocol Extensions by Michael Huth 2017
 
 ///@cond HIDDEN_SYMBOL
 
@@ -167,11 +168,24 @@ Function printFailInfo()
 	print message
 	type = "FAIL"
 	systemErr = message
+
+	if(TAP_IsOutputEnabled())
+		SVAR/SDFR=dfr tap_diagnostic
+		tap_diagnostic = tap_diagnostic + message
+	endif
 End
 
 /// Prints an informative message that the test succeeded
 Function printSuccessInfo()
-	print getInfo(1)
+	string str_info
+
+	str_info = getInfo(1)
+	print str_info
+
+	if(TAP_IsOutputEnabled())
+		SVAR/SDFR=GetPackageFolder() tap_diagnostic
+		tap_diagnostic = tap_diagnostic + str_info
+	endif
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -199,6 +213,7 @@ Function InitAbortFlag()
 End
 
 /// Prints an informative message about the test's success or failure
+// 0 failed, 1 succeeded
 static Function/S getInfo(result)
 	variable result
 
@@ -240,7 +255,7 @@ static Function/S getInfo(result)
 	// remove leading and trailing whitespace
 	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
 
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "suceeded"), line, procedure
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
 End
 
@@ -670,14 +685,15 @@ End
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
 /// @param   name           (optional) descriptive name for the executed test suites
-/// @param   testCase       (optional) function name, resembling one test case, which should be executed only
+/// @param   testCase       (optional) function name, resembling one test case, which should be executed only for each test suite
 /// @param   enableJU       (optional) enables JUNIT xml output when set to 1
+/// @param   enableTAP      (optional) enables Test Anything Protocol (TAP) output when set to 1
 /// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
 /// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFolder])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, keepDataFolder])
 	string procWinList, name, testCase
-	variable enableJU
+	variable enableJU, enableTAP
 	variable allowDebug, keepDataFolder
 
 	string procWin
@@ -690,6 +706,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFol
 	variable numItemsPW
 	variable numItemsTC
 	variable numItemsFFN
+	variable tap_skipCase
+	variable tap_caseCount
+	variable tap_caseErr
 	DFREF dfr = GetPackageFolder()
 	string juTestSuitesOut
 	string juTestCaseListOut
@@ -744,6 +763,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFol
 	if(ParamIsDefault(name))
 		name = "Unnamed"
 	endif
+	if(ParamIsDefault(enableJU))
+		enableJU = 0
+	else
+		enableJU = !!enableJU
+	endif
+	if(ParamIsDefault(enableTAP))
+		enableTAP = 0
+	else
+		enableTAP = !!enableTAP
+	endif
 	if(ParamIsDefault(allowDebug))
 		allowDebug = 0
 	else
@@ -780,7 +809,25 @@ Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFol
 	SVAR/SDFR=dfr systemErr
 	NVAR/SDFR=dfr global_error_count
 
+	// TAP Handling, find out if all should be skipped and number of all test cases
+	if(enableTAP)
+		TAP_EnableOutput()
+		TAP_CreateFile()
+
+		if(TAP_CheckAllSkip(allTestCasesList))
+			TAP_WriteOutput("1..0 All test cases marked SKIP" + TAP_LINEEND_STR)
+			TestEnd(name, allowDebug)
+			TestEndUser(name)
+			Abort
+		else
+			TAP_WriteOutput("1.." + num2str(ItemsInList(allTestCasesList)) + TAP_LINEEND_STR)
+		endif
+	endif
+
+	tap_caseCount = 1
 	juTestSuitesOut = ""
+
+	// The Test Run itself is split into Test Suites for each Procedure File
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
 
@@ -816,48 +863,69 @@ Function RunTest(procWinList, [name, testCase, enableJU, allowDebug, keepDataFol
 		TestSuiteBeginUser(procWin)
 		juTestCaseListOut = ""
 
+		NVAR/SDFR=dfr error_count
+
 		numItemsFFN = ItemsInList(fullFuncNameList)
 		for(j = numItemsFFN-1; j >= 0; j -= 1)
 			fullFuncName = StringFromList(j, fullFuncNameList)
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
-			JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
-			TestCaseBegin(fullFuncName)
-			TestCaseBeginUser(fullFuncName)
+			// get Description and Directive of current Function for TAP
+			tap_skipCase = 0
+			if(TAP_IsOutputEnabled())
+				tap_skipCase = TAP_GetNotes(fullFuncName)
+				TAP_InitDiagnosticBuffer()
+			endif
 
-			systemErr = ""
+			if(!tap_skipCase)
+				tap_caseErr = error_count
 
-			try
-				TestCaseFunc(); AbortOnRTE
-			catch
-				// only complain here if the error counter if the abort happened not in our code
-				if(!shouldDoAbort())
-					message = GetRTErrMessage()
-					err = GetRTError(1)
-					EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
-					printf message
-					systemErr = message
+				JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
+				TestCaseBegin(fullFuncName)
+				TestCaseBeginUser(fullFuncName)
 
-					incrError()
-				endif
-			endtry
+				systemErr = ""
 
-			TestCaseEnd(fullFuncName, keepDataFolder)
-			juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
-			TestCaseEndUser(fullFuncName)
+				try
+					TestCaseFunc(); AbortOnRTE
+				catch
+					// only complain here if the error counter if the abort happened not in our code
+					if(!shouldDoAbort())
+						message = GetRTErrMessage()
+						err = GetRTError(1)
+						EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
+						printf message
+						systemErr = message
+						if(TAP_IsOutputEnabled())
+							SVAR/SDFR=dfr tap_diagnostic
+							tap_diagnostic += message
+						endif
+						incrError()
+					endif
+				endtry
+
+				TestCaseEnd(fullFuncName, keepDataFolder)
+				juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
+				TestCaseEndUser(fullFuncName)
+				tap_caseErr -= error_count
+			endif
 
 			if(shouldDoAbort())
+				TAP_WriteOutputIfReq("Bail out!" + TAP_LINEEND_STR)
 				break
 			endif
+			TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase, tap_caseErr)
+			tap_caseCount += 1
+
 		endfor
 
 		TestSuiteEnd(procWin)
 		juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
 		TestSuiteEndUser(procWin)
-
 		if(shouldDoAbort())
 			break
 		endif
+
 	endfor
 	JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
 
