@@ -156,12 +156,35 @@ The igor unit testing framework supports output of test run results in JUNIT com
 The XML output files are written to the experiments `home` directory with naming `JU_Experiment_Date_Time.xml`. If a file with the same name already exists a three digit number is added to the name.
 The JUNIT Output also contains the history log of each test case and test suite.
 
+@section secTAPOutput Test Anything Protocol Output
+
+Output according to the Test Anything Protocol (TAP) standard 13 can be enabled with the optional parameter enableTAP = 1 of @ref RunTest. The output is written into a file in the experiment folder with a unique generated name tap_'time'.log.
+This prevents accidental overwrites of previous test runs. A TAP output file combines all Test Cases from all Test Suites given in @ref RunTest.<br>
+Additional TAP compliant descriptions and directives for each Test Case can be added in the two lines preceding the function of a Test Case.<br>
+- // #TAPDescription: My description here<br>
+- // #TAPDirective: My directive here<br>
+
+For directives two additional key words are defined that can be written at the beginning of the directive message.<br>
+- 'TODO' indicates a Test that includes a part of the program still in development. Failures here will be ignores by a TAP consumer.
+- 'SKIP' indicates a Test that should be skipped. A test with this directive key word is not executed and reported always as 'ok'.
+
+Examples:<br>
+// #TAPDirective: TODO routine that should be tested is still under development<br>
+or<br>
+// #TAPDirective: SKIP this test gets skipped<br>
+<br>
+See the Experiment in the TAP_Example folder for reference.
+
 @section secOptionalparameters Optional Parameters for RunTest
 
 <table border>
   <tr>
     <td>@ref enableJU = 1</td>
     <td>A JUNIT compatible XML file is written at the end of the test run. It allows the combination of this framework with continious integration servers like Atlassian Bamboo.</td>
+  </tr>
+  <tr>
+    <td>@ref enableTAP = 1</td>
+    <td>A Test Anything Protocol (TAP) version 13 compatible file is written at the end of the test run.</td>
   </tr>
   <tr>
     <td>@ref allowDebug = 1</td>
@@ -173,7 +196,6 @@ The JUNIT Output also contains the history log of each test case and test suite.
   </tr>
 </table>
 
-
 @section secAutomaticExecution Automate Test Runs
 
 To further simplify test execution it is possible to automate test runs from the command line.<br>
@@ -184,7 +206,6 @@ Steps to do that include:
 - Inspect the created log file
 
 See also @ref example6.
-
 @page secExamples Example Documentation
 
 @section example1 example1-plain.ipf
