@@ -2,8 +2,7 @@
 #pragma version=1.03
 #pragma TextEncoding="UTF-8"
 
-// Author: Thomas Braun and contributors (c) 2013-2017
-// Email: support at byte-physics dott de
+// Licensed under 3-Clause BSD, see License.txt
 
 // documentation guidelines:
 // -document the _WRAPPER function using "@class *_DOCU" without the flags parameter

@@ -2,6 +2,8 @@
 #pragma rtGlobals=3		// Use modern global access method and strict wave access.
 #pragma version=1.03
 
+// Licensed under 3-Clause BSD, see License.txt
+
 StrConstant TAP_DIRECTIVE_STR 		= "#TAPDirective:"
 StrConstant TAP_DESCRIPTION_STR 	= "#TAPDescription:"
 StrConstant TAP_LINEEND_STR			= "\n"

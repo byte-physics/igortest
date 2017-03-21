@@ -2,8 +2,7 @@
 #pragma version=1.03
 #pragma TextEncoding="UTF-8"
 
-// Author: Thomas Braun and contributors (c) 2013-2017
-// Email: support at byte-physics dott de
+// Licensed under 3-Clause BSD, see License.txt
 
 #include "unit-testing-constants"
 #include "unit-testing-basics"

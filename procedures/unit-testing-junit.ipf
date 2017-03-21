@@ -2,6 +2,7 @@
 #pragma rtGlobals=3
 #pragma version=1.03
 
+// Licensed under 3-Clause BSD, see License.txt
 
 Structure strTestSuite
 	// exported attributes, * = requires, XML type

@@ -25,7 +25,7 @@ rm -rf $zipfile
 
 mkdir -p $folder
 
-cp -r procedures docu/examples Readme.md helper $folder
+cp -r procedures docu/examples Readme.md License.txt helper $folder
 
 # copy and rename manual
 cp docu/refman.pdf $folder/Manual-$basename.pdf

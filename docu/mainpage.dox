@@ -1,6 +1,4 @@
-
-// Author: Thomas Braun and contributors (c) 2013-2017
-// Email: support at byte-physics dott de
+// Licensed under 3-Clause BSD, see License.txt
 
 /// @defgroup TestRunnerAndHelper Helper functions
 /// Runner and helper functions
