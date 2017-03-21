@@ -39,4 +39,3 @@ cd releases && zip -m -z -q -r $basename.zip $basename/* < ../internalVersion &&
 
 rmdir $folder
 rm internalVersion
-
