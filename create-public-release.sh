@@ -11,6 +11,8 @@ for i in `ls procedures/*.ipf`; do
 	sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
 done
 
+sed -i "s/^PROJECT_NUMBER.*$/PROJECT_NUMBER         = $newVersion/" docu/Doxyfile
+
 if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	echo "Aborting, please commit the changes first"
 	exit 0
