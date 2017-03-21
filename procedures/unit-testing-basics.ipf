@@ -446,6 +446,10 @@ Function DisableDebugOutput()
 	variable/G dfr:verbose = 0
 End
 
+///@}
+
+///@cond HIDDEN_SYMBOL
+
 /// Evaluates an RTE and puts a composite error message into message/type
 Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 	variable err
@@ -681,6 +685,11 @@ Function/S getTestCasesMatch(procWinList, funcName)
 	endfor
 	return testCaseList
 End
+
+///@endcond // HIDDEN_SYMBOL
+
+///@addtogroup TestRunnerAndHelper
+///@{
 
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
