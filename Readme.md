@@ -10,19 +10,15 @@ Features:
 
 Planned features (open for collaboration):
 * Threadsafe test assertions
-* Machine readable (XML) log file format
 * Igor Pro help file documentation
 
 The PDF manual of the latest version can be downloaded [here](http://www.byte-physics.de/Downloads/Manual-UnitTestingFramework-latest.pdf).
 
-### Installation ###
+### Requirements
 
-Requirements:
+Igor Pro version 6.2.0 or later
 
-* Igor Pro version 6.2.0 or later
-* Only tested on Windows, but is expected to run on MacOSX as well
-
-Installation:
+### Installation
 
 1. Install Igor
 2. Start Igor, this will create a folder called WaveMetrics in Documents
