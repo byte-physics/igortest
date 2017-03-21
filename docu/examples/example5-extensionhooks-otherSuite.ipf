@@ -12,7 +12,8 @@ Function TEST_BEGIN_OVERRIDE(name)
 	print ">> The global Test Begin is extended by this output <<"
 End
 
-// note: At the point where TEST_END_OVERRIDE is called the Igor Debugger is already reset to the state before the Test Run
+// note: At the point where TEST_END_OVERRIDE is called the Igor Debugger is
+// already reset to the state before the Test Run
 Function TEST_END_OVERRIDE(name)
 	string name
 
