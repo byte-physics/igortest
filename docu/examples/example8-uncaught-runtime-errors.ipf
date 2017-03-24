@@ -14,11 +14,14 @@ Function TestWaveOp()
 		WAVE/Z/SDFR=$"I dont exist" wv;
 End
 
-// There might be situations where the user wants to catch a runtime error (RTE) himself
-// This function shows how to catch the RTE before the test environment handles it.
-// The test environment is controlled manually by PASS() and FAIL()
-// PASS() increases the assertion counter and FAIL() treats this assertion as fail when a RTE was caught.
-// note: As this code can hide critical errors from the test environment it may render test runs unreliable.
+// There might be situations where the user wants to catch a runtime error
+// (RTE) himself. This function shows how to catch the RTE before the test
+// environment handles it. The test environment is controlled manually by
+// PASS() and FAIL() PASS() increases the assertion counter and FAIL() treats
+// this assertion as fail when a RTE was caught.
+//
+// Note: As this code can hide critical errors from the test environment it may
+// render test runs unreliable.
 Function TestWaveOpSelfCatch()
 	try
 		PASS()

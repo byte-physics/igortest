@@ -2,7 +2,7 @@
 
 set -e
 
-newVersion=1.05
+newVersion=1.06
 revision=UnitTestingFramework-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
@@ -10,6 +10,8 @@ filesToWatch="procedures docu helper INSTALL.txt"
 for i in `ls procedures/*.ipf`; do
 	sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
 done
+
+sed -i "s/^PROJECT_NUMBER.*$/PROJECT_NUMBER         = $newVersion/" docu/Doxyfile
 
 if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	echo "Aborting, please commit the changes first"
@@ -25,7 +27,7 @@ rm -rf $zipfile
 
 mkdir -p $folder
 
-cp -r procedures docu/examples Readme.md helper $folder
+cp -r procedures docu/examples Readme.md License.txt helper $folder
 
 # copy and rename manual
 cp docu/refman.pdf $folder/Manual-$basename.pdf
@@ -39,4 +41,3 @@ cd releases && zip -m -z -q -r $basename.zip $basename/* < ../internalVersion &&
 
 rmdir $folder
 rm internalVersion
-

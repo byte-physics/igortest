@@ -1,6 +1,4 @@
-
-// Author: Thomas Braun and contributors (c) 2013-2017
-// Email: support at byte-physics dott de
+// Licensed under 3-Clause BSD, see License.txt
 
 /// @defgroup TestRunnerAndHelper Helper functions
 /// Runner and helper functions
@@ -88,13 +86,13 @@ At certain points in the execution of a test run the user can add own code by in
 The following functions are reserved:
 <table border>
   <tr>
-    <td>@ref TEST_BEGIN_OVERRIDE(name)</td>
+    <td>@code TEST_BEGIN_OVERRIDE(string name) @endcode</td>
     <td>Executed at the begin of a test run
 
      name is a string with the tests name</td>
   </tr>
   <tr>
-    <td>@ref TEST_END_OVERRIDE(Name)</td>
+    <td>@code TEST_END_OVERRIDE(string name) @endcode</td>
     <td>Executed at the end of a test run
 
     Name is a string with the tests name
@@ -102,7 +100,7 @@ The following functions are reserved:
     note: As this function is executed at the very end of a test run the Igor debugger state is already reset to the state it had before RunTest was executed.</td>
   </tr>
   <tr>
-    <td>@ref TEST_SUITE_BEGIN_OVERRIDE(TestSuiteName)</td>
+    <td>@code TEST_SUITE_BEGIN_OVERRIDE(string testSuiteName)@endcode</td>
     <td>Executed at the begin of a test suite (test functions that are defined within a single procedure)
 
      TestSuiteName is a string with the test suites name (procedure name)
@@ -110,7 +108,7 @@ The following functions are reserved:
      This function can also be defined locally in a test suite with the \p static keyword.</td>
   </tr>
   <tr>
-    <td>@ref TEST_SUITE_END_OVERRIDE(TestSuiteName)</td>
+    <td>@code TEST_SUITE_END_OVERRIDE(string testSuiteName)@endcode</td>
     <td>Executed at the end of a test suite (test functions that are defined within a single procedure)
 
      TestSuiteName is a string with the test suites name (procedure name)
@@ -119,7 +117,7 @@ The following functions are reserved:
 
   </tr>
   <tr>
-    <td>@ref TEST_CASE_BEGIN_OVERRIDE(TestCaseName)</td>
+    <td>@code TEST_CASE_BEGIN_OVERRIDE(string testCaseName)@endcode</td>
     <td>Executed at the begin of a test case
 
      TestCaseName is a string with the test case name (function name)
@@ -127,7 +125,7 @@ The following functions are reserved:
      This function can also be defined locally in a test suite with the \p static keyword.</td>
   </tr>
   <tr>
-    <td>@ref TEST_CASE_END_OVERRIDE(TestCaseName)</td>
+    <td>@code TEST_CASE_END_OVERRIDE(string testCaseName)@endcode</td>
     <td>Executed at the end of a test case
 
      TestCaseName is a string with the test case name (function name)
@@ -136,17 +134,19 @@ The following functions are reserved:
   </tr>
 </table>
 
-When defined these function are executed globally, e.g. @ref TEST_CASE_BEGIN_OVERRIDE gets executed at the beginning of each test case.
+When defined these function are executed globally, e.g. @code TEST_CASE_BEGIN_OVERRIDE @endcode gets executed at the beginning of each test case.
 For the case that a user would like to have code executed only in a specific test suite these function can be defined locally within the test suite by declaring them \p static. Then the local function replaces the globally defined function.
 If the local defined function should only extend a global function the user can call the global function with:
-\code
+@latexonly
+\begin{minted}{igor}
 FUNCREF USER_HOOK_PROTO tcbegin_global = $"ProcGlobal#TEST_CASE_BEGIN_OVERRIDE"
 tcbegin_global(TestCaseName)
-\endcode
+\end{minted}
+@endlatexonly
 
 While a test run is executed the Igor debugger is by default disabled.
 
-To give one example: By default each test case is executed in its own temporary data folder. @ref TEST_CASE_BEGIN_OVERRIDE can now be used to set the data folder to root: such that each test case gets executed in root and no cleanup is executed afterwards. The next test case starts with the data the previous test case left in root:.
+To give one example: By default each test case is executed in its own temporary data folder. @code TEST_CASE_BEGIN_OVERRIDE @endcode can now be used to set the data folder to root: such that each test case gets executed in root and no cleanup is executed afterwards. The next test case starts with the data the previous test case left in root:.
 
 The functionality with additional user code at certain points of a test run is demonstrated in @ref example5.
 
@@ -160,38 +160,50 @@ The JUNIT Output also contains the history log of each test case and test suite.
 
 Output according to the Test Anything Protocol (TAP) standard 13 can be enabled with the optional parameter enableTAP = 1 of @ref RunTest. The output is written into a file in the experiment folder with a unique generated name tap_'time'.log.
 This prevents accidental overwrites of previous test runs. A TAP output file combines all Test Cases from all Test Suites given in @ref RunTest.<br>
-Additional TAP compliant descriptions and directives for each Test Case can be added in the two lines preceding the function of a Test Case.<br>
-- // #TAPDescription: My description here<br>
-- // #TAPDirective: My directive here<br>
+Additional TAP compliant descriptions and directives for each Test Case can be added in the two lines preceding the function of a Test Case.
+@latexonly
+\begin{minted}{igor}
+// #TAPDescription: My description here
+// #TAPDirective: My directive here
+\end{minted}
+@endlatexonly
 
 For directives two additional key words are defined that can be written at the beginning of the directive message.<br>
-- 'TODO' indicates a Test that includes a part of the program still in development. Failures here will be ignores by a TAP consumer.
-- 'SKIP' indicates a Test that should be skipped. A test with this directive key word is not executed and reported always as 'ok'.
+- @code TODO @endcode indicates a Test that includes a part of the program still in development. Failures here will be ignores by a TAP consumer.
+- @code SKIP @endcode indicates a Test that should be skipped. A test with this directive key word is not executed and reported always as 'ok'.
 
-Examples:<br>
-// #TAPDirective: TODO routine that should be tested is still under development<br>
-or<br>
-// #TAPDirective: SKIP this test gets skipped<br>
-<br>
+Examples:
+@latexonly
+\begin{minted}{igor}
+// #TAPDirective: TODO routine that should be tested is still under development
+\end{minted}
+@endlatexonly
+or
+@latexonly
+\begin{minted}{igor}
+// #TAPDirective: SKIP this test gets skipped
+\end{minted}
+@endlatexonly
+
 See the Experiment in the TAP_Example folder for reference.
 
 @section secOptionalparameters Optional Parameters for RunTest
 
 <table border>
   <tr>
-    <td>@ref enableJU = 1</td>
+    <td>@code enableJU = 1@endcode</td>
     <td>A JUNIT compatible XML file is written at the end of the test run. It allows the combination of this framework with continious integration servers like Atlassian Bamboo.</td>
   </tr>
   <tr>
-    <td>@ref enableTAP = 1</td>
+    <td>@code enableTAP = 1@endcode</td>
     <td>A Test Anything Protocol (TAP) version 13 compatible file is written at the end of the test run.</td>
   </tr>
   <tr>
-    <td>@ref allowDebug = 1</td>
+    <td>@code allowDebug = 1@endcode</td>
     <td>RunTest will leave the Igor debugger in its current state. This is useful for a brief look where user code generates an exception.</td>
   </tr>
   <tr>
-    <td>@ref keepDataFolder = 1</td>
+    <td>@code keepDataFolder = 1@endcode</td>
     <td>The temporary data folder wherein each test case is executed is not cleaned up at the end of the test case. This allows to review the data produced.</td>
   </tr>
 </table>

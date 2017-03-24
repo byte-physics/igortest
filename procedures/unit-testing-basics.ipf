@@ -1,10 +1,8 @@
 #pragma rtGlobals=3
-#pragma version=1.03
+#pragma version=1.06
 #pragma TextEncoding="UTF-8"
 
-// Author: Thomas Braun and contributors (c) 2013-2017
-// Email: support at byte-physics dott de
-// Test Anything Protocol Extensions by Michael Huth 2017
+// Licensed under 3-Clause BSD, see License.txt
 
 ///@cond HIDDEN_SYMBOL
 
@@ -446,6 +444,10 @@ Function DisableDebugOutput()
 	variable/G dfr:verbose = 0
 End
 
+///@}
+
+///@cond HIDDEN_SYMBOL
+
 /// Evaluates an RTE and puts a composite error message into message/type
 Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 	variable err
@@ -681,6 +683,11 @@ Function/S getTestCasesMatch(procWinList, funcName)
 	endfor
 	return testCaseList
 End
+
+///@endcond // HIDDEN_SYMBOL
+
+///@addtogroup TestRunnerAndHelper
+///@{
 
 /// Main function to execute one or more test suites.
 /// @param   procWinList   semicolon (";") separated list of procedure files
