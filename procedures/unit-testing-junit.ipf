@@ -151,14 +151,10 @@ Function/S JU_CaseToOut(juTC)
 	sout += s
 
 	if(strlen(juTC.systemOut))
-		juTC.systemOut = JU_ToXMLCharacters(juTC.systemOut)
-		sprintf s, "\t\t\t<system-out>%s</system-out>\n", juTC.systemOut
-		sout += s
+		sout += "\t\t<system-out>" + JU_ToXMLCharacters(juTC.systemOut) + "</system-out>\n"
 	endif
 	if(strlen(juTC.systemErr))
-		juTC.systemErr = JU_ToXMLCharacters(juTC.systemErr)
-		sprintf s, "\t\t\t<system-err>%s</system-err>\n", juTC.systemErr
-		sout += s
+		sout += "\t\t<system-err>" + JU_ToXMLCharacters(juTC.systemErr) + "</system-err>\n"
 	endif
 
 	return (sout + "\t\t</testcase>\n")
@@ -211,14 +207,10 @@ Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
 	sout += juTestCaseListOut
 
 	if(strlen(juTS.systemOut))
-		juTS.systemOut = JU_ToXMLCharacters(juTS.systemOut)
-		sprintf s, "\t\t<system-out>%s</system-out>\n", juTS.systemOut
-		sout += s
+		sout += "\t\t<system-out>" + JU_ToXMLCharacters(juTS.systemOut) + "</system-out>\n"
 	endif
 	if(strlen(juTS.systemErr))
-		juTS.systemErr = JU_ToXMLCharacters(juTS.systemErr)
-		sprintf s, "\t\t<system-err>%s</system-err>\n", juTS.systemErr
-		sout += s
+		sout += "\t\t<system-err>" + JU_ToXMLCharacters(juTS.systemErr) + "</system-err>\n"
 	endif
 
 	return (sout + "\t</testsuite>\n")
