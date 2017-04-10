@@ -115,7 +115,7 @@ Function/S JU_GetISO8601TimeStamp()
 	variable timezone, utctime
 	variable tzmin, tzhour
 	string tz
-	
+
 	timezone = Date2Secs(-1,-1,-1)
 	utctime = DateTime - timezone
 	sprintf tz, "%+03d:%02d", trunc(timezone / 3600), abs(mod(timezone / 60, 60))
@@ -270,7 +270,7 @@ Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
 		printf "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
 		return NaN
 	endif
-	
+
 	open/Z/P=home fnum as juFileName
 	if(!V_flag)
 		fBinWrite fnum, sout
