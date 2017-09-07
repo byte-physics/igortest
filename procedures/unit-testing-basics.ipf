@@ -6,9 +6,9 @@
 
 ///@cond HIDDEN_SYMBOL
 
-Constant FFNAME_OK	 = 0x00
-Constant FFNAME_NOT_FOUND = 0x01
-Constant FFNAME_NO_MODULE = 0x02
+static Constant FFNAME_OK        = 0x00
+static Constant FFNAME_NOT_FOUND = 0x01
+static Constant FFNAME_NO_MODULE = 0x02
 
 /// Returns the package folder
 Function/DF GetPackageFolder()
