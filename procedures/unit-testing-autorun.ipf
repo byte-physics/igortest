@@ -32,7 +32,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	variable refNum, kind
 	string file, pathName, type, creator
 
-	string funcList
+	string funcList, cmd
 
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
@@ -56,7 +56,8 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	CreateHistoryLog(recreate=0)
 	f()
 
-	Execute/P "SaveHistoryLog(); Quit/N"
+	sprintf cmd, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
+	Execute/P cmd
 End
 
 /// resets a global filename template string for output
