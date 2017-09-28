@@ -32,6 +32,8 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	variable refNum, kind
 	string file, pathName, type, creator
 
+	string funcList
+
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
 		return 0
@@ -43,7 +45,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		return 0
 	endif
 
-	string funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0")
+	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0")
 	if(ItemsInList(funcList) != 1)
 		Abort "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context"
 	endif
