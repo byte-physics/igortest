@@ -45,7 +45,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		return 0
 	endif
 
-	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0")
+	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[ProcGlobal]")
 	if(ItemsInList(funcList) != 1)
 		Abort "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context"
 	endif
