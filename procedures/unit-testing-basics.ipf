@@ -401,7 +401,6 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	string module = StringByKey("MODULE", infoStr)
 
 	if(strlen(module) <= 0)
-		module = "ProcGlobal"
 
 		// we can only use static functions if they live in a module
 		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
@@ -409,7 +408,13 @@ static Function/S getFullFunctionName(err, funcName, procName)
 			err = FFNAME_NO_MODULE
 			return errMsg
 		endif
+
+		return funcName
 	endif
+
+	// even if we are running in an independent module we don't need its name prepended as we
+	// 1.) run in the same IM anyway
+	// 2.) FuncRef does not accept that
 
 	return module + "#" + funcName
 End
