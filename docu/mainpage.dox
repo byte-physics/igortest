@@ -218,6 +218,14 @@ Steps to do that include:
 - Inspect the created log file
 
 See also @ref example6.
+
+@section secIndependentModuleSupport Running in an independent module
+
+The unit-testing framework can be run itself in an independent module. This can
+be required in very rare cases when the ProcGlobal procedures might not always be compiled.
+
+See also @ref example9.
+
 @page secExamples Example Documentation
 
 @section example1 example1-plain.ipf
@@ -270,6 +278,12 @@ Test suite showing how unhandled aborts in test cases are handled.
 Test suite showing how runtime errors are treated.
 @latexonly
 \includeexample{example8-uncaught-runtime-errors.ipf}
+@endlatexonly
+
+@section example9 example9-IM.ipf
+Test suite showing how running the whole framework in an independent module works.
+@latexonly
+\includeexample{example9-IM.ipf}
 @endlatexonly
 
 **/
