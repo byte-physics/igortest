@@ -156,7 +156,7 @@ Function TAP_GetNotes(s_funcName)
 	TAP_ClearNotes()
 	SVAR/SDFR=GetPackageFolder() tap_directive
 
-	s_funcText = ProcedureText(s_funcName, 2)
+	s_funcText = ProcedureText(s_funcName, 2, "[" + GetIndependentModuleName() + "]")
 	TAP_ValidNote(StringFromList(0, s_funcText, "\r"))
 	TAP_ValidNote(StringFromList(1, s_funcText, "\r"))
 	return (strsearch(tap_directive, "# SKIP", 0) >= 0)
