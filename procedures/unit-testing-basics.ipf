@@ -210,6 +210,12 @@ Function InitAbortFlag()
 	variable/G dfr:abortFlag = 0
 End
 
+/// Return true if running in `ProcGlobal`, false otherwise
+Function IsProcGlobal()
+
+	return !cmpstr("ProcGlobal", GetIndependentModuleName())
+End
+
 /// Prints an informative message about the test's success or failure
 // 0 failed, 1 succeeded
 static Function/S getInfo(result)
@@ -246,6 +252,10 @@ static Function/S getInfo(result)
 	caller    = StringFromList(callerIndex, callStack)
 	procedure = StringFromList(1, caller, ",")
 	line      = StringFromList(2, caller, ",")
+
+	if(!IsProcGlobal())
+		procedure += " [" + GetIndependentModuleName() + "]"
+	endif
 
 	contents = ProcedureText("", -1, procedure)
 	text = StringFromList(str2num(line), contents, "\r")
