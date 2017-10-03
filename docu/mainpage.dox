@@ -139,7 +139,7 @@ For the case that a user would like to have code executed only in a specific tes
 If the local defined function should only extend a global function the user can call the global function with:
 @latexonly
 \begin{minted}{igor}
-FUNCREF USER_HOOK_PROTO tcbegin_global = $"ProcGlobal#TEST_CASE_BEGIN_OVERRIDE"
+FUNCREF USER_HOOK_PROTO tcbegin_global = TEST_CASE_BEGIN_OVERRIDE
 tcbegin_global(TestCaseName)
 \end{minted}
 @endlatexonly
