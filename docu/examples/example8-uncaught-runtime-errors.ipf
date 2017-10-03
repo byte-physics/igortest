@@ -24,8 +24,8 @@ End
 // render test runs unreliable.
 Function TestWaveOpSelfCatch()
 	try
-		PASS()
 		WAVE/Z/SDFR=$"I dont exist" wv;AbortOnRTE
+		PASS()
 	catch
 		// Do not forget to clear the RTE
 		variable err = getRTError(1)
