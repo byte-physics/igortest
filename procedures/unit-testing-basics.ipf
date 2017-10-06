@@ -210,6 +210,12 @@ Function InitAbortFlag()
 	variable/G dfr:abortFlag = 0
 End
 
+/// Return true if running in `ProcGlobal`, false otherwise
+Function IsProcGlobal()
+
+	return !cmpstr("ProcGlobal", GetIndependentModuleName())
+End
+
 /// Prints an informative message about the test's success or failure
 // 0 failed, 1 succeeded
 static Function/S getInfo(result)
@@ -246,6 +252,10 @@ static Function/S getInfo(result)
 	caller    = StringFromList(callerIndex, callStack)
 	procedure = StringFromList(1, caller, ",")
 	line      = StringFromList(2, caller, ",")
+
+	if(!IsProcGlobal())
+		procedure += " [" + GetIndependentModuleName() + "]"
+	endif
 
 	contents = ProcedureText("", -1, procedure)
 	text = StringFromList(str2num(line), contents, "\r")
@@ -310,11 +320,12 @@ static Function abortWithInvalidHooks(hooks)
 	endfor
 End
 
-/// Looks for global override hooks in the module ProcGlobal
+/// Looks for global override hooks in the same indpendent module as the framework itself
+/// is running in.
 static Function getGlobalHooks(hooks)
 	Struct TestHooks& hooks
 
-	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2")
+	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2,WIN:[" + GetIndependentModuleName() + "]")
 
 	variable i
 	for(i = 0; i < ItemsInList(userHooks); i += 1)
@@ -401,7 +412,6 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	string module = StringByKey("MODULE", infoStr)
 
 	if(strlen(module) <= 0)
-		module = "ProcGlobal"
 
 		// we can only use static functions if they live in a module
 		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
@@ -409,7 +419,13 @@ static Function/S getFullFunctionName(err, funcName, procName)
 			err = FFNAME_NO_MODULE
 			return errMsg
 		endif
+
+		return funcName
 	endif
+
+	// even if we are running in an independent module we don't need its name prepended as we
+	// 1.) run in the same IM anyway
+	// 2.) FuncRef does not accept that
 
 	return module + "#" + funcName
 End
@@ -684,13 +700,49 @@ Function/S getTestCasesMatch(procWinList, funcName)
 	return testCaseList
 End
 
+// Return the status of an `SetIgorOption` setting
+Function QueryIgorOption(option)
+	string option
+
+	variable state
+
+	Execute/Q "SetIgorOption " + option + "=?"
+	NVAR V_Flag
+
+	state = V_Flag
+	KillVariables/Z V_Flag
+
+	return state
+End
+
+/// Add an IM specification to every procedure name if running in an IM
+static Function/S AdaptProcWinList(procWinList)
+	string procWinList
+
+	variable i, numEntries
+	string str
+	string list = ""
+
+	if(IsProcGlobal())
+		return procWinList
+	endif
+
+	numEntries = ItemsInList(procWinList)
+	for(i = 0; i < numEntries; i += 1)
+		str = StringFromList(i, procWinList) + " [" + GetIndependentModuleName() + "]"
+		list = AddListItem(str, list, ";", INF)
+	endfor
+
+	return list
+End
+
 ///@endcond // HIDDEN_SYMBOL
 
 ///@addtogroup TestRunnerAndHelper
 ///@{
 
 /// Main function to execute one or more test suites.
-/// @param   procWinList   semicolon (";") separated list of procedure files
+/// @param   procWinList   semicolon (";") separated list of procedure files (must not include Independent Module specifications)
 /// @param   name           (optional) descriptive name for the executed test suites
 /// @param   testCase       (optional) function name, resembling one test case, which should be executed only for each test suite
 /// @param   enableJU       (optional) enables JUNIT xml output when set to 1
@@ -742,7 +794,17 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, 
 		return NaN
 	endif
 
-	allProcWindows = WinList("*", ";", "WIN:128")
+	procWinList = AdaptProcWinList(procWinList)
+
+	if(IsProcGlobal())
+		allProcWindows = WinList("*", ";", "WIN:128")
+	else
+		if(!QueryIgorOption("IndependentModuleDev"))
+			printf "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.\r", GetIndependentModuleName()
+			return NaN
+		endif
+		allProcWindows = WinList("* [" + GetIndependentModuleName() + "]", ";", "WIN:128,INDEPENDENTMODULE:1")
+	endif
 
 	numItemsPW = ItemsInList(procWinList)
 	for(i = 0; i < numItemsPW; i += 1)

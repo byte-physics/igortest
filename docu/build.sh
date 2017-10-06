@@ -1,3 +1,5 @@
+#!/bin/sh
+
 doxygen
 cd latex
 pdflatex -interaction=nonstopmode -shell-escape refman.tex
