@@ -1001,6 +1001,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, 
 	TestEnd(name, allowDebug)
 	TestEndUser(name)
 
+	DoWindow/K HistoryCarbonCopy
+
 	return global_error_count
 End
 
