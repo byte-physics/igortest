@@ -327,11 +327,12 @@ Function JU_TestCaseBegin(enableJU, juTC, funcName, fullfuncName, procWin)
 	string fullfuncName
 	string procWin
 
-	NVAR/SDFR=GetPackageFolder() error_count
-
 	if(!enableJU)
 		return NaN
 	endif
+
+	NVAR/SDFR=GetPackageFolder() error_count
+
 	juTC.name = funcName + " in " + procWin
 	juTC.className = fullfuncName
 	juTC.timeStart = DateTime
