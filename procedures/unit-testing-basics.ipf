@@ -260,8 +260,7 @@ static Function/S getInfo(result)
 	contents = ProcedureText("", -1, procedure)
 	text = StringFromList(str2num(line), contents, "\r")
 
-	// remove leading and trailing whitespace
-	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
+	cleanText = trimstring(text)
 
 	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
