@@ -515,11 +515,17 @@ Function TestBegin(name, allowDebug)
 	string name
 	variable allowDebug
 
-	// we have to remember the state of debugging
-	variable reEnableDebugOutput=EnabledDebug()
+	variable reEnableDebugOutput
+
+	// remember some state variables
+	if(DataFolderExists(PKG_FOLDER))
+		reEnableDebugOutput = EnabledDebug()
+	endif
 
 	KillDataFolder/Z $PKG_FOLDER
+
 	initGlobalError()
+	InitAbortFlag()
 
 	DFREF dfr = GetPackageFolder()
 
@@ -527,9 +533,7 @@ Function TestBegin(name, allowDebug)
 		EnableDebugOutput()
 	endif
 
-	InitAbortFlag()
-
-	if (!allowDebug)
+	if(!allowDebug)
 		initIgorDebugState()
 		NVAR/SDFR=dfr igor_debug_state
 		igor_debug_state = DisableIgorDebugger()
