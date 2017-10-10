@@ -113,6 +113,26 @@ Function initGlobalError()
 	variable/G dfr:global_error_count = 0
 End
 
+/// Creates the variable run_count in PKG_FOLDER
+/// and initializes it to zero
+Function initRunCount()
+	dfref dfr = GetPackageFolder()
+	variable/G dfr:run_count = 0
+End
+
+/// Increments the run_count in PKG_FOLDER and creates it if necessary
+Function incrRunCount()
+	dfref dfr = GetPackageFolder()
+	NVAR/Z/SDFR=dfr run_count
+
+	if(!NVAR_Exists(run_count))
+		initRunCount()
+		NVAR/SDFR=dfr run_count
+	endif
+
+	run_count +=1
+End
+
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
 Function initError()
@@ -260,8 +280,7 @@ static Function/S getInfo(result)
 	contents = ProcedureText("", -1, procedure)
 	text = StringFromList(str2num(line), contents, "\r")
 
-	// remove leading and trailing whitespace
-	SplitString/E="^[[:space:]]*(.+?)[[:space:]]*$" text, cleanText
+	cleanText = trimstring(text)
 
 	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
@@ -516,21 +535,36 @@ Function TestBegin(name, allowDebug)
 	string name
 	variable allowDebug
 
-	// we have to remember the state of debugging
-	variable reEnableDebugOutput=EnabledDebug()
+	variable reEnableDebugOutput, runCountStored
+
+	// remember some state variables
+	if(DataFolderExists(PKG_FOLDER))
+		reEnableDebugOutput = EnabledDebug()
+
+		DFREF dfr = GetPackageFolder()
+		NVAR/SDFR=dfr/Z run_count
+
+		// existing experiments don't have run_count
+		if(NVAR_Exists(run_count))
+			runCountStored = run_count
+		endif
+	endif
 
 	KillDataFolder/Z $PKG_FOLDER
+
 	initGlobalError()
+	initRunCount()
+	InitAbortFlag()
 
 	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr run_count
+	run_count = runCountStored
 
 	if(reEnableDebugOutput)
 		EnableDebugOutput()
 	endif
 
-	InitAbortFlag()
-
-	if (!allowDebug)
+	if(!allowDebug)
 		initIgorDebugState()
 		NVAR/SDFR=dfr igor_debug_state
 		igor_debug_state = DisableIgorDebugger()
@@ -574,6 +608,7 @@ Function TestSuiteBegin(testSuite)
 	string testSuite
 
 	initError()
+	incrRunCount()
 	printf "Entering test suite \"%s\"\r", testSuite
 End
 
