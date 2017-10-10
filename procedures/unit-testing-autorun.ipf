@@ -79,7 +79,7 @@ Function/S GetBaseFilename()
 	if(strlen(baseFilename))
 		return baseFilename
 	endif
-	sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 1), "-")
+	sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")
 	return baseFilename
 End
 
