@@ -58,3 +58,10 @@ Constant DATA_FULL_SCALE  = 256
 Constant DIMENSION_SIZES  = 512
 ///@}
 ///@}
+
+/// @anchor AutorunModes
+/// @{
+Constant AUTORUN_OFF   = 0x0
+Constant AUTORUN_FULL  = 0x1
+Constant AUTORUN_PLAIN = 0x2
+/// @}

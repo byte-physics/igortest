@@ -5,6 +5,7 @@ REM Opens all experiment files in the current directory in autorun mode
 
 set IgorPath="%PROGRAMFILES%\WaveMetrics\Igor Pro 7 Folder\IgorBinaries_Win32\Igor.exe"
 set StateFile="DO_AUTORUN.TXT"
+REM set StateFile="DO_AUTORUN_PLAIN.TXT"
 
 if exist %IgorPath% goto foundIgor
 echo Igor Pro could not be found in %IgorPath%, please adjust the variable IgorPath in the script
