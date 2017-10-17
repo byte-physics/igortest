@@ -23,6 +23,25 @@ Function CreateHistoryLog([recreate])
 	endif
 End
 
+/// Return the type of autorun mode we are in
+///
+/// @returns one of @ref AutorunModes
+Function GetAutorunMode()
+	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN.TXT"
+
+	if(!V_flag)
+		return AUTORUN_FULL
+	endif
+
+	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN_PLAIN.TXT"
+
+	if(!V_flag)
+		return AUTORUN_PLAIN
+	endif
+
+	return AUTORUN_OFF
+End
+
 /// Hook function which is executed after opening a file
 ///
 /// This function calls the user supplied run routine if
@@ -33,15 +52,16 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	string file, pathName, type, creator
 
 	string funcList, cmd
+	variable autorunMode
 
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
 		return 0
 	endif
 
-	// return if the state file does not exist
-	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN.TXT"
-	if(V_flag != 0)
+	autorunMode = GetAutorunMode()
+
+	if(autorunMode == AUTORUN_OFF)
 		return 0
 	endif
 
@@ -50,14 +70,17 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		Abort "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context"
 	endif
 
-	FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
+	if(autorunMode == AUTORUN_FULL)
+		CreateHistoryLog(recreate=0)
+	endif
 
-	// state file exists, call the run routine and quit Igor afterwards
-	CreateHistoryLog(recreate=0)
+	FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 	f()
 
-	sprintf cmd, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
-	Execute/P cmd
+	if(autorunMode == AUTORUN_FULL)
+		sprintf cmd, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
+		Execute/P cmd
+	endif
 End
 
 /// resets a global filename template string for output

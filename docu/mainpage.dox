@@ -217,6 +217,15 @@ Steps to do that include:
 - Run the batch file autorun-test.bat
 - Inspect the created log file
 
+The example batch files for autorun create a file named @c DO_AUTORUN.TXT
+before starting Igor Pro. This enables autorun mode. After the @c run function
+is executed and returned the log is saved in a file on disk and Igor Pro quits.
+
+A different autorun mode is enabled if the file is named @c
+DO_AUTORUN_PLAIN.TXT. In this mode no log file is saved after the test
+execution and Igor Pro does not quit. This mode also does not use the Operation
+Queue.
+
 See also @ref example6.
 
 @section secIndependentModuleSupport Running in an independent module
