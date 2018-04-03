@@ -529,6 +529,17 @@ Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 	endif
 End
 
+/// Check if the User manually pressed Abort and set Abort flag
+///
+/// @param abortCode V_AbortCode output from try...catch
+Function CheckAbortCondition(abortCode)
+	variable abortCode
+
+	if(abortCode == -1)
+		abortNow()
+	endif
+End
+
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
 Function TestBegin(name, allowDebug)
@@ -1000,6 +1011,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, 
 						EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
 						printf message
 						systemErr = message
+						CheckAbortCondition(V_AbortCode)
 						if(TAP_IsOutputEnabled())
 							SVAR/SDFR=dfr tap_diagnostic
 							tap_diagnostic += message
