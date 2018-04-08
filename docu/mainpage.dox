@@ -199,6 +199,10 @@ See the Experiment in the TAP_Example folder for reference.
     <td>A Test Anything Protocol (TAP) version 13 compatible file is written at the end of the test run.</td>
   </tr>
   <tr>
+    <td>@code enableRegExp = 1@endcode</td>
+    <td>RunTest will treat the input procedure list as a regular expressions. <p>Example:@code RunTest("example[1-3]-plain\.ipf", enableRegExp=1)@endcode will run the test files @c example1-plain.ipf @c example2-plain.ipf and @c example3-plain.ipf from the directory docu/examples with a single command.</td>
+  </tr>
+  <tr>
     <td>@code allowDebug = 1@endcode</td>
     <td>RunTest will leave the Igor debugger in its current state. This is useful for a brief look where user code generates an exception.</td>
   </tr>

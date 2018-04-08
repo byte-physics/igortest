@@ -762,12 +762,14 @@ Function QueryIgorOption(option)
 End
 
 /// Add an IM specification to every procedure name if running in an IM
-static Function/S AdaptProcWinList(procWinList)
+static Function/S AdaptProcWinList(procWinList, enableRegExp)
 	string procWinList
+	variable enableRegExp
 
 	variable i, numEntries
 	string str
 	string list = ""
+
 
 	if(IsProcGlobal())
 		return procWinList
@@ -775,11 +777,84 @@ static Function/S AdaptProcWinList(procWinList)
 
 	numEntries = ItemsInList(procWinList)
 	for(i = 0; i < numEntries; i += 1)
-		str = StringFromList(i, procWinList) + " [" + GetIndependentModuleName() + "]"
+		if(enableRegExp)
+			str = StringFromList(i, procWinList) + "[[:space:]]\[" + GetIndependentModuleName() + "\]"
+		else
+			str = StringFromList(i, procWinList) + " [" + GetIndependentModuleName() + "]"
+		endif
 		list = AddListItem(str, list, ";", INF)
 	endfor
 
 	return list
+End
+
+/// get all available procedures as a ";" separated list
+static Function/S GetProcedureList()
+	if(!IsProcGlobal())
+		if(!QueryIgorOption("IndependentModuleDev"))
+			printf "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.\r", GetIndependentModuleName()
+			return ""
+		endif
+		return WinList("* [" + GetIndependentModuleName() + "]", ";", "WIN:128,INDEPENDENTMODULE:1")
+	endif
+	return WinList("*", ";", "WIN:128")
+End
+
+/// verify that the selected procedures are available.
+///
+/// @param procWinList   a list of procedures to check
+/// @param enableRegExp  treat list items as regular expressions
+/// @returns parsed list of procedures
+static Function/S FindProcedures(procWinListIn, enableRegExp)
+	string procWinListIn
+	variable enableRegExp
+
+	string procWin
+	string procWinMatch
+	string allProcWindows
+	variable numItemsPW
+	variable numMatches
+	variable i, j
+	string procWinListOut = ""
+
+	numItemsPW = ItemsInList(procWinListIn)
+	if(numItemsPW <= 0)
+		return ""
+	endif
+
+	allProcWindows = GetProcedureList()
+
+	if(enableRegExp)
+	endif
+
+	numItemsPW = ItemsInList(procWinListIn)
+	for(i = 0; i < numItemsPW; i += 1)
+		procWin = StringFromList(i, procWinListIn)
+		if(enableRegExp)
+			procWin = "^" + procWin + "$"
+			procWinMatch = GrepList(allProcWindows, procWin, 0, ";")
+		else
+			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
+		endif
+
+		numMatches = ItemsInList(procWinMatch)
+		if(numMatches <= 0)
+			printf "Error: A procedure window named \"%s\" could not be found.\r", procWin
+			return ""
+		endif
+
+		for(j = 0; j < numMatches; j += 1)
+			procWin = StringFromList(j, procWinMatch)
+			if(FindListItem(procWin, procWinListOut, ";", 0, 0) == -1)
+				procWinListOut = AddListItem(procWin, procWinListOut, ";", INF)
+			else
+				printf "Error: The procedure window named \"%s\" is a duplicate entry in the input list of procedures.\r", procWin
+				return ""
+			endif
+		endfor
+	endfor
+
+	return procWinListOut
 End
 
 ///@endcond // HIDDEN_SYMBOL
@@ -793,16 +868,16 @@ End
 /// @param   testCase       (optional) function name, resembling one test case, which should be executed only for each test suite
 /// @param   enableJU       (optional) enables JUNIT xml output when set to 1
 /// @param   enableTAP      (optional) enables Test Anything Protocol (TAP) output when set to 1
+/// @param   enableRegExp   (optional) enables parsing of regular expressions within procWinList when set to 1. disabled on default.
 /// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
 /// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, keepDataFolder])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, keepDataFolder])
 	string procWinList, name, testCase
-	variable enableJU, enableTAP
+	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, keepDataFolder
 
 	string procWin
-	string allProcWindows
 	string testCaseList
 	string allTestCasesList
 	string FuncName
@@ -825,6 +900,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, 
 	variable i, j, err
 
 	// Arguments check
+	enableRegExp = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 
 	ClearBaseFilename()
 	CreateHistoryLog(recreate=0)
@@ -835,30 +911,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, allowDebug, 
 		return NaN
 	endif
 
-	if(strlen(procWinList) <= 0)
-		printf "Error: The list of procedure windows is empty\r"
-		return NaN
-	endif
-
-	procWinList = AdaptProcWinList(procWinList)
-
-	if(IsProcGlobal())
-		allProcWindows = WinList("*", ";", "WIN:128")
-	else
-		if(!QueryIgorOption("IndependentModuleDev"))
-			printf "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.\r", GetIndependentModuleName()
-			return NaN
-		endif
-		allProcWindows = WinList("* [" + GetIndependentModuleName() + "]", ";", "WIN:128,INDEPENDENTMODULE:1")
-	endif
+	procWinList = AdaptProcWinList(procWinList, enableRegExp)
+	procWinList = FindProcedures(procWinList, enableRegExp)
 
 	numItemsPW = ItemsInList(procWinList)
+	if(numItemsPW <= 0)
+		printf "Error: The list of procedure windows is empty or invalid.\r"
+		return NaN
+	endif
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
-		if(FindListItem(procWin, allProcWindows, ";", 0, 0) == -1)
-			printf "Error: A procedure window named %s could not be found.\r", procWin
-			return NaN
-		endif
 		testCaseList = getTestCaseList(procWin)
 		numItemsTC = ItemsInList(testCaseList)
 		if(!numItemsTC)
