@@ -235,6 +235,14 @@ be required in very rare cases when the ProcGlobal procedures might not always b
 
 See also @ref example9.
 
+@section secAbortCondition Handling of Abort code
+
+The unit-testing framework continues with the next test case after catching @c Abort and logs the abort code.
+Currently differentiation of different abort conditions include manual user aborts, stack overflow and an encountered @c Abort in the code.
+When manually pressing the Abort button the framework is terminated.
+
+note: Igor Pro 6 can not differentiate between manual user aborts and programmatic abort codes. Pressing the Abort button in Igor Pro 6 will therefore terminate only the current test case and continue with the next queued test case.
+
 @page secExamples Example Documentation
 
 @section example1 example1-plain.ipf
