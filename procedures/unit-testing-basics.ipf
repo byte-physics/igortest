@@ -260,10 +260,14 @@ Function shouldDoAbort()
 End
 
 /// Sets the abort flag
-Function abortNow()
+Function setAbortFlag()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 1
+End
 
+
+Function abortNow()
+	setAbortFlag()
 	Abort
 End
 
@@ -579,7 +583,7 @@ Function CheckAbortCondition(abortCode)
 	variable abortCode
 
 	if(abortCode == -1)
-		abortNow()
+		setAbortFlag()
 	endif
 End
 
@@ -1123,6 +1127,24 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 							tap_diagnostic += message
 						endif
 						incrError()
+					endif
+
+					if(shouldDoAbort())
+						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
+						TestCaseEnd(fullFuncName, keepDataFolder)
+						juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
+						TestCaseEndUser(fullFuncName)
+
+						tap_caseErr -= error_count
+						TAP_WriteOutputIfReq("Bail out!" + TAP_LINEEND_STR)
+						TestSuiteEnd(procWin)
+						juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
+						TestSuiteEndUser(procWin)
+
+						JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
+						TestEnd(name, allowDebug)
+						TestEndUser(name)
+						return global_error_count
 					endif
 				endtry
 
