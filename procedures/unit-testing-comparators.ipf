@@ -489,7 +489,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	if(type2 > 0 && type2 <= 2)
 		type = type | 2^(type2 + 3)
 	endif
-	result = type & majorType
+	result = (type & majorType) == majorType
 
 	sprintf str, "Assumption that the wave's main type is %d", majorType
 	DebugOutput(str, result)
@@ -509,7 +509,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	if(!ParamIsDefault(minorType))
 		type = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
 
-		result = type & minorType
+		result = (type & minorType) == minorType
 		sprintf str, "Assumption that the wave's sub type is %d", minorType
 		DebugOutput(str, result)
 

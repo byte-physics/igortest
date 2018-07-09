@@ -12,16 +12,14 @@ Function testWaveTypes()
 	CHECK_WAVE(wv, NULL_WAVE)
 
 	Make/FREE/U/I wv0
-	CHECK_WAVE(wv0, FREE_WAVE, minorType = UNSIGNED_WAVE)
-	CHECK_WAVE(wv0, NUMERIC_WAVE, minorType = INT32_WAVE)
+	CHECK_WAVE(wv0, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE)
 
 	Make/FREE/T wv1
-	CHECK_WAVE(wv1, FREE_WAVE)
-	CHECK_WAVE(wv1, TEXT_WAVE)
+	CHECK_WAVE(wv1, FREE_WAVE | TEXT_WAVE)
 
 	Make/O/U/I root:wv2/WAVE=wv2
-	CHECK_WAVE(wv2, NORMAL_WAVE, minorType = UNSIGNED_WAVE)
-	CHECK_WAVE(wv2, NUMERIC_WAVE, minorType = INT32_WAVE)
+	CHECK_WAVE(wv2, NORMAL_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE)
+	CHECK_WAVE(wv2, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE) // ! not a free wave
 End
 
 Function checkWaveType()
@@ -78,4 +76,9 @@ Function printWaveType(wv)
 	print myType & NUMERIC_WAVE && myType & FREE_WAVE, "free and numeric"
 	print myType & NUMERIC_WAVE && myType & NORMAL_WAVE, "normal and numeric"
 	print myType & TEXT_WAVE && myType & FREE_WAVE, "free and text"
+
+	Variable mask = NUMERIC_WAVE  | NORMAL_WAVE | INT32_WAVE | UNSIGNED_WAVE
+	printf "%016b mask\r", mask
+	printf "%016b type\r", myType
+	printf "%016b result\r", (myType & mask) == mask
 End
