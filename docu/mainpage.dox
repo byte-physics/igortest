@@ -81,21 +81,22 @@ A test suite is a group of test cases which should belong together and is equal 
 
 @section secTestHooks Test Hooks
 
-At certain points in the execution of a test run the user can add own code by including functions with reserved names.
+A test run can be extended with user-defined code at specific points during its execution.
+These pre-defined injection points are at the beginning and respectively at the end of a complete Test Run, a @ref secTestSuite, and a @ref secTestCase.
 
-The following functions are reserved:
+The following functions are reserved for user code injections:
 <table border>
   <tr>
     <td>@code TEST_BEGIN_OVERRIDE(string name) @endcode</td>
     <td>Executed at the begin of a test run
 
-     name is a string with the tests name</td>
+     \p name is a string that will hold the name of the current test</td>
   </tr>
   <tr>
     <td>@code TEST_END_OVERRIDE(string name) @endcode</td>
     <td>Executed at the end of a test run
 
-    Name is a string with the tests name
+     \p name is a string that will hold the name of the current test
 
     note: As this function is executed at the very end of a test run the Igor debugger state is already reset to the state it had before RunTest was executed.</td>
   </tr>
@@ -103,7 +104,7 @@ The following functions are reserved:
     <td>@code TEST_SUITE_BEGIN_OVERRIDE(string testSuiteName)@endcode</td>
     <td>Executed at the begin of a test suite (test functions that are defined within a single procedure)
 
-     TestSuiteName is a string with the test suites name (procedure name)
+     \p TestSuiteName is a string that will hold the name of the current @ref secTestSuite (procedure name)
 
      This function can also be defined locally in a test suite with the \p static keyword.</td>
   </tr>
@@ -111,16 +112,15 @@ The following functions are reserved:
     <td>@code TEST_SUITE_END_OVERRIDE(string testSuiteName)@endcode</td>
     <td>Executed at the end of a test suite (test functions that are defined within a single procedure)
 
-     TestSuiteName is a string with the test suites name (procedure name)
+     \p TestSuiteName is a string that will hold the name of the current @ref secTestSuite (procedure name)
 
      This function can also be defined locally in a test suite with the \p static keyword.</td>
-
   </tr>
   <tr>
     <td>@code TEST_CASE_BEGIN_OVERRIDE(string testCaseName)@endcode</td>
     <td>Executed at the begin of a test case
 
-     TestCaseName is a string with the test case name (function name)
+     \p TestCaseName is a string that will hold the name of the current @ref secTestCase (function name)
 
      This function can also be defined locally in a test suite with the \p static keyword.</td>
   </tr>
@@ -128,15 +128,19 @@ The following functions are reserved:
     <td>@code TEST_CASE_END_OVERRIDE(string testCaseName)@endcode</td>
     <td>Executed at the end of a test case
 
-     TestCaseName is a string with the test case name (function name)
+     \p TestCaseName is a string that will hold the name of the current @ref secTestCase (function name)
 
      This function can also be defined locally in a test suite with the \p static keyword.</td>
   </tr>
 </table>
 
-When defined these function are executed globally, e.g. @code TEST_CASE_BEGIN_OVERRIDE @endcode gets executed at the beginning of each test case.
-For the case that a user would like to have code executed only in a specific test suite these function can be defined locally within the test suite by declaring them \p static. Then the local function replaces the globally defined function.
-If the local defined function should only extend a global function the user can call the global function with:
+These functions are executed automatically if they are defined anywhere in global or local context. For example, \p TEST_CASE_BEGIN_OVERRIDE gets executed at the beginning of each test case.
+Locally defined functions always override globally defined ones of the same name. To visualize this behavior, take a look at the following scenario:
+A user would like to have code executed only in a specific @ref secTestSuite.
+Then the functions \p TEST_SUITE_BEGIN_OVERRIDE and \p TEST_SUITE_END_OVERRIDE can be defined locally within the current @ref secTestSuite by declaring them \p static to the @ref secTestSuite. The local (static) functions then replace any previously defined global functions.
+The functionality with additional user code at certain points of a test run is demonstrated in @ref example5.
+
+If the locally defined function should only extend a global function the user can call the global function within the local function as follows:
 @latexonly
 \begin{minted}{igor}
 FUNCREF USER_HOOK_PROTO tcbegin_global = TEST_CASE_BEGIN_OVERRIDE
@@ -144,11 +148,10 @@ tcbegin_global(TestCaseName)
 \end{minted}
 @endlatexonly
 
-While a test run is executed the Igor debugger is by default disabled.
+To give a possible use case:
+By default, each @ref secTestCase is executed in its own temporary data folder. \p TEST_CASE_BEGIN_OVERRIDE can now be used to set the data folder to \p root: such that each test case gets executed in root and no cleanup is done afterward. The next test case then starts with the data the previous test case left in \p root:.
 
-To give one example: By default each test case is executed in its own temporary data folder. @code TEST_CASE_BEGIN_OVERRIDE @endcode can now be used to set the data folder to root: such that each test case gets executed in root and no cleanup is executed afterwards. The next test case starts with the data the previous test case left in root:.
-
-The functionality with additional user code at certain points of a test run is demonstrated in @ref example5.
+Note that by default the Igor debugger is disabled during the execution of a test run.
 
 @section secJUNIT JUNIT Output
 
