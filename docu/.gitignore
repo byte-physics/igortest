@@ -1,3 +1,5 @@
-doxygen.log
-latex
+doxygen/doxygen.log
+doxygen/latex/*
+doxygen/html/*
+doxygen/xml/*
 refman.pdf
