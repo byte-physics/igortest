@@ -32,3 +32,19 @@ static Function CheckMakeText()
 	Duplicate/T myWave, myWaveCopy
 	CHECK_EQUAL_WAVES(myWave,myWaveCopy)
 End
+
+static Function CheckWaveTypes()
+	WAVE/Z wv
+	CHECK_WAVE(wv, NULL_WAVE)
+
+	Make/FREE/U/I wv0
+	CHECK_WAVE(wv0, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE)
+
+	Make/FREE/T wv1
+	CHECK_WAVE(wv1, FREE_WAVE | TEXT_WAVE)
+
+	Make/O/U/I root:wv2/WAVE=wv2
+	CHECK_WAVE(wv2, NORMAL_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE)
+	print "The following check for free wave is intended to fail"
+	CHECK_WAVE(wv2, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE) // ! not a free wave
+End
