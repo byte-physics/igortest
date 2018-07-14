@@ -1,6 +1,6 @@
 This project aims at providing a complete set of tools for programmers for writing and maintaining unit tests.
 
-Features:
+# Features:
 * Runs on Windows and MacOSX
 * Completely documented and with lots of examples
 * Includes more than ten test assertions coming in three versions
@@ -12,13 +12,15 @@ Planned features (open for collaboration):
 * Threadsafe test assertions
 * Igor Pro help file documentation
 
-The PDF manual of the latest version can be downloaded [here](http://www.byte-physics.de/Downloads/Manual-UnitTestingFramework-latest.pdf).
+# Documentation
+* The *HTML* version of the manual is found [here](https://github.com/t-b/igor-unit-testing-framework/docu/sphinx/html/index.html).
+* The *PDF* version can be downloaded from [here](https://github.com/t-b/igor-unit-testing-framework/docu/manual.pdf).
 
-### Requirements
+# Requirements
 
 Igor Pro version 6.2.0 or later
 
-### Installation
+# Installation
 
 1. Install Igor
 2. Start Igor, this will create a folder called WaveMetrics in Documents
@@ -26,13 +28,14 @@ Igor Pro version 6.2.0 or later
 4. Create a link from `unitTestingFramework/procedures` to `Documents\WaveMetrics\Igor Pro 6 User Files\User Procedures`
 5. Have a look at the manual or the example experiments
 
-Building the documentation
+# Building the documentation
 
-Requirements:
+## Requirements:
 The build process is fully automated using [docker containers](https://www.docker.com/). You will need
 - [docker](https://www.docker.com/get-docker)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
+## build
 run `make` from the documentation root directory `docu/`:
 ```bash
 cd docu
@@ -42,4 +45,5 @@ make
 This will create a docker container with all the required dependencies and output the manual as pdf to `docu/manual.pdf` and html to the `docu/sphinx/html` subdirectory.
 The documentation is built using [doxygen](http://www.doxygen.org/), a [home-built awk script](https://github.com/t-b/doxygen-filter-ipf/), [breathe](https://github.com/michaeljones/breathe) and [sphinx](http://www.sphinx-doc.org).
 
-**Please** report all bugs and major/minor annoyances to (thomas \<dot\> braun \<aehht\> byte \<minus\> physics \<dottt\> de)!
+# Bug Reporting
+**Please** report all bugs and major/minor annoyances either as an issue here or directly to (thomas \<dot\> braun \<aehht\> byte \<minus\> physics \<dottt\> de)!
