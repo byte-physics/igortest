@@ -110,6 +110,28 @@ Function/S JU_ToXMLCharacters(str)
 	return str
 End
 
+/// trim leading and trailing white spaces from
+/// every line of the given string
+Function/S JU_TrimSOUT(input, [listSepStr])
+	string input
+	string listSepStr
+
+	variable i, numItems
+	string output = ""
+
+	if(ParamIsDefault(listSepStr))
+		listSepStr = "\r"
+	endif
+
+	numItems = ItemsInList(input, listSepStr)
+	for(i = 0; i < numItems; i += 1)
+		output += TrimString(StringFromList(i, input, listSepStr))
+		output += listSepStr
+	endfor
+
+	return output
+End
+
 /// Returns the current TimeStamp in the form yyyy-mm-ddThh:mm:ssZ±hh:mm in UTC + time zone
 Function/S JU_GetISO8601TimeStamp()
 	variable timezone, utctime
@@ -151,7 +173,7 @@ Function/S JU_CaseToOut(juTC)
 	sout += s
 
 	if(strlen(juTC.systemOut))
-		sout += "\t\t<system-out>" + JU_ToXMLCharacters(juTC.systemOut) + "</system-out>\n"
+		sout += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(juTC.systemOut)) + "</system-out>\n"
 	endif
 	if(strlen(juTC.systemErr))
 		sout += "\t\t<system-err>" + JU_ToXMLCharacters(juTC.systemErr) + "</system-err>\n"
@@ -207,7 +229,7 @@ Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
 	sout += juTestCaseListOut
 
 	if(strlen(juTS.systemOut))
-		sout += "\t\t<system-out>" + JU_ToXMLCharacters(juTS.systemOut) + "</system-out>\n"
+		sout += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(juTS.systemOut)) + "</system-out>\n"
 	endif
 	if(strlen(juTS.systemErr))
 		sout += "\t\t<system-err>" + JU_ToXMLCharacters(juTS.systemErr) + "</system-err>\n"
