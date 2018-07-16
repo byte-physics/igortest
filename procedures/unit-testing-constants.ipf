@@ -6,6 +6,9 @@
 
 ///@cond HIDDEN_SYMBOL
 
+// Package Version
+Constant PKG_VERSION = 1.06
+
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
 

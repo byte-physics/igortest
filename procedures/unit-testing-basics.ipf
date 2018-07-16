@@ -10,6 +10,13 @@ static Constant FFNAME_OK        = 0x00
 static Constant FFNAME_NOT_FOUND = 0x01
 static Constant FFNAME_NO_MODULE = 0x02
 
+Function/S GetVersion()
+	string version
+	sprintf version, "%.2f", PKG_VERSION
+
+	return version
+End
+
 /// Returns the package folder
 Function/DF GetPackageFolder()
 	if(!DataFolderExists(PKG_FOLDER))
