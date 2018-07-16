@@ -1037,8 +1037,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutput("1..0 All test cases marked SKIP" + TAP_LINEEND_STR)
-			TestEnd(name, allowDebug)
 			TestEndUser(name)
+			TestEnd(name, allowDebug)
 			Abort
 		else
 			TAP_WriteOutput("1.." + num2str(ItemsInList(allTestCasesList)) + TAP_LINEEND_STR)
@@ -1151,8 +1151,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endfor
 	JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
 
-	TestEnd(name, allowDebug)
 	TestEndUser(name)
+	TestEnd(name, allowDebug)
 
 	return global_error_count
 End
