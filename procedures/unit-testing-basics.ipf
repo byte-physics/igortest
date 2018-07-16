@@ -70,13 +70,24 @@ End
 /// @param str            debug string
 /// @param booleanValue   assertion state
 Function DebugOutput(str, booleanValue)
+	string &str
+	variable booleanValue
+
+	sprintf str, "%s: is %s\r", str, SelectString(booleanValue, "false", "true")
+	if(EnabledDebug())
+		printf "%s", str
+	endif
+End
+
+/// Set the status and output debug information
+/// @param str            debug string
+/// @param booleanValue   assertion state
+Function Status(str, booleanValue)
 	string str
 	variable booleanValue
 
-	if(EnabledDebug())
-		str += ": is " + SelectString(booleanValue, "false", "true")
-		print str
-	endif
+	DebugOutput(str, booleanValue)
+	SetTestStatus(str)
 End
 
 /// Disable the Igor Pro Debugger and return its state prior to deactivation
@@ -104,6 +115,30 @@ End
 Function InitIgorDebugState()
 	DFREF dfr = GetPackageFolder()
 	variable/G dfr:igor_debug_state = 0
+End
+
+/// Creates the variable status in PKG_FOLDER
+Function InitTestStatus()
+	DFREF dfr = GetPackageFolder()
+	string/G dfr:status = "test status initialized"
+End
+
+/// Set the status variable for debug output
+/// and failed assertions. Creates the variable
+/// if not present.
+/// @param setValue   test status as string with trailing \r
+Function SetTestStatus(setValue)
+	string setValue
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr status
+
+	if(!SVAR_EXISTS(status))
+		InitTestStatus()
+		SVAR/SDFR=dfr status
+	endif
+
+	status = setValue
 End
 
 /// Creates the variable global_error_count in PKG_FOLDER
@@ -178,10 +213,11 @@ End
 Function printFailInfo()
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
-	message = getInfo(0)
+	sprintf message, "%s  %s", status, getInfo(0)
 
 	print message
 	type = "FAIL"
@@ -566,6 +602,7 @@ Function TestBegin(name, allowDebug)
 	initGlobalError()
 	initRunCount()
 	InitAbortFlag()
+	initTestStatus()
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr run_count
