@@ -324,6 +324,7 @@ Function JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name
 	juTSProp.propNameList = ""
 	juTSProp.propValueList = ""
 	JU_AddTSProp(juTSProp, "IgorInfo", IgorInfo(0))
+	JU_AddTSProp(juTSProp, "UTFversion", GetVersion())
 	JU_AddTSProp(juTSProp, "Experiment", IgorInfo(1))
 	JU_AddTSProp(juTSProp, "System", IgorInfo(3))
 #if (IgorVersion() >= 7.00)
