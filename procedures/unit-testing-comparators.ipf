@@ -1299,6 +1299,7 @@ End
 
 #endif
 
+/// @copydoc CDF_EMPTY_DOCU
 Function WARN_EMPTY_FOLDER()
 	CDF_EMPTY_WRAPPER(WARN_MODE)
 End

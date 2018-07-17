@@ -1,4 +1,10 @@
-doxygen.log
-latex
-refman.pdf
-doxygen-filter-ipf.awk
+doxygen/doxygen.log
+doxygen/html/*
+doxygen/xml/*
+
+sphinx/*
+!sphinx/Makefile
+!sphinx/source/conf.py
+!sphinx/source/examples.py
+!sphinx/source/index.py
+manual.pdf
