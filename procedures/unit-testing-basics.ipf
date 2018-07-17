@@ -1083,10 +1083,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		FUNCREF USER_HOOK_PROTO TestCaseBeginUser  = $procHooks.testCaseBegin
 		FUNCREF USER_HOOK_PROTO TestCaseEndUser    = $procHooks.testCaseEnd
 
-		TestSuiteBegin(procWin)
 		JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name, i)
-		TestSuiteBeginUser(procWin)
 		juTestCaseListOut = ""
+		TestSuiteBegin(procWin)
+		TestSuiteBeginUser(procWin)
 
 		NVAR/SDFR=dfr error_count
 
@@ -1131,26 +1131,26 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 					if(shouldDoAbort())
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
+						TestCaseEndUser(fullFuncName)
 						TestCaseEnd(fullFuncName, keepDataFolder)
 						juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
-						TestCaseEndUser(fullFuncName)
-
 						tap_caseErr -= error_count
+
 						TAP_WriteOutputIfReq("Bail out!" + TAP_LINEEND_STR)
+						TestSuiteEndUser(procWin)
 						TestSuiteEnd(procWin)
 						juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
-						TestSuiteEndUser(procWin)
 
 						JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
-						TestEnd(name, allowDebug)
 						TestEndUser(name)
+						TestEnd(name, allowDebug)
 						return global_error_count
 					endif
 				endtry
 
+				TestCaseEndUser(fullFuncName)
 				TestCaseEnd(fullFuncName, keepDataFolder)
 				juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
-				TestCaseEndUser(fullFuncName)
 				tap_caseErr -= error_count
 			endif
 
@@ -1163,9 +1163,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		endfor
 
+		TestSuiteEndUser(procWin)
 		TestSuiteEnd(procWin)
 		juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
-		TestSuiteEndUser(procWin)
 		if(shouldDoAbort())
 			break
 		endif
