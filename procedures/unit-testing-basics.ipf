@@ -89,7 +89,7 @@ End
 /// Set the status and output debug information
 /// @param str            debug string
 /// @param booleanValue   assertion state
-Function Status(str, booleanValue)
+Function SetTestStatusAndDebug(str, booleanValue)
 	string str
 	variable booleanValue
 

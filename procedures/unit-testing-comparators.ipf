@@ -36,7 +36,7 @@ static Function CDF_EMPTY_WRAPPER(flags)
 		endif
 	endif
 
-	Status("Assumption that the current data folder is empty is", result)
+	SetTestStatusAndDebug("Assumption that the current data folder is empty is", result)
 End
 
 /// @class TRUE_DOCU
@@ -53,7 +53,7 @@ static Function TRUE_WRAPPER(var, flags)
 	endif
 
 	variable result = (var == 1)
-	Status(num2istr(var), result)
+	SetTestStatusAndDebug(num2istr(var), result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -112,7 +112,7 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 	endif
 
 	variable result = (strlen(str) == 0)
-	Status("Assumption that the string is empty is", result)
+	SetTestStatusAndDebug("Assumption that the string is empty is", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -171,7 +171,7 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 	endif
 
 	variable result = (strlen(str) > 0 || NULL_STR(str))
-	Status("Assumption that the string is non empty is", result)
+	SetTestStatusAndDebug("Assumption that the string is non empty is", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -203,7 +203,7 @@ static Function PROPER_STR_WRAPPER(str, flags)
 	endif
 
 	variable result = (strlen(str) > 0)
-	Status("Assumption that the string is a proper string is", result)
+	SetTestStatusAndDebug("Assumption that the string is a proper string is", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -492,7 +492,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	result = (type & majorType) == majorType
 
 	sprintf str, "Assumption that the wave's main type is %d", majorType
-	Status(str, result)
+	SetTestStatusAndDebug(str, result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -511,7 +511,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 
 		result = (type & minorType) == minorType
 		sprintf str, "Assumption that the wave's sub type is %d", minorType
-		Status(str, result)
+		SetTestStatusAndDebug(str, result)
 
 		if(!result)
 			if(flags & OUTPUT_MESSAGE)
@@ -574,7 +574,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	variable result = WaveExists(wv1)
-	Status("Assumption that the first wave (wv1) exists", result)
+	SetTestStatusAndDebug("Assumption that the first wave (wv1) exists", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -590,7 +590,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	result = WaveExists(wv2)
-	Status("Assumption that the second wave (wv2) exists", result)
+	SetTestStatusAndDebug("Assumption that the second wave (wv2) exists", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -606,7 +606,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	result = !WaveRefsEqual(wv1, wv2)
-	Status("Assumption that both waves are distinct", result)
+	SetTestStatusAndDebug("Assumption that both waves are distinct", result)
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)
@@ -637,7 +637,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		result = EqualWaves(wv1, wv2, mode, tol)
 		string str
 		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
-		Status(str, result)
+		SetTestStatusAndDebug(str, result)
 
 		if(!result)
 			if(flags & OUTPUT_MESSAGE)
@@ -658,7 +658,7 @@ static Function NON_NULL_STR(str)
 
 	variable result = (numtype(strlen(str)) == 0)
 
-	Status("Assumption of str being non null is ", result)
+	SetTestStatusAndDebug("Assumption of str being non null is ", result)
 	return result
 End
 
@@ -667,7 +667,7 @@ static Function NULL_STR(str)
 
 	variable result = (numtype(strlen(str)) == 2)
 
-	Status("Assumption of str being null is ", result)
+	SetTestStatusAndDebug("Assumption of str being null is ", result)
 	return result
 End
 
@@ -686,7 +686,7 @@ static Function EQUAL_VAR(var1, var2)
 
 	string str
 	sprintf str, "%g == %g", var1, var2
-	Status(str, result)
+	SetTestStatusAndDebug(str, result)
 	return result
 End
 
@@ -698,7 +698,7 @@ static Function SMALL_VAR(var, tol)
 
 	string str
 	sprintf str, "%g ~ 0 with tol %g", var, tol
-	Status(str, result)
+	SetTestStatusAndDebug(str, result)
 	return result
 End
 
@@ -722,7 +722,7 @@ static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 
 	string str
 	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak, "weak", "strong"), tol
-	Status(str, result)
+	SetTestStatusAndDebug(str, result)
 	return result
 End
 
@@ -742,7 +742,7 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
 
 	string str
 	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(NULL_STR(str1), str1, "(null)"), SelectString(NULL_STR(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
-	Status(str, result)
+	SetTestStatusAndDebug(str, result)
 
 	return result
 End
