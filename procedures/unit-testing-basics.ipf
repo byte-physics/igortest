@@ -1040,12 +1040,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		TAP_CreateFile()
 
 		if(TAP_CheckAllSkip(allTestCasesList))
-			TAP_WriteOutput("1..0 All test cases marked SKIP" + TAP_LINEEND_STR)
+			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
 			TestEndUser(name)
 			TestEnd(name, allowDebug)
 			Abort
 		else
-			TAP_WriteOutput("1.." + num2str(ItemsInList(allTestCasesList)) + TAP_LINEEND_STR)
+			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
 		endif
 	endif
 
@@ -1136,7 +1136,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
 						tap_caseErr -= error_count
 
-						TAP_WriteOutputIfReq("Bail out!" + TAP_LINEEND_STR)
+						TAP_WriteOutputIfReq("Bail out!")
 						TestSuiteEndUser(procWin)
 						TestSuiteEnd(procWin)
 						juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
@@ -1155,7 +1155,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			if(shouldDoAbort())
-				TAP_WriteOutputIfReq("Bail out!" + TAP_LINEEND_STR)
+				TAP_WriteOutputIfReq("Bail out!")
 				break
 			endif
 			TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase, tap_caseErr)

@@ -74,11 +74,11 @@ Function TAP_WriteOutputIfReq(str)
 		return NaN
 	endif
 
-	TAP_WriteOutput(str)
+	TAP_WriteOutput(RemoveEnding(str,TAP_LINEEND_STR) + TAP_LINEEND_STR)
 End
 
 /// Writes string str to the TAP file, the file is opened/closed on each write for flushes to disk
-Function TAP_WriteOutput(str)
+static Function TAP_WriteOutput(str)
 	string str
 
 	SVAR/SDFR=GetPackageFolder() tap_filename
