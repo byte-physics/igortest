@@ -29,7 +29,7 @@ Function/DF GetPackageFolder()
 End
 
 /// Returns 0 if the file exists, !0 otherwise
-Function FileNotExists(fname)
+static Function FileNotExists(fname)
 	string fname
 
 	GetFileFolderInfo/Q/Z fname
@@ -76,7 +76,7 @@ End
 /// Output debug string in assertions
 /// @param str            debug string
 /// @param booleanValue   assertion state
-Function DebugOutput(str, booleanValue)
+static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
@@ -98,7 +98,7 @@ Function SetTestStatusAndDebug(str, booleanValue)
 End
 
 /// Disable the Igor Pro Debugger and return its state prior to deactivation
-Function DisableIgorDebugger()
+static Function DisableIgorDebugger()
 
 	variable debuggerState
 
@@ -111,7 +111,7 @@ Function DisableIgorDebugger()
 End
 
 /// Restore the Igor Pro Debugger to its prior state
-Function RestoreIgorDebugger(debuggerState)
+static Function RestoreIgorDebugger(debuggerState)
 	variable debuggerState
 
 	DebuggerOptions enable=debuggerState
@@ -119,13 +119,13 @@ End
 
 /// Create the variable igorDebugState in PKG_FOLDER
 /// and initialize it to zero
-Function InitIgorDebugState()
+static Function InitIgorDebugState()
 	DFREF dfr = GetPackageFolder()
 	variable/G dfr:igor_debug_state = 0
 End
 
 /// Creates the variable status in PKG_FOLDER
-Function InitTestStatus()
+static Function InitTestStatus()
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:status = "test status initialized"
 End
@@ -134,7 +134,7 @@ End
 /// and failed assertions. Creates the variable
 /// if not present.
 /// @param setValue   test status as string with trailing \r
-Function SetTestStatus(setValue)
+static Function SetTestStatus(setValue)
 	string setValue
 
 	DFREF dfr = GetPackageFolder()
@@ -150,20 +150,20 @@ End
 
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
-Function initGlobalError()
+static Function initGlobalError()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:global_error_count = 0
 End
 
 /// Creates the variable run_count in PKG_FOLDER
 /// and initializes it to zero
-Function initRunCount()
+static Function initRunCount()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:run_count = 0
 End
 
 /// Increments the run_count in PKG_FOLDER and creates it if necessary
-Function incrRunCount()
+static Function incrRunCount()
 	dfref dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr run_count
 
@@ -177,7 +177,7 @@ End
 
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
-Function initError()
+static Function initError()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:error_count = 0
 End
@@ -197,7 +197,7 @@ End
 
 /// Creates the variable assert_count in PKG_FOLDER
 /// and initializes it to zero
-Function initAssertCount()
+static Function initAssertCount()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:assert_count = 0
 End
@@ -247,7 +247,7 @@ Function shouldDoAbort()
 End
 
 /// Sets the abort flag
-Function setAbortFlag()
+static Function setAbortFlag()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 1
 End
@@ -259,13 +259,13 @@ Function abortNow()
 End
 
 /// Resets the abort flag
-Function InitAbortFlag()
+static Function InitAbortFlag()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
 End
 
 /// Return true if running in `ProcGlobal`, false otherwise
-Function IsProcGlobal()
+static Function IsProcGlobal()
 
 	return !cmpstr("ProcGlobal", GetIndependentModuleName())
 End
@@ -518,7 +518,7 @@ End
 ///@cond HIDDEN_SYMBOL
 
 /// Evaluates an RTE and puts a composite error message into message/type
-Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
+static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 	variable err
 	string errmessage
 	variable abortCode
@@ -566,7 +566,7 @@ End
 /// Check if the User manually pressed Abort and set Abort flag
 ///
 /// @param abortCode V_AbortCode output from try...catch
-Function CheckAbortCondition(abortCode)
+static Function CheckAbortCondition(abortCode)
 	variable abortCode
 
 	if(abortCode == -1)
@@ -576,7 +576,7 @@ End
 
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
-Function TestBegin(name, allowDebug)
+static Function TestBegin(name, allowDebug)
 	string name
 	variable allowDebug
 
@@ -627,7 +627,7 @@ End
 
 /// Internal Cleanup for Testrun
 /// @param name   name of the test suite group
-Function TestEnd(name, allowDebug)
+static Function TestEnd(name, allowDebug)
 	string name
 	variable allowDebug
 
@@ -650,7 +650,7 @@ End
 
 /// Internal Setup for Test Suite
 /// @param testSuite name of the test suite
-Function TestSuiteBegin(testSuite)
+static Function TestSuiteBegin(testSuite)
 	string testSuite
 
 	initError()
@@ -660,7 +660,7 @@ End
 
 /// Internal Cleanup for Test Suite
 /// @param testSuite name of the test suite
-Function TestSuiteEnd(testSuite)
+static Function TestSuiteEnd(testSuite)
 	string testSuite
 
 	dfref dfr = GetPackageFolder()
@@ -680,7 +680,7 @@ End
 
 /// Internal Setup for Test Case
 /// @param testCase name of the test case
-Function TestCaseBegin(testCase)
+static Function TestCaseBegin(testCase)
 	string testCase
 
 	initAssertCount()
@@ -698,7 +698,7 @@ End
 
 /// Internal Cleanup for Test Case
 /// @param testCase name of the test case
-Function TestCaseEnd(testCase, keepDataFolder)
+static Function TestCaseEnd(testCase, keepDataFolder)
 	string testCase
 	variable keepDataFolder
 
@@ -724,13 +724,13 @@ Function TestCaseEnd(testCase, keepDataFolder)
 End
 
 /// Returns List of Test Functions in Procedure Window procWin
-Function/S getTestCaseList(procWin)
+static Function/S getTestCaseList(procWin)
 	string procWin
 	return (FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin))
 End
 
 /// Returns FullName List of Test Functions in all Procedure Windows from procWinList
-Function/S getCompleteTestCaseList(procWinList)
+static Function/S getCompleteTestCaseList(procWinList)
 	string procWinList
 
 	string procWin
@@ -758,7 +758,7 @@ Function/S getCompleteTestCaseList(procWinList)
 End
 
 /// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function funcName
-Function/S getTestCasesMatch(procWinList, funcName)
+static Function/S getTestCasesMatch(procWinList, funcName)
 	string procWinList
 	string funcName
 
@@ -782,7 +782,7 @@ Function/S getTestCasesMatch(procWinList, funcName)
 End
 
 // Return the status of an `SetIgorOption` setting
-Function QueryIgorOption(option)
+static Function QueryIgorOption(option)
 	string option
 
 	variable state
