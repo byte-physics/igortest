@@ -236,19 +236,6 @@ Function printFailInfo()
 	endif
 End
 
-/// Prints an informative message that the test succeeded
-Function printSuccessInfo()
-	string str_info
-
-	str_info = getInfo(1)
-	print str_info
-
-	if(TAP_IsOutputEnabled())
-		SVAR/SDFR=GetPackageFolder() tap_diagnostic
-		tap_diagnostic = tap_diagnostic + str_info
-	endif
-End
-
 /// Returns 1 if the abortFlag is set and zero otherwise
 Function shouldDoAbort()
 	NVAR/Z/SDFR=GetPackageFolder() abortFlag
