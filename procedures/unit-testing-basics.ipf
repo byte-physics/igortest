@@ -10,6 +10,17 @@ static Constant FFNAME_OK        = 0x00
 static Constant FFNAME_NOT_FOUND = 0x01
 static Constant FFNAME_NO_MODULE = 0x02
 
+/// @name Constants for ExecuteHooks
+/// @anchor HookTypes
+/// @{
+static Constant TEST_BEGIN_CONST       = 0x01
+static Constant TEST_END_CONST         = 0x02
+static Constant TEST_SUITE_BEGIN_CONST = 0x04
+static Constant TEST_SUITE_END_CONST   = 0x08
+static Constant TEST_CASE_BEGIN_CONST  = 0x10
+static Constant TEST_CASE_END_CONST    = 0x20
+/// @}
+
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
 
@@ -917,6 +928,91 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	return procWinListOut
 End
 
+/// @brief Execute the builtin and user hooks
+///
+/// @param hookType One of @ref HookTypes
+/// @param hooks    hooks structure
+/// @param name     name of the test run/suite/case
+/// @param procWin  name of the procedure window
+/// @param param    parameter for the builtin hooks
+///
+/// Catches runtime errors in the user hooks as well.
+/// Takes care of correct bracketing of user and builtin functions as well. For
+/// `begin` functions the order is builtin/user and for `end` functions user/builtin.
+static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
+	variable hookType
+	Struct TestHooks& hooks
+	string name, procWin
+	variable param
+
+	variable err
+	string errorMessage, hookName
+
+	try
+		switch(hookType)
+			case TEST_BEGIN_CONST:
+				AbortOnValue ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
+
+				TestBegin(name, param)
+				userHook(name); AbortOnRTE
+				break
+			case TEST_SUITE_BEGIN_CONST:
+				AbortOnValue !ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
+
+				TestSuiteBegin(name)
+				userHook(name); AbortOnRTE
+				break
+			case TEST_CASE_BEGIN_CONST:
+				AbortOnValue !ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
+
+				TestCaseBegin(name)
+				userHook(name); AbortOnRTE
+				break
+			case TEST_CASE_END_CONST:
+				AbortOnValue ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
+
+				userHook(name); AbortOnRTE
+				TestCaseEnd(name, param)
+				break
+			case TEST_SUITE_END_CONST:
+				AbortOnValue !ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
+
+				userHook(name); AbortOnRTE
+				TestSuiteEnd(name)
+				break
+			case TEST_END_CONST:
+				AbortOnValue ParamIsDefault(param), 1
+
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
+
+				userHook(name); AbortOnRTE
+				TestEnd(name, param)
+				break
+			default:
+				Abort "Unknown hookType"
+				break
+		endswitch
+	catch
+		errorMessage = GetRTErrMessage()
+		err = GetRTError(1)
+		name = StringByKey("Name", FuncRefInfo(userHook))
+		EvaluateRTE(err, errorMessage, V_AbortCode, name, USER_HOOK_TYPE, procWin)
+
+		setAbortFlag()
+		incrError()
+	endtry
+End
+
 ///@endcond // HIDDEN_SYMBOL
 
 ///@addtogroup TestRunnerAndHelper
@@ -1035,11 +1131,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	FUNCREF USER_HOOK_PROTO TestBeginUser = $hooks.testBegin
-	FUNCREF USER_HOOK_PROTO TestEndUser   = $hooks.testEnd
-
-	TestBegin(name, allowDebug)
-	TestBeginUser(name)
+	ExecuteHooks(TEST_BEGIN_CONST, hooks, name, procWin, param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
@@ -1053,8 +1145,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			TestEndUser(name)
-			TestEnd(name, allowDebug)
+			ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param=allowDebug)
 			Abort
 		else
 			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
@@ -1090,15 +1181,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		// 3.) get local user hooks which reside in the same Module as the requested procedure
 		getLocalHooks(procHooks, procWin)
 
-		FUNCREF USER_HOOK_PROTO TestSuiteBeginUser = $procHooks.testSuiteBegin
-		FUNCREF USER_HOOK_PROTO TestSuiteEndUser   = $procHooks.testSuiteEnd
-		FUNCREF USER_HOOK_PROTO TestCaseBeginUser  = $procHooks.testCaseBegin
-		FUNCREF USER_HOOK_PROTO TestCaseEndUser    = $procHooks.testCaseEnd
-
 		JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name, i)
 		juTestCaseListOut = ""
-		TestSuiteBegin(procWin)
-		TestSuiteBeginUser(procWin)
+		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, name, procWin)
 
 		NVAR/SDFR=dfr error_count
 
@@ -1118,8 +1203,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				tap_caseErr = error_count
 
 				JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
-				TestCaseBegin(fullFuncName)
-				TestCaseBeginUser(fullFuncName)
+				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, fullFuncName, procWin)
 
 				systemErr = ""
 
@@ -1136,25 +1220,21 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 					if(shouldDoAbort())
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						TestCaseEndUser(fullFuncName)
-						TestCaseEnd(fullFuncName, keepDataFolder)
+						ExecuteHooks(TEST_CASE_END_CONST, procHooks, fullFuncName, procWin, param = keepDataFolder)
 						juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
 						tap_caseErr -= error_count
 
 						TAP_WriteOutputIfReq("Bail out!")
-						TestSuiteEndUser(procWin)
-						TestSuiteEnd(procWin)
+						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, procWin, procWin)
 						juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
 
 						JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
-						TestEndUser(name)
-						TestEnd(name, allowDebug)
+						ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param = allowDebug)
 						return global_error_count
 					endif
 				endtry
 
-				TestCaseEndUser(fullFuncName)
-				TestCaseEnd(fullFuncName, keepDataFolder)
+				ExecuteHooks(TEST_CASE_END_CONST, procHooks, fullFuncName, procWin, param = keepDataFolder)
 				juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
 				tap_caseErr -= error_count
 			endif
@@ -1168,8 +1248,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		endfor
 
-		TestSuiteEndUser(procWin)
-		TestSuiteEnd(procWin)
+		ExecuteHooks(TEST_SUITE_END_CONST, procHooks, procWin, procWin)
 		juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
 		if(shouldDoAbort())
 			break
@@ -1178,8 +1257,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endfor
 	JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
 
-	TestEndUser(name)
-	TestEnd(name, allowDebug)
+	ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param = allowDebug)
 
 	return global_error_count
 End
