@@ -10,6 +10,9 @@ static Constant FFNAME_OK        = 0x00
 static Constant FFNAME_NOT_FOUND = 0x01
 static Constant FFNAME_NO_MODULE = 0x02
 
+static Constant TEST_CASE_TYPE = 0x01
+static Constant USER_HOOK_TYPE = 0x02
+
 Function/S GetVersion()
 	string version
 	sprintf version, "%.2f", PKG_VERSION
@@ -518,10 +521,10 @@ End
 ///@cond HIDDEN_SYMBOL
 
 /// Evaluates an RTE and puts a composite error message into message/type
-static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
+static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
 	variable err
 	string errmessage
-	variable abortCode
+	variable abortCode, funcType
 	string funcName
 	string procWin
 
@@ -529,12 +532,24 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr systemErr
 	SVAR/SDFR=dfr type
-	string str
+	string str, funcTypeString
+
+	switch(funcType)
+		case TEST_CASE_TYPE:
+			funcTypeString = "test case"
+			break
+		case USER_HOOK_TYPE:
+			funcTypeString = "user hook"
+			break
+		default:
+			Abort "Unknown type"
+			break
+	endswitch
 
 	type = ""
 	message = ""
 	if(err)
-		sprintf str, "Uncaught runtime error %d:\"%s\" in test case \"%s\", procedure file \"%s\"\r", err, errmessage, funcName, procWin
+		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\", procedure file \"%s\"\r", err, errmessage, funcTypeString, funcName, procWin
 		message = str
 		type = "RUNTIME ERROR"
 	endif
@@ -545,20 +560,20 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 		str = ""
 		switch(abortCode)
 			case -1:
-				sprintf str, "User aborted Test Run manually in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				sprintf str, "User aborted Test Run manually in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
 				break
 			case -2:
-				sprintf str, "Stack Overflow in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				sprintf str, "Stack Overflow in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
 				break
 			case -3:
-				sprintf str, "Encountered \"Abort\" in test case \"%s\", procedure file \"%s\"\r", funcName, procWin
+				sprintf str, "Encountered \"Abort\" in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
 				break
 			default:
 				break
 		endswitch
 		message += str
 		if(abortCode > 0)
-			sprintf str, "Encountered \"AbortOnvalue\" Code %d in test case \"%s\", procedure file \"%s\"\r", abortCode, funcName, procWin
+			sprintf str, "Encountered \"AbortOnvalue\" Code %d in %s \"%s\", procedure file \"%s\"\r", abortCode, funcTypeString, funcName, procWin
 			message += str
 		endif
 	endif
@@ -1115,7 +1130,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					if(!shouldDoAbort())
 						message = GetRTErrMessage()
 						err = GetRTError(1)
-						EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
+						EvaluateRTE(err, message, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
 						incrError()
 					endif
 
