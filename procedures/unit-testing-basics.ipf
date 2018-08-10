@@ -527,6 +527,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr systemErr
 	SVAR/SDFR=dfr type
 	string str
 
@@ -560,6 +561,15 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, procWin)
 			sprintf str, "Encountered \"AbortOnvalue\" Code %d in test case \"%s\", procedure file \"%s\"\r", abortCode, funcName, procWin
 			message += str
 		endif
+	endif
+
+	printf message
+	systemErr = message
+
+	CheckAbortCondition(abortCode)
+	if(TAP_IsOutputEnabled())
+		SVAR/SDFR=dfr tap_diagnostic
+		tap_diagnostic += message
 	endif
 End
 
@@ -1106,13 +1116,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						message = GetRTErrMessage()
 						err = GetRTError(1)
 						EvaluateRTE(err, message, V_AbortCode, fullFuncName, procWin)
-						printf message
-						systemErr = message
-						CheckAbortCondition(V_AbortCode)
-						if(TAP_IsOutputEnabled())
-							SVAR/SDFR=dfr tap_diagnostic
-							tap_diagnostic += message
-						endif
 						incrError()
 					endif
 
