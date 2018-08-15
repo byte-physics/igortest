@@ -4,9 +4,9 @@
 
 // Licensed under 3-Clause BSD, see License.txt
 
-StrConstant TAP_DIRECTIVE_STR 		= "#TAPDirective:"
-StrConstant TAP_DESCRIPTION_STR 	= "#TAPDescription:"
-StrConstant TAP_LINEEND_STR			= "\n"
+static StrConstant TAP_DIRECTIVE_STR   = "#TAPDirective:"
+static StrConstant TAP_DESCRIPTION_STR = "#TAPDescription:"
+static StrConstant TAP_LINEEND_STR     = "\n"
 
 /// Creates the variable tap_output in PKG_FOLDER and initializes and empty TAP output file with a unique name
 Function TAP_EnableOutput()
@@ -74,11 +74,11 @@ Function TAP_WriteOutputIfReq(str)
 		return NaN
 	endif
 
-	TAP_WriteOutput(str)
+	TAP_WriteOutput(RemoveEnding(str,TAP_LINEEND_STR) + TAP_LINEEND_STR)
 End
 
 /// Writes string str to the TAP file, the file is opened/closed on each write for flushes to disk
-Function TAP_WriteOutput(str)
+static Function TAP_WriteOutput(str)
 	string str
 
 	SVAR/SDFR=GetPackageFolder() tap_filename
@@ -95,14 +95,14 @@ Function TAP_WriteOutput(str)
 End
 
 /// Resets TAP Directive/Description to empty strings
-Function TAP_ClearNotes()
+static Function TAP_ClearNotes()
 	dfref dfr = GetPackageFolder()
 	string/G dfr:tap_directive = ""
 	string/G dfr:tap_description = ""
 End
 
 /// If a TAP Description starts with a digit (which is invalid), add a '_' at the front
-Function/S TAP_GetValidDescription(str)
+static Function/S TAP_GetValidDescription(str)
 	string str
 
 	string str_notAllowedStart
@@ -119,7 +119,7 @@ Function/S TAP_GetValidDescription(str)
 end
 
 /// Parses a string for TAP Description/Directives keys, converts to valid ones for TAP output, key char '#' is replaced by '_'
-Function TAP_ValidNote(str)
+static Function TAP_ValidNote(str)
 	string str
 
 	dfref dfr = GetPackageFolder()
@@ -192,7 +192,7 @@ Function TAP_InitDiagnosticBuffer()
 End
 
 /// Converts generic diagnostic text to a valid TAP diagnostic text
-Function/S TAP_ValidDiagnostic(diag)
+static Function/S TAP_ValidDiagnostic(diag)
 	string diag
 
 	if(!strlen(diag))
@@ -212,7 +212,7 @@ Function/S TAP_ValidDiagnostic(diag)
 End
 
 /// Writes collected TAP Output for a single Test Case to file
-Function TAP_WriteCase(case_cnt, skipcase, caseErr)
+static Function TAP_WriteCase(case_cnt, skipcase, caseErr)
 	variable case_cnt, skipcase, caseErr
 
 	dfref dfr = GetPackageFolder()

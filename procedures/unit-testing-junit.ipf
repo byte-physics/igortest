@@ -74,7 +74,7 @@ End
 /// line feeds, carriage returns, tabs, leading and trailing spaces, and multiple spaces.
 /// it is a subtype of xs:string, entity escapes apply here
 /// XML: Reduces a string to a xs:token
-Function/S JU_ToXMLToken(str)
+static Function/S JU_ToXMLToken(str)
 	string str
 	variable i
 
@@ -98,7 +98,7 @@ End
 /// &apos; 	' 	apostrophe
 /// &quot; 	" 	quotation mark
 /// XML: Escape Entity Replacer for strings
-Function/S JU_ToXMLCharacters(str)
+static Function/S JU_ToXMLCharacters(str)
 	string str
 
 	str = ReplaceString("&", str, "&amp;")
@@ -112,7 +112,7 @@ End
 
 /// trim leading and trailing white spaces from
 /// every line of the given string
-Function/S JU_TrimSOUT(input, [listSepStr])
+static Function/S JU_TrimSOUT(input, [listSepStr])
 	string input
 	string listSepStr
 
@@ -133,7 +133,7 @@ Function/S JU_TrimSOUT(input, [listSepStr])
 End
 
 /// Returns the current TimeStamp in the form yyyy-mm-ddThh:mm:ssZ±hh:mm in UTC + time zone
-Function/S JU_GetISO8601TimeStamp()
+static Function/S JU_GetISO8601TimeStamp()
 	variable timezone, utctime
 	variable tzmin, tzhour
 	string tz
@@ -145,7 +145,7 @@ Function/S JU_GetISO8601TimeStamp()
 End
 
 /// Evaluates last Test Case and returns JUNIT XML Output from Test Case
-Function/S JU_CaseToOut(juTC)
+static Function/S JU_CaseToOut(juTC)
 	STRUCT strTestCase &juTC
 
 	string sout, s
@@ -183,7 +183,7 @@ Function/S JU_CaseToOut(juTC)
 End
 
 /// Adds a JUNIT Test Suite property to the list of properties for current Suite
-Function JU_AddTSProp(juTSProp, propName, propValue)
+static Function JU_AddTSProp(juTSProp, propName, propValue)
 	STRUCT strSuiteProperties &juTSProp
 	string propName
 	string propValue
@@ -197,7 +197,7 @@ Function JU_AddTSProp(juTSProp, propName, propValue)
 End
 
 /// Returns combined JUNIT XML Output for TestSuite consisting of all TestCases run in Suite
-Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
+static Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
 	string juTestCaseListOut
 	STRUCT strTestSuite &juTS
 	STRUCT strSuiteProperties &juTSProp
@@ -239,7 +239,7 @@ Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
 End
 
 /// Replaces all chars >= 0x80 by "?" in str and returns the resulting string
-Function/S JU_UTF8Filter(str)
+static Function/S JU_UTF8Filter(str)
 	string str
 
 	string sret
