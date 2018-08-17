@@ -281,7 +281,7 @@ Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
 	PathInfo home
 	juFileName = getUnusedFileName(S_path + juFileName)
 	if(!strlen(juFileName))
-		printf "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
+		printf "Error: Unable to determine unused file name for JUNIT output in path %s !\r", S_path
 		return NaN
 	endif
 
