@@ -977,6 +977,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
+				TAP_TestCaseBegin()
 				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name)
 				userHook(name); AbortOnRTE
@@ -989,6 +990,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				userHook(name); AbortOnRTE
 				TestCaseEnd(name, param)
 				JU_TestCaseEnd(juProps, name, procWin)
+				TAP_TestCaseEnd()
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -1054,7 +1056,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable numItemsFFN
 	variable tap_skipCase
 	variable tap_caseCount
-	variable tap_caseErr
 	DFREF dfr = GetPackageFolder()
 	STRUCT JU_Props juProps
 	struct TestHooks hooks
@@ -1200,12 +1201,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			tap_skipCase = 0
 			if(TAP_IsOutputEnabled())
 				tap_skipCase = TAP_GetNotes(fullFuncName)
-				TAP_InitDiagnosticBuffer()
 			endif
 
 			if(!tap_skipCase)
-				tap_caseErr = error_count
-
 				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, juProps, fullFuncName, procWin)
 
 				try
@@ -1222,9 +1220,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					if(shouldDoAbort())
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
 						ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
-						tap_caseErr -= error_count
 
-						TAP_WriteOutputIfReq("Bail out!")
 						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 
 						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
@@ -1233,23 +1229,21 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				endtry
 
 				ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
-				tap_caseErr -= error_count
 			endif
 
 			if(shouldDoAbort())
-				TAP_WriteOutputIfReq("Bail out!")
 				break
 			endif
-			TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase, tap_caseErr)
-			tap_caseCount += 1
 
+			TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase)
+			tap_caseCount += 1
 		endfor
 
 		ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
+
 		if(shouldDoAbort())
 			break
 		endif
-
 	endfor
 
 	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)

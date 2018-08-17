@@ -56,14 +56,14 @@ Function TAP_IsOutputEnabled()
 End
 
 /// Writes Case result to TAP File only if TAP is enabled
-Function TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase, tap_caseErr)
-	variable tap_caseCount, tap_skipCase, tap_caseErr
+Function TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase)
+	variable tap_caseCount, tap_skipCase
 
 	if(!TAP_IsOutputEnabled())
 		return NaN
 	endif
 
-	TAP_WriteCase(tap_caseCount, tap_skipCase, tap_caseErr)
+	TAP_WriteCase(tap_caseCount, tap_skipCase)
 End
 
 /// Writes to TAP File only if TAP is enabled
@@ -184,11 +184,26 @@ Function TAP_CheckAllSkip(testCaseList)
 	return 1
 End
 
-/// Inits the diagnostic text to an empty string, usually used before running a new Test Case
-Function TAP_InitDiagnosticBuffer()
+Function TAP_TestCaseBegin()
+	DFREF dfr = GetPackageFolder()
 
-	dfref dfr = GetPackageFolder()
+	NVAR/SDFR=dfr error_count
+
 	string/G dfr:tap_diagnostic = ""
+	variable/G dfr:tap_caseErr = error_count
+End
+
+Function TAP_TestCaseEnd()
+	DFREF dfr = GetPackageFolder()
+
+	NVAR/SDFR=dfr error_count
+	NVAR/SDFR=dfr tap_caseErr
+
+	tap_caseErr -= error_count
+
+	if(shouldDoAbort())
+		TAP_WriteOutputIfReq("Bail out!")
+	endif
 End
 
 /// Converts generic diagnostic text to a valid TAP diagnostic text
@@ -212,13 +227,14 @@ static Function/S TAP_ValidDiagnostic(diag)
 End
 
 /// Writes collected TAP Output for a single Test Case to file
-static Function TAP_WriteCase(case_cnt, skipcase, caseErr)
-	variable case_cnt, skipcase, caseErr
+static Function TAP_WriteCase(case_cnt, skipcase)
+	variable case_cnt, skipcase
 
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr tap_diagnostic
 	SVAR/SDFR=dfr tap_description
 	SVAR/SDFR=dfr tap_directive
+	NVAR/SDFR=dfr tap_caseErr
 
 	string str_out
 	string str_ok
@@ -226,7 +242,7 @@ static Function TAP_WriteCase(case_cnt, skipcase, caseErr)
 	if(skipcase)
 		str_ok = "ok"
 	else
-		str_ok = SelectString(caseErr == 0, "not ok", "ok")
+		str_ok = SelectString(tap_caseErr == 0, "not ok", "ok")
 	endif
 
 	tap_diagnostic = TAP_ValidDiagnostic(tap_diagnostic)
