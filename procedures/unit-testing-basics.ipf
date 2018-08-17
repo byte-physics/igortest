@@ -938,7 +938,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	enableRegExp = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 
 	ClearBaseFilename()
-	CreateHistoryLog(recreate=0)
+	CreateHistoryLog()
 
 	PathInfo home
 	if(!V_flag)
