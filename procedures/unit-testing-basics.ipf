@@ -729,6 +729,8 @@ static Function TestCaseBegin(testCase)
 	SVAR/SDFR=dfr workFolder
 	NewDataFolder/O/S $workFolder
 
+	string/G dfr:systemErr = ""
+
 	printf "Entering test case \"%s\"\r", testCase
 End
 
@@ -1135,7 +1137,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
-	SVAR/SDFR=dfr systemErr
 	NVAR/SDFR=dfr global_error_count
 
 	// TAP Handling, find out if all should be skipped and number of all test cases
@@ -1205,7 +1206,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
 				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, fullFuncName, procWin)
 
-				systemErr = ""
 
 				try
 					TestCaseFunc(); AbortOnRTE
