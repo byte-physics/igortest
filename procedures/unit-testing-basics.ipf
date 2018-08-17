@@ -934,6 +934,7 @@ End
 ///
 /// @param hookType One of @ref HookTypes
 /// @param hooks    hooks structure
+/// @param juProps  state structure for JUnit output
 /// @param name     name of the test run/suite/case
 /// @param procWin  name of the procedure window
 /// @param param    parameter for the builtin hooks
@@ -941,9 +942,10 @@ End
 /// Catches runtime errors in the user hooks as well.
 /// Takes care of correct bracketing of user and builtin functions as well. For
 /// `begin` functions the order is builtin/user and for `end` functions user/builtin.
-static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
+static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 	variable hookType
 	Struct TestHooks& hooks
+	Struct JU_Props& juProps
 	string name, procWin
 	variable param
 
@@ -957,6 +959,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
 
+				JU_TestBegin(juProps)
 				TestBegin(name, param)
 				userHook(name); AbortOnRTE
 				break
@@ -965,6 +968,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
 
+				JU_TestSuiteBegin(juProps, name, procWin)
 				TestSuiteBegin(name)
 				userHook(name); AbortOnRTE
 				break
@@ -973,6 +977,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
+				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name)
 				userHook(name); AbortOnRTE
 				break
@@ -983,6 +988,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				userHook(name); AbortOnRTE
 				TestCaseEnd(name, param)
+				JU_TestCaseEnd(juProps, name, procWin)
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -991,6 +997,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				userHook(name); AbortOnRTE
 				TestSuiteEnd(name)
+				JU_TestSuiteEnd(juProps)
 				break
 			case TEST_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -999,6 +1006,7 @@ static Function ExecuteHooks(hookType, hooks, name, procWin, [param])
 
 				userHook(name); AbortOnRTE
 				TestEnd(name, param)
+				JU_WriteOutput(juProps)
 				break
 			default:
 				Abort "Unknown hookType"
@@ -1048,11 +1056,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable tap_caseCount
 	variable tap_caseErr
 	DFREF dfr = GetPackageFolder()
-	string juTestSuitesOut
-	string juTestCaseListOut
-	STRUCT strTestSuite juTS
-	STRUCT strSuiteProperties juTSProp
-	STRUCT strTestCase juTC
+	STRUCT JU_Props juProps
 	struct TestHooks hooks
 	struct TestHooks procHooks
 	variable i, j, err
@@ -1099,9 +1103,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		name = "Unnamed"
 	endif
 	if(ParamIsDefault(enableJU))
-		enableJU = 0
+		juProps.enableJU = 0
 	else
-		enableJU = !!enableJU
+		juProps.enableJU = !!enableJU
 	endif
 	if(ParamIsDefault(enableTAP))
 		enableTAP = 0
@@ -1133,7 +1137,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	ExecuteHooks(TEST_BEGIN_CONST, hooks, name, procWin, param=allowDebug)
+	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, procWin, param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
@@ -1146,7 +1150,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param=allowDebug)
+			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param=allowDebug)
 			Abort
 		else
 			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
@@ -1154,7 +1158,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endif
 
 	tap_caseCount = 1
-	juTestSuitesOut = ""
 
 	// The Test Run itself is split into Test Suites for each Procedure File
 	for(i = 0; i < numItemsPW; i += 1)
@@ -1182,9 +1185,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		// 3.) get local user hooks which reside in the same Module as the requested procedure
 		getLocalHooks(procHooks, procWin)
 
-		JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name, i)
-		juTestCaseListOut = ""
-		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, name, procWin)
+		juProps.testCaseList = testCaseList
+		juProps.testSuiteNumber = i
+		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, juProps, name, procWin)
 
 		NVAR/SDFR=dfr error_count
 
@@ -1203,9 +1206,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(!tap_skipCase)
 				tap_caseErr = error_count
 
-				JU_TestCaseBegin(enableJU, juTC, fullfuncName, fullfuncName, procWin)
-				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, fullFuncName, procWin)
-
+				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, juProps, fullFuncName, procWin)
 
 				try
 					TestCaseFunc(); AbortOnRTE
@@ -1220,22 +1221,18 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 					if(shouldDoAbort())
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						ExecuteHooks(TEST_CASE_END_CONST, procHooks, fullFuncName, procWin, param = keepDataFolder)
-						juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
+						ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
 						tap_caseErr -= error_count
 
 						TAP_WriteOutputIfReq("Bail out!")
-						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, procWin, procWin)
-						juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
+						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 
-						JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
-						ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param = allowDebug)
+						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
 						return global_error_count
 					endif
 				endtry
 
-				ExecuteHooks(TEST_CASE_END_CONST, procHooks, fullFuncName, procWin, param = keepDataFolder)
-				juTestCaseListOut += JU_TestCaseEnd(enableJU, juTS, juTC, fullFuncName, procWin)
+				ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
 				tap_caseErr -= error_count
 			endif
 
@@ -1248,16 +1245,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		endfor
 
-		ExecuteHooks(TEST_SUITE_END_CONST, procHooks, procWin, procWin)
-		juTestSuitesOut += JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
+		ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 		if(shouldDoAbort())
 			break
 		endif
 
 	endfor
-	JU_WriteOutput(enableJU, juTestSuitesOut, "JU_" + GetBaseFilename() + ".xml")
 
-	ExecuteHooks(TEST_END_CONST, hooks, name, procWin, param = allowDebug)
+	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
 
 	return global_error_count
 End
