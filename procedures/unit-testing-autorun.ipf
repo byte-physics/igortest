@@ -6,21 +6,10 @@
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
-Function CreateHistoryLog([recreate])
-	variable recreate
+Function CreateHistoryLog()
 
-	if(ParamIsDefault(recreate))
-		recreate = 1
-	endif
-	DoWindow HistoryCarbonCopy
-	if (V_flag)
-		if (recreate)
-			DoWindow/K HistoryCarbonCopy
-			NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
-		endif
-	else
-		NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
-	endif
+	DoWindow/K HistoryCarbonCopy
+	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
 End
 
 /// Return the type of autorun mode we are in
@@ -71,7 +60,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	endif
 
 	if(autorunMode == AUTORUN_FULL)
-		CreateHistoryLog(recreate=0)
+		CreateHistoryLog()
 	endif
 
 	FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
