@@ -46,6 +46,16 @@ Structure strTestCase
 	variable testResult
 EndStructure
 
+Structure JU_Props
+	variable enableJU
+	struct strSuiteProperties juTSProp
+	struct strTestCase juTC
+	struct strTestSuite juTS
+	string testCaseList
+	variable testSuiteNumber
+	string testSuiteOut, testCaseListOut
+EndStructure
+
 #if (IgorVersion() >= 7.0)
 #else
 /// trimstring function for Igor 6
@@ -257,21 +267,19 @@ static Function/S JU_UTF8Filter(str)
 	return sret
 End
 
-/// Writes JUNIT XML output to juFileName
-Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
-	variable enableJU
-	string juTestSuitesOut
-	string juFileName
+/// Writes JUNIT XML output to derived file name
+Function JU_WriteOutput(s)
+	STRUCT JU_Props& s
 
 	variable fnum
-	string sout
+	string sout, juFileName
 
-	if(!enableJU)
+	if(!s.enableJU)
 		return NaN
 	endif
 
 	sout = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n"
-	sout += juTestSuitesOut
+	sout += s.testSuiteOut
 	sout += "</testsuites>\n"
 #if (IgorVersion() >= 7.0)
 // UTF-8 support
@@ -279,9 +287,9 @@ Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
 	sout = JU_UTF8Filter(sout)
 #endif
 	PathInfo home
-	juFileName = getUnusedFileName(S_path + juFileName)
+	juFileName = getUnusedFileName(S_path + "JU_" + GetBaseFilename() + ".xml")
 	if(!strlen(juFileName))
-		printf "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
+		printf "Error: Unable to determine unused file name for JUNIT output in path %s !\r", S_path
 		return NaN
 	endif
 
@@ -295,84 +303,89 @@ Function JU_WriteOutput(enableJU, juTestSuitesOut, juFileName)
 	endif
 End
 
-/// Prepares JUNIT Test Suite structure for a new Test Suite
-Function JU_TestSuiteBegin(enableJU, juTS, juTSProp, procWin, testCaseList, name, testSuiteNum)
-	variable enableJU
-	STRUCT strTestSuite &juTS
-	STRUCT strSuiteProperties &juTSProp
-	string procWin
-	string testCaseList
-	string name
-	variable testSuiteNum
+/// Prepare JUNIT output for a test run
+Function JU_TestBegin(s)
+	STRUCT JU_Props& s
 
-	if(!enableJU)
+	if(!s.enableJU)
 		return NaN
 	endif
-	juTS.package = procWin
-	juTS.id = testSuiteNum
-	juTS.name = name
-	juTS.timestamp = JU_GetISO8601TimeStamp()
-	juTS.hostname = "localhost"
-	juTS.tests = ItemsInList(testCaseList)
-	juTS.timeStart = DateTime
-	juTS.failures = 0
-	juTS.errors = 0
-	juTS.skipped = 0
-	juTS.disabled = 0
-	juTS.systemOut = ""
-	juTS.systemErr = ""
-	juTSProp.propNameList = ""
-	juTSProp.propValueList = ""
-	JU_AddTSProp(juTSProp, "IgorInfo", IgorInfo(0))
-	JU_AddTSProp(juTSProp, "UTFversion", GetVersion())
-	JU_AddTSProp(juTSProp, "Experiment", IgorInfo(1))
-	JU_AddTSProp(juTSProp, "System", IgorInfo(3))
+
+	s.testSuiteOut = ""
+End
+
+/// Prepares JUNIT Test Suite structure for a new Test Suite
+Function JU_TestSuiteBegin(s, name, procWin)
+	STRUCT JU_Props& s
+	string name
+	string procWin
+
+	if(!s.enableJU)
+		return NaN
+	endif
+
+	s.juTS.package = procWin
+	s.juTS.id = s.testSuiteNumber
+	s.juTS.name = name
+	s.juTS.timestamp = JU_GetISO8601TimeStamp()
+	s.juTS.hostname = "localhost"
+	s.juTS.tests = ItemsInList(s.testCaseList)
+	s.juTS.timeStart = DateTime
+	s.juTS.failures = 0
+	s.juTS.errors = 0
+	s.juTS.skipped = 0
+	s.juTS.disabled = 0
+	s.juTS.systemOut = ""
+	s.juTS.systemErr = ""
+	s.juTSProp.propNameList = ""
+	s.juTSProp.propValueList = ""
+	s.testCaseListOut = ""
+	JU_AddTSProp(s.juTSProp, "IgorInfo", IgorInfo(0))
+	JU_AddTSProp(s.juTSProp, "UTFversion", GetVersion())
+	JU_AddTSProp(s.juTSProp, "Experiment", IgorInfo(1))
+	JU_AddTSProp(s.juTSProp, "System", IgorInfo(3))
 #if (IgorVersion() >= 7.00)
 	strswitch(IgorInfo(2))
 		case "Windows":
-			juTS.hostname = GetEnvironmentVariable("COMPUTERNAME")
+			s.juTS.hostname = GetEnvironmentVariable("COMPUTERNAME")
 			break
 		case "Macintosh":
-			juTS.hostname = GetEnvironmentVariable("HOSTNAME")
+			s.juTS.hostname = GetEnvironmentVariable("HOSTNAME")
 			break
 		default:
 			break
 	endswitch
-	JU_AddTSProp(juTSProp, "User", IgorInfo(7))
+	JU_AddTSProp(s.juTSProp, "User", IgorInfo(7))
 #endif
 End
 
 /// Prepares JUNIT Test Case structure for a new Test Case
-Function JU_TestCaseBegin(enableJU, juTC, funcName, fullfuncName, procWin)
-	variable enableJU
-	STRUCT strTestCase &juTC
-	string funcName
+Function JU_TestCaseBegin(s, fullfuncName, procWin)
+	STRUCT JU_Props &s
 	string fullfuncName
 	string procWin
 
-	if(!enableJU)
+	if(!s.enableJU)
 		return NaN
 	endif
 
 	NVAR/SDFR=GetPackageFolder() error_count, run_count
 
-	juTC.name = funcName + " in " + procWin + " (" + num2str(run_count) + ")"
-	juTC.className = fullfuncName
-	juTC.timeStart = DateTime
-	juTC.error_count = error_count
+	s.juTC.name = fullfuncName + " in " + procWin + " (" + num2str(run_count) + ")"
+	s.juTC.className = fullfuncName
+	s.juTC.timeStart = DateTime
+	s.juTC.error_count = error_count
 	Notebook HistoryCarbonCopy, getData = 1
-	juTC.history = S_Value
-	juTC.message = ""
-	juTC.type = ""
-	juTC.systemOut = ""
-	juTC.systemErr = ""
+	s.juTC.history = S_Value
+	s.juTC.message = ""
+	s.juTC.type = ""
+	s.juTC.systemOut = ""
+	s.juTC.systemErr = ""
 End
 
-/// Evaluate status of previously run Test Case and returns XML output from TestCase
-Function/S JU_TestCaseEnd(enableJU, juTS, juTC, funcName, procWin)
-	variable enableJU
-	STRUCT strTestSuite &juTS
-	STRUCT strTestCase &juTC
+/// Evaluate status of previously run Test Case
+Function JU_TestCaseEnd(s, funcName, procWin)
+	STRUCT JU_Props &s
 	string funcName, procWin
 
 	dfref dfr = GetPackageFolder()
@@ -382,45 +395,44 @@ Function/S JU_TestCaseEnd(enableJU, juTS, juTC, funcName, procWin)
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
-	if(!enableJU)
-		return ""
+	if(!s.enableJU)
+		return NaN
 	endif
-	juTC.timeTaken = DateTime - juTC.timeStart
-	juTC.error_count = error_count - juTC.error_count
+
+	s.juTC.timeTaken = DateTime - s.juTC.timeStart
+	s.juTC.error_count = error_count - s.juTC.error_count
 	// skip code 3, disabled code 4 is currently not implemented
 	if(shouldDoAbort())
-		juTC.testResult = 2
-		juTS.errors += 1
+		s.juTC.testResult = 2
+		s.juTS.errors += 1
 	else
-		juTC.testResult = (juTC.error_count != 0)
-		juTS.failures += (juTC.error_count != 0)
+		s.juTC.testResult = (s.juTC.error_count != 0)
+		s.juTS.failures += (s.juTC.error_count != 0)
 	endif
-	if(juTC.testResult)
-		juTC.message = message
-		juTC.type = type
+	if(s.juTC.testResult)
+		s.juTC.message = message
+		s.juTC.type = type
 	else
 		if(!assert_count)
-			juTC.systemOut += "No Assertions found in Test Case " + funcName + ", procedure file " + procWin + "\r"
+			s.juTC.systemOut += "No Assertions found in Test Case " + funcName + ", procedure file " + procWin + "\r"
 		endif
 	endif
 	Notebook HistoryCarbonCopy, getData = 1
-	juTC.systemOut += S_Value[strlen(juTC.history), Inf]
-	juTS.systemOut += juTC.systemOut
-	juTC.systemErr += systemErr
-	juTS.systemErr += systemErr
-	return JU_CaseToOut(juTC)
+	s.juTC.systemOut += S_Value[strlen(s.juTC.history), Inf]
+	s.juTS.systemOut += s.juTC.systemOut
+	s.juTC.systemErr += systemErr
+	s.juTS.systemErr += systemErr
+	s.testCaseListOut += JU_CaseToOut(s.juTC)
 End
 
 /// return XML output for TestSuite
-Function/S JU_TestSuiteEnd(enableJU, juTS, juTSProp, juTestCaseListOut)
-	variable enableJU
-	STRUCT strTestSuite &juTS
-	STRUCT strSuiteProperties &juTSProp
-	string juTestCaseListOut
+Function JU_TestSuiteEnd(s)
+	STRUCT JU_Props &s
 
-	if(!enableJU)
-		return ""
+	if(!s.enableJU)
+		return NaN
 	endif
-	juTS.timeTaken = DateTime - juTS.timeStart
-	return JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
+
+	s.juTS.timeTaken = DateTime - s.juTS.timeStart
+	s.testSuiteOut += JU_CaseListToSuiteOut(s.testCaseListOut, s.juTS, s.juTSProp)
 End
