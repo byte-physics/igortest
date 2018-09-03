@@ -795,26 +795,43 @@ static Function/S getCompleteTestCaseList(procWinList)
 	return allCaseList
 End
 
-/// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function funcName
-static Function/S getTestCasesMatch(procWinList, funcName)
+/// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function matchStr
+static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp)
 	string procWinList
-	string funcName
+	string matchStr
+	variable enableRegExp
 
 	string procWin
-	string ffName
+	string funcName
+	string funcList
+	string fullFuncName
 	string testCaseList
 	variable err
-	variable numpWL
-	variable i
+	variable numpWL, numFL
+	variable i,j
+
+	if(enableRegExp)
+		sprintf matchStr, "^(?i)%s$", matchStr
+	endif
 
 	testCaseList = ""
 	numpWL = ItemsInList(procWinList)
 	for(i = 0; i < numpWL; i += 1)
 		procWin = StringFromList(i, procWinList)
-		ffName = getFullFunctionName(err, funcName, procWin)
-		if(!err)
-			testCaseList = AddListItem(ffName, testCaseList, ";")
+		if(enableRegExp)
+			funcList = getTestCaseList(procWin)
+			funcList = GrepList(funcList, matchStr, 0, ";")
+		else
+			funcList = matchStr
 		endif
+		numFL = ItemsInList(funcList)
+		for(j = 0; j < numFL; j += 1)
+			funcName = StringFromList(j, funcList)
+			fullFuncName = getFullFunctionName(err, funcName, procWin)
+			if(!err)
+				testCaseList = AddListItem(fullFuncName, testCaseList, ";")
+			endif
+		endfor
 	endfor
 	return testCaseList
 End
@@ -1122,7 +1139,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	if(ParamIsDefault(testCase))
 		allTestCasesList = getCompleteTestCaseList(procWinList)
 	else
-		allTestCasesList = getTestCasesMatch(procWinList, testCase)
+		allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExp)
 		if(!strlen(allTestCasesList))
 			printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
 			return NaN
@@ -1163,7 +1180,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(ParamIsDefault(testCase))
 			testCaseList = getTestCaseList(procWin)
 		else
-			testCaseList = testCase
+			testCaseList = getTestCasesMatch(procWin, testCase, enableRegExp)
 		endif
 		fullFuncNameList = ""
 		numItemsTC = ItemsInList(testCaseList)
