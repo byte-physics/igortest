@@ -767,34 +767,6 @@ static Function/S getTestCaseList(procWin)
 	return (FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin))
 End
 
-/// Returns FullName List of Test Functions in all Procedure Windows from procWinList
-static Function/S getCompleteTestCaseList(procWinList)
-	string procWinList
-
-	string procWin
-	string testCaseList
-	string funcName
-	string fullFuncName
-	string allCaseList
-	variable numpWL, numtCL
-	variable err
-	variable i, j
-
-	allCaseList = ""
-	numpWL = ItemsInList(procWinList)
-	for(i = 0; i < numpWL; i += 1)
-		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCaseList(procWin)
-		numtCL = ItemsInList(testCaseList)
-		for(j = 0; j < numtCL; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			allCaseList = AddListItem(fullfuncName, allCaseList, ";")
-		endfor
-	endfor
-	return allCaseList
-End
-
 /// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function matchStr
 static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp)
 	string procWinList
@@ -1137,13 +1109,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		keepDataFolder = !!keepDataFolder
 	endif
 	if(ParamIsDefault(testCase))
-		allTestCasesList = getCompleteTestCaseList(procWinList)
-	else
-		allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExp)
-		if(!strlen(allTestCasesList))
-			printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
-			return NaN
-		endif
+		testCase = ".*"
+		enableRegExp = 1
+	endif
+
+	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExp)
+	if(!strlen(allTestCasesList))
+		printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
+		printf "Note: The list of valid test case(s) is \"%s\"\r", allTestCasesList
+		return NaN
 	endif
 
 	// 1.) set the hooks to the default implementations
@@ -1176,12 +1150,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// The Test Run itself is split into Test Suites for each Procedure File
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
+		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExp)
 
-		if(ParamIsDefault(testCase))
-			testCaseList = getTestCaseList(procWin)
-		else
-			testCaseList = getTestCasesMatch(procWin, testCase, enableRegExp)
-		endif
 		fullFuncNameList = ""
 		numItemsTC = ItemsInList(testCaseList)
 		for(j = 0; j < numItemsTC; j += 1)
