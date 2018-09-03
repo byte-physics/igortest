@@ -896,10 +896,6 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	endif
 
 	allProcWindows = GetProcedureList()
-
-	if(enableRegExp)
-	endif
-
 	numItemsPW = ItemsInList(procWinListIn)
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinListIn)
