@@ -896,15 +896,11 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	endif
 
 	allProcWindows = GetProcedureList()
-
-	if(enableRegExp)
-	endif
-
 	numItemsPW = ItemsInList(procWinListIn)
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinListIn)
 		if(enableRegExp)
-			procWin = "^" + procWin + "$"
+			procWin = "^(?i)" + procWin + "$"
 			procWinMatch = GrepList(allProcWindows, procWin, 0, ";")
 		else
 			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
