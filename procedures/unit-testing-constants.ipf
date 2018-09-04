@@ -30,10 +30,13 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 /// @addtogroup assertionFlags
 ///@{
 
-/// @addtogroup testWaveFlags
+/// @addtogroup testWaveFlagsGeneral
 ///@{
 Constant NULL_WAVE       = 0x00
+///@}
 
+/// @addtogroup testWaveFlagsMinor
+///@{
 Constant COMPLEX_WAVE    = 0x01
 Constant FLOAT_WAVE      = 0x02
 Constant DOUBLE_WAVE     = 0x04
@@ -42,7 +45,10 @@ Constant INT16_WAVE      = 0x10
 Constant INT32_WAVE      = 0x20
 Constant INT64_WAVE      = 0x80
 Constant UNSIGNED_WAVE   = 0x40
+///@}
 
+/// @addtogroup testWaveFlagsMajor
+///@{
 Constant NUMERIC_WAVE    = 0x01
 Constant TEXT_WAVE       = 0x02
 Constant DATAFOLDER_WAVE = 0x04

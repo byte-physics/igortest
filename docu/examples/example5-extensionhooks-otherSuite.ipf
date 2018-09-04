@@ -3,17 +3,12 @@
 
 #include "unit-testing"
 
-// As this procedure file is in ProcGlobal context
-// the test hook extensions are global.
-
 Function TEST_BEGIN_OVERRIDE(name)
 	string name
 
 	print ">> The global Test Begin is extended by this output <<"
 End
 
-// note: At the point where TEST_END_OVERRIDE is called the Igor Debugger is
-// already reset to the state before the Test Run
 Function TEST_END_OVERRIDE(name)
 	string name
 

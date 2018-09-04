@@ -517,7 +517,7 @@ End
 
 ///@endcond // HIDDEN_SYMBOL
 
-///@addtogroup TestRunnerAndHelper
+///@addtogroup Helpers
 ///@{
 
 /// Turns debug output on
@@ -1098,18 +1098,69 @@ End
 
 ///@endcond // HIDDEN_SYMBOL
 
-///@addtogroup TestRunnerAndHelper
-///@{
-
-/// Main function to execute one or more test suites.
-/// @param   procWinList   semicolon (";") separated list of procedure files (must not include Independent Module specifications)
-/// @param   name           (optional) descriptive name for the executed test suites
-/// @param   testCase       (optional) function name, resembling one test case, which should be executed only for each test suite
-/// @param   enableJU       (optional) enables JUNIT xml output when set to 1
-/// @param   enableTAP      (optional) enables Test Anything Protocol (TAP) output when set to 1
-/// @param   enableRegExp   (optional) enables parsing of regular expressions within procWinList when set to 1. disabled on default.
-/// @param   allowDebug     (optional) when set != 0 then the Debugger does not get disabled while running the tests
-/// @param   keepDataFolder (optional) when set != 0 then the temporary Data Folder where the Test Case is executed in is not removed after the Test Case finishes
+/// @brief Main function to execute test suites with the unit testing framework.
+///
+/// @verbatim embed:rst:leading-slashes
+///     .. code-block:: igor
+///        :caption: usage example
+///
+///        RunTest("proc0;proc1", name="myTest")
+///
+///     This command will run the test suites `proc0` and `proc1` in a test named `myTest`.
+/// @endverbatim
+///
+/// @param   procWinList    A list of procedure files that should be handled as test suites.
+///                         @n The list should be given semicolon (";") separated.
+///                         @n The procedure name must not include Independent Module specifications.
+///                         @n This parameter can be treated as a regular expression with enableRegExp
+///                         
+/// @param   name           (optional) default "Unnamed" @n
+///                         descriptive name for the executed test suites. This can be
+///                         used to group multiple test suites into a single test run.
+///                         
+/// @param   testCase       (optional) default ".*" (all test cases in the list of test suites) @n
+///                         function names, resembling test cases, which should be
+///                         executed in the given list of test suites (procWinList).
+///                         @n The list should be given semicolon (";") separated.
+///                         @n This parameter can be treated as a regular expression with enableRegExp
+///                         
+/// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
+///                         A JUNIT compatible XML file is written at the end of the Test Run.
+///                         It allows the combination of this framework with continuous integration
+///                         servers like Atlassian Bamboo.
+///                         
+/// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
+///                         A TAP compatible file is written at the end of the test run.
+///                         @verbatim embed:rst:leading-slashes
+///                             `Test Anything Protocol (TAP) <https://testanything.org>`__
+///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__ 
+///                         @endverbatim
+///
+/// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
+///                         The input for test suites (procWinList) and test cases (testCase) is
+///                         treated as a regular expression.
+///                         @verbatim embed:rst:leading-slashes
+///                             .. code-block:: igor
+///                                :caption: Example
+///
+///                                RunTest("example[1-3]-plain\\.ipf", enableRegExp=1)
+///
+///                             This command will run all test cases in the following test suites:
+///
+///                             * :ref:`example1-plain.ipf<example1>`
+///                             * :ref:`example2-plain.ipf<example2>`
+///                             * :ref:`example3-plain.ipf<example3>`
+///                         @endverbatim
+///
+/// @param   allowDebug     (optional) default disabled, enabled when set to 1: @n
+///                         The Igor debugger will be left in its current state when running the
+///                         tests.
+///                         
+/// @param   keepDataFolder (optional) default disabled, enabled when set to 1: @n
+///                         The temporary data folder wherein each test case is executed is not
+///                         removed at the end of the test case. This allows to review the
+///                         produced data.
+///                         
 /// @return                 total number of errors
 Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, keepDataFolder])
 	string procWinList, name, testCase
@@ -1276,5 +1327,3 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	return global_error_count
 End
-
-///@}

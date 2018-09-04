@@ -4,22 +4,13 @@
 
 #include "unit-testing"
 
-// Command: RunTest("example7-uncaught-aborts.ipf")
-// Showing the error message from uncaught aborts in User code
-// The Test environment catches such conditions and treats them accordingly
-// works with: Abort, AbortOnValue
-
-// PASS() just increases the assertion counter
-
 Function CheckNumber(a)
 	variable a
 
 	PASS()
-
 	if(numType(a) == 2)
 		Abort
 	endif
-
 	return 1
 End
 

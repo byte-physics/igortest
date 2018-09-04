@@ -18,6 +18,10 @@ def getRelease():
     version      = getVersion()
     return "({branch}) {version}".format(branch=branchString.decode('ascii'), version=version)
 
+def getDocRoot():
+    path = Popen('git rev-parse --show-toplevel', stdout = PIPE, shell = True).stdout.read().rstrip()
+    return path.decode('ascii')
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -55,6 +59,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
+    'sphinxcontrib.fulltoc',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -182,7 +187,8 @@ breathe_default_project     = "igor-utf"
 breathe_domain_by_extension = { "ipf" : "cpp" }
 breathe_default_members     = ('members', 'undoc-members')
 
-cpp_id_attributes = [ 'threadsafe' ]
+cpp_id_attributes = [ 'threadsafe', 'static', 'const', 'variable/c', 'variable' ]
+cpp_paren_attributes = [ ]
 
 # dot
 graphviz_output_format = 'svg'
