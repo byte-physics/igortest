@@ -1184,7 +1184,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		juProps.testCaseList = testCaseList
 		juProps.testSuiteNumber = i
-		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, juProps, name, procWin)
+		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, juProps, procWin, procWin)
 
 		NVAR/SDFR=dfr error_count
 
