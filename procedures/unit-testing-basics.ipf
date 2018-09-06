@@ -1048,9 +1048,19 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	struct TestHooks procHooks
 	variable i, j, err
 
-	// Arguments check
 	enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 	enableRegExpTS = enableRegExpTC
+	juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
+	enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
+	allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
+	keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+	if(ParamIsDefault(name))
+		name = "Unnamed"
+	endif
+	if(ParamIsDefault(testCase))
+		testCase = ".*"
+		enableRegExpTC = 1
+	endif
 
 	ClearBaseFilename()
 	CreateHistoryLog()
@@ -1086,34 +1096,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 		endfor
 	endfor
-
-	if(ParamIsDefault(name))
-		name = "Unnamed"
-	endif
-	if(ParamIsDefault(enableJU))
-		juProps.enableJU = 0
-	else
-		juProps.enableJU = !!enableJU
-	endif
-	if(ParamIsDefault(enableTAP))
-		enableTAP = 0
-	else
-		enableTAP = !!enableTAP
-	endif
-	if(ParamIsDefault(allowDebug))
-		allowDebug = 0
-	else
-		allowDebug = !!allowDebug
-	endif
-	if(ParamIsDefault(keepDataFolder))
-		keepDataFolder = 0
-	else
-		keepDataFolder = !!keepDataFolder
-	endif
-	if(ParamIsDefault(testCase))
-		testCase = ".*"
-		enableRegExpTC = 1
-	endif
 
 	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC)
 	if(!strlen(allTestCasesList))
