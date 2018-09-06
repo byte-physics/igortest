@@ -9,6 +9,10 @@
 static Constant FFNAME_OK        = 0x00
 static Constant FFNAME_NOT_FOUND = 0x01
 static Constant FFNAME_NO_MODULE = 0x02
+static Constant TC_MATCH_OK      = 0x00
+static Constant TC_REGEX_INVALID = 0x04
+static Constant TC_NOT_FOUND     = 0x08
+static Constant TC_LIST_EMPTY    = 0x10
 
 /// @name Constants for ExecuteHooks
 /// @anchor HookTypes
@@ -767,44 +771,94 @@ static Function/S getTestCaseList(procWin)
 	return (FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin))
 End
 
-/// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function matchStr
-static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp)
+/// @brief get test cases matching a certain pattern
+///
+/// This function searches for test cases in a given list of test suites. The
+/// search can be performed either using a regular expression or on a defined
+/// list of test cases. All Matches are checked.
+/// The function returns an error
+/// * If a given test case is not found
+/// * If no test case was found
+/// * if fullFunctionName returned an error
+///
+/// @param[in]  procWinList List of test suites, separated by ";"
+/// @param[in]  matchStr    * List of test cases, separated by ";" (enableRegExp = 0)
+///                         * *one* regular expression without ";" (enableRegExp = 1)
+/// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
+/// @param[out] err Numeric Error Code
+///
+/// @returns fullname list of matching test cases
+static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 	string procWinList
 	string matchStr
 	variable enableRegExp
+	variable &err
+	err = TC_MATCH_OK
 
 	string procWin
 	string funcName
 	string funcList
 	string fullFuncName
-	string testCaseList
-	variable err
-	variable numpWL, numFL
-	variable i,j
+	string testCase, testCaseMatch, testCaseList
+	variable numTC, numpWL, numFL, numMatches
+	variable i,j,k
+	string errMsg = ""
+
+	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
+		err = TC_REGEX_INVALID
+		errMsg = "semicolon is not allowed in regex pattern"
+		return errMsg
+	endif
 
 	if(enableRegExp)
 		sprintf matchStr, "^(?i)%s$", matchStr
 	endif
 
 	testCaseList = ""
+	numTC = ItemsInList(matchStr)
 	numpWL = ItemsInList(procWinList)
-	for(i = 0; i < numpWL; i += 1)
-		procWin = StringFromList(i, procWinList)
-		if(enableRegExp)
+	for(i = 0; i < numTC; i += 1)
+		testCase = StringFromList(i, matchStr)
+		testCaseMatch = ""
+		numMatches = 0
+		for(j = 0; j < numpWL; j += 1)
+			procWin = StringFromList(j, procWinList)
 			funcList = getTestCaseList(procWin)
-			funcList = GrepList(funcList, matchStr, 0, ";")
-		else
-			funcList = matchStr
-		endif
-		numFL = ItemsInList(funcList)
-		for(j = 0; j < numFL; j += 1)
-			funcName = StringFromList(j, funcList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			if(!err)
-				testCaseList = AddListItem(fullFuncName, testCaseList, ";")
+
+			if(enableRegExp)
+				testCaseMatch = GrepList(funcList, matchStr, 0, ";")
+			else
+				if(WhichListItem(testCase, funcList, ";", 0, 0) < 0)
+					continue
+				endif
+				testCaseMatch = testCase
 			endif
+
+			numFL = ItemsInList(testCaseMatch)
+			numMatches += numFL
+			for(k = 0; k < numFL; k += 1)
+				funcName = StringFromList(k, testCaseMatch)
+				fullFuncName = getFullFunctionName(err, funcName, procWin)
+				if(err)
+					sprintf errMsg, "Could not get full function name: %s", fullFuncName
+					return errMsg
+				endif
+				testCaseList = AddListItem(fullFuncName, testCaseList, ";")
+			endfor
 		endfor
+
+		if(!numMatches)
+			err = err | TC_NOT_FOUND
+			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".\r", testCase, procWinList
+		endif
 	endfor
+
+	if(!ItemsInList(testCaseList))
+		err = err | TC_LIST_EMPTY
+		errMsg = "No test case found"
+		return errMsg
+	endif
+
 	return testCaseList
 End
 
@@ -897,7 +951,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 
 		numMatches = ItemsInList(procWinMatch)
 		if(numMatches <= 0)
-			printf "Error: A procedure window named \"%s\" could not be found.\r", procWin
+			printf "Error: A procedure window matching the pattern \"%s\" could not be found.\r", procWin
 			return ""
 		endif
 
@@ -1035,7 +1089,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	string allTestCasesList
 	string FuncName
 	string fullFuncName
-	string fullFuncNameList
 	variable numItemsPW
 	variable numItemsTC
 	variable numItemsFFN
@@ -1079,28 +1132,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		printf "Error: The list of procedure windows is empty or invalid.\r"
 		return NaN
 	endif
-	for(i = 0; i < numItemsPW; i += 1)
-		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCaseList(procWin)
-		numItemsTC = ItemsInList(testCaseList)
-		if(!numItemsTC)
-			printf "Error: Procedure window %s does not define any test case(s).\r", procWin
-			return NaN
-		endif
-		for(j = 0; j < numItemsTC; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			if(err)
-				printf fullFuncName
-				return NaN
-			endif
-		endfor
-	endfor
 
-	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC)
-	if(!strlen(allTestCasesList))
-		printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
-		printf "Note: The list of valid test case(s) is \"%s\"\r", allTestCasesList
+	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC, err)
+	if(err)
+		printf "Error %d in getTestCasesMatch: %s\r", err, allTestCasesList
+		printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", testcase, procWinList
 		return NaN
 	endif
 
@@ -1134,18 +1170,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// The Test Run itself is split into Test Suites for each Procedure File
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExpTC)
 
-		fullFuncNameList = ""
-		numItemsTC = ItemsInList(testCaseList)
-		for(j = 0; j < numItemsTC; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			if(!err)
-				fullFuncNameList = AddListItem(fullFuncName, fullFuncNameList, ";")
-			endif
-		endfor
-		if (!strlen(fullFuncNameList))
+		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExpTC, err)
+		if(err & TC_LIST_EMPTY)
 			continue
 		endif
 
@@ -1159,9 +1186,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		NVAR/SDFR=dfr error_count
 
-		numItemsFFN = ItemsInList(fullFuncNameList)
+		numItemsFFN = ItemsInList(testCaseList)
 		for(j = numItemsFFN-1; j >= 0; j -= 1)
-			fullFuncName = StringFromList(j, fullFuncNameList)
+			fullFuncName = StringFromList(j, testCaseList)
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
 			// get Description and Directive of current Function for TAP
