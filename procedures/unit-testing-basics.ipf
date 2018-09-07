@@ -13,6 +13,7 @@ static Constant TC_MATCH_OK      = 0x00
 static Constant TC_REGEX_INVALID = 0x04
 static Constant TC_NOT_FOUND     = 0x08
 static Constant TC_LIST_EMPTY    = 0x10
+static Constant GREPLIST_ERROR   = 0x20
 
 /// @name Constants for ExecuteHooks
 /// @anchor HookTypes
@@ -826,7 +827,23 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 			funcList = getTestCaseList(procWin)
 
 			if(enableRegExp)
-				testCaseMatch = GrepList(funcList, matchStr, 0, ";")
+				try
+					testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
+				catch
+					testCaseMatch = ""
+					err = GetRTError(1)
+					switch(err)
+						case 1233:
+							errMsg = "Regular expression error"
+							err = TC_REGEX_INVALID
+							break
+						default:
+							errMsg = GetErrMessage(err)
+							err = GREPLIST_ERROR
+					endswitch
+					sprintf errMsg, "Error executing GrepList: %s", errMsg
+					return errMsg
+				endtry
 			else
 				if(WhichListItem(testCase, funcList, ";", 0, 0) < 0)
 					continue
@@ -928,8 +945,10 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	string procWin
 	string procWinMatch
 	string allProcWindows
+	string errMsg
 	variable numItemsPW
 	variable numMatches
+	variable err
 	variable i, j
 	string procWinListOut = ""
 
@@ -944,7 +963,20 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		procWin = StringFromList(i, procWinListIn)
 		if(enableRegExp)
 			procWin = "^(?i)" + procWin + "$"
-			procWinMatch = GrepList(allProcWindows, procWin, 0, ";")
+			try
+				procWinMatch = GrepList(allProcWindows, procWin, 0, ";"); AbortOnRTE
+			catch
+				procWinMatch = ""
+				err = GetRTError(1)
+				switch(err)
+					case 1233:
+						errMsg = "Regular expression error"
+						break
+					default:
+						errMsg = GetErrMessage(err)
+				endswitch
+				printf "Error executing GrepList: %s\r", errMsg
+			endtry
 		else
 			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
 		endif
