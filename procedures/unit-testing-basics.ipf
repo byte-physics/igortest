@@ -1134,7 +1134,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, procWin, param=allowDebug)
+	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
@@ -1147,7 +1147,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param=allowDebug)
+			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
 			Abort
 		else
 			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
@@ -1219,7 +1219,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 
-						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
+						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
 						return global_error_count
 					endif
 				endtry
@@ -1242,7 +1242,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 	endfor
 
-	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
+	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
 
 	return global_error_count
 End
