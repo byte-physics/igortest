@@ -1041,6 +1041,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable numItemsFFN
 	variable tap_skipCase
 	variable tap_caseCount
+	variable enableRegExpTC, enableRegExpTS
 	DFREF dfr = GetPackageFolder()
 	STRUCT JU_Props juProps
 	struct TestHooks hooks
@@ -1048,7 +1049,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable i, j, err
 
 	// Arguments check
-	enableRegExp = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
+	enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
+	enableRegExpTS = enableRegExpTC
 
 	ClearBaseFilename()
 	CreateHistoryLog()
@@ -1059,8 +1061,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		return NaN
 	endif
 
-	procWinList = AdaptProcWinList(procWinList, enableRegExp)
-	procWinList = FindProcedures(procWinList, enableRegExp)
+	procWinList = AdaptProcWinList(procWinList, enableRegExpTS)
+	procWinList = FindProcedures(procWinList, enableRegExpTS)
 
 	numItemsPW = ItemsInList(procWinList)
 	if(numItemsPW <= 0)
@@ -1110,10 +1112,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endif
 	if(ParamIsDefault(testCase))
 		testCase = ".*"
-		enableRegExp = 1
+		enableRegExpTC = 1
 	endif
 
-	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExp)
+	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC)
 	if(!strlen(allTestCasesList))
 		printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
 		printf "Note: The list of valid test case(s) is \"%s\"\r", allTestCasesList
@@ -1150,7 +1152,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// The Test Run itself is split into Test Suites for each Procedure File
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExp)
+		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExpTC)
 
 		fullFuncNameList = ""
 		numItemsTC = ItemsInList(testCaseList)
