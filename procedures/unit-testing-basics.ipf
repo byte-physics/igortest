@@ -9,6 +9,11 @@
 static Constant FFNAME_OK        = 0x00
 static Constant FFNAME_NOT_FOUND = 0x01
 static Constant FFNAME_NO_MODULE = 0x02
+static Constant TC_MATCH_OK      = 0x00
+static Constant TC_REGEX_INVALID = 0x04
+static Constant TC_NOT_FOUND     = 0x08
+static Constant TC_LIST_EMPTY    = 0x10
+static Constant GREPLIST_ERROR   = 0x20
 
 /// @name Constants for ExecuteHooks
 /// @anchor HookTypes
@@ -767,55 +772,110 @@ static Function/S getTestCaseList(procWin)
 	return (FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin))
 End
 
-/// Returns FullName List of Test Functions in all Procedure Windows from procWinList
-static Function/S getCompleteTestCaseList(procWinList)
+/// @brief get test cases matching a certain pattern
+///
+/// This function searches for test cases in a given list of test suites. The
+/// search can be performed either using a regular expression or on a defined
+/// list of test cases. All Matches are checked.
+/// The function returns an error
+/// * If a given test case is not found
+/// * If no test case was found
+/// * if fullFunctionName returned an error
+///
+/// @param[in]  procWinList List of test suites, separated by ";"
+/// @param[in]  matchStr    * List of test cases, separated by ";" (enableRegExp = 0)
+///                         * *one* regular expression without ";" (enableRegExp = 1)
+/// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
+/// @param[out] err Numeric Error Code
+///
+/// @returns fullname list of matching test cases
+static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 	string procWinList
+	string matchStr
+	variable enableRegExp
+	variable &err
+	err = TC_MATCH_OK
 
 	string procWin
-	string testCaseList
 	string funcName
+	string funcList
 	string fullFuncName
-	string allCaseList
-	variable numpWL, numtCL
-	variable err
-	variable i, j
+	string testCase, testCaseMatch, testCaseList
+	variable numTC, numpWL, numFL, numMatches
+	variable i,j,k
+	string errMsg = ""
 
-	allCaseList = ""
-	numpWL = ItemsInList(procWinList)
-	for(i = 0; i < numpWL; i += 1)
-		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCaseList(procWin)
-		numtCL = ItemsInList(testCaseList)
-		for(j = 0; j < numtCL; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			allCaseList = AddListItem(fullfuncName, allCaseList, ";")
-		endfor
-	endfor
-	return allCaseList
-End
+	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
+		err = TC_REGEX_INVALID
+		errMsg = "semicolon is not allowed in regex pattern"
+		return errMsg
+	endif
 
-/// Returns FullName List of Test Functions in all Procedure Windows from procWinList that match ShortName Function funcName
-static Function/S getTestCasesMatch(procWinList, funcName)
-	string procWinList
-	string funcName
-
-	string procWin
-	string ffName
-	string testCaseList
-	variable err
-	variable numpWL
-	variable i
+	if(enableRegExp)
+		sprintf matchStr, "^(?i)%s$", matchStr
+	endif
 
 	testCaseList = ""
+	numTC = ItemsInList(matchStr)
 	numpWL = ItemsInList(procWinList)
-	for(i = 0; i < numpWL; i += 1)
-		procWin = StringFromList(i, procWinList)
-		ffName = getFullFunctionName(err, funcName, procWin)
-		if(!err)
-			testCaseList = AddListItem(ffName, testCaseList, ";")
+	for(i = 0; i < numTC; i += 1)
+		testCase = StringFromList(i, matchStr)
+		testCaseMatch = ""
+		numMatches = 0
+		for(j = 0; j < numpWL; j += 1)
+			procWin = StringFromList(j, procWinList)
+			funcList = getTestCaseList(procWin)
+
+			if(enableRegExp)
+				try
+					testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
+				catch
+					testCaseMatch = ""
+					err = GetRTError(1)
+					switch(err)
+						case 1233:
+							errMsg = "Regular expression error"
+							err = TC_REGEX_INVALID
+							break
+						default:
+							errMsg = GetErrMessage(err)
+							err = GREPLIST_ERROR
+					endswitch
+					sprintf errMsg, "Error executing GrepList: %s", errMsg
+					return errMsg
+				endtry
+			else
+				if(WhichListItem(testCase, funcList, ";", 0, 0) < 0)
+					continue
+				endif
+				testCaseMatch = testCase
+			endif
+
+			numFL = ItemsInList(testCaseMatch)
+			numMatches += numFL
+			for(k = 0; k < numFL; k += 1)
+				funcName = StringFromList(k, testCaseMatch)
+				fullFuncName = getFullFunctionName(err, funcName, procWin)
+				if(err)
+					sprintf errMsg, "Could not get full function name: %s", fullFuncName
+					return errMsg
+				endif
+				testCaseList = AddListItem(fullFuncName, testCaseList, ";")
+			endfor
+		endfor
+
+		if(!numMatches)
+			err = err | TC_NOT_FOUND
+			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".\r", testCase, procWinList
 		endif
 	endfor
+
+	if(!ItemsInList(testCaseList))
+		err = err | TC_LIST_EMPTY
+		errMsg = "No test case found"
+		return errMsg
+	endif
+
 	return testCaseList
 End
 
@@ -885,8 +945,10 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	string procWin
 	string procWinMatch
 	string allProcWindows
+	string errMsg
 	variable numItemsPW
 	variable numMatches
+	variable err
 	variable i, j
 	string procWinListOut = ""
 
@@ -901,14 +963,27 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		procWin = StringFromList(i, procWinListIn)
 		if(enableRegExp)
 			procWin = "^(?i)" + procWin + "$"
-			procWinMatch = GrepList(allProcWindows, procWin, 0, ";")
+			try
+				procWinMatch = GrepList(allProcWindows, procWin, 0, ";"); AbortOnRTE
+			catch
+				procWinMatch = ""
+				err = GetRTError(1)
+				switch(err)
+					case 1233:
+						errMsg = "Regular expression error"
+						break
+					default:
+						errMsg = GetErrMessage(err)
+				endswitch
+				printf "Error executing GrepList: %s\r", errMsg
+			endtry
 		else
 			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
 		endif
 
 		numMatches = ItemsInList(procWinMatch)
 		if(numMatches <= 0)
-			printf "Error: A procedure window named \"%s\" could not be found.\r", procWin
+			printf "Error: A procedure window matching the pattern \"%s\" could not be found.\r", procWin
 			return ""
 		endif
 
@@ -1046,20 +1121,31 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	string allTestCasesList
 	string FuncName
 	string fullFuncName
-	string fullFuncNameList
 	variable numItemsPW
 	variable numItemsTC
 	variable numItemsFFN
 	variable tap_skipCase
 	variable tap_caseCount
+	variable enableRegExpTC, enableRegExpTS
 	DFREF dfr = GetPackageFolder()
 	STRUCT JU_Props juProps
 	struct TestHooks hooks
 	struct TestHooks procHooks
 	variable i, j, err
 
-	// Arguments check
-	enableRegExp = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
+	enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
+	enableRegExpTS = enableRegExpTC
+	juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
+	enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
+	allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
+	keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+	if(ParamIsDefault(name))
+		name = "Unnamed"
+	endif
+	if(ParamIsDefault(testCase))
+		testCase = ".*"
+		enableRegExpTC = 1
+	endif
 
 	ClearBaseFilename()
 	CreateHistoryLog()
@@ -1070,63 +1156,20 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		return NaN
 	endif
 
-	procWinList = AdaptProcWinList(procWinList, enableRegExp)
-	procWinList = FindProcedures(procWinList, enableRegExp)
+	procWinList = AdaptProcWinList(procWinList, enableRegExpTS)
+	procWinList = FindProcedures(procWinList, enableRegExpTS)
 
 	numItemsPW = ItemsInList(procWinList)
 	if(numItemsPW <= 0)
 		printf "Error: The list of procedure windows is empty or invalid.\r"
 		return NaN
 	endif
-	for(i = 0; i < numItemsPW; i += 1)
-		procWin = StringFromList(i, procWinList)
-		testCaseList = getTestCaseList(procWin)
-		numItemsTC = ItemsInList(testCaseList)
-		if(!numItemsTC)
-			printf "Error: Procedure window %s does not define any test case(s).\r", procWin
-			return NaN
-		endif
-		for(j = 0; j < numItemsTC; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			if(err)
-				printf fullFuncName
-				return NaN
-			endif
-		endfor
-	endfor
 
-	if(ParamIsDefault(name))
-		name = "Unnamed"
-	endif
-	if(ParamIsDefault(enableJU))
-		juProps.enableJU = 0
-	else
-		juProps.enableJU = !!enableJU
-	endif
-	if(ParamIsDefault(enableTAP))
-		enableTAP = 0
-	else
-		enableTAP = !!enableTAP
-	endif
-	if(ParamIsDefault(allowDebug))
-		allowDebug = 0
-	else
-		allowDebug = !!allowDebug
-	endif
-	if(ParamIsDefault(keepDataFolder))
-		keepDataFolder = 0
-	else
-		keepDataFolder = !!keepDataFolder
-	endif
-	if(ParamIsDefault(testCase))
-		allTestCasesList = getCompleteTestCaseList(procWinList)
-	else
-		allTestCasesList = getTestCasesMatch(procWinList, testCase)
-		if(!strlen(allTestCasesList))
-			printf "Error: Could not find test case \"%s\" in procedure(s) \"%s\"\r", testcase, procWinList
-			return NaN
-		endif
+	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC, err)
+	if(err)
+		printf "Error %d in getTestCasesMatch: %s\r", err, allTestCasesList
+		printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", testcase, procWinList
+		return NaN
 	endif
 
 	// 1.) set the hooks to the default implementations
@@ -1134,7 +1177,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, procWin, param=allowDebug)
+	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
@@ -1147,7 +1190,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param=allowDebug)
+			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
 			Abort
 		else
 			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
@@ -1160,21 +1203,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinList)
 
-		if(ParamIsDefault(testCase))
-			testCaseList = getTestCaseList(procWin)
-		else
-			testCaseList = testCase
-		endif
-		fullFuncNameList = ""
-		numItemsTC = ItemsInList(testCaseList)
-		for(j = 0; j < numItemsTC; j += 1)
-			funcName = StringFromList(j, testCaseList)
-			fullFuncName = getFullFunctionName(err, funcName, procWin)
-			if(!err)
-				fullFuncNameList = AddListItem(fullFuncName, fullFuncNameList, ";")
-			endif
-		endfor
-		if (!strlen(fullFuncNameList))
+		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExpTC, err)
+		if(err & TC_LIST_EMPTY)
 			continue
 		endif
 
@@ -1188,9 +1218,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		NVAR/SDFR=dfr error_count
 
-		numItemsFFN = ItemsInList(fullFuncNameList)
+		numItemsFFN = ItemsInList(testCaseList)
 		for(j = numItemsFFN-1; j >= 0; j -= 1)
-			fullFuncName = StringFromList(j, fullFuncNameList)
+			fullFuncName = StringFromList(j, testCaseList)
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 
 			// get Description and Directive of current Function for TAP
@@ -1219,7 +1249,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 
-						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
+						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
 						return global_error_count
 					endif
 				endtry
@@ -1242,7 +1272,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 	endfor
 
-	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, procWin, param = allowDebug)
+	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
 
 	return global_error_count
 End
