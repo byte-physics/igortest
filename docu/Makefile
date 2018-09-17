@@ -17,6 +17,9 @@ docu-sphinx: build-docker-sphinx
 autobuild: build-docker-sphinx
 	@make -C docker/sphinx docker-autobuild
 
+debug: build-docker-sphinx
+	@make -C docker/sphinx sphinx-debug
+
 debian:
 	@make -C docker/debian
 

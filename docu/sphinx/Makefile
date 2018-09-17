@@ -1,6 +1,6 @@
 # Makefile for Sphinx documentation
 
-SPHINXOPTS    = -w sphinx.log -Q
+SPHINXOPTS    = -w sphinx.log
 SPHINXBUILD   = sphinx-build
 SPHINXAUTO    = sphinx-autobuild
 SPHINXPROJ    = IgorUnitTestingFramework
@@ -12,7 +12,17 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 autobuild:
-	@$(SPHINXAUTO) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html"
+	@$(SPHINXAUTO) \
+		-b html \
+		--ignore "*.swp" \
+		--ignore "*~" \
+		"$(SOURCEDIR)" "$(BUILDDIR)/html"
+
+debug:
+	@$(SPHINXBUILD) \
+		-n -E \
+		"$(SOURCEDIR)" "$(BUILDDIR)/pseudoxml" \
+		-b pseudoxml # -W
 
 .PHONY: help Makefile
 

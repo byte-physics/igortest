@@ -4,12 +4,6 @@
 
 #include "unit-testing"
 
-// Command: RunTest("example3-plain.ipf")
-
-// Shows the differences between WARN, CHECK and REQUIRE
-// The error count this test suite returns is 2
-// This can be shown by: print RunTest("example3-plain.ipf")
-
 // WARN_* does not increment the error count
 Function WarnTest()
 
@@ -22,9 +16,7 @@ Function CheckTest()
 	CHECK_EQUAL_VAR(1.0,0.0)
 End
 
-// REQUIRE_* increments the error count and will stop execution
-// of the test case immediately.
-// Nevertheless the test end hooks are still executed.
+// REQUIRE_* will stop execution of the test case immediately
 Function RequireTest()
 
 	REQUIRE_EQUAL_VAR(1.0,0.0)

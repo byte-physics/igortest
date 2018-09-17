@@ -10,19 +10,20 @@ sed --expression '
 	' Doxyfile | doxygen -
 warning doxygen.log doxygen
 
-# generate sphinx source dir
-cd "${DOCUMENTATION_ROOT}/sphinx/source"
-cp --force --recursive "${DOCUMENTATION_ROOT}/doxygen/xml" ./
-rm --force --recursive file group struct filelist.rst grouplist.rst structlist.rst
-breathe-apidoc -o . "${DOCUMENTATION_ROOT}/doxygen/xml"
+# copy doxygen xml to sphinx
+rsync --update --recursive --delete "${DOCUMENTATION_ROOT}/doxygen/xml/" "${DOCUMENTATION_ROOT}/sphinx/source/xml"
 
 # run sphinx
 cd "${DOCUMENTATION_ROOT}/sphinx"
-make html
-warning sphinx.log "sphinx html builder"
+rm -f sphinx.log
+if ! make html 2>/dev/null; then
+	warning sphinx.log "sphinx html builder"
+fi
 timediff "${DOCUMENTATION_ROOT}/sphinx/build/html/index.html"
 
-make latexpdf
-warning sphinx.log "sphinx pdf builder"
+rm -f sphinx.log
+if ! make latexpdf 2>/dev/null; then
+	warning sphinx.log "sphinx pdf builder"
+fi
 cp --force build/latex/IgorUnitTestingFramework.pdf "${DOCUMENTATION_ROOT}/manual.pdf"
 timediff "${DOCUMENTATION_ROOT}/manual.pdf"

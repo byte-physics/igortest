@@ -18,7 +18,7 @@ shell: build-docker
 
 # starts sphix autobuild for dev purposes
 docker-autobuild: build-docker
-	docker run --rm -it ${LINKDIR} ${LATEST} /bin/bash -c \
+	docker run --rm -it -p 8000:8000 ${LINKDIR} ${LATEST} /bin/bash -c \
 		'make -C "${DOCKER_TOP_LEVEL}/docu/sphinx" autobuild'
 
 # echo basic requirements for current container.
@@ -34,6 +34,9 @@ requirements: build-docker
 sphinx: requirements
 	docker run -it --rm ${LINKDIR} ${LATEST} /bin/bash /var/igor-unit-testing-framework/docu/scripts/docu-sphinx.sh
 
+sphinx-debug: requirements
+	docker run -it --rm ${LINKDIR} ${LATEST} /bin/bash -c \
+		'make -C "${DOCKER_TOP_LEVEL}/docu/sphinx" debug'
 links:
 	@stat "${LOCAL_TOP_LEVEL}/docu/sphinx/build/html/index.html"
 	@stat "${LOCAL_TOP_LEVEL}/docu/manual.pdf"
