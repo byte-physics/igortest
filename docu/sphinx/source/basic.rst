@@ -16,7 +16,7 @@ testing package consists of three basic structural elements:
 The basic building blocks of this unit testing framework are assertions.
 Assertions are used for checking if a condition is true. See
 :ref:`AssertionTypes` for a clarification of the difference between the three
-assertion types that can be used. Assertions are grouped into single test cases
+assertion types. Assertions are grouped into single test cases
 and test cases are organized in test suites.
 
 A :ref:`test suite <TestSuite>` is a group of test cases that live in a single
@@ -31,9 +31,7 @@ Test Run
 --------
 
 A Test Run is executed using :cpp:func:`RunTest` with only a single mandatory
-parameter which is the :ref:`TestSuite`. Take a look the optional parameters
-within the function definition for further information on what the function is
-capable of.
+parameter which is the :ref:`TestSuite`.
 
 Function definition of RunTest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,27 +67,28 @@ A Test Case is one of the basic building blocks grouping :ref:`assertions
 fulfills all of the following properties:
 
 1. It takes no parameters.
-2. Its name does not end on `_IGNORE`.
-3. It is either non-static or static and part of a regular module.
+2. Its name does not end with `_IGNORE`.
+3. It is either non-static, or static and part of a regular module.
 
 The first rule is making the test case callable in automated test environments.
 
 The second rule is reserving the `_IGNORE` namespace to allow advanced users to
 add their own helper functions. It is advised to define all test cases as
 static functions and to create one regular distinctive module per procedure
-file. This will separate the Test Case to its own namespace not interfering
-with user-defined functions in `ProcGlobal`.
+file. This will keep the Test Cases in their own namespace and thus not
+interfere with user-defined functions in `ProcGlobal`.
 
 A defined list of test cases in a test suite can be run using the optional
-parameter :code:`testCase` of :cpp:func:`RunTest`. When executing multiple test suites and a test case is found in more
-than one test suite, it is executed in every matching test suite.
+parameter :code:`testCase` of :cpp:func:`RunTest`. When executing multiple test
+suites and a test case is found in more than one test suite, it is executed in
+every matching test suite.
 
 Example:
 ^^^^^^^^
 
-In Test Suite `TestSuite_1.ipf` Test Cases `static Duplicate()` and `static
-Unique_1()` are defined. In Test Suite `TestSuite_2.ipf` Test Cases `static
-Duplicate()`, `static Unique_2()` are defined.
+In Test Suite `TestSuite_1.ipf` the Test Cases `static Duplicate()` and `static Unique_1()`
+are defined. In Test Suite `TestSuite_2.ipf` the Test Cases `static Duplicate()`,
+`static Unique_2()` are defined.
 
 .. code-block:: igor
 

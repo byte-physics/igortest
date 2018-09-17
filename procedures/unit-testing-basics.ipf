@@ -1109,10 +1109,10 @@ End
 ///     This command will run the test suites `proc0` and `proc1` in a test named `myTest`.
 /// @endverbatim
 ///
-/// @param   procWinList    A list of procedure files that should be handled as test suites.
+/// @param   procWinList    A list of procedure files that should be treated as test suites.
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n The procedure name must not include Independent Module specifications.
-///                         @n This parameter can be treated as a regular expression with enableRegExp
+///                         @n This parameter can be given as a regular expression with enableRegExp set to 1.
 ///                         
 /// @param   name           (optional) default "Unnamed" @n
 ///                         descriptive name for the executed test suites. This can be
@@ -1122,7 +1122,7 @@ End
 ///                         function names, resembling test cases, which should be
 ///                         executed in the given list of test suites (procWinList).
 ///                         @n The list should be given semicolon (";") separated.
-///                         @n This parameter can be treated as a regular expression with enableRegExp
+///                         @n This parameter can be treated as a regular expression with enableRegExp set to 1.
 ///                         
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.

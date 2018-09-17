@@ -5,16 +5,14 @@
 What is a Unit Testing Framework?
 =================================
 
-The purpose of every program is to ensure that a specific task is
-performed reliably in a defined matter. Therefore, programming is all about
-testing and quality control of the produced source code. These two workflow
-tasks are entirely optional but are especially important when it comes to
-hazard and risk-sensitive tasks, as well as security-relevant features of
-software with critical to catastrophic consequences. A thoroughly tested
-software also helps if economic pressure does not allow or accept software
-failures. More generally speaking, it contributes to a clean, professional look
-and better working experience if software works in a defined way and unit tests
-help to define this way.
+The purpose of every program is to ensure that a specific task is performed
+reliably in a defined matter. Therefore, programming is all about testing and
+quality control of the produced source code. These two workflow tasks are
+entirely optional but are especially important when it comes to hazard and
+risk-sensitive tasks, as well as security-relevant features of software with
+critical to catastrophic consequences. More generally speaking, it contributes
+to a clean, professional look and better working experience if software works
+in a defined way and unit tests help to define this way.
 
 Testing
 -------
@@ -26,14 +24,14 @@ task. Complex scenarios typically afford a much larger codebase and a more
 profound investigation of the involved interfaces. The more complex the
 scenarios a program can handle, the more time is involved in its production.
 Therefore it is crucial to define the program's interface to indicate what it
-is capable of and what not to prevent it getting used in the wrong context.
+is capable of, and what not, to prevent it getting used in the wrong context.
 
-One standard in quality control is the four-eyes-check by two persons of
-similar competence. Writing professional code in a lean and agile, continuous
-delivery software environment, usually involves this additional peer review
-step. The review step is an attempt to separate code production, and testing to
-separate persons as the perception of the tester adds valuable input to the
-code leading to quicker deployment of quality software.
+One standard in quality control is the four-eyes-check by two persons.  Writing
+professional code in a lean and agile, continuous delivery software
+environment, usually involves this additional peer review step. The review step
+is an attempt to separate code production, and testing to separate persons as
+the perception of the tester adds valuable input to the code leading to quicker
+deployment of quality software.
 
 A review typically involves testing the functionality of the code output for
 different inputs. These tests are equally performed during code production and
@@ -70,9 +68,9 @@ accepts inputs and produces outputs.
    input --> # unit # --> output
              ########
 
-In the most simple case, a unit is a function. The variables which get passed
-to this function define the input interface, and the return value is the output
-interface. In a more complicated scenario, such a unit could be responsible for
+In the most simple case, a unit is a function. The parameters which get passed
+to the function define the input interface, and the return value is the output
+interface. In a more complex scenario, such a unit could be responsible for
 converting one file to another format.
 
 A unit can be checked for valid output by defining a :ref:`suite of tests
@@ -82,7 +80,7 @@ that an entity fulfills specific properties and a unit produces valid output
 for a given input. Within these checks, the result of defined inputs is
 compared against defined outputs. The comparisons are performed using different
 types of :ref:`Assertions <AssertionTypes>`. As long as all test cases inside a
-test suite are executed correctly, the functionality of the unit is maintained.
+test suite are executed correctly, the tested functionality of the unit is maintained.
 Performing these checks on a regular basis also ensures that a consistent level
 of quality and a defined functionality is maintained upon changes to the code.
 

@@ -19,11 +19,11 @@ The following functions are reserved for user code injections:
 
 .. cpp:function:: TEST_BEGIN_OVERRIDE()
 
-Executed at the **begin** of a :cpp:func:`Test Run<RunTest()>`.
+Executed at the **begin** of a :cpp:func:`Test Run<RunTest>`.
 
 .. cpp:function:: TEST_END_OVERRIDE()
 
-Executed at the **end** of a :cpp:func:`Test Run<RunTest()>`.
+Executed at the **end** of a :cpp:func:`Test Run<RunTest>`.
 
 .. cpp:function:: TEST_SUITE_BEGIN_OVERRIDE()
 
@@ -43,7 +43,7 @@ Executed at the **end** of a :ref:`TestCase`.
 
 .. note::
 
-   As :cpp:func:`TEST_END_OVERRIDE()` is executed at the very end of a test run
+   :cpp:func:`TEST_END_OVERRIDE()` is executed at the very end of a test run
    so that the Igor debugger state is already reset to the state it had before
    :cpp:func:`RunTest()` was executed.
 
@@ -53,7 +53,7 @@ Executed at the **end** of a :ref:`TestCase`.
    :cpp:func:`TEST_SUITE_END_OVERRIDE()` as well as
    :cpp:func:`TEST_CASE_BEGIN_OVERRIDE()` and
    :cpp:func:`TEST_CASE_END_OVERRIDE()` can also be defined locally in a test
-   suite with the `static` keyword.  :ref:`example2` shows how `static`
+   suite with the `static` keyword. :ref:`example2` shows how `static`
    functions are called the framework.
 
 These functions are executed automatically if they are defined anywhere in
@@ -85,13 +85,8 @@ each :ref:`TestCase` is executed in its own temporary data folder.
 cleanup is done afterward. The *next* Test Case then starts with the data the
 *previous* Test Case left in `root:`.
 
-.. todo::
-   Add code of the replacement hook to the above use case.
-
 .. note::
    By default the Igor debugger is disabled during the execution of a test run.
-
-see also :ref:`file_hooks`
 
 JUNIT Output
 ------------
@@ -123,7 +118,7 @@ The output is written into a file in the experiment folder with a unique
 generated name `tap_'time'.log`. This prevents accidental overwrites of
 previous test runs. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
-and directives for each Test Case can be added in the two lines preceding the
+and directives for each Test Case can be added in the two lines preceeding the
 function of a Test Case:
 
 .. code-block:: igor
@@ -131,14 +126,14 @@ function of a Test Case:
    // #TAPDescription: My description here
    // #TAPDirective: My directive here
 
-For directives two additional key words are defined that can be written at the
+For directives two additional keywords are defined that can be written at the
 beginning of the directive message.
 
 - `TODO` indicates a Test that includes a part of the program still in
-  development. Failures here will be ignores by a TAP consumer.
+  development. Failures here will be ignored by a TAP consumer.
 
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
-  key word is not executed and reported always as 'ok'.
+  keyword is not executed and reported always as 'ok'.
 
 Examples:
 ^^^^^^^^^
@@ -159,7 +154,8 @@ See the Experiment in the TAP_Example folder for reference.
 
    add reference to the example, include example code
 
-see also :ref:`file_tap`
+
+.. _automate:
 
 Automate Test Runs
 ------------------
@@ -189,7 +185,7 @@ A different autorun mode is enabled if the file is named
 execution and Igor Pro does not quit. This mode also does not use the Operation
 Queue.
 
-See also :ref:`example6` and :ref:`file_autorun`.
+See also :ref:`example6`.
 
 Running in an Independent Module
 --------------------------------

@@ -9,10 +9,10 @@ To visualize the functionality of the unit testing framework, we will start
 with a guided tour in which we create our first unit and test it with the
 unit testing framework. The tour will cover the following steps:
 
-* tour_create_
-* tour_test_
-* tour_execute_
-* tour_extend_
+* :ref:`tour_create`
+* :ref:`tour_test`
+* :ref:`tour_execute`
+* :ref:`tour_extend`
 
 Please make sure that the framework has been properly installed if you wish to
 follow the guide. For the framework to work, the files from the `procedures folder
@@ -21,12 +21,10 @@ should be placed into the `User Procedures` Folder of your Igor Pro setup.
 
 .. _tour_create:
 
-creating a unit
+Creating a unit
 ---------------
 
-We will start by creating a simple unit. Since Igor Pro targets to a
-scientific audience, we chose an application-oriented use case from
-nanoscience:
+We will start by creating a simple unit.
 
 The following formula gives the diameter :math:`d` of a carbon nanotube:
 
@@ -56,7 +54,7 @@ The formula is easily translated into Igor Pro code:
 
 .. _tour_test:
 
-testing the unit
+Testing the unit
 ----------------
 
 If we want to rely on this formula with other calculations, we have to test if
@@ -90,12 +88,12 @@ correct output.
 The test case function can be placed anywhere inside the main procedure file,
 but it can be considered good practice to separate test cases into a procedure
 file of their own. Such a separate procedure file that only contains test cases
-is called a :ref:`TestSuite`. A test suite should perform all the necessary
+is called a :ref:`TestSuite`. A test suite can for example perform all the necessary
 tests for a unit.
 
 .. _tour_execute:
 
-executing the test
+Executing the test
 ------------------
 
 To execute the test suite we use the :cpp:func:`RunTest` directive. It accepts
@@ -124,16 +122,16 @@ this:
 
 .. _tour_extend:
 
-extending the test
+Extending the test
 ------------------
 
 Note, that we have defined a test case for the current capabilities of our
-function :code:`diameter()`. The calculation is only exact unto the specified
+function :code:`diameter()`. The calculation is only exact up to the specified
 error range. The high error is caused by a fixated value of
 :code:`pi=3.1415`. To emphasize this, we can add an assertion to the test case
 that will fail but will not affect the error counter. Such an assertion is done
-with a :code:`WARN_*` directive. Every `REQUIRE_*` assertion also has a
-`WARN_*` variant. Also take a look at the different :ref:`AssertionTypes`.
+with a `WARN_*` directive. Every `REQUIRE_*` assertion also has a
+`WARN_*` variant, see:ref:`AssertionTypes` for a summary.
 
 .. code-block:: igorpro
    :emphasize-lines: 6,7
@@ -169,8 +167,8 @@ failing the test case:
 If the program should be extended to a higher level of accuracy, this warning
 can be set to the corresponding :cpp:func:`REQUIRE<REQUIRE_CLOSE_VAR>`
 assertion. The program :code:`diameter` then has to be changed to reflect the
-new requirement. In the current example, :math:`pi` would have to be extended
-to contain more decimal places.
+new requirement. In the current example, :math:`pi` would need to be used
+instead of only a handful of decimal places hardcoded.
 
 In a test-driven workflow, the unit tests get extended before even changing
 anything at the code base. Defining the test case prior to any code production

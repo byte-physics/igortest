@@ -38,7 +38,7 @@ By looking at line 10 in this example it becomes clear that
 :cpp:func:`CHECK_EQUAL_VAR` is a better way of comparing numeric variables then
 the plain :cpp:func:`CHECK` assertion since :code:`NaN == NaN` is false. The
 error is skipped by using the :cpp:func:`WARN` variant and will not raise the
-error counter. If you want to know unto what extend those methods differ, take
+error counter. If you want to know up to what extend those methods differ, take
 a look at the section on :ref:`AssertionTypes` .
 
 .. note::
@@ -58,24 +58,23 @@ Example2
 --------
 
 This test suite has its own run routine. The :code:`run_IGNORE` function serves
-as an entry point for :code:`"example2-plain.ipf"`. If the unit testing
-framework is loaded, a function named :code:`run` is executed with by hook
-after opening the file. By using the :code:`_IGNORE` suffix, the function
-itself will be ignored as a test case. This is also explained in the section
-about :ref:`Test Cases<TestCase>`. It is important to note that calling
-:cpp:func:`RunTest` would otherwise lead to a recursion error.
+as an entry point for :code:`"example2-plain.ipf"`. By using the
+:code:`_IGNORE` suffix, the function itself will be ignored as a test case.
+This is also explained in the section about :ref:`Test Cases<TestCase>`. It is
+important to note that calling :cpp:func:`RunTest` would otherwise lead to a
+recursion error.
 
 There are multiple calls to :cpp:func:`RunTest` in :code:`run_IGNORE` to
 demonstrate the use of optional arguments. Calling the function without any
 optional argument will lead to a search for all available test cases in the
 procedure file. You can also execute specific test cases by supplying them with
-the :code:`testcase` parameter.
+the :code:`testCase` parameter.
 
 The optional parameter :code:`name` is especially useful for bundling more than
 one procedure file into a single test run.
 
 The test suite itself lives in a module and all test cases are static to that
-module. This is the recommended environment for a test suite. when using the
+module. This is the recommended environment for a test suite. When using the
 static keyword, you also have to define a module with :code:`#pragma
 ModuleName=Example2`
 
@@ -140,7 +139,7 @@ Example4
 
 This test suite shows the use of test assertions for waves.
 
-The type of a waves can be checked with :cpp:func:`CHECK_EQUAL_WAVES` and
+The type of a wave can be checked with :cpp:func:`CHECK_EQUAL_WAVES` and
 binary flags for the :ref:`flags_testwave_minor` and
 :ref:`flags_testwave_major`. All flags are defined in :ref:`flags_testwave` and
 can be concatenated as shown in line 45. If the comparison is done against such a
@@ -195,15 +194,11 @@ the static override function:
 
 .. code-block:: igor
 
-   FUNCREF USER_HOOK_PROTO tcbegin_global = $"ProcGlobal#TEST_CASE_BEGIN_OVERRIDE" tcbegin_global(name)
+   FUNCREF USER_HOOK_PROTO tcbegin_global = $"ProcGlobal#TEST_CASE_BEGIN_OVERRIDE"
+   tcbegin_global(name)
 
 The second procedure file :ref:`example5-code-2` is in :code:`ProcGlobal`
 context so the test hook extensions are also global.
-
-.. note::
-
-   The Igor Debugger is already reset to the state prior to calling the Test
-   Run when :cpp:func:`TEST_END_OVERRIDE` is executed in :ref:`example5-code-2`
 
 .. literalinclude:: ../../examples/example5-extensionhooks.ipf
    :caption: example5-extensionhooks.ipf
@@ -219,7 +214,7 @@ context so the test hook extensions are also global.
    RunTest("example5-extensionhooks.ipf;example5-extensionhooks-otherSuite.ipf")
 
 Each hook will output a message starting with :code:`>>`. After the Test Run
-has finished you can see at which points the additional User code was executed.
+has finished you can see at which points the additional user code was executed.
 
 .. note::
 
@@ -240,7 +235,8 @@ On Windows, call the "autorun-test-xxx.bat" from the helper folder.
 
 The autorun batch script executes test runs for all pxp experiment files in the
 current folder. After the run, a log file is created in the folder. The log
-file includes the history of the Igor Pro Experiment.
+file includes the history of the Igor Pro Experiment. See also the section
+on :ref:`automate`.
 
 .. literalinclude:: ../../examples/Example6/example6-automatic-invocation.ipf
    :caption: example6-automatic-invocation.ipf
@@ -251,8 +247,6 @@ file includes the history of the Igor Pro Experiment.
    :name: example6-code-2
 
 .. note::
-
-   See also the section on:ref:`automatic`.
 
    The definition for the :doc:`assertion <assertions>` in this test suite:
 
@@ -266,7 +260,7 @@ Example7
 This test suite is showing how unhandled aborts in the test cases are displayed.
 
 The Test environment catches such conditions and treats them accordingly. This
-works with both, :code:`Abort` and :code:`AbortOnValue`.
+works with both :code:`Abort` and :code:`AbortOnValue`.
 
 .. literalinclude:: ../../examples/example7-uncaught-aborts.ipf
    :caption: example7-uncaught-aborts.ipf
@@ -281,7 +275,6 @@ works with both, :code:`Abort` and :code:`AbortOnValue`.
    Relevant definitions for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`PASS`
-   * :cpp:func:`FAIL`
 
 .. _example8:
 
@@ -302,11 +295,6 @@ before the test environment handles it. The test environment is controlled
 manually by :cpp:func:`PASS` and :cpp:func:`FAIL`. :cpp:func:`PASS` increases
 the assertion counter and :cpp:func:`FAIL` treats this assertion as fail when a
 RTE was caught.
-
-.. note::
-
-   As this code can hide critical errors from the test environment it may
-   render test runs unreliable.
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
    :caption: example8-uncaught-runtime-errors
@@ -330,7 +318,7 @@ RTE was caught.
 Example9
 --------
 
-The test suite is showing how the whole framework can be run in an independent
+This examples shows how the whole framework can be run in an independent
 module.
 
 Please note that when calling the test suite, the procedure window name does

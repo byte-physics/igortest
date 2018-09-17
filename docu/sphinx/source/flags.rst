@@ -28,24 +28,21 @@ minor and a major wave type.
 
 .. _flags_testwave_general:
 
-general
+General
 """""""
-
-these flags apply to flags_testwave_major_ and
-flags_testwave_minor_.
 
 .. doxygengroup:: TestWaveFlagsGeneral
 
 .. _flags_testwave_major:
 
-majorType
+MajorType
 """""""""
 
 .. doxygengroup:: TestWaveFlagsMajor
 
 .. _flags_testwave_minor:
 
-minorType
+MinorType
 """""""""
 
 .. doxygengroup:: TestWaveFlagsMinor
