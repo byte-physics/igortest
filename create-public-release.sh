@@ -2,16 +2,17 @@
 
 set -e
 
-newVersion=1.06
+newVersion=1.07
 revision=UnitTestingFramework-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
 
 for i in `ls procedures/*.ipf`; do
-	sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
+  sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
+  sed -i "s/PKG_VERSION =.*$/PKG_VERSION = $newVersion/" $i
 done
 
-sed -i "s/^PROJECT_NUMBER.*$/PROJECT_NUMBER         = $newVersion/" docu/Doxyfile
+sed -i "s/^PROJECT_NUMBER.*$/PROJECT_NUMBER         = $newVersion/" docu/doxygen/Doxyfile
 
 if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	echo "Aborting, please commit the changes first"
@@ -30,7 +31,8 @@ mkdir -p $folder
 cp -r procedures docu/examples Readme.md License.txt helper $folder
 
 # copy and rename manual
-cp docu/refman.pdf $folder/Manual-$basename.pdf
+cp docu/manual.pdf $folder/Manual-$basename.pdf
+cp -r docu/sphinx/build/html $folder/Manual-$basename.html
 
 # copy autorun scripts into example6 folder
 cp $folder/helper/autorun*.bat $folder/examples/Example6
