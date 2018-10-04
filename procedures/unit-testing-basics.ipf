@@ -594,7 +594,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		endif
 	endif
 
-	printf message
+	printf "%s", message
 	systemErr = message
 
 	CheckAbortCondition(abortCode)
