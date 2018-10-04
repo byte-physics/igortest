@@ -51,5 +51,3 @@ This will create a docker container with all the required dependencies and outpu
 The documentation is built using [doxygen](http://www.doxygen.org/), a [home-built awk script](https://github.com/byte-physics/doxygen-filter-ipf/), [breathe](https://github.com/michaeljones/breathe) and [sphinx](http://www.sphinx-doc.org).
 
 [The current documentation can be found on our website.](https://docs.byte-physics.de/igor-unit-testing-framework/)
-# Bug Reporting
-**Please** report all bugs and major/minor annoyances either as an issue here or directly to (thomas \<dot\> braun \<aehht\> byte \<minus\> physics \<dottt\> de)!
