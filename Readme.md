@@ -48,7 +48,7 @@ make
 ```
 
 This will create a docker container with all the required dependencies and output the manual as pdf to `docu/manual.pdf` and html to the `docu/sphinx/html` subdirectory.
-The documentation is built using [doxygen](http://www.doxygen.org/), a [home-built awk script](https://github.com/t-b/doxygen-filter-ipf/), [breathe](https://github.com/michaeljones/breathe) and [sphinx](http://www.sphinx-doc.org).
+The documentation is built using [doxygen](http://www.doxygen.org/), a [home-built awk script](https://github.com/byte-physics/doxygen-filter-ipf/), [breathe](https://github.com/michaeljones/breathe) and [sphinx](http://www.sphinx-doc.org).
 
 [The current documentation can be found on our website.](https://docs.byte-physics.de/igor-unit-testing-framework/)
 # Bug Reporting
