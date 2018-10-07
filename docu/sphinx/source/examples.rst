@@ -308,7 +308,7 @@ RTE was caught.
 
 .. note::
 
-   Relevant definitions for the doc:`assertions` in this test suite:
+   Relevant definitions for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`PASS`
    * :cpp:func:`FAIL`
