@@ -35,13 +35,16 @@ Igor Pro version 6.2.0 or later
 
 # Building the documentation
 
-## Requirements:
+## Requirements
 The build process is fully automated using [docker containers](https://www.docker.com/). You will need
 - [docker](https://www.docker.com/get-docker)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-## build
-run `make` from the documentation root directory `docu/`:
+## Building
+
+Currently the automated build process only works on Linux.
+
+Run `make` from the documentation root directory `docu/`:
 ```bash
 cd docu
 make
