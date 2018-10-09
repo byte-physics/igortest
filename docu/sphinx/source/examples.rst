@@ -80,7 +80,7 @@ ModuleName=Example2`
 
 .. literalinclude:: ../../examples/example2-plain.ipf
    :caption: example2-plain.ipf
-   :name: example2
+   :name: example2-code
    :emphasize-lines: 3
 
 .. code-block:: igor
