@@ -16,6 +16,7 @@ Equal Wave Flags
 These flags are used in :cpp:func:`CHECK_EQUAL_WAVES`
 
 .. doxygengroup:: EqualWaveFlags
+   :content-only:
 
 
 .. _flags_testwave:
@@ -32,6 +33,7 @@ General
 """""""
 
 .. doxygengroup:: TestWaveFlagsGeneral
+   :content-only:
 
 .. _flags_testwave_major:
 
@@ -39,6 +41,7 @@ MajorType
 """""""""
 
 .. doxygengroup:: TestWaveFlagsMajor
+   :content-only:
 
 .. _flags_testwave_minor:
 
@@ -46,3 +49,4 @@ MinorType
 """""""""
 
 .. doxygengroup:: TestWaveFlagsMinor
+   :content-only:

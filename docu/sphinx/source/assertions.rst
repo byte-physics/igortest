@@ -4,3 +4,4 @@ Assertions
 ----------
 
 .. doxygengroup:: Assertions
+   :content-only:
