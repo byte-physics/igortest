@@ -121,6 +121,9 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
+# open javascript analytics: https://matomo.org/
+def setup(app):
+    app.add_javascript('js/matomo.js')
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
