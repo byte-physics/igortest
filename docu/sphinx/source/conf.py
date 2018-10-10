@@ -13,10 +13,12 @@ def getVersion():
     revString    = Popen('git describe --always --tags',    stdout = PIPE, shell = True).stdout.read().rstrip()
     return revString.decode('ascii')
 
-def getRelease():
+def getBranch():
     branchString = Popen('git rev-parse --abbrev-ref HEAD', stdout = PIPE, shell = True).stdout.read().rstrip()
-    version      = getVersion()
-    return "({branch}) {version}".format(branch=branchString.decode('ascii'), version=version)
+    return branchString.decode('ascii')
+
+def getRelease():
+    return "{version} ({branch})".format(branch=getBranch(), version=getVersion())
 
 def getDocRoot():
     path = Popen('git rev-parse --show-toplevel', stdout = PIPE, shell = True).stdout.read().rstrip()
@@ -36,12 +38,10 @@ def getDocRoot():
 # -- Project information -----------------------------------------------------
 
 project = u'Igor Unit Testing Framework'
-copyright = u'2018, Thomas Braun, Michael Huth, Matthias Kastner'
-author = u'Thomas Braun, Michael Huth, Matthias Kastner'
+copyright = u'2012-2018 All Contributors'
+author = u'All Contributors'
 
-# The short X.Y version
 version = getVersion()
-# The full version, including alpha/beta/rc tags
 release = getRelease()
 
 
@@ -104,7 +104,17 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'github_user': 'byte-physics',
+    'github_repo': 'igor-unit-testing-framework',
+    'github_banner': True,
+    'show_powered_by': False,
+    'page_width' : '90%',
+}
+
+html_context = {
+    'branch' : getBranch(),
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -114,13 +124,16 @@ html_static_path = ['_static']
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
+html_sidebars = {
+        '**': ['logo.html', 'localtoc.html', 'searchbox.html', 'version.html'],
+        }
 
+# the html_logo always links to the main page.
+#html_logo = '_static/images/logo/bp-logo.png'
+
+# open javascript analytics: https://matomo.org/
+def setup(app):
+    app.add_javascript('js/matomo.js')
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
