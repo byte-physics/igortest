@@ -24,6 +24,9 @@ debug:
 		"$(SOURCEDIR)" "$(BUILDDIR)/pseudoxml" \
 		-b pseudoxml # -W
 
+deploy:
+	@lftp -e "mirror --reverse -n -e build/html /www/doc/igor-unit-testing-framework; bye" byte-physics
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
