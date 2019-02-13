@@ -4,7 +4,7 @@
 #include "unit-testing"
 
 Function run_IGNORE()
-	RunTest("TestWaveType.ipf", name="Test different Wave Types", testCase="testWaveTypes")
+	RunTest("TestWaveType.ipf", name="Test different Wave Types", testCase="testWaveTypes;testNullType")
 End
 
 Function testWaveTypes()
@@ -19,10 +19,18 @@ Function testWaveTypes()
 
 	Make/O/U/I root:wv2/WAVE=wv2
 	CHECK_WAVE(wv2, NORMAL_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE)
-	CHECK_WAVE(wv2, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE) // ! not a free wave
+	WARN_WAVE(wv2, FREE_WAVE | NUMERIC_WAVE, minorType = UNSIGNED_WAVE | INT32_WAVE) // !fails: not a free wave
 End
 
-Function checkWaveType()
+Function testNullType()
+	WAVE/Z wv
+	REQUIRE_WAVE(wv, NULL_WAVE)
+
+	Make/FREE wv
+	WARN_WAVE(wv, NULL_WAVE) // !fails: not a null wave
+End
+
+Function checkWaveType_IGNORE()
 	WAVE/Z wv
 	printWaveType(wv)
 
