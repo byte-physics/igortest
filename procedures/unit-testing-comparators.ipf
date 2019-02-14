@@ -480,15 +480,17 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 
 	type2 = WaveType(wv, 2)
 	type1 = WaveType(wv, 1)
-	if(type1 == NULL_WAVE && type2 == NULL_WAVE)
-		type = NULL_WAVE
-	endif
 	if(type1 > 0 && type1 <= 4)
 		type = type | 2^(type1 - 1)
 	endif
 	if(type2 > 0 && type2 <= 2)
 		type = type | 2^(type2 + 3)
 	endif
+
+	if((type1 == 0 && type2 == 0) || !WaveExists(wv))
+		type = NULL_WAVE
+	endif
+
 	result = (type & majorType) == majorType
 
 	sprintf str, "Assumption that the wave's main type is %d", majorType
