@@ -32,7 +32,7 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 
 /// @addtogroup testWaveFlagsGeneral
 ///@{
-Constant NULL_WAVE       = 0x00
+Constant NULL_WAVE       = 0x1000
 ///@}
 
 /// @addtogroup testWaveFlagsMinor
