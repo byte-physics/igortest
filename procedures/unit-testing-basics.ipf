@@ -1113,27 +1113,27 @@ End
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n The procedure name must not include Independent Module specifications.
 ///                         @n This parameter can be given as a regular expression with enableRegExp set to 1.
-///                         
+///
 /// @param   name           (optional) default "Unnamed" @n
 ///                         descriptive name for the executed test suites. This can be
 ///                         used to group multiple test suites into a single test run.
-///                         
+///
 /// @param   testCase       (optional) default ".*" (all test cases in the list of test suites) @n
 ///                         function names, resembling test cases, which should be
 ///                         executed in the given list of test suites (procWinList).
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n This parameter can be treated as a regular expression with enableRegExp set to 1.
-///                         
+///
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
 ///                         It allows the combination of this framework with continuous integration
 ///                         servers like Atlassian Bamboo.
-///                         
+///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
 ///                         A TAP compatible file is written at the end of the test run.
 ///                         @verbatim embed:rst:leading-slashes
 ///                             `Test Anything Protocol (TAP) <https://testanything.org>`__
-///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__ 
+///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
@@ -1155,12 +1155,12 @@ End
 /// @param   allowDebug     (optional) default disabled, enabled when set to 1: @n
 ///                         The Igor debugger will be left in its current state when running the
 ///                         tests.
-///                         
+///
 /// @param   keepDataFolder (optional) default disabled, enabled when set to 1: @n
 ///                         The temporary data folder wherein each test case is executed is not
 ///                         removed at the end of the test case. This allows to review the
 ///                         produced data.
-///                         
+///
 /// @return                 total number of errors
 Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, keepDataFolder])
 	string procWinList, name, testCase
