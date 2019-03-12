@@ -570,7 +570,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable mode, tol
 
 	variable i
-	string str
+	string str, detailedMsg
 
 	incrAssert()
 
@@ -642,7 +642,30 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		// handle NaN return values from EqualWaves for unknown modes
 		result = EqualWaves(wv1, wv2, mode, tol) == 1
 
+		detailedMsg = ""
+
+		// work around buggy EqualWaves versions which detect some
+		// waves as differing but they are not in reality
+		if(!result && mode == DIMENSION_LABELS)
+#if IgorVersion() >= 9.0
+			GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#elif IgorVersion() >= 8.0
+#if NumberByKey("BUILD", IgorInfo(0)) >= 33425
+			GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#else // old IP8
+			result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+#else // IP7 and older
+			result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+		endif
+
 		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
+
+		if(strlen(detailedMsg) > 0)
+			str += "; detailed: " + detailedMsg
+		endif
+
 		SetTestStatusAndDebug(str, result)
 
 		if(!result)
