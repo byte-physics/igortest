@@ -569,6 +569,9 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable flags
 	variable mode, tol
 
+	variable i
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -633,14 +636,12 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		tol = 0.0
 	endif
 
-	variable i
 	for(i = 0; i < DimSize(modes, 0); i += 1)
 		mode = modes[i]
 
 		// handle NaN return values from EqualWaves for unknown modes
 		result = EqualWaves(wv1, wv2, mode, tol) == 1
 
-		string str
 		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
 		SetTestStatusAndDebug(str, result)
 
