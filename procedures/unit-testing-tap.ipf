@@ -1,6 +1,6 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3		// Use modern global access method and strict wave access.
-#pragma version=1.07
+#pragma version=1.08
 
 // Licensed under 3-Clause BSD, see License.txt
 
