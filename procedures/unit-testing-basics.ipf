@@ -1127,7 +1127,7 @@ End
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
 ///                         It allows the combination of this framework with continuous integration
-///                         servers like Atlassian Bamboo.
+///                         servers like Atlassian Bamboo/GitLab/etc.
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
 ///                         A TAP compatible file is written at the end of the test run.
