@@ -14,28 +14,28 @@ build-docker:
 # start a docker container and run sphinx-autobuild in it.
 # Function is considered for dev purpose at writing the rsf files.
 shell: build-docker
-	docker run --rm -it ${LINKDIR} ${LATEST} /bin/bash
+	docker run --rm -t ${LINKDIR} ${LATEST} /bin/bash
 
 # starts sphix autobuild for dev purposes
 docker-autobuild: build-docker
-	docker run --rm -it -p 8000:8000 ${LINKDIR} ${LATEST} /bin/bash -c \
+	docker run --rm -t -p 8000:8000 ${LINKDIR} ${LATEST} /bin/bash -c \
 		'make -C "${DOCKER_TOP_LEVEL}/docu/sphinx" autobuild'
 
 # echo basic requirements for current container.
 # this will also assure that the container is built correctly.
 requirements: build-docker
 	@echo "checking container:"
-	@docker run -it --rm ${LATEST} /bin/bash -c '\
+	@docker run -t --rm ${LATEST} /bin/bash -c '\
 		echo -n "doxygen version: " && doxygen --version && \
 		gawk --version | head -n 1 && \
 		git --version && \
 		tex --version | head -n 1'
 
 sphinx: requirements
-	docker run -it --rm ${LINKDIR} ${LATEST} /bin/bash /var/igor-unit-testing-framework/docu/scripts/docu-sphinx.sh
+	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash /var/igor-unit-testing-framework/docu/scripts/docu-sphinx.sh
 
 sphinx-debug: requirements
-	docker run -it --rm ${LINKDIR} ${LATEST} /bin/bash -c \
+	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash -c \
 		'make -C "${DOCKER_TOP_LEVEL}/docu/sphinx" debug'
 links:
 	@stat "${LOCAL_TOP_LEVEL}/docu/sphinx/build/html/index.html"
