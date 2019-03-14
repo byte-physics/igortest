@@ -7,4 +7,4 @@ build:
 	@docker build -t ${LATEST} .
 
 shell:
-	docker run --rm -it ${LATEST} /bin/bash
+	docker run --rm -t ${LATEST} /bin/bash

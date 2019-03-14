@@ -9,17 +9,17 @@ build-docker:
 	docker build -t ${LATEST} .
 
 shell: build-docker
-	docker run --rm -it ${LINKDIR} ${LATEST} /bin/bash
+	docker run --rm -t ${LINKDIR} ${LATEST} /bin/bash
 
 requirements: build-docker
 	@echo "checking docker image:"
-	@docker run -it --rm ${LATEST} /bin/bash -c '\
+	@docker run -t --rm ${LATEST} /bin/bash -c '\
 		echo -n "doxygen version: " && doxygen --version && \
 		gawk --version | head -n 1 && \
 		git --version'
 
 doxygen: requirements
-	docker run -it --rm ${LINKDIR} ${LATEST} /var/igor-unit-testing-framework/docu/scripts/docu-doxygen.sh
+	docker run -t --rm ${LINKDIR} ${LATEST} /var/igor-unit-testing-framework/docu/scripts/docu-doxygen.sh
 
 links:
 	@stat "${TOP_LEVEL}/docu/doxygen/html/index.html"
