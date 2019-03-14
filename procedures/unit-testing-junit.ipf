@@ -314,6 +314,20 @@ Function JU_TestBegin(s)
 	s.testSuiteOut = ""
 End
 
+/// Add a EOL ('\r') after every element of a `;` separated list.
+/// Intended for better readability.
+static Function/S JU_NicifyList(list)
+	string list
+
+	list = RemoveEnding(list, ";")
+
+	if(strlen(list) == 0)
+		return list
+	endif
+
+	return ReplaceString(";", list, ";\r")
+End
+
 /// Prepares JUNIT Test Suite structure for a new Test Suite
 Function JU_TestSuiteBegin(s, name, procWin)
 	STRUCT JU_Props& s
@@ -340,10 +354,10 @@ Function JU_TestSuiteBegin(s, name, procWin)
 	s.juTSProp.propNameList = ""
 	s.juTSProp.propValueList = ""
 	s.testCaseListOut = ""
-	JU_AddTSProp(s.juTSProp, "IgorInfo", IgorInfo(0))
+	JU_AddTSProp(s.juTSProp, "IgorInfo", JU_NicifyList(IgorInfo(0)))
 	JU_AddTSProp(s.juTSProp, "UTFversion", GetVersion())
 	JU_AddTSProp(s.juTSProp, "Experiment", IgorInfo(1))
-	JU_AddTSProp(s.juTSProp, "System", IgorInfo(3))
+	JU_AddTSProp(s.juTSProp, "System", JU_NicifyList(IgorInfo(3)))
 #if (IgorVersion() >= 7.00)
 	strswitch(IgorInfo(2))
 		case "Windows":
