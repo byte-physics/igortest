@@ -314,7 +314,7 @@ Function JU_TestBegin(s)
 	s.testSuiteOut = ""
 End
 
-/// Add a EOL ('\r') after every element of a `;` separated list.
+/// Add a EOL (`\r`) after every element of a `;` separated list.
 /// Intended for better readability.
 static Function/S JU_NicifyList(list)
 	string list
