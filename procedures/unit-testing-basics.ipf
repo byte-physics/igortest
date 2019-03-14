@@ -1127,7 +1127,9 @@ End
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
 ///                         It allows the combination of this framework with continuous integration
-///                         servers like Atlassian Bamboo.
+///                         servers like Atlassian Bamboo/GitLab/etc.
+///
+///                         Can not be combined with enableTAP.
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
 ///                         A TAP compatible file is written at the end of the test run.
@@ -1135,6 +1137,8 @@ End
 ///                             `Test Anything Protocol (TAP) <https://testanything.org>`__
 ///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
+///
+///                         Can not be combined with enableJU.
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
 ///                         The input for test suites (procWinList) and test cases (testCase) is
@@ -1190,9 +1194,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
 	allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 	keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+
+	if(enableTAP && juProps.enableJU)
+		printf "Error: enableTAP and enableJU can not be both true.\r"
+		return NaN
+	endif
+
 	if(ParamIsDefault(name))
 		name = "Unnamed"
 	endif
+
 	if(ParamIsDefault(testCase))
 		testCase = ".*"
 		enableRegExpTC = 1
