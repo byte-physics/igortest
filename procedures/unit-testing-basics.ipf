@@ -15,6 +15,8 @@ static Constant TC_NOT_FOUND     = 0x08
 static Constant TC_LIST_EMPTY    = 0x10
 static Constant GREPLIST_ERROR   = 0x20
 
+static Constant IGOR_MAX_DIMENSIONS = 4
+
 /// @name Constants for ExecuteHooks
 /// @anchor HookTypes
 /// @{
@@ -28,6 +30,95 @@ static Constant TEST_CASE_END_CONST    = 0x20
 
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
+
+/// @brief Return a free text wave with the dimension labels of the
+///        given dimension of the wave
+static Function/WAVE GetDimLabels(wv, dim)
+	WAVE/Z wv
+	variable dim
+
+	variable size
+
+	if(!WaveExists(wv))
+		return $""
+	endif
+
+	size = DimSize(wv, dim)
+
+	if(size == 0)
+		return $""
+	endif
+
+	Make/FREE/T/N=(size) labels = GetDimLabel(wv, dim, p)
+
+	return labels
+End
+
+/// @brief Create a diagnostic message of the differing dimension labels
+///
+/// @param[in] wv1  Possible non-existing wave
+/// @param[in] wv2  Possible non-existing wave
+/// @param[out] str Diagnostic message indicating the deviations, empty string on success
+///
+/// @return 1 with no differences, 0 with differences
+Function GenerateDimLabelDifference(wv1, wv2, msg)
+	WAVE/Z wv1, wv2
+	string &msg
+
+	variable i, j, numEntries
+	string str1, str2
+	variable ret
+
+	msg = ""
+
+	for(i = 0; i < IGOR_MAX_DIMENSIONS; i += 1)
+
+		WAVE/T/Z label1 = GetDimLabels(wv1, i)
+		WAVE/T/Z label2 = GetDimLabels(wv2, i)
+
+		if(!WaveExists(label1) && !WaveExists(label2))
+			break
+		endif
+
+		if(!WaveExists(label1))
+			sprintf msg, "Empty dimension vs non-empty dimension"
+			return 0
+		elseif(!WaveExists(label2))
+			sprintf msg, "Non-empty dimension vs empty dimension"
+			return 0
+		else
+			 // both exist but differ
+			str1 = GetDimLabel(wv1, i, -1)
+			str2 = GetDimLabel(wv2, i, -1)
+
+			if(cmpstr(str1, str2))
+				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, str1, str2
+				return 0
+			endif
+
+			if(EqualWaves(label1, label2, WAVE_DATA))
+				continue
+			endif
+
+			if(DimSize(label1, i) != DimSize(label2, i))
+				sprintf msg, "The sizes for dimension %d don't match: %d vs %d", i, DimSize(label1, i), DimSize(label2, i)
+				return 0
+			endif
+
+			numEntries = DimSize(label1, i)
+			for(j = 0; j < numEntries; j += 1)
+				if(!cmpstr(label1[j], label2[j]))
+					continue
+				endif
+
+				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, label1[j], label2[j]
+				return 0
+			endfor
+		endif
+	endfor
+
+	return 1
+End
 
 Function/S GetVersion()
 	string version

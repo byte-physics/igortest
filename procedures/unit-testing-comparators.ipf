@@ -569,6 +569,9 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable flags
 	variable mode, tol
 
+	variable i
+	string str, detailedMsg
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -624,21 +627,45 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	if(ParamIsDefault(mode))
-		Make/U/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+		Make/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
 	else
-		Make/U/I/FREE modes = { mode }
+		Make/I/FREE modes = { mode }
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = 0.0
 	endif
 
-	variable i
 	for(i = 0; i < DimSize(modes, 0); i += 1)
 		mode = modes[i]
-		result = EqualWaves(wv1, wv2, mode, tol)
-		string str
+
+		// handle NaN return values from EqualWaves for unknown modes
+		result = EqualWaves(wv1, wv2, mode, tol) == 1
+
+		detailedMsg = ""
+
+		// work around buggy EqualWaves versions which detect some
+		// waves as differing but they are not in reality
+		if(!result && mode == DIMENSION_LABELS)
+#if IgorVersion() >= 9.0
+			GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#elif IgorVersion() >= 8.0
+#if NumberByKey("BUILD", IgorInfo(0)) >= 33425
+			GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#else // old IP8
+			result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+#else // IP7 and older
+			result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+		endif
+
 		sprintf str, "Assuming equality using mode %03d for waves %s and %s", mode, NameOfWave(wv1), NameOfWave(wv2)
+
+		if(strlen(detailedMsg) > 0)
+			str += "; detailed: " + detailedMsg
+		endif
+
 		SetTestStatusAndDebug(str, result)
 
 		if(!result)
