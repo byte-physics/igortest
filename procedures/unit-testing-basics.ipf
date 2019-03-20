@@ -1174,9 +1174,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE
-				TestCaseEnd(name, param)
-				JU_TestCaseEnd(juProps, name, procWin)
-				TAP_TestCaseEnd()
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -1184,8 +1181,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
 
 				userHook(name); AbortOnRTE
-				TestSuiteEnd(name)
-				JU_TestSuiteEnd(juProps)
 				break
 			case TEST_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -1193,8 +1188,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
 
 				userHook(name); AbortOnRTE
-				TestEnd(name, param)
-				JU_WriteOutput(juProps)
 				break
 			default:
 				Abort "Unknown hookType"
@@ -1209,6 +1202,25 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 		setAbortFlag()
 		incrError()
 	endtry
+
+	switch(hookType)
+		case TEST_CASE_END_CONST:
+			TestCaseEnd(name, param)
+			JU_TestCaseEnd(juProps, name, procWin)
+			TAP_TestCaseEnd()
+			break
+		case TEST_SUITE_END_CONST:
+			TestSuiteEnd(name)
+			JU_TestSuiteEnd(juProps)
+			break
+		case TEST_END_CONST:
+			TestEnd(name, param)
+			JU_WriteOutput(juProps)
+			break
+		default:
+			// do nothing
+			break
+	endswitch
 End
 
 ///@endcond // HIDDEN_SYMBOL
