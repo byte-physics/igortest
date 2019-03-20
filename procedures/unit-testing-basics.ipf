@@ -31,6 +31,27 @@ static Constant TEST_CASE_END_CONST    = 0x20
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
 
+/// @brief Helper function for try/catch with AbortOnRTE
+///
+/// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
+/// matter what you do in that line.
+///
+/// Usage:
+/// @code
+///
+///    try
+///       ClearRTError()
+///       myFunc(); AbortOnRTE
+///    catch
+///      err = GetRTError(1)
+///    endtry
+///
+/// @endcode
+static Function ClearRTError()
+
+	variable err = GetRTError(1)
+End
+
 /// @brief Return a free text wave with the dimension labels of the
 ///        given dimension of the wave
 static Function/WAVE GetDimLabels(wv, dim)
@@ -919,6 +940,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 
 			if(enableRegExp)
 				try
+					ClearRTError()
 					testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
 				catch
 					testCaseMatch = ""
@@ -1055,6 +1077,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		if(enableRegExp)
 			procWin = "^(?i)" + procWin + "$"
 			try
+				ClearRTError()
 				procWinMatch = GrepList(allProcWindows, procWin, 0, ";"); AbortOnRTE
 			catch
 				procWinMatch = ""
@@ -1115,6 +1138,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 	string errorMessage, hookName
 
 	try
+		ClearRTError()
 		switch(hookType)
 			case TEST_BEGIN_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -1386,6 +1410,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, juProps, fullFuncName, procWin)
 
 				try
+					ClearRTError()
 					TestCaseFunc(); AbortOnRTE
 				catch
 					// only complain here if the error counter if the abort happened not in our code
