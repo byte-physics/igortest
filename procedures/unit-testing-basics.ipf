@@ -31,6 +31,29 @@ static Constant TEST_CASE_END_CONST    = 0x20
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
 
+static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
+
+/// @brief Helper function for try/catch with AbortOnRTE
+///
+/// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
+/// matter what you do in that line.
+///
+/// Usage:
+/// @code
+///
+///    try
+///       ClearRTError()
+///       myFunc(); AbortOnRTE
+///    catch
+///      err = GetRTError(1)
+///    endtry
+///
+/// @endcode
+static Function ClearRTError()
+
+	variable err = GetRTError(1)
+End
+
 /// @brief Return a free text wave with the dimension labels of the
 ///        given dimension of the wave
 static Function/WAVE GetDimLabels(wv, dim)
@@ -919,6 +942,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 
 			if(enableRegExp)
 				try
+					ClearRTError()
 					testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
 				catch
 					testCaseMatch = ""
@@ -1055,6 +1079,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		if(enableRegExp)
 			procWin = "^(?i)" + procWin + "$"
 			try
+				ClearRTError()
 				procWinMatch = GrepList(allProcWindows, procWin, 0, ";"); AbortOnRTE
 			catch
 				procWinMatch = ""
@@ -1115,6 +1140,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 	string errorMessage, hookName
 
 	try
+		ClearRTError()
 		switch(hookType)
 			case TEST_BEGIN_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -1150,9 +1176,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE
-				TestCaseEnd(name, param)
-				JU_TestCaseEnd(juProps, name, procWin)
-				TAP_TestCaseEnd()
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -1160,8 +1183,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
 
 				userHook(name); AbortOnRTE
-				TestSuiteEnd(name)
-				JU_TestSuiteEnd(juProps)
 				break
 			case TEST_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -1169,8 +1190,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
 
 				userHook(name); AbortOnRTE
-				TestEnd(name, param)
-				JU_WriteOutput(juProps)
 				break
 			default:
 				Abort "Unknown hookType"
@@ -1185,6 +1204,25 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 		setAbortFlag()
 		incrError()
 	endtry
+
+	switch(hookType)
+		case TEST_CASE_END_CONST:
+			TestCaseEnd(name, param)
+			JU_TestCaseEnd(juProps, name, procWin)
+			TAP_TestCaseEnd()
+			break
+		case TEST_SUITE_END_CONST:
+			TestSuiteEnd(name)
+			JU_TestSuiteEnd(juProps)
+			break
+		case TEST_END_CONST:
+			TestEnd(name, param)
+			JU_WriteOutput(juProps)
+			break
+		default:
+			// do nothing
+			break
+	endswitch
 End
 
 ///@endcond // HIDDEN_SYMBOL
@@ -1330,7 +1368,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 	getGlobalHooks(hooks)
 
-	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
+	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
@@ -1343,7 +1381,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		if(TAP_CheckAllSkip(allTestCasesList))
 			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param=allowDebug)
+			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param=allowDebug)
 			Abort
 		else
 			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
@@ -1386,6 +1424,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, juProps, fullFuncName, procWin)
 
 				try
+					ClearRTError()
 					TestCaseFunc(); AbortOnRTE
 				catch
 					// only complain here if the error counter if the abort happened not in our code
@@ -1402,7 +1441,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
 
-						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
+						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param = allowDebug)
 						return global_error_count
 					endif
 				endtry
