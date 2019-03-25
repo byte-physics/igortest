@@ -6,6 +6,7 @@ variables:
 
 stages:
   - build
+  - deploy
 
 documentation:
   tags:
@@ -18,3 +19,15 @@ documentation:
     paths:
       - docu/manual.pdf
       - docu/sphinx/build/html
+
+deployment:
+  only:
+    - master
+  tags:
+    - macosx
+  stage: deploy
+  script:
+    - cd docu/sphinx
+    - make deploy
+  dependencies:
+    - documentation
