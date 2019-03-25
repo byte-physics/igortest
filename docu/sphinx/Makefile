@@ -25,7 +25,7 @@ debug:
 		-b pseudoxml # -W
 
 deploy:
-	@lftp -e "mirror --reverse -n -e build/html /www/doc/igor-unit-testing-framework; bye" byte-physics
+	@lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" byte-physics-docs
 
 .PHONY: help Makefile
 
