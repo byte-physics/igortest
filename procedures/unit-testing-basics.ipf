@@ -580,7 +580,7 @@ static Function getLocalHooks(hooks, procName)
 End
 
 /// Returns the full name of a function including its module
-/// @param   &err	returns 0 for no error, 1 if function not found, 2 is static function in proc without ModuleName
+/// @param &err returns 0 for no error, 1 if function not found, 2 is static function in proc without ModuleName
 static Function/S getFullFunctionName(err, funcName, procName)
 	variable &err
 	string funcName, procName

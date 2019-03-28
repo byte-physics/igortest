@@ -102,11 +102,11 @@ static Function/S JU_ToXMLToken(str)
 End
 
 /// entity references
-/// &lt; 	< 	less than
-/// &gt; 	> 	greater than
-/// &amp; 	& 	ampersand
-/// &apos; 	' 	apostrophe
-/// &quot; 	" 	quotation mark
+/// &lt;    <  less than
+/// &gt;    >  greater than
+/// &amp;   &  ampersand
+/// &apos;  '  apostrophe
+/// &quot;  "  quotation mark
 /// XML: Escape Entity Replacer for strings
 static Function/S JU_ToXMLCharacters(str)
 	string str
