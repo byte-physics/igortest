@@ -21,8 +21,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
 		texlive-latex-recommended && \
 	apt-get clean
 RUN pip install \
-	'breathe==4.10.0' \
-	'sphinx==1.7.5' \
+	'breathe==4.12.0' \
+	'sphinx==1.8.5' \
 	sphinx-autobuild \
 	sphinxcontrib-fulltoc
 
