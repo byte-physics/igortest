@@ -41,7 +41,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	string file, pathName, type, creator
 
 	string funcList, cmd
-	variable autorunMode
+	variable autorunMode, err
 
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
@@ -54,17 +54,24 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		return 0
 	endif
 
-	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[ProcGlobal]")
-	if(ItemsInList(funcList) != 1)
-		Abort "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context"
-	endif
-
 	if(autorunMode == AUTORUN_FULL)
 		CreateHistoryLog()
 	endif
 
-	FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
-	f()
+	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[ProcGlobal]")
+	if(ItemsInList(funcList) == 1)
+		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
+
+		try
+			err = GetRTError(1)
+			f(); AbortOnRTE
+		catch
+			err = GetRTError(1)
+			print "The run() function aborted with an RTE and this can not be handled."
+		endtry
+	else
+		print "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context."
+	endif
 
 	if(autorunMode == AUTORUN_FULL)
 		sprintf cmd, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
