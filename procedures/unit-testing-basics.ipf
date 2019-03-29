@@ -1257,7 +1257,6 @@ End
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
 ///                         It allows the combination of this framework with continuous integration
 ///                         servers like Atlassian Bamboo/GitLab/etc.
-///
 ///                         Can not be combined with enableTAP.
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
@@ -1266,7 +1265,6 @@ End
 ///                             `Test Anything Protocol (TAP) <https://testanything.org>`__
 ///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
-///
 ///                         Can not be combined with enableJU.
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
