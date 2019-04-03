@@ -62,13 +62,17 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	if(ItemsInList(funcList) == 1)
 		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
-		try
-			err = GetRTError(1)
-			f(); AbortOnRTE
-		catch
-			err = GetRTError(1)
-			print "The run() function aborted with an RTE and this can not be handled."
-		endtry
+		if(UTF_FuncRefIsAssigned(FuncRefInfo(f)))
+			try
+				err = GetRTError(1)
+				f(); AbortOnRTE
+			catch
+				err = GetRTError(1)
+				print "The run() function aborted with an RTE and this can not be handled."
+			endtry
+		else
+			print "The run() function has an invalid signature."
+		endif
 	else
 		print "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context."
 	endif
