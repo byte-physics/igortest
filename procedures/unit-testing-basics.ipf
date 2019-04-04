@@ -54,6 +54,19 @@ static Function ClearRTError()
 	variable err = GetRTError(1)
 End
 
+/// @brief Check wether the function reference points to
+/// the prototype function or to an assigned function
+///
+/// Due to Igor Pro limitations you need to pass the function
+/// info from `FuncRefInfo` and not the function reference itself.
+///
+/// @return 0 if pointing to prototype function, 1 otherwise
+Function UTF_FuncRefIsAssigned(funcInfo)
+	string funcInfo
+
+	return NumberByKey("ISPROTO", funcInfo) == 0
+End
+
 /// @brief Return a free text wave with the dimension labels of the
 ///        given dimension of the wave
 static Function/WAVE GetDimLabels(wv, dim)
