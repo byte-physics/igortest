@@ -5,5 +5,5 @@
 
 Function run()
 
-	RunTest("example6-automatic-invocation.ipf")
+	RunTest("example6-automatic-invocation.ipf", enableJU=1)
 End

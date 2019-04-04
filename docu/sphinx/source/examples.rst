@@ -246,6 +246,10 @@ on :ref:`automate`.
    :caption: example6-runner.ipf
    :name: example6-code-2
 
+In this example, the automatic invocation of the Unit Testing Framework is also
+producing `JUNIT Output`_. This allows the framework to be used in automated
+CI/CD Pipelines.
+
 .. note::
 
    The definition for the :doc:`assertion <assertions>` in this test suite:
