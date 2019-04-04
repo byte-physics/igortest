@@ -56,6 +56,31 @@ Structure JU_Props
 	string testSuiteOut, testCaseListOut
 EndStructure
 
+/// @brief initialize all strings in JU_Props structure to be non \<null\>
+Function InitJUProp(s)
+	STRUCT JU_Props &s
+
+	s.testCaseList = ""
+	s.juTSProp.propNameList = ""
+	s.juTSProp.propValueList = ""
+	s.juTC.name = ""
+	s.juTC.className = ""
+	s.juTC.status = ""
+	s.juTC.message = ""
+	s.juTC.type = ""
+	s.juTC.systemErr = ""
+	s.juTC.systemOut = ""
+	s.juTC.history = ""
+	s.juTS.package = ""
+	s.juTS.name = ""
+	s.juTS.timestamp = ""
+	s.juTS.hostname = ""
+	s.juTS.systemErr = ""
+	s.juTS.systemOut = ""
+	s.testSuiteOut = ""
+	s.testCaseListOut = ""
+End
+
 #if (IgorVersion() >= 7.0)
 #else
 /// trimstring function for Igor 6

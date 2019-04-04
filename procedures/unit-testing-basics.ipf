@@ -33,6 +33,10 @@ static Constant USER_HOOK_TYPE = 0x02
 
 static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
 
+static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
+static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
+static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
+
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
 /// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
@@ -896,7 +900,10 @@ End
 /// Returns List of Test Functions in Procedure Window procWin
 static Function/S getTestCaseList(procWin)
 	string procWin
-	return (FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin))
+
+	string fList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin)
+	fList = GrepList(fList,PROCNAME_NOT_REENTRY)
+	return fList
 End
 
 /// @brief get test cases matching a certain pattern
@@ -1238,7 +1245,459 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 	endswitch
 End
 
+/// @brief Background monitor of the Unit Testing Framework
+Function UTFBackgroundMonitor(s)
+	STRUCT WMBackgroundStruct &s
+
+	variable i, numTasks, result, stopState
+	string task
+
+	DFREF df = GetPackageFolder()
+	SVAR/Z tList = df:BCKG_TaskList
+	SVAR/Z rFunc = df:BCKG_ReentryFunc
+	NVAR/Z timeout = df:BCKG_EndTime
+	NVAR/Z mode = df:BCKG_Mode
+
+	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout))
+		print "Fatal: UTFBackgroundMonitor can not find monitoring data in package DF, aborting monitoring."
+		ClearReentrytoUTF()
+		QuitOnAutoRunFull()
+		return 2
+	endif
+
+	if(mode == BACKGROUNDMONMODE_OR)
+		result = 0
+	elseif(mode == BACKGROUNDMONMODE_AND)
+		result = 1
+	else
+		print "Fatal: Unknown mode set for background monitor"
+		ClearReentrytoUTF()
+		QuitOnAutoRunFull()
+		return 2
+	endif
+
+	if(timeout && datetime > timeout)
+		print "UTF background monitor has reached the timeout for reentry"
+		RunTest(BACKGROUNDINFOSTR)
+		return 0
+	endif
+
+	numTasks = ItemsInList(tList)
+	for(i = 0; i < numTasks; i += 1)
+		task = StringFromList(i, tList)
+		CtrlNamedBackground $task, status
+		stopState = !NumberByKey("RUN", S_Info)
+		if(mode == BACKGROUNDMONMODE_OR)
+			result = result | stopState
+		elseif(mode == BACKGROUNDMONMODE_AND)
+			result = result & stopState
+		endif
+	endfor
+
+	if(result)
+		RunTest(BACKGROUNDINFOSTR)
+	endif
+
+	return 0
+End
+
+/// @brief Clear the glboal reentry flag, removes any saved RunTest state and stops the UTF monitoring task
+static Function ClearReentrytoUTF()
+
+	ResetBckgRegistered()
+	KillDataFolder/Z $PKG_FOLDER_SAVE
+	CtrlNamedBackground $BACKGROUNDMONTASK, stop
+End
+
+/// @brief Stores the state of TestHook structure to DF dfr with key as template
+static Function StoreHooks(dfr, s, key)
+	DFREF dfr
+	STRUCT TestHooks &s
+	string key
+
+	key = "S" + key
+	string/G dfr:$(key + "testBegin") = s.testBegin
+	string/G dfr:$(key + "testEnd") = s.testEnd
+	string/G dfr:$(key + "testSuiteBegin") = s.testSuiteBegin
+	string/G dfr:$(key + "testSuiteEnd") = s.testSuiteEnd
+	string/G dfr:$(key + "testCaseBegin") = s.testCaseBegin
+	string/G dfr:$(key + "testCaseEnd") = s.testCaseEnd
+End
+
+/// @brief Restores the state of TestHook structure from DF dfr with key as template
+static Function RestoreHooks(dfr, s, key)
+	DFREF dfr
+	STRUCT TestHooks &s
+	string key
+
+	key = "S" + key
+	SVAR testBegin = dfr:$(key + "testBegin")
+	SVAR testEnd = dfr:$(key + "testEnd")
+	SVAR testSuiteBegin = dfr:$(key + "testSuiteBegin")
+	SVAR testSuiteEnd = dfr:$(key + "testSuiteEnd")
+	SVAR testCaseBegin = dfr:$(key + "testCaseBegin")
+	SVAR testCaseEnd = dfr:$(key + "testCaseEnd")
+	s.testBegin = testBegin
+	s.testEnd = testEnd
+	s.testSuiteBegin = testSuiteBegin
+	s.testSuiteEnd = testSuiteEnd
+	s.testCaseBegin = testCaseBegin
+	s.testCaseEnd = testCaseEnd
+End
+
+/// @brief Saves the variable state of RunTest from a strRunTest structure to a dfr
+static Function SaveState(dfr, s)
+	DFREF dfr
+	STRUCT strRunTest &s
+
+	// save all local vars
+	string/G dfr:SprocWinList = s.procWinList
+	string/G dfr:Sname = s.name
+	string/G dfr:StestCase = s.testCase
+	variable/G dfr:SenableJU = s.enableJU
+	variable/G dfr:SenableTAP = s.enableTAP
+	variable/G dfr:SenableRegExp = s.enableRegExp
+	variable/G dfr:SallowDebug = s.allowDebug
+	variable/G dfr:SkeepDataFolder = s.keepDataFolder
+	string/G dfr:SprocWin = s.procWin
+	string/G dfr:StestCaseList = s.testCaseList
+	string/G dfr:SallTestCasesList = s.allTestCasesList
+	string/G dfr:SfullFuncName = s.fullFuncName
+	variable/G dfr:SnumItemsPW = s.numItemsPW
+	variable/G dfr:SnumItemsTC = s.numItemsTC
+	variable/G dfr:SnumItemsFFN = s.numItemsFFN
+	variable/G dfr:Stap_skipCase = s.tap_skipCase
+	variable/G dfr:Stap_caseCount = s.tap_caseCount
+	variable/G dfr:SenableRegExpTC = s.enableRegExpTC
+	variable/G dfr:SenableRegExpTS = s.enableRegExpTS
+	variable/G dfr:Si = s.i
+	variable/G dfr:Sj = s.j
+	variable/G dfr:Serr = s.err
+	StoreHooks(dfr, s.hooks, "TH")
+	StoreHooks(dfr, s.procHooks, "PH")
+
+	variable/G dfr:SJUPenableJU = s.juProps.enableJU
+	string/G dfr:SJUPtestCaseList = s.juProps.testCaseList
+
+	string/G dfr:SJUPSPpropNameList = s.juProps.juTSProp.propNameList
+	string/G dfr:SJUPSPpropValueList = s.juProps.juTSProp.propValueList
+
+	string/G dfr:SJUPTCname = s.juProps.juTC.name
+	string/G dfr:SJUPTCclassName = s.juProps.juTC.className
+	variable/G dfr:SJUPTCtimeTaken = s.juProps.juTC.timeTaken
+	variable/G dfr:SJUPTCassertions = s.juProps.juTC.assertions
+	string/G dfr:SJUPTCstatus = s.juProps.juTC.status
+	string/G dfr:SJUPTCmessage = s.juProps.juTC.message
+	string/G dfr:SJUPTCtype = s.juProps.juTC.type
+	string/G dfr:SJUPTCsystemErr = s.juProps.juTC.systemErr
+	string/G dfr:SJUPTCsystemOut = s.juProps.juTC.systemOut
+	variable/G dfr:SJUPTCtimeStart = s.juProps.juTC.timeStart
+	variable/G dfr:SJUPTCerror_count = s.juProps.juTC.error_count
+	string/G dfr:SJUPTChistory = s.juProps.juTC.history
+	variable/G dfr:SJUPTCtestResult = s.juProps.juTC.testResult
+
+	string/G dfr:SJUPTSpackage = s.juProps.juTS.package
+	variable/G dfr:SJUPTSid = s.juProps.juTS.id
+	string/G dfr:SJUPTSname = s.juProps.juTS.name
+	string/G dfr:SJUPTStimestamp = s.juProps.juTS.timestamp
+	string/G dfr:SJUPTShostname = s.juProps.juTS.hostname
+	variable/G dfr:SJUPTStests = s.juProps.juTS.tests
+	variable/G dfr:SJUPTSfailures = s.juProps.juTS.failures
+	variable/G dfr:SJUPTSerrors = s.juProps.juTS.errors
+	variable/G dfr:SJUPTSskipped = s.juProps.juTS.skipped
+	variable/G dfr:SJUPTSdisabled = s.juProps.juTS.disabled
+	variable/G dfr:SJUPTStimeTaken = s.juProps.juTS.timeTaken
+	string/G dfr:SJUPTSsystemErr = s.juProps.juTS.systemErr
+	string/G dfr:SJUPTSsystemOut = s.juProps.juTS.systemOut
+	variable/G dfr:SJUPTStimeStart = s.juProps.juTS.timeStart
+
+	variable/G dfr:SJUPtestSuiteNumber = s.juProps.testSuiteNumber
+	string/G dfr:SJUPtestSuiteOut = s.juProps.testSuiteOut
+	string/G dfr:SJUPtestCaseListOut = s.juProps.testCaseListOut
+End
+
+/// @brief Restores the variable state of RunTest from dfr to a strRunTest structure
+static Function RestoreState(dfr, s)
+	DFREF dfr
+	STRUCT strRunTest &s
+
+	SVAR str = dfr:SprocWinList
+	s.procWinList = str
+	SVAR str = dfr:Sname
+	s.name = str
+	SVAR str = dfr:StestCase
+	s.testCase = str
+	NVAR var = dfr:SenableJU
+	s.enableJU = var
+	NVAR var = dfr:SenableTAP
+	s.enableTAP = var
+	NVAR var = dfr:SenableRegExp
+	s.enableRegExp = var
+	NVAR var = dfr:SallowDebug
+	s.allowDebug = var
+	NVAR var = dfr:SkeepDataFolder
+	s.keepDataFolder = var
+	SVAR str = dfr:SprocWin
+	s.procWin = str
+	SVAR str = dfr:StestCaseList
+	s.testCaseList = str
+	SVAR str = dfr:SallTestCasesList
+	s.allTestCasesList = str
+	SVAR str = dfr:SfullFuncName
+	s.fullFuncName = str
+	NVAR var = dfr:SnumItemsPW
+	s.numItemsPW = var
+	NVAR var = dfr:SnumItemsTC
+	s.numItemsTC = var
+	NVAR var = dfr:SnumItemsFFN
+	s.numItemsFFN = var
+	NVAR var = dfr:Stap_skipCase
+	s.tap_skipCase = var
+	NVAR var = dfr:Stap_caseCount
+	s.tap_caseCount = var
+	NVAR var = dfr:SenableRegExpTC
+	s.enableRegExpTC = var
+	NVAR var = dfr:SenableRegExpTS
+	s.enableRegExpTS = var
+	NVAR var = dfr:Si
+	s.i = var
+	NVAR var = dfr:Sj
+	s.j = var
+	NVAR var = dfr:Serr
+	s.err = var
+
+	RestoreHooks(dfr, s.hooks, "TH")
+	RestoreHooks(dfr, s.procHooks, "PH")
+
+	NVAR var = dfr:SJUPenableJU
+	s.juProps.enableJU = var
+	SVAR str = dfr:SJUPtestCaseList
+	s.juProps.testCaseList = str
+
+	SVAR str = dfr:SJUPSPpropNameList
+	s.juProps.juTSProp.propNameList = str
+	SVAR str = dfr:SJUPSPpropValueList
+	s.juProps.juTSProp.propValueList = str
+
+	SVAR str = dfr:SJUPTCname
+	s.juProps.juTC.name = str
+	SVAR str = dfr:SJUPTCclassName
+	s.juProps.juTC.className = str
+	NVAR var = dfr:SJUPTCtimeTaken
+	s.juProps.juTC.timeTaken = var
+	NVAR var = dfr:SJUPTCassertions
+	s.juProps.juTC.assertions = var
+	SVAR str = dfr:SJUPTCstatus
+	s.juProps.juTC.status = str
+	SVAR str = dfr:SJUPTCmessage
+	s.juProps.juTC.message = str
+	SVAR str = dfr:SJUPTCtype
+	s.juProps.juTC.type = str
+	SVAR str = dfr:SJUPTCsystemErr
+	s.juProps.juTC.systemErr = str
+	SVAR str = dfr:SJUPTCsystemOut
+	s.juProps.juTC.systemOut = str
+	NVAR var = dfr:SJUPTCtimeStart
+	s.juProps.juTC.timeStart = var
+	NVAR var = dfr:SJUPTCerror_count
+	s.juProps.juTC.error_count = var
+	SVAR str = dfr:SJUPTChistory
+	s.juProps.juTC.history = str
+	NVAR var = dfr:SJUPTCtestResult
+	s.juProps.juTC.testResult = var
+
+	SVAR str = dfr:SJUPTSpackage
+	s.juProps.juTS.package = str
+	NVAR var = dfr:SJUPTSid
+	s.juProps.juTS.id = var
+	SVAR str = dfr:SJUPTSname
+	s.juProps.juTS.name = str
+	SVAR str = dfr:SJUPTStimestamp
+	s.juProps.juTS.timestamp = str
+	SVAR str = dfr:SJUPTShostname
+	s.juProps.juTS.hostname = str
+	NVAR var = dfr:SJUPTStests
+	s.juProps.juTS.tests = var
+	NVAR var = dfr:SJUPTSfailures
+	s.juProps.juTS.failures = var
+	NVAR var = dfr:SJUPTSerrors
+	s.juProps.juTS.errors = var
+	NVAR var = dfr:SJUPTSskipped
+	s.juProps.juTS.skipped = var
+	NVAR var = dfr:SJUPTSdisabled
+	s.juProps.juTS.disabled = var
+	NVAR var = dfr:SJUPTStimeTaken
+	s.juProps.juTS.timeTaken = var
+	SVAR str = dfr:SJUPTSsystemErr
+	s.juProps.juTS.systemErr = str
+	SVAR str = dfr:SJUPTSsystemOut
+	s.juProps.juTS.systemOut = str
+	NVAR var = dfr:SJUPTStimeStart
+	s.juProps.juTS.timeStart = var
+
+	NVAR var = dfr:SJUPtestSuiteNumber
+	s.juProps.testSuiteNumber = var
+	SVAR str = dfr:SJUPtestSuiteOut
+	s.juProps.testSuiteOut = str
+	SVAR str = dfr:SJUPtestCaseListOut
+	s.juProps.testCaseListOut = str
+End
+
+/// @brief initialize all strings in TestHook structure to be non <null>
+static Function InitHooks(s)
+	STRUCT TestHooks &s
+
+	s.testBegin = ""
+	s.testEnd = ""
+	s.testSuiteBegin = ""
+	s.testSuiteEnd = ""
+	s.testCaseBegin = ""
+	s.testCaseEnd = ""
+End
+
+static Function IsBckgRegistered()
+	DFREF dfr = GetPackageFolder()
+	NVAR/Z bckgRegistered = dfr:BCKG_Registered
+	return NVAR_Exists(bckgRegistered) && bckgRegistered == 1
+End
+
+static Function ResetBckgRegistered()
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:BCKG_Registered = 0
+End
+
+
+/// @brief initialize all strings in strRunTest structure to be non <null>
+static Function InitStrRunTest(s)
+	STRUCT strRunTest &s
+
+	s.procWinList = ""
+	s.name = ""
+	s.testCase = ""
+
+	s.procWin = ""
+	s.testCaseList = ""
+	s.allTestCasesList = ""
+	s.fullFuncName = ""
+
+	InitJUProp(s.juProps)
+	InitHooks(s.hooks)
+	InitHooks(s.procHooks)
+End
+
+/// @brief this structure stores all local variables used in RunTest. It is used to store the complete function state.
+static Structure strRunTest
+	string procWinList
+	string name
+	string testCase
+	variable enableJU
+	variable enableTAP
+	variable enableRegExp
+	variable allowDebug
+	variable keepDataFolder
+
+	string procWin
+	string testCaseList
+	string allTestCasesList
+	string fullFuncName
+	variable numItemsPW
+	variable numItemsTC
+	variable numItemsFFN
+	variable tap_skipCase
+	variable tap_caseCount
+	variable enableRegExpTC
+	variable enableRegExpTS
+	STRUCT JU_Props juProps
+	STRUCT TestHooks hooks
+	STRUCT TestHooks procHooks
+	variable i
+	variable j
+	variable err
+EndStructure
 ///@endcond // HIDDEN_SYMBOL
+
+/// @brief Registers a background monitor for a list of other background tasks
+///
+/// @verbatim embed:rst:leading-slashes
+///     .. code-block:: igor
+///        :caption: usage example
+///
+///        RegisterUTFMonitor("TestCaseTask1;TestCaseTask2", BACKGROUNDMONMODE_OR, \
+///                           "testcase_REENTRY", timeout = 60)
+///
+///     This command will register the UTF background monitor task to monitor
+///     the state of `TestCaseTask1` and `TestCaseTask2`. As mode is set to
+///     `BACKGROUNDMONMODE_OR`, when `TestCaseTask1` OR `TestCaseTask2` has
+///     finished the function `testcase_REENTRY()` is called to  continue the
+///     current test case. The reentry function is also called if after 60 seconds
+///     both tasks are still running.
+///
+/// @endverbatim
+///
+/// @param   taskList    A list of background task names that should be monitored by the unit testing framework
+///                      @n The list should be given semicolon (";") separated.
+///
+/// @param   mode        Mode sets how multiple tasks are evaluated. If set to
+///                      `BACKGROUNDMONMODE_AND` all tasks of the list must finish (AND).
+///                      If set to `BACKGROUNDMONMODE_OR` one task of the list must finish (OR).
+///
+/// @param   reentryFunc Name of the function that the unit testing framework calls when the monitored background tasks finished.
+///                      The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
+///                      The reentry function *continues* the current test case therefore no hooks are called.
+///
+/// @param   timeout     (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
+///                      A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
+Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
+	string taskList
+	variable mode
+	string reentryFunc
+	variable timeout
+
+	string procWinList, rFunc
+	variable len
+	DFREF dfr = GetPackageFolder()
+
+	if(ParamIsDefault(timeout))
+		timeout = 0
+	endif
+	timeout = timeout <= 0 ? 0 : datetime + timeout
+
+	len = strlen(tasklist)
+	if(!len || numtype(len) == 2)
+		print "Tasklist is empty."
+		Abort
+	endif
+
+	if(!(mode == BACKGROUNDMONMODE_OR || mode == BACKGROUNDMONMODE_AND))
+		print "Unknown mode set"
+		Abort
+	endif
+
+	if(FindListItem(BACKGROUNDMONTASK, taskList) != -1)
+		print "Igor Unit Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ")."
+		Abort
+	endif
+
+	// check valid reentry function
+	if(GrepString(reentryFunc, PROCNAME_NOT_REENTRY))
+		print "Name of Reentry function must end with _REENTRY"
+		Abort
+	endif
+	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
+	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)))
+		print "Specified reentry procedure has wrong format. The format must be function_REENTRY()."
+		Abort
+	endif
+
+	string/G dfr:BCKG_TaskList = taskList
+	string/G dfr:BCKG_ReentryFunc = reentryFunc
+	variable/G dfr:BCKG_Mode = mode
+
+	variable/G dfr:BCKG_EndTime = timeout
+	variable/G dfr:BCKG_Registered = 1
+
+	CtrlNamedBackground $BACKGROUNDMONTASK, proc=UTFBackgroundMonitor, period=10, start
+End
 
 /// @brief Main function to execute test suites with the unit testing framework.
 ///
@@ -1311,129 +1770,184 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, keepDataFolder
 
-	string procWin
-	string testCaseList
-	string allTestCasesList
-	string FuncName
-	string fullFuncName
-	variable numItemsPW
-	variable numItemsTC
-	variable numItemsFFN
-	variable tap_skipCase
-	variable tap_caseCount
-	variable enableRegExpTC, enableRegExpTS
+	// All variables that are needed to keep the local function state are wrapped in s
+	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
+	STRUCT strRunTest s
+	InitStrRunTest(s)
 	DFREF dfr = GetPackageFolder()
-	STRUCT JU_Props juProps
-	struct TestHooks hooks
-	struct TestHooks procHooks
-	variable i, j, err
 
-	enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
-	enableRegExpTS = enableRegExpTC
-	juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
-	enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
-	allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
-	keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+	// do not save these for reentry
+	variable reentry, tmpVar, i, j
+	string tmpStr
 
-	if(enableTAP && juProps.enableJU)
-		printf "Error: enableTAP and enableJU can not be both true.\r"
-		return NaN
+	reentry = IsBckgRegistered()
+	ResetBckgRegistered()
+	if(reentry)
+
+		// check also if a saved state is existing
+		if(!DataFolderExists(PKG_FOLDER_SAVE))
+			print "No saved test state found, aborting. (Did you RegisterUTFMonitor in an End Hook?)"
+			Abort
+		endif
+	  // check if the reentry call originates from our own background monitor
+		if(CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
+			ClearReentrytoUTF()
+			print "RunTest was called by user after background monitoring was registered. This is not supported."
+			Abort
+		endif
+
+		s.numItemsPW = 1
+
+	else
+
+		// transfer parameters to s. variables
+		s.enableRegExp = enableRegExp
+		s.enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
+		s.enableRegExpTS = s.enableRegExpTC
+		s.juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
+		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
+		s.allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
+		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+
+		if(s.enableTAP && s.juProps.enableJU)
+			printf "Error: enableTAP and enableJU can not be both true.\r"
+			return NaN
+		endif
+
+		if(ParamIsDefault(name))
+			s.name = "Unnamed"
+		else
+			s.name = name
+		endif
+
+		if(ParamIsDefault(testCase))
+			s.testCase = ".*"
+			s.enableRegExpTC = 1
+		else
+			s.testCase = testCase
+		endif
+		s.procWinList = procWinList
+		// below here use only s. variables to keep local state in struct
+		ClearBaseFilename()
+		CreateHistoryLog()
+
+		PathInfo home
+		if(!V_flag)
+			printf "Error: Please Save experiment first.\r"
+			return NaN
+		endif
+
+		s.procWinList = AdaptProcWinList(s.procWinList, s.enableRegExpTS)
+		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
+
+		s.numItemsPW = ItemsInList(s.procWinList)
+		if(s.numItemsPW <= 0)
+			printf "Error: The list of procedure windows is empty or invalid.\r"
+			return NaN
+		endif
+
+		tmpVar = s.err
+		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tmpVar)
+		s.err = tmpVar
+		if(s.err)
+			printf "Error %d in getTestCasesMatch: %s\r", s.err, s.allTestCasesList
+			printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", s.testcase, s.procWinList
+			return NaN
+		endif
+
+		// 1.) set the hooks to the default implementations
+		setDefaultHooks(s.hooks)
+		// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
+		getGlobalHooks(s.hooks)
+
+		// Kills data folder and reinitializes
+		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.allowDebug)
+
+		// TAP Handling, find out if all should be skipped and number of all test cases
+		if(s.enableTAP)
+			TAP_EnableOutput()
+			TAP_CreateFile()
+
+			if(TAP_CheckAllSkip(s.allTestCasesList))
+				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
+				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.allowDebug)
+				Abort
+			else
+				TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(s.allTestCasesList)))
+			endif
+		endif
+
+		s.tap_caseCount = 1
+
 	endif
-
-	if(ParamIsDefault(name))
-		name = "Unnamed"
-	endif
-
-	if(ParamIsDefault(testCase))
-		testCase = ".*"
-		enableRegExpTC = 1
-	endif
-
-	ClearBaseFilename()
-	CreateHistoryLog()
-
-	PathInfo home
-	if(!V_flag)
-		printf "Error: Please Save experiment first.\r"
-		return NaN
-	endif
-
-	procWinList = AdaptProcWinList(procWinList, enableRegExpTS)
-	procWinList = FindProcedures(procWinList, enableRegExpTS)
-
-	numItemsPW = ItemsInList(procWinList)
-	if(numItemsPW <= 0)
-		printf "Error: The list of procedure windows is empty or invalid.\r"
-		return NaN
-	endif
-
-	allTestCasesList = getTestCasesMatch(procWinList, testCase, enableRegExpTC, err)
-	if(err)
-		printf "Error %d in getTestCasesMatch: %s\r", err, allTestCasesList
-		printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", testcase, procWinList
-		return NaN
-	endif
-
-	// 1.) set the hooks to the default implementations
-	setDefaultHooks(hooks)
-	// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
-	getGlobalHooks(hooks)
-
-	ExecuteHooks(TEST_BEGIN_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param=allowDebug)
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
 	NVAR/SDFR=dfr global_error_count
 
-	// TAP Handling, find out if all should be skipped and number of all test cases
-	if(enableTAP)
-		TAP_EnableOutput()
-		TAP_CreateFile()
-
-		if(TAP_CheckAllSkip(allTestCasesList))
-			TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-			ExecuteHooks(TEST_END_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param=allowDebug)
-			Abort
-		else
-			TAP_WriteOutputIfReq("1.." + num2str(ItemsInList(allTestCasesList)))
-		endif
-	endif
-
-	tap_caseCount = 1
-
 	// The Test Run itself is split into Test Suites for each Procedure File
-	for(i = 0; i < numItemsPW; i += 1)
-		procWin = StringFromList(i, procWinList)
+	for(i = 0; i < s.numItemsPW; i += 1)
+		s.i = i
 
-		testCaseList = getTestCasesMatch(procWin, testCase, enableRegExpTC, err)
-		if(err & TC_LIST_EMPTY)
-			continue
-		endif
+		if(!reentry)
+			s.procWin = StringFromList(s.i, s.procWinList)
 
-		procHooks = hooks
-		// 3.) get local user hooks which reside in the same Module as the requested procedure
-		getLocalHooks(procHooks, procWin)
-
-		juProps.testCaseList = testCaseList
-		juProps.testSuiteNumber = i
-		ExecuteHooks(TEST_SUITE_BEGIN_CONST, procHooks, juProps, procWin, procWin)
-
-		NVAR/SDFR=dfr error_count
-
-		numItemsFFN = ItemsInList(testCaseList)
-		for(j = numItemsFFN-1; j >= 0; j -= 1)
-			fullFuncName = StringFromList(j, testCaseList)
-			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
-
-			// get Description and Directive of current Function for TAP
-			tap_skipCase = 0
-			if(TAP_IsOutputEnabled())
-				tap_skipCase = TAP_GetNotes(fullFuncName)
+			tmpVar = s.err
+			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, tmpVar)
+			s.err = tmpVar
+			if(s.err & TC_LIST_EMPTY)
+				continue
 			endif
 
-			if(!tap_skipCase)
-				ExecuteHooks(TEST_CASE_BEGIN_CONST, procHooks, juProps, fullFuncName, procWin)
+			s.procHooks = s.hooks
+			// 3.) get local user hooks which reside in the same Module as the requested procedure
+			getLocalHooks(s.procHooks, s.procWin)
 
+			s.juProps.testCaseList = s.testCaseList
+			s.juProps.testSuiteNumber = s.i
+			ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
+
+			NVAR/SDFR=dfr error_count
+
+			s.numItemsFFN = ItemsInList(s.testCaseList)
+		else
+			s.numItemsFFN = 1
+		endif
+
+		for(j = s.numItemsFFN - 1; j >= 0; j -= 1)
+			s.j = j
+
+			if(!reentry)
+				s.fullFuncName = StringFromList(s.j, s.testCaseList)
+				FUNCREF TEST_CASE_PROTO TestCaseFunc = $s.fullFuncName
+
+				// get Description and Directive of current Function for TAP
+				s.tap_skipCase = 0
+				if(TAP_IsOutputEnabled())
+					s.tap_skipCase = TAP_GetNotes(s.fullFuncName)
+				endif
+			endif
+
+			if(!s.tap_skipCase || reentry)
+
+				if(!reentry)
+					ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, s.fullFuncName, s.procWin)
+				else
+
+					DFREF dfSave = $PKG_FOLDER_SAVE
+					RestoreState(dfSave, s)
+					// restore all loop counters
+					i = s.i
+					j = s.j
+					DFREF dfSave = $""
+					ClearReentrytoUTF()
+					reentry = 0
+
+					// set reentry function
+					SVAR reentryFuncName = dfr:BCKG_ReentryFunc
+					FUNCREF TEST_CASE_PROTO TestCaseFunc = $reentryFuncName
+			   printf "Entering reentry \"%s\"\r", reentryFuncName
+				endif
 				try
 					ClearRTError()
 					TestCaseFunc(); AbortOnRTE
@@ -1441,41 +1955,56 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					// only complain here if the error counter if the abort happened not in our code
 					if(!shouldDoAbort())
 						message = GetRTErrMessage()
-						err = GetRTError(1)
-						EvaluateRTE(err, message, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
+						s.err = GetRTError(1)
+						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
 						incrError()
 					endif
 
 					if(shouldDoAbort())
+						ClearReentrytoUTF()
+
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
+						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName, s.procWin, param = s.keepDataFolder)
 
-						ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
+						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
 
-						ExecuteHooks(TEST_END_CONST, hooks, juProps, name, NO_SOURCE_PROCEDURE, param = allowDebug)
+						ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.allowDebug)
+
+						QuitOnAutoRunFull()
 						return global_error_count
 					endif
 				endtry
 
-				ExecuteHooks(TEST_CASE_END_CONST, procHooks, juProps, fullFuncName, procWin, param = keepDataFolder)
+				if(IsBckgRegistered())
+					// save state
+					NewDataFolder $PKG_FOLDER_SAVE
+					DFREF dfSave = $PKG_FOLDER_SAVE
+					SaveState(dfSave, s)
+
+					return RUNTEST_RET_BCKG
+				endif
+
+				ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName, s.procWin, param = s.keepDataFolder)
 			endif
 
 			if(shouldDoAbort())
 				break
 			endif
 
-			TAP_WriteCaseIfReq(tap_caseCount, tap_skipCase)
-			tap_caseCount += 1
+			TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
+			s.tap_caseCount += 1
 		endfor
 
-		ExecuteHooks(TEST_SUITE_END_CONST, procHooks, juProps, procWin, procWin)
+		ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
 
 		if(shouldDoAbort())
 			break
 		endif
 	endfor
 
-	ExecuteHooks(TEST_END_CONST, hooks, juProps, name, "Undefined Procedure", param = allowDebug)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, "Undefined Procedure", param = s.allowDebug)
+
+	QuitOnAutoRunFull()
 
 	return global_error_count
 End
