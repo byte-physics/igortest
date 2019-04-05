@@ -211,3 +211,45 @@ Abort button.
    abort codes. Pressing the Abort button in Igor Pro 6 will therefore
    terminate only the current test case and continue with the next queued test
    case.
+
+Test Cases with Background Activity
+-----------------------------------
+
+There exist situations where a test case needs to return temporary to the Igor
+command prompt and continue after a background task has finished. A real world
+use case is for example a testing code that runs data acquisition in a
+background task and the test case should continue after the acquisition finished.
+
+The unit-testing framework supports such cases with a feature that allows to
+register one or more background tasks that should be monitored. A procedure name
+can be given that is called when the monitored background tasks finish. After the
+current test case procedure finishes the framework will return to Igors command
+prompt. This allows the users background task(s) to do its job. After the
+task(s) finish the framework continues the test case with the registered procedure.
+
+The registration is done by calling :cpp:func:`RegisterUTFMonitor()` from a
+test case or a BEGIN hook. The registration allows to give a list of
+background tasks that should be monitored. The mode parameter sets if all or one
+task has to finish to continue test execution. Optional a timeout can be set
+after the test continues independently of the user task(s) state.
+
+See also :ref:`flags_UTFBackgroundMonModes`.
+
+Function definition of RegisterUTFMonitor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. doxygenfunction:: RegisterUTFMonitor
+
+The function that is registered to continue the test execution must have the
+same format as a test case function and the name has to end with `_REENTRY`.
+When the unit-testing framework temporary drops to Igors command line and resumes later
+no begin/end hooks are executed. Logically the unit-testing frame work stays in
+the same test case. It is allowed to register another monitoring in
+the `_REENTRY` function.
+
+Multiple subsequent calls to :cpp:func:`RegisterUTFMonitor()` in the same
+function overwrite the previous registration.
+
+ See also :ref:`example11`.
+
+ See also :ref:`example12`.
