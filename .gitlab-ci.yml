@@ -10,7 +10,7 @@ stages:
 
 documentation:
   tags:
-    - macosx
+    - macosx, shell
   stage: build
   script:
     - cd docu
@@ -24,7 +24,7 @@ deployment:
   only:
     - master
   tags:
-    - macosx
+    - macosx, shell
   stage: deploy
   script:
     - cd docu/sphinx
