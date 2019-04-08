@@ -20,6 +20,46 @@ documentation:
       - docu/manual.pdf
       - docu/sphinx/build/html
 
+testing-v7:
+  stage: build
+  tags:
+    - macosx, docker
+  image:
+    name: ${CI_REGISTRY}/internal/docker-igorpro:v7
+  script:
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 7 User Files/User Procedures/utf"
+    - cp -r docu/examples/Example6 tests
+    - touch tests/DO_AUTORUN.TXT
+    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+      # generate a proper exit value
+    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+  artifacts:
+    reports:
+      junit: tests/JU_*.xml
+    paths:
+      - tests/JU_*.xml
+      - screenshot/*.png
+
+testing-v8:
+  stage: build
+  tags:
+    - macosx, docker
+  image:
+    name: ${CI_REGISTRY}/internal/docker-igorpro:v8
+  script:
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 8 User Files/User Procedures/utf"
+    - cp -r docu/examples/Example6 tests
+    - touch tests/DO_AUTORUN.TXT
+    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+      # generate a proper exit value
+    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+  artifacts:
+    reports:
+      junit: tests/JU_*.xml
+    paths:
+      - tests/JU_*.xml
+      - screenshot/*.png
+
 deployment:
   only:
     - master
