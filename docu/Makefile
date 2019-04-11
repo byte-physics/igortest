@@ -1,4 +1,4 @@
-default: docu-sphinx clean
+default: docu-sphinx
 
 build-docker-doxygen: debian
 	@make -C docker/doxygen
@@ -34,4 +34,4 @@ clean:
 	@scripts/delete_containers.sh
 	@scripts/delete_danglingimages.sh
 
-all: docu-doxygen docu-sphinx clean
+all: docu-doxygen docu-sphinx
