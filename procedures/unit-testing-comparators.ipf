@@ -789,6 +789,7 @@ Function FAIL()
 	TRUE_WRAPPER(0, REQUIRE_MODE)
 End
 
+/// @copydoc TRUE_DOCU
 Function WARN(var)
 	variable var
 
@@ -802,12 +803,14 @@ Function CHECK(var)
 	TRUE_WRAPPER(var, CHECK_MODE)
 End
 
+/// @copydoc TRUE_DOCU
 Function REQUIRE(var)
 	variable var
 
 	TRUE_WRAPPER(var, REQUIRE_MODE)
 End
 
+/// @copydoc EQUAL_VAR_DOCU
 Function WARN_EQUAL_VAR(var1, var2)
 	variable var1, var2
 
@@ -821,12 +824,14 @@ Function CHECK_EQUAL_VAR(var1, var2)
 	EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
+/// @copydoc EQUAL_VAR_DOCU
 Function REQUIRE_EQUAL_VAR(var1, var2)
 	variable var1, var2
 
 	EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
+/// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
 	variable var1, var2
 
@@ -840,12 +845,14 @@ Function CHECK_NEQ_VAR(var1, var2)
 	NEQ_VAR_WRAPPER(var1, var2, CHECK_MODE)
 End
 
+/// @copydoc NEQ_VAR_DOCU
 Function REQUIRE_NEQ_VAR(var1, var2)
 	variable var1, var2
 
 	NEQ_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
+/// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
 	variable tol
@@ -879,6 +886,7 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	endif
 End
 
+/// @copydoc CLOSE_VAR_DOCU
 Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	variable var1, var2
 	variable tol
@@ -895,6 +903,7 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
 	endif
 End
 
+/// @copydoc CLOSE_CMPLX_DOCU
 Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
 	variable/C var1, var2
 	variable tol, strong_or_weak
@@ -926,6 +935,7 @@ Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
 	endif
 End
 
+/// @copydoc CLOSE_CMPLX_DOCU
 Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
 	variable/C var1, var2
 	variable tol, strong_or_weak
@@ -941,6 +951,7 @@ Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
 	endif
 End
 
+/// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
 	variable var
 	variable tol
@@ -964,6 +975,7 @@ Function CHECK_SMALL_VAR(var, [tol])
 	endif
 End
 
+/// @copydoc SMALL_VAR_DOCU
 Function REQUIRE_SMALL_VAR(var, [tol])
 	variable var
 	variable tol
@@ -975,6 +987,7 @@ Function REQUIRE_SMALL_VAR(var, [tol])
 	endif
 End
 
+/// @copydoc SMALL_CMPLX_DOCU
 Function WARN_SMALL_CMPLX(var, [tol])
 	variable/C var
 	variable tol
@@ -998,6 +1011,7 @@ Function CHECK_SMALL_CMPLX(var, [tol])
 	endif
 End
 
+/// @copydoc SMALL_CMPLX_DOCU
 Function REQUIRE_SMALL_CMPLX(var, [tol])
 	variable/C var
 	variable tol
@@ -1009,6 +1023,7 @@ Function REQUIRE_SMALL_CMPLX(var, [tol])
 	endif
 End
 
+/// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
 	string &str
 
@@ -1022,12 +1037,14 @@ Function CHECK_EMPTY_STR(str)
 	EMPTY_STR_WRAPPER(str, CHECK_MODE)
 End
 
+/// @copydoc EMPTY_STR_DOCU
 Function REQUIRE_EMPTY_STR(str)
 	string &str
 
 	EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+/// @copydoc NON_EMPTY_STR_DOCU
 Function WARN_NON_EMPTY_STR(str)
 	string &str
 
@@ -1041,12 +1058,14 @@ Function CHECK_NON_EMPTY_STR(str)
 	NON_EMPTY_STR_WRAPPER(str, CHECK_MODE)
 End
 
+/// @copydoc NON_EMPTY_STR_DOCU
 Function REQUIRE_NON_EMPTY_STR(str)
 	string &str
 
 	NON_EMPTY_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+/// @copydoc PROPER_STR_DOCU
 Function WARN_PROPER_STR(str)
 	string &str
 
@@ -1060,12 +1079,14 @@ Function CHECK_PROPER_STR(str)
 	PROPER_STR_WRAPPER(str, CHECK_MODE)
 End
 
+/// @copydoc PROPER_STR_DOCU
 Function REQUIRE_PROPER_STR(str)
 	string &str
 
 	PROPER_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+/// @copydoc NULL_STR_DOCU
 Function WARN_NULL_STR(str)
 	string &str
 
@@ -1079,12 +1100,14 @@ Function CHECK_NULL_STR(str)
 	NULL_STR_WRAPPER(str, CHECK_MODE)
 End
 
+/// @copydoc NULL_STR_DOCU
 Function REQUIRE_NULL_STR(str)
 	string &str
 
 	NULL_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+/// @copydoc NON_NULL_STR_DOCU
 Function WARN_NON_NULL_STR(str)
 	string &str
 
@@ -1098,12 +1121,14 @@ Function CHECK_NON_NULL_STR(str)
 	NON_NULL_STR_WRAPPER(str, CHECK_MODE)
 End
 
+/// @copydoc NON_NULL_STR_DOCU
 Function REQUIRE_NON_NULL_STR(str)
 	string &str
 
 	NON_NULL_STR_WRAPPER(str, REQUIRE_MODE)
 End
 
+/// @copydoc EQUAL_STR_DOCU
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
 	string &str1, &str2
 	variable case_sensitive
@@ -1127,6 +1152,7 @@ Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
 	endif
 End
 
+/// @copydoc EQUAL_STR_DOCU
 Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
 	string &str1, &str2
 	variable case_sensitive
@@ -1138,6 +1164,7 @@ Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
 	endif
 End
 
+/// @copydoc NEQ_STR_DOCU
 Function WARN_NEQ_STR(str1, str2, [case_sensitive])
 	string &str1, &str2
 	variable case_sensitive
@@ -1161,6 +1188,7 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
 	endif
 End
 
+/// @copydoc NEQ_STR_DOCU
 Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
 	string &str1, &str2
 	variable case_sensitive
@@ -1172,6 +1200,7 @@ Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
 	endif
 End
 
+/// @copydoc WAVE_DOCU
 Function WARN_WAVE(wv, majorType, [minorType])
 	Wave/Z wv
 	variable majorType, minorType
@@ -1195,6 +1224,7 @@ Function CHECK_WAVE(wv, majorType, [minorType])
 	endif
 End
 
+/// @copydoc WAVE_DOCU
 Function REQUIRE_WAVE(wv, majorType, [minorType])
 	Wave/Z wv
 	variable majorType, minorType
@@ -1206,6 +1236,7 @@ Function REQUIRE_WAVE(wv, majorType, [minorType])
 	endif
 End
 
+/// @copydoc EQUAL_WAVE_DOCU
 Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
 	Wave/Z wv1, wv2
 	variable mode, tol
@@ -1237,6 +1268,7 @@ Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
 	endif
 End
 
+/// @copydoc EQUAL_WAVE_DOCU
 Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
 	Wave/Z wv1, wv2
 	variable mode, tol
@@ -1289,6 +1321,14 @@ End
 
 #else
 
+/// @class TEXT_WAVE_EQUAL_DOCU
+/// Tests two text waves for equality
+///
+/// @param wv1    first text wave, can be invalid for Igor Pro 7 or later
+/// @param wv2    second text wave, can be invalid for Igor Pro 7 or later
+/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
+
+/// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
 	Wave/T wv1, wv2
 	variable mode
@@ -1300,10 +1340,7 @@ Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
 	endif
 End
 
-/// Tests two text waves for equality
-/// @param wv1    first text wave, can be invalid for Igor Pro 7 or later
-/// @param wv2    second text wave, can be invalid for Igor Pro 7 or later
-/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
+/// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
 	Wave/T wv1, wv2
 	variable mode
@@ -1315,6 +1352,7 @@ Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
 	endif
 End
 
+/// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function REQUIRE_EQUAL_TEXTWAVES(wv1, wv2, [mode])
 	Wave/T wv1, wv2
 	variable mode
@@ -1338,6 +1376,7 @@ Function CHECK_EMPTY_FOLDER()
 	CDF_EMPTY_WRAPPER(CHECK_MODE)
 End
 
+/// @copydoc CDF_EMPTY_DOCU
 Function REQUIRE_EMPTY_FOLDER()
 	CDF_EMPTY_WRAPPER(REQUIRE_MODE)
 End
