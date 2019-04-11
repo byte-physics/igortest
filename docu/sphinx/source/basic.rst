@@ -145,17 +145,8 @@ use cases. Comparing two variables, for example, can be done with
 .. note::
 
    See :ref:`group_assertions` for a complete list of all available checks. If
-   in doubt use the `CHECK` variant. Only the :code:`CHECK_*` variants are
-   documented, as the interface for :code:`REQUIRE_*` and :code:`WARN_*` is
-   equivalent.
+   in doubt use the `CHECK` variant.
 
 Assertions with only one variant are :cpp:func:`PASS` and :cpp:func:`FAIL`.
 If you want to know more about how to use these two special assertions, take a
 look at :ref:`example7`.
-
-
-.. todo::
-
-   document all :code:`REQUIRE_*` and :code:`WARN_*` Methods of the
-   :ref:`assertion group <group_assertions>` byRef to their corresponding
-   :code:`CHECK_` variants for better readability.
