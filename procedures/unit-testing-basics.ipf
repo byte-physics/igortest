@@ -901,7 +901,7 @@ End
 static Function/S getTestCaseList(procWin)
 	string procWin
 
-	string fList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,WIN:" + procWin)
+	string fList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,VALTYPE:1,WIN:" + procWin)
 	fList = GrepList(fList,PROCNAME_NOT_REENTRY)
 	return fList
 End
