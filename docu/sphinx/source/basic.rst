@@ -67,7 +67,7 @@ A Test Case is one of the basic building blocks grouping :ref:`assertions
 fulfills all of the following properties:
 
 1. It takes no parameters.
-2. Its name does not end with `_IGNORE`.
+2. Its name does not end with `_IGNORE` or `_REENTRY`.
 3. It is either non-static, or static and part of a regular module.
 
 The first rule is making the test case callable in automated test environments.
@@ -159,5 +159,3 @@ look at :ref:`example7`.
    document all :code:`REQUIRE_*` and :code:`WARN_*` Methods of the
    :ref:`assertion group <group_assertions>` byRef to their corresponding
    :code:`CHECK_` variants for better readability.
-
-

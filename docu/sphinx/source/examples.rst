@@ -370,3 +370,53 @@ only as good as the unit test the define it.
    * :cpp:func:`CHECK_WAVE`
    * :cpp:func:`CHECK_EQUAL_VAR`
    * :cpp:func:`CHECK_CLOSE_VAR`
+
+.. _example11:
+
+Example11
+---------
+
+This example demonstrates the usage of the unit-test framework background monitor.
+It contains a single test case that registers a user task to be monitored. After
+the initial test case procedure finishes the unit-testing framework drops to Igors
+command line. After the user task finishes the unit-testing framework resumes
+the test case in the given `_REENTRY` function.
+To emphasize that this feature can be chained the first `_REENTRY` function
+registers the same user task again with another `_REENTRY` function to resume.
+
+.. literalinclude:: ../../examples/example11-background.ipf
+   :caption: example11-background.ipf
+
+.. code-block:: igor
+   :caption: command
+
+   RunTest("example11-background.ipf")
+
+.. note::
+
+   Definition for the :doc:`assertions` in this test suite:
+
+   * :cpp:func:`WARN_EQUAL_VAR`
+
+.. _example12:
+
+Example12
+---------
+
+This example demonstrates the usage of the unit-test framework background
+monitor from a :cpp:func:`TEST_CASE_BEGIN_OVERRIDE` hook, see :ref:`TestHooks`.
+The background monitor registration can be called from any begin hook.
+
+.. literalinclude:: ../../examples/example12-background-using-hooks.ipf
+   :caption: example12-background-using-hooks.ipf
+
+.. code-block:: igor
+   :caption: command
+
+   RunTest("example12-background-using-hooks.ipf")
+
+.. note::
+
+   Definition for the :doc:`assertions` in this test suite:
+
+   * :cpp:func:`WARN_EQUAL_STR`

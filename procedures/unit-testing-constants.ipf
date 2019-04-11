@@ -11,9 +11,16 @@ Constant PKG_VERSION = 1.08
 
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
+StrConstant PKG_FOLDER_SAVE = "root:Packages:UnitTesting:SaveState"
 
 Constant CLOSE_COMPARE_STRONG_OR_WEAK = 1
 Constant DEFAULT_TOLERANCE            = 1e-8
+
+// This RegEx matches all procedure names that do not end with "_reentry" (non case sensitive)
+StrConstant PROCNAME_NOT_REENTRY = "^(?!(?i).*_REENTRY$).*$"
+
+// special RunTest return codes (negativ)
+Constant RUNTEST_RET_BCKG = -1
 
 /// Action flags
 ///@{
@@ -78,4 +85,10 @@ Constant DIMENSION_SIZES  = 512
 Constant AUTORUN_OFF   = 0x0
 Constant AUTORUN_FULL  = 0x1
 Constant AUTORUN_PLAIN = 0x2
+/// @}
+
+/// @addtogroup UTFBackgroundMonModes
+/// @{
+Constant BACKGROUNDMONMODE_AND  = 0
+Constant BACKGROUNDMONMODE_OR   = 1
 /// @}

@@ -69,6 +69,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 			catch
 				err = GetRTError(1)
 				print "The run() function aborted with an RTE and this can not be handled."
+				QuitOnAutoRunFull()
 			endtry
 		else
 			print "The run() function has an invalid signature."
@@ -76,10 +77,15 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	else
 		print "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context."
 	endif
+End
 
-	if(autorunMode == AUTORUN_FULL)
-		sprintf cmd, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
-		Execute/P cmd
+Function QuitOnAutoRunFull()
+
+	string tmpStr
+
+	if(GetAutorunMode() == AUTORUN_FULL)
+		sprintf tmpStr, "%s#SaveHistoryLog(); Quit/N", GetIndependentModuleName()
+		Execute/P tmpStr
 	endif
 End
 
