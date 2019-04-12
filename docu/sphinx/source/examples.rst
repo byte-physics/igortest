@@ -420,3 +420,27 @@ The background monitor registration can be called from any begin hook.
    Definition for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`WARN_EQUAL_STR`
+
+.. _example13:
+
+Example13
+---------
+
+This example shows how test cases are used with data generators. It includes
+test cases that take one argument that is provided by a data generator function.
+The data generator function returns a wave of that argument type and the test
+case is called for each element of that wave.
+
+.. literalinclude:: ../../examples/example13-multi-test-data.ipf
+   :caption: example13-multi-test-data.ipf
+
+.. code-block:: igor
+   :caption: command
+
+   RunTest("example13-multi-test-data.ipf")
+
+.. note::
+
+   Definition for the :doc:`assertions` in this test suite:
+
+   * :cpp:func:`CHECK`
