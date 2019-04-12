@@ -10,14 +10,18 @@ stages:
 
 documentation:
   tags:
-    - macosx, shell
+    - macosx, docker
   stage: build
+  image:
+    name: ${CI_REGISTRY}/internal/docker-sphinx:latest
   script:
-    - cd docu
-    - make
+    - cd docu/doxygen
+    - doxygen
+    - cp -r xml ../sphinx/source
+    - cd ../sphinx
+    - make html
   artifacts:
     paths:
-      - docu/manual.pdf
       - docu/sphinx/build/html
 
 testing-v7:
