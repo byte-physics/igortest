@@ -24,6 +24,26 @@ documentation:
     paths:
       - docu/sphinx/build/html
 
+testing-v6:
+  stage: build
+  tags:
+    - macosx, docker
+  image:
+    name: ${CI_REGISTRY}/internal/docker-igorpro:v6
+  script:
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 6 User Files/User Procedures/utf"
+    - cp -r docu/examples/Example6 tests
+    - touch tests/DO_AUTORUN.TXT
+    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+      # generate a proper exit value
+    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+  artifacts:
+    reports:
+      junit: tests/JU_*.xml
+    paths:
+      - tests/JU_*.xml
+      - screenshot/*.png
+
 testing-v7:
   stage: build
   tags:
