@@ -480,36 +480,47 @@ static Function/S getInfo(result)
 	variable result
 
 	string caller, procedure, callStack, contents
-	string text, cleanText, line
+	string text, cleanText, line, callerTestCase
 	variable numCallers, i
 	variable callerIndex = NaN
+	variable testCaseIndex
 
 	callStack = GetRTStackInfo(3)
 	numCallers = ItemsInList(callStack)
 
 	// traverse the callstack from bottom up,
 	// the first function not in one of the unit testing procedures is
-	// the one we want to report.
+	// the one we want to report. Except if helper functions are involved.
 	for(i = numCallers - 1; i >= 0; i -= 1)
 		caller    = StringFromList(i, callStack)
 		procedure = StringFromList(1, caller, ",")
 
 		if(StringMatch(procedure, "unit-testing*"))
-			continue
-		else
-			callerIndex = i
+			if(UTF_Utils#IsNaN(callerIndex))
+				continue
+			endif
+			testCaseIndex = i + 1
 			break
+		else
+			if(UTF_Utils#IsNaN(callerIndex))
+				callerIndex = i
+			endif
 		endif
-
 	endfor
 
 	if(UTF_Utils#IsNaN(callerIndex))
 		return "Assertion failed in unknown location"
 	endif
 
+	callerTestCase = StringFromList(testCaseIndex, callStack)
+
 	caller    = StringFromList(callerIndex, callStack)
 	procedure = StringFromList(1, caller, ",")
 	line      = StringFromList(2, caller, ",")
+
+	if(callerIndex != testcaseIndex)
+		line += " (" +  StringFromList(2, callerTestCase , ",") + ")"
+	endif
 
 	if(!IsProcGlobal())
 		procedure += " [" + GetIndependentModuleName() + "]"
