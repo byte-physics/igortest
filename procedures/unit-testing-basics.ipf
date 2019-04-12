@@ -1563,9 +1563,6 @@ static Function SaveState(dfr, s)
 	string/G dfr:StestCaseList = s.testCaseList
 	string/G dfr:SallTestCasesList = s.allTestCasesList
 	string/G dfr:SfullFuncName = s.fullFuncName
-	variable/G dfr:SnumItemsPW = s.numItemsPW
-	variable/G dfr:SnumItemsTC = s.numItemsTC
-	variable/G dfr:SnumItemsFFN = s.numItemsFFN
 	variable/G dfr:Stap_skipCase = s.tap_skipCase
 	variable/G dfr:Stap_caseCount = s.tap_caseCount
 	variable/G dfr:SenableRegExpTC = s.enableRegExpTC
@@ -1650,12 +1647,6 @@ static Function RestoreState(dfr, s)
 	s.allTestCasesList = str
 	SVAR str = dfr:SfullFuncName
 	s.fullFuncName = str
-	NVAR var = dfr:SnumItemsPW
-	s.numItemsPW = var
-	NVAR var = dfr:SnumItemsTC
-	s.numItemsTC = var
-	NVAR var = dfr:SnumItemsFFN
-	s.numItemsFFN = var
 	NVAR var = dfr:Stap_skipCase
 	s.tap_skipCase = var
 	NVAR var = dfr:Stap_caseCount
@@ -1816,9 +1807,6 @@ static Structure strRunTest
 	string testCaseList
 	string allTestCasesList
 	string fullFuncName
-	variable numItemsPW
-	variable numItemsTC
-	variable numItemsFFN
 	variable tap_skipCase
 	variable tap_caseCount
 	variable enableRegExpTC
@@ -1998,8 +1986,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	DFREF dfr = GetPackageFolder()
 
 	// do not save these for reentry
-	variable reentry, tmpVar, i, j
+	//
+	variable reentry
+	// these use a very local scope where used
 	variable wType0, wType1, tcCount
+	// loop counter and loop end derived vars
+	variable i, j
+	variable numItemsPW, numItemsFFN
+	// used as temporal locals
+	variable tmpVar
 	string tmpStr
 
 	reentry = IsBckgRegistered()
@@ -2018,7 +2013,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			Abort
 		endif
 
-		s.numItemsPW = 1
+		numItemsPW = 1
 
 	else
 
@@ -2062,8 +2057,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = AdaptProcWinList(s.procWinList, s.enableRegExpTS)
 		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
 
-		s.numItemsPW = ItemsInList(s.procWinList)
-		if(s.numItemsPW <= 0)
+		numItemsPW = ItemsInList(s.procWinList)
+		if(numItemsPW <= 0)
 			printf "Error: The list of procedure windows is empty or invalid.\r"
 			return NaN
 		endif
@@ -2108,7 +2103,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	NVAR/SDFR=dfr global_error_count
 
 	// The Test Run itself is split into Test Suites for each Procedure File
-	for(i = 0; i < s.numItemsPW; i += 1)
+	for(i = 0; i < numItemsPW; i += 1)
 		s.i = i
 
 		if(!reentry)
@@ -2129,14 +2124,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			s.juProps.testSuiteNumber = s.i
 			ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
 
-			NVAR/SDFR=dfr error_count // remove?
-
-			s.numItemsFFN = ItemsInList(s.testCaseList)
+			numItemsFFN = ItemsInList(s.testCaseList)
 		else
-			s.numItemsFFN = 1
+			numItemsFFN = 1
 		endif
 
-		for(j = s.numItemsFFN - 1; j >= 0; j -= 1)
+		for(j = numItemsFFN - 1; j >= 0; j -= 1)
 			s.j = j
 
 			if(!reentry)
@@ -2177,9 +2170,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						DFREF dfSave = $PKG_FOLDER_SAVE
 						RestoreState(dfSave, s)
-						// restore all loop counters
+						// restore all loop counters and end loop locals
 						i = s.i
 						j = s.j
+						numItemsPW = ItemsInList(s.procWinList)
+						numItemsFFN = ItemsInList(s.testCaseList)
+
 						DFREF dfSave = $""
 						ClearReentrytoUTF()
 						reentry = 0
@@ -2232,8 +2228,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						endif
 
 						if(shouldDoAbort())
-							ClearReentrytoUTF()
-
 							// abort condition is on hold while in catch/endtry, so all cleanup must happen here
 							ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
 
@@ -2241,6 +2235,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 							ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.allowDebug)
 
+							ClearReentrytoUTF()
 							QuitOnAutoRunFull()
 							return global_error_count
 						endif
@@ -2254,6 +2249,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						return RUNTEST_RET_BCKG
 					endif
+					// Below here only the restored state can be used
 
 					ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
 	
@@ -2278,8 +2274,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 	endfor
 
-	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, "Undefined Procedure", param = s.allowDebug)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.allowDebug)
 
+	ClearReentrytoUTF()
 	QuitOnAutoRunFull()
 
 	return global_error_count
