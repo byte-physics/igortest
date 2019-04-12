@@ -659,34 +659,54 @@ End
 
 /// Prototype for test cases
 Function TEST_CASE_PROTO()
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 /// Prototypes for multi data test cases
 Function TEST_CASE_PROTO_MD_VAR([var])
 	variable var
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_STR([str])
 	string str
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_WV([wv])
 	WAVE wv
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_DFR([dfr])
 	DFREF dfr
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_CMPL([cmpl])
 	variable/C cmpl
 
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 #if (IgorVersion() >= 7.0)
 
 Function TEST_CASE_PROTO_MD_INT([int])
 	int64 int
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 #else
@@ -694,21 +714,32 @@ End
 Function TEST_CASE_PROTO_MD_INT([int])
 	variable int
 
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 #endif
 
 /// Prototype for multi data test cases data generator
 Function/WAVE TEST_CASE_PROTO_DGEN()
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 /// Prototype for run functions in autorun mode
 Function AUTORUN_MODE_PROTO()
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 /// Prototype for hook functions
 Function USER_HOOK_PROTO(str)
 	string str
+
+	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	abortNow()
 End
 
 ///@endcond // HIDDEN_SYMBOL
@@ -811,8 +842,15 @@ static Function CheckAbortCondition(abortCode)
 	endif
 End
 
-/// Check if function marked as Multi Data test case
-static function/S GetFunctionTag(funcName, tagName, numLines)
+/// @brief Reads a function tag in the comments preceding the function keyword identified by tagName
+/// returns the tag or "" if tagName identifier was not found
+///
+/// @param funcName Name of procedure
+///
+/// @param tagName string identifier that precedes the tag
+///
+/// @param numLines number of lines that is looked for tagName before the function keyword appears
+static Function/S GetFunctionTag(funcName, tagName, numLines)
 	string funcName, tagName
 	variable numLines
 
@@ -824,7 +862,7 @@ static function/S GetFunctionTag(funcName, tagName, numLines)
 	funcText = ProcedureText(funcName, numLines, "[" + GetIndependentModuleName() + "]")
 	for(i = 0; i < numLines; i +=1 )
 		funcLine = StringFromList(i, funcText, "\r")
-		SplitString/E=expr funcLine, funcTag;
+		SplitString/E=expr funcLine, funcTag
 		if(V_flag == 1)
 			return TrimString(funcTag)
 		endif
@@ -1011,6 +1049,45 @@ static function GetTestCaseCount(testCaseList, procWin)
 End
 
 /// Checks functions signature of each multi data test case candidate
+/// returns 1 if ok, 0 otherwise
+/// when 1 is returned the wave type variable contain the format
+static Function GetFunctionSignatureTCMD(testCase, wType0, wType1)
+	string testCase
+	variable &wType0
+	variable &wType1
+
+	wType0 = NaN
+	wType1 = NaN
+	// Check function signature
+	FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_DFR fTCMDDFR = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WV fTCMDWV = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
+	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
+		wType0 = 0xff %^ WAVETYPE0_CMPL %^ WAVETYPE0_INT64
+		wType1 = WAVETYPE1_NUM
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
+		wType1 = WAVETYPE1_TEXT
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
+		wType1 = WAVETYPE1_DFR
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
+		wType1 = WAVETYPE1_WREF
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
+		wType0 = WAVETYPE0_CMPL
+		wType1 = WAVETYPE1_NUM
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
+		wType0 = WAVETYPE0_INT64
+		wType1 = WAVETYPE1_NUM
+	else
+		return 0
+	endif
+
+	return 1
+End
+
+/// Checks functions signature of each multi data test case candidate
 /// and its attributed data generator function
 static Function/S CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 	string testCaseMDList
@@ -1028,29 +1105,7 @@ static Function/S CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 			printf "Could not get full function name of function: %s", fullTestCaseMD
 			continue
 		endif
-		// Check function signature
-		FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $fullTestCaseMD
-		FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $fullTestCaseMD
-		FUNCREF TEST_CASE_PROTO_MD_DFR fTCMDDFR = $fullTestCaseMD
-		FUNCREF TEST_CASE_PROTO_MD_WV fTCMDWV = $fullTestCaseMD
-		FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $fullTestCaseMD
-		FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $fullTestCaseMD
-		if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
-			wType0 = 0xff %^ WAVETYPE0_CMPL %^ WAVETYPE0_INT64
-			wType1 = WAVETYPE1_NUM
-		elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
-			wType1 = WAVETYPE1_TEXT
-		elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
-			wType1 = WAVETYPE1_DFR
-		elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
-			wType1 = WAVETYPE1_WREF
-		elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
-			wType0 = WAVETYPE0_CMPL
-			wType1 = WAVETYPE1_NUM
-		elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
-			wType0 = WAVETYPE0_INT64
-			wType1 = WAVETYPE1_NUM
-		else
+		if(!GetFunctionSignatureTCMD(fullTestCaseMD, wType0, wType1))
 			continue
 		endif
 
@@ -1069,8 +1124,14 @@ static Function/S CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 				printf "Data Generator function %s has wrong format. It is referenced by test case %s.\r", dgen, fullTestCaseMD
 				continue
 			endif
-			WAVE wGenerator = fDgen()
-			if(!((wType1 == 1 && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != 1 && WaveType(wGenerator, 1) == wType1)))
+			WAVE/Z wGenerator = fDgen()
+			if(!WaveExists(wGenerator))
+				printf "Data Generator function %s returns a null wave. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				continue
+			elseif(DimSize(wGenerator, 1) > 0)
+				printf "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				continue
+			elseif(!((wType1 == WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
 				printf "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.\r", dgen, fullTestCaseMD
 				continue
 			elseif(!DimSize(wGenerator, 0))
@@ -1093,6 +1154,7 @@ static Function/S getTestCaseList(procWin)
 	string testCaseMDList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:1,VALTYPE:1,WIN:" + procWin)
 
 	testCaseList = GrepList(testCaseList, PROCNAME_NOT_REENTRY)
+	testCaseMDList = GrepList(testCaseMDList, PROCNAME_NOT_REENTRY)
 	testCaseMDList = CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 
 	if(strlen(testCaseMDList))
@@ -1571,6 +1633,7 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SdgenSize = s.dgenSize
 	variable/G dfr:SmdMode = s.mdMode
 	string/G dfr:StcSuffix = s.tcSuffix
+	string/G dfr:SdgenFuncName = s.dgenFuncName
 
 	variable/G dfr:Si = s.i
 	variable/G dfr:Sj = s.j
@@ -1664,6 +1727,8 @@ static Function RestoreState(dfr, s)
 	s.mdMode = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
+	SVAR str = dfr:SdgenFuncName
+	s.dgenFuncName = str
 
 	NVAR var = dfr:Si
 	s.i = var
@@ -1772,6 +1837,101 @@ static Function ResetBckgRegistered()
 	variable/G dfr:BCKG_Registered = 0
 End
 
+static Function CallTestCase(s, reentry)
+	STRUCT strRunTest &s
+	variable reentry
+
+	variable wType0, wType1
+	string func
+
+	if(reentry)
+		DFREF dfr = GetPackageFolder()
+		SVAR reentryFuncName = dfr:BCKG_ReentryFunc
+		func = reentryFuncName
+		printf "Entering reentry \"%s\"\r", func
+	else
+		func = s.fullFuncName
+	endif
+
+	FUNCREF TEST_CASE_PROTO TestCaseFunc = $func
+	if((s.mdMode && !reentry) || (s.mdMode && reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc))))
+
+		FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
+		WAVE wGenerator = DataGenFunc()
+		wType0 = WaveType(wGenerator)
+		wType1 = WaveType(wGenerator, 1)
+		if(wType1 == WAVETYPE1_NUM)
+			if(wType0 & WAVETYPE0_CMPL)
+
+				FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $func
+				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
+					printf "Fatal: Reentry function %s does not meet required format for Complex argument.\r", func
+					incrError()
+					abortNow()
+				endif
+				fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
+
+			elseif(wType0 & WAVETYPE0_INT64)
+
+				FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $func
+				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
+					printf "Fatal: Reentry function %s does not meet required format for INT64 argument.\r", func
+					incrError()
+					abortNow()
+				endif
+				fTCMD_INT(int=wGenerator[s.dgenIndex]); AbortOnRTE
+
+			else
+
+				FUNCREF TEST_CASE_PROTO_MD_VAR fTCMD_VAR = $func
+				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_VAR)))
+					printf "Fatal: Reentry function %s does not meet required format for numeric argument.\r", func
+					incrError()
+					abortNow()
+				endif
+				fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
+
+			endif
+		elseif(wType1 == WAVETYPE1_TEXT)
+
+			WAVE/T wGeneratorStr = DataGenFunc()
+			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
+			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
+				printf "Fatal: Reentry function %s does not meet required format for string argument.\r", func
+				incrError()
+				abortNow()
+			endif
+			fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
+
+		elseif(wType1 == WAVETYPE1_DFR)
+
+			WAVE/DF wGeneratorDF = DataGenFunc()
+			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
+			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
+				printf "Fatal: Reentry function %s does not meet required format for data folder reference argument.\r", func
+				incrError()
+				abortNow()
+			endif
+			fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
+
+		elseif(wType1 == WAVETYPE1_WREF)
+
+			WAVE/WAVE wGeneratorWV = DataGenFunc()
+			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
+			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
+				printf "Fatal: Reentry function %s does not meet required format for wave reference argument.\r", func
+				incrError()
+				abortNow()
+			endif
+			fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+
+		endif
+	else
+		TestCaseFunc(); AbortOnRTE
+	endif
+
+End
+
 
 /// @brief initialize all strings in strRunTest structure to be non <null>
 static Function InitStrRunTest(s)
@@ -1786,6 +1946,7 @@ static Function InitStrRunTest(s)
 	s.allTestCasesList = ""
 	s.fullFuncName = ""
 	s.tcSuffix = ""
+	s.dgenFuncName = ""
 
 	InitJUProp(s.juProps)
 	InitHooks(s.hooks)
@@ -1815,6 +1976,7 @@ static Structure strRunTest
 	variable dgenSize
 	variable mdMode
 	string tcSuffix
+	string dgenFuncName
 	STRUCT JU_Props juProps
 	STRUCT TestHooks hooks
 	STRUCT TestHooks procHooks
@@ -1862,7 +2024,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 	variable timeout
 
 	string procWinList, rFunc
-	variable len
+	variable len, tmpVar
 	DFREF dfr = GetPackageFolder()
 
 	if(ParamIsDefault(timeout))
@@ -1893,8 +2055,10 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)))
-		print "Specified reentry procedure has wrong format. The format must be function_REENTRY()."
-		Abort
+		if(!GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar))
+			print "Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type])."
+			Abort
+		endif
 	endif
 
 	string/G dfr:BCKG_TaskList = taskList
@@ -1989,13 +2153,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	//
 	variable reentry
 	// these use a very local scope where used
-	variable wType0, wType1, tcCount
+	variable tcCount
 	// loop counter and loop end derived vars
 	variable i, j
 	variable numItemsPW, numItemsFFN
 	// used as temporal locals
-	variable tmpVar
-	string tmpStr
+	variable var
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -2063,9 +2226,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		tmpVar = s.err
-		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tcCount, tmpVar)
-		s.err = tmpVar
+		var = s.err
+		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tcCount, var)
+		s.err = var
 		if(s.err)
 			printf "Error %d in getTestCasesMatch: %s\r", s.err, s.allTestCasesList
 			printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", s.testcase, s.procWinList
@@ -2109,9 +2272,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(!reentry)
 			s.procWin = StringFromList(s.i, s.procWinList)
 
-			tmpVar = s.err
-			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, tcCount, tmpVar)
-			s.err = tmpVar
+			var = s.err
+			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, tcCount, var)
+			s.err = var
 			if(s.err & TC_LIST_EMPTY)
 				continue
 			endif
@@ -2149,15 +2312,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				do
 
 					if(!reentry)
-				
+
 						FUNCREF TEST_CASE_PROTO TestCaseFunc = $s.fullFuncName
 						if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
 							s.mdMode = 0
 						else
 							s.mdMode = 1
-							tmpStr = GetFunctionTag(s.fullFuncName, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
-							tmpStr = GetFullFunctionName(tmpVar, tmpStr, s.procWin)
-							FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $tmpStr
+							s.dgenFuncName = GetFunctionTag(s.fullFuncName, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+							s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
+							FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
 							WAVE wGenerator = DataGenFunc()
 							s.dgenSize = DimSize(wGenerator, 0)
 							s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
@@ -2175,49 +2338,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						j = s.j
 						numItemsPW = ItemsInList(s.procWinList)
 						numItemsFFN = ItemsInList(s.testCaseList)
-
+						// restore state done
 						DFREF dfSave = $""
 						ClearReentrytoUTF()
-						reentry = 0
 
-						// set reentry function
-						SVAR reentryFuncName = dfr:BCKG_ReentryFunc
-						FUNCREF TEST_CASE_PROTO TestCaseFunc = $reentryFuncName
-						printf "Entering reentry \"%s\"\r", reentryFuncName
 					endif
-				
+
 					try
 						ClearRTError()
-						if(s.mdMode && !reentry)
-							wType0 = WaveType(wGenerator)
-							wType1 = WaveType(wGenerator, 1)
-							if(wType1 == WAVETYPE1_NUM)
-								if(wType0 & WAVETYPE0_CMPL)
-									FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $s.fullFuncName
-									fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
-								elseif(wType0 & WAVETYPE0_INT64)
-									FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $s.fullFuncName
-									fTCMD_INT(int=wGenerator[s.dgenIndex]); AbortOnRTE
-								else
-									FUNCREF TEST_CASE_PROTO_MD_VAR fTCMD_VAR = $s.fullFuncName
-									fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
-								endif
-							elseif(wType1 == WAVETYPE1_TEXT)
-								WAVE/T wGeneratorStr = DataGenFunc()
-								FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $s.fullFuncName
-								fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
-							elseif(wType1 == WAVETYPE1_DFR)
-								WAVE/DF wGeneratorDF = DataGenFunc()
-								FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $s.fullFuncName
-								fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
-							elseif(wType1 == WAVETYPE1_WREF)
-								WAVE/WAVE wGeneratorWV = DataGenFunc()
-								FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $s.fullFuncName
-								fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
-							endif
-						else
-							TestCaseFunc(); AbortOnRTE
-						endif
+						CallTestCase(s, reentry)
 					catch
 						// only complain here if the error counter if the abort happened not in our code
 						if(!shouldDoAbort())
@@ -2241,6 +2370,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						endif
 					endtry
 
+					reentry = 0
+
 					if(IsBckgRegistered())
 						// save state
 						NewDataFolder $PKG_FOLDER_SAVE
@@ -2249,22 +2380,21 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						return RUNTEST_RET_BCKG
 					endif
-					// Below here only the restored state can be used
 
 					ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
-	
+
 					if(shouldDoAbort())
 						break
 					endif
-			
+
 					TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
 					s.tap_caseCount += 1
-				
+
 					s.dgenIndex += 1
 				while(s.mdMode && s.dgenIndex < s.dgenSize)
 
 			endif
-			
+
 		endfor
 
 		ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
