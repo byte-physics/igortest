@@ -58,6 +58,36 @@ static Function ClearRTError()
 	variable err = GetRTError(1)
 End
 
+/// @brief Convert the mode parameter for `EqualWaves` to a string
+Function/S EqualWavesModeToString(mode)
+	variable mode
+
+	switch(mode)
+		case WAVE_DATA:
+			return "WAVE_DATA"
+		case WAVE_DATA_TYPE:
+			return "WAVE_DATA_TYPE"
+		case WAVE_SCALING:
+			return "WAVE_SCALING"
+		case DATA_UNITS:
+			return "DATA_UNITS"
+		case DIMENSION_UNITS:
+			return "DIMENSION_UNITS"
+		case DIMENSION_LABELS:
+			return "DIMENSION_LABELS"
+		case WAVE_NOTE:
+			return "WAVE_NOTE"
+		case WAVE_LOCK_STATE:
+			return "WAVE_LOCK_STATE"
+		case DATA_FULL_SCALE:
+			return "DATA_FULL_SCALE"
+		case DIMENSION_SIZES:
+			return "DIMENSION_SIZES"
+		default:
+			return "unknown mode"
+	endswitch
+End
+
 /// @brief Check wether the function reference points to
 /// the prototype function or to an assigned function
 ///
