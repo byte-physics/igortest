@@ -2035,28 +2035,33 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 	len = strlen(tasklist)
 	if(!len || numtype(len) == 2)
 		print "Tasklist is empty."
+		incrError()
 		Abort
 	endif
 
 	if(!(mode == BACKGROUNDMONMODE_OR || mode == BACKGROUNDMONMODE_AND))
 		print "Unknown mode set"
+		incrError()
 		Abort
 	endif
 
 	if(FindListItem(BACKGROUNDMONTASK, taskList) != -1)
 		print "Igor Unit Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ")."
+		incrError()
 		Abort
 	endif
 
 	// check valid reentry function
 	if(GrepString(reentryFunc, PROCNAME_NOT_REENTRY))
 		print "Name of Reentry function must end with _REENTRY"
+		incrError()
 		Abort
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)))
 		if(!GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar))
 			print "Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type])."
+			incrError()
 			Abort
 		endif
 	endif
