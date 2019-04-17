@@ -51,7 +51,7 @@ Structure JU_Props
 	struct strSuiteProperties juTSProp
 	struct strTestCase juTC
 	struct strTestSuite juTS
-	string testCaseList
+	variable testCaseCount
 	variable testSuiteNumber
 	string testSuiteOut, testCaseListOut
 EndStructure
@@ -60,7 +60,6 @@ EndStructure
 Function InitJUProp(s)
 	STRUCT JU_Props &s
 
-	s.testCaseList = ""
 	s.juTSProp.propNameList = ""
 	s.juTSProp.propValueList = ""
 	s.juTC.name = ""
@@ -368,7 +367,7 @@ Function JU_TestSuiteBegin(s, name, procWin)
 	s.juTS.name = name
 	s.juTS.timestamp = JU_GetISO8601TimeStamp()
 	s.juTS.hostname = "localhost"
-	s.juTS.tests = ItemsInList(s.testCaseList)
+	s.juTS.tests = s.testCaseCount
 	s.juTS.timeStart = DateTime
 	s.juTS.failures = 0
 	s.juTS.errors = 0

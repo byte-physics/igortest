@@ -250,6 +250,118 @@ the `_REENTRY` function.
 Multiple subsequent calls to :cpp:func:`RegisterUTFMonitor()` in the same
 function overwrite the previous registration.
 
+Test Cases with background activity are supported from multi data test cases, see
+`Multi Data Test Cases with Background Activity`_.
+
  See also :ref:`example11`.
 
  See also :ref:`example12`.
+
+Multi Data Test Cases
+---------------------
+
+Often the same test should be run multiple times with different sets of data. The
+unit-testing framework offers direct support for such tests. Test cases that are
+run with multiple data take one optional argument. To the test case a data generator
+function is attributed that returns a wave. For each element of that wave the test
+case is run. This sketches a simple multi data test case:
+
+.. code-block:: igor
+
+   // UTF_TD_GENERATOR DataGeneratorFunction
+   Function myTestCase([arg])
+     variable arg
+     // add checks here
+   End
+
+   Function/WAVE DataGeneratorFunction()
+     Make/FREE data = {1, 2, 3, 4}
+     return data
+   End
+
+To the test case `myTestCase` a data generator function name is attributed with the
+comment line above following the key word `UTF_TD_GENERATOR`. The data generator
+`DataGeneratorFunction` returns a wave of numeric type and the test case takes
+one optional argument of numeric type. When run `myTestCase` is executed four times
+with argument arg 1, 2, 3 and 4.
+
+Supported types for `arg` are variable, string, complex, Integer64, data folder
+references and wave references. The type of the returned wave of the attributed
+data generator function must fit to the argument type that the multi data test
+case takes.
+The data generator function name must be attributed with a comment within three
+lines above the test cases Function line. The key word is `UTF_TD_GENERATOR` with
+the data generators function name following as seen in the simple example here.
+If no data generator is given or the format of the test case function does not fit
+to the wave type then a error message is printed and the test case is ignored.
+
+The test case names are by default extended with `:num` where num is the index
+of the wave returned from the data generator. For convenience in the data generator
+dimension labels can be set for each wave element that are used instead of the index.
+
+.. code-block:: igor
+
+   Function/WAVE DataGeneratorFunction()
+     Make/FREE data = {1, 2, 3, 4}
+     SetDimLabel 0, 0, first, data
+     SetDimLabel 0, 1, second, data
+     SetDimLabel 0, 2, third, data
+     SetDimLabel 0, 3, fourth, data
+     return data
+   End
+
+The test case names would now be `myTestCase:first`, `myTestCase:second` and so on.
+
+The optional argument of the test case function is always given from the data
+generator wave elements. Thus the case that `ParamIsDefault(arg)` is true never
+happens.
+
+ See also :ref:`example13`.
+
+Multi Data Test Cases with Background Activity
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Multi data test cases that register a background task to be monitored are
+supported. For a multi data test case each reentry function can have one of two
+different formats:
+
+- Function fun_REENTRY() with no argument as described in `Test Cases with Background Activity`_
+- Function fun_REENTRY([arg]) with the same argument type as the originating multi data test case.
+
+For the second case, the reentry function is called with the same wave element as argument as
+when the multi data test case was started.
+
+If the reentry function uses a different argument type than the test case entry function
+then on reentry to the unit-testing framework an error is printed and further
+test execution is aborted.
+
+.. code-block:: igor
+
+   // UTF_TD_GENERATOR DataGeneratorFunction
+   Function myTestCase([var])
+     variable var
+
+     CtrlNamedBackGround testtask, proc=UserTask, period=1, start
+     RegisterUTFMonitor("testtask", 1, "testCase_REENTRY")
+     CHECK(var == 1 || var == 5)
+   End
+
+   Function UserTask(s)
+     STRUCT WMBackgroundStruct &s
+
+     return !mod(trunc(datetime), 5)
+   End
+
+   Function/WAVE DataGeneratorFunction()
+     Make/FREE data = {5, 1}
+     SetDimLabel 0, 0, first, data
+     SetDimLabel 0, 1, second, data
+     return data
+   End
+
+   Function testCase_REENTRY([var])
+     variable var
+
+     print "Reentered test case with argument ", var
+     PASS()
+   End
