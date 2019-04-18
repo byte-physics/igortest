@@ -684,7 +684,7 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	// 1.) run in the same IM anyway
 	// 2.) FuncRef does not accept that
 
-	return module + "#" + funcName
+	return module + "#" + StringByKey("NAME", infoStr)
 End
 
 /// Prototype for test cases
