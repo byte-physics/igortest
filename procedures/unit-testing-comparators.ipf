@@ -662,7 +662,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 
 		sprintf str, "Assuming equality using mode %s for waves %s and %s", EqualWavesModeToString(mode), NameOfWave(wv1), NameOfWave(wv2)
 
-		if(strlen(detailedMsg) > 0)
+		if(!UTF_Utils#IsEmpty(detailedMsg))
 			str += "; detailed: " + detailedMsg
 		endif
 

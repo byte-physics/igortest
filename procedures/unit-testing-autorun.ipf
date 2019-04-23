@@ -127,7 +127,7 @@ Function SaveHistoryLog()
 
 	PathInfo home
 	historyLog = getUnusedFileName(S_path + historyLog)
-	if(!strlen(historyLog))
+	if(UTF_Utils#IsEmpty(historyLog))
 		printf "Error: Unable to determine unused file name for History Log output in path %s !", S_path
 		return NaN
 	endif

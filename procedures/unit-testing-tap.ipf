@@ -210,7 +210,7 @@ End
 static Function/S TAP_ValidDiagnostic(diag)
 	string diag
 
-	if(!strlen(diag))
+	if(UTF_Utils#IsEmpty(diag))
 		return diag
 	endif
 	// Add a newline on demand to tap_diagnostic, both functions return byte position (and not char position)

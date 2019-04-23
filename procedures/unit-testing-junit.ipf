@@ -222,7 +222,7 @@ static Function JU_AddTSProp(juTSProp, propName, propValue)
 	string propName
 	string propValue
 
-	if(strlen(propName))
+	if(!UTF_Utils#IsEmpty(propName))
 		propName = JU_ToXMLToken( JU_ToXMLCharacters(propName))
 		propValue = JU_ToXMLCharacters(propValue)
 		juTSProp.propNameList = AddListItem(propName, juTSProp.propNameList, "<")
@@ -312,7 +312,7 @@ Function JU_WriteOutput(s)
 #endif
 	PathInfo home
 	juFileName = getUnusedFileName(S_path + "JU_" + GetBaseFilename() + ".xml")
-	if(!strlen(juFileName))
+	if(UTF_Utils#IsEmpty(juFileName))
 		printf "Error: Unable to determine unused file name for JUNIT output in path %s !\r", S_path
 		return NaN
 	endif
@@ -345,7 +345,7 @@ static Function/S JU_NicifyList(list)
 
 	list = RemoveEnding(list, ";")
 
-	if(strlen(list) == 0)
+	if(UTF_Utils#IsEmpty(list))
 		return list
 	endif
 
