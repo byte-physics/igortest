@@ -1117,31 +1117,39 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1)
 	return 1
 End
 
-/// Checks functions signature of each multi data test case candidate
+/// Checks functions signature of each test case candidate
 /// and its attributed data generator function
-static Function/S CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
-	string testCaseMDList
+static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
+	string testCaseList
 	string procWin
 
-	variable i, err, numTCMD, wType1, wType0
-	string fullTestCaseMD, testCaseMD, dgen, reducedTCList
+	variable i, err, numTC, wType1, wType0
+	string fullTestCase, testCase, dgen, reducedTCList
 
 	reducedTCList = ""
-	numTCMD = ItemsInList(testCaseMDList)
-	for(i = 0; i < numTCMD; i += 1)
-		testCaseMD = StringFromList(i, testCaseMDList)
-		fullTestCaseMD = getFullFunctionName(err, testCaseMD, procWin)
+	numTC = ItemsInList(testCaseList)
+	for(i = 0; i < numTC; i += 1)
+		testCase = StringFromList(i, testCaseList)
+		fullTestCase = getFullFunctionName(err, testCase, procWin)
 		if(err)
-			printf "Could not get full function name of function: %s", fullTestCaseMD
-			continue
-		endif
-		if(!GetFunctionSignatureTCMD(fullTestCaseMD, wType0, wType1))
+			printf "Could not get full function name of function: %s", fullTestCase
 			continue
 		endif
 
-		dgen = GetFunctionTag(fullTestCaseMD, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+		// Simple Test Cases
+		FUNCREF TEST_CASE_PROTO fTC = $fullTestCase
+		if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
+			reducedTCList = AddListItem(testCase, reducedTCList)
+			continue
+		endif
+		// Multi Data Test Cases
+		if(!GetFunctionSignatureTCMD(fullTestCase, wType0, wType1))
+			continue
+		endif
+
+		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
 		if(!strlen(dgen))
-			printf "Could not find data generator specification for multi data test case %s.\r", fullTestCaseMD
+			printf "Could not find data generator specification for multi data test case %s.\r", fullTestCase
 			continue
 		else
 			dgen = getFullFunctionName(err, dgen, procWin)
@@ -1151,24 +1159,24 @@ static Function/S CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 			endif
 			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
 			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-				printf "Data Generator function %s has wrong format. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				printf "Data Generator function %s has wrong format. It is referenced by test case %s.\r", dgen, fullTestCase
 				continue
 			endif
 			WAVE/Z wGenerator = fDgen()
 			if(!WaveExists(wGenerator))
-				printf "Data Generator function %s returns a null wave. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				printf "Data Generator function %s returns a null wave. It is referenced by test case %s.\r", dgen, fullTestCase
 				continue
 			elseif(DimSize(wGenerator, 1) > 0)
-				printf "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				printf "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.\r", dgen, fullTestCase
 				continue
 			elseif(!((wType1 == WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-				printf "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				printf "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.\r", dgen, fullTestCase
 				continue
 			elseif(!DimSize(wGenerator, 0))
-				printf "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.\r", dgen, fullTestCaseMD
+				printf "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.\r", dgen, fullTestCase
 				continue
 			else
-				reducedTCList = AddListItem(testCaseMD, reducedTCList)
+				reducedTCList = AddListItem(testCase, reducedTCList)
 			endif
 		endif
 	endfor
@@ -1185,13 +1193,12 @@ static Function/S getTestCaseList(procWin)
 
 	testCaseList = GrepList(testCaseList, PROCNAME_NOT_REENTRY)
 	testCaseMDList = GrepList(testCaseMDList, PROCNAME_NOT_REENTRY)
-	testCaseMDList = CheckFunctionSignaturesTCMD(testCaseMDList, procWin)
 
 	if(strlen(testCaseMDList))
-		return testCaseList + testCaseMDList
-	else
-		return testCaseList
+		testCaseList = testCaseList + testCaseMDList
 	endif
+
+	return CheckFunctionSignaturesTC(testCaseList, procWin)
 End
 
 /// @brief get test cases matching a certain pattern
