@@ -503,7 +503,7 @@ static Function/S getInfo(result)
 
 	endfor
 
-	if(numtype(callerIndex) != 0)
+	if(UTF_Utils#IsNaN(callerIndex))
 		return "Assertion failed in unknown location"
 	endif
 
@@ -660,7 +660,7 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	string infoStr = FunctionInfo(funcName, procName)
 	string errMsg
 
-	if(strlen(infoStr) <= 0)
+	if(UTF_Utils#IsEmpty(infoStr))
 		sprintf errMsg, "Function %s in procedure file %s is unknown\r", funcName, procName
 		err = FFNAME_NOT_FOUND
 		return errMsg
@@ -668,7 +668,7 @@ static Function/S getFullFunctionName(err, funcName, procName)
 
 	string module = StringByKey("MODULE", infoStr)
 
-	if(strlen(module) <= 0)
+	if(UTF_Utils#IsEmpty(module))
 
 		// we can only use static functions if they live in a module
 		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
@@ -1148,7 +1148,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 		endif
 
 		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
-		if(!strlen(dgen))
+		if(UTF_Utils#IsEmpty(dgen))
 			printf "Could not find data generator specification for multi data test case %s.\r", fullTestCase
 			continue
 		else
@@ -1194,7 +1194,7 @@ static Function/S getTestCaseList(procWin)
 	testCaseList = GrepList(testCaseList, PROCNAME_NOT_REENTRY)
 	testCaseMDList = GrepList(testCaseMDList, PROCNAME_NOT_REENTRY)
 
-	if(strlen(testCaseMDList))
+	if(!UTF_Utils#IsEmpty(testCaseMDList))
 		testCaseList = testCaseList + testCaseMDList
 	endif
 
@@ -2061,7 +2061,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 	variable timeout
 
 	string procWinList, rFunc
-	variable len, tmpVar
+	variable tmpVar
 	DFREF dfr = GetPackageFolder()
 
 	if(ParamIsDefault(timeout))
@@ -2069,8 +2069,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 	endif
 	timeout = timeout <= 0 ? 0 : datetime + timeout
 
-	len = strlen(tasklist)
-	if(!len || numtype(len) == 2)
+	if(UTF_Utils#IsEmpty(tasklist))
 		print "Tasklist is empty."
 		incrError()
 		Abort

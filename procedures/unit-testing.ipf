@@ -11,3 +11,4 @@
 #include "unit-testing-autorun"
 #include "unit-testing-junit"
 #include "unit-testing-tap"
+#include "unit-testing-utils"
