@@ -88,6 +88,8 @@ cleanup is done afterward. The *next* Test Case then starts with the data the
 .. note::
    By default the Igor debugger is disabled during the execution of a test run.
 
+.. _JUNITOutput:
+
 JUNIT Output
 ------------
 

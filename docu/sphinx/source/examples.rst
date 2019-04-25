@@ -247,7 +247,7 @@ on :ref:`automate`.
    :name: example6-code-2
 
 In this example, the automatic invocation of the Unit Testing Framework is also
-producing `JUNIT Output`_. This allows the framework to be used in automated
+producing :ref:`JUNITOutput`. This allows the framework to be used in automated
 CI/CD Pipelines.
 
 .. note::
