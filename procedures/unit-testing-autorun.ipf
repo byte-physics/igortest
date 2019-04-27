@@ -59,7 +59,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	endif
 
 	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[ProcGlobal]")
-	if(ItemsInList(funcList) == 1)
+	if(ItemsInList(funcList) >= 1)
 		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
 		if(UTF_FuncRefIsAssigned(FuncRefInfo(f)))
