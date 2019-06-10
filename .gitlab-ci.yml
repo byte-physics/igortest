@@ -10,7 +10,7 @@ stages:
 
 documentation:
   tags:
-    - macosx, docker
+    - debian, docker
   stage: build
   image:
     name: ${CI_REGISTRY}/internal/docker-sphinx:latest
@@ -27,7 +27,7 @@ documentation:
 testing-v6:
   stage: build
   tags:
-    - macosx, docker
+    - debian, docker
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v6
   script:
@@ -47,7 +47,7 @@ testing-v6:
 testing-v7:
   stage: build
   tags:
-    - macosx, docker
+    - debian, docker
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v7
   script:
@@ -67,7 +67,7 @@ testing-v7:
 testing-v8:
   stage: build
   tags:
-    - macosx, docker
+    - debian, docker
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v8
   script:
