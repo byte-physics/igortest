@@ -1567,8 +1567,9 @@ Function UTFBackgroundMonitor(s)
 	SVAR/Z rFunc = df:BCKG_ReentryFunc
 	NVAR/Z timeout = df:BCKG_EndTime
 	NVAR/Z mode = df:BCKG_Mode
+	NVAR/Z failOnTimeout = df:BCKG_failOnTimeout
 
-	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout))
+	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout) || !NVAR_Exists(failOnTimeout))
 		print "Fatal: UTFBackgroundMonitor can not find monitoring data in package DF, aborting monitoring."
 		ClearReentrytoUTF()
 		QuitOnAutoRunFull()
@@ -1588,6 +1589,11 @@ Function UTFBackgroundMonitor(s)
 
 	if(timeout && datetime > timeout)
 		print "UTF background monitor has reached the timeout for reentry"
+
+		if(failOnTimeout)
+			incrError()
+		endif
+
 		RunTest(BACKGROUNDINFOSTR)
 		return 0
 	endif
@@ -2052,24 +2058,25 @@ EndStructure
 ///
 /// @endverbatim
 ///
-/// @param   taskList    A list of background task names that should be monitored by the unit testing framework
-///                      @n The list should be given semicolon (";") separated.
+/// @param   taskList      A list of background task names that should be monitored by the unit testing framework
+///                        @n The list should be given semicolon (";") separated.
 ///
-/// @param   mode        Mode sets how multiple tasks are evaluated. If set to
-///                      `BACKGROUNDMONMODE_AND` all tasks of the list must finish (AND).
-///                      If set to `BACKGROUNDMONMODE_OR` one task of the list must finish (OR).
+/// @param   mode          Mode sets how multiple tasks are evaluated. If set to
+///                        `BACKGROUNDMONMODE_AND` all tasks of the list must finish (AND).
+///                        If set to `BACKGROUNDMONMODE_OR` one task of the list must finish (OR).
 ///
-/// @param   reentryFunc Name of the function that the unit testing framework calls when the monitored background tasks finished.
-///                      The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
-///                      The reentry function *continues* the current test case therefore no hooks are called.
+/// @param   reentryFunc   Name of the function that the unit testing framework calls when the monitored background tasks finished.
+///                        The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
+///                        The reentry function *continues* the current test case therefore no hooks are called.
 ///
-/// @param   timeout     (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
-///                      A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
-Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
+/// @param   timeout       (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
+///                        A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
+/// @param   failOnTimeout (optional) default to false. If the test case should be failed on reaching the timeout.
+Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
 	string taskList
 	variable mode
 	string reentryFunc
-	variable timeout
+	variable timeout, failOnTimeout
 
 	string procWinList, rFunc
 	variable tmpVar
@@ -2079,6 +2086,8 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 		timeout = 0
 	endif
 	timeout = timeout <= 0 ? 0 : datetime + timeout
+
+	failOnTimeout = ParamIsDefault(failOnTimeout) ? 0 : !!failOnTimeout
 
 	if(UTF_Utils#IsEmpty(tasklist))
 		print "Tasklist is empty."
@@ -2119,6 +2128,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout])
 
 	variable/G dfr:BCKG_EndTime = timeout
 	variable/G dfr:BCKG_Registered = 1
+	variable/G dfr:BCKG_FailOnTimeout = failOnTimeout
 
 	CtrlNamedBackground $BACKGROUNDMONTASK, proc=UTFBackgroundMonitor, period=10, start
 End
