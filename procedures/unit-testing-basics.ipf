@@ -284,9 +284,9 @@ static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
-	sprintf str, "%s: is %s\r", str, SelectString(booleanValue, "false", "true")
+	sprintf str, "%s: is %s", str, SelectString(booleanValue, "false", "true")
 	if(EnabledDebug())
-		printf "%s", str
+		UTF_PrintStatusMessage(str)
 	endif
 End
 
@@ -531,7 +531,7 @@ static Function/S getInfo(result)
 
 	cleanText = trimstring(text)
 
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"\r", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
 End
 
@@ -672,7 +672,7 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	string errMsg
 
 	if(UTF_Utils#IsEmpty(infoStr))
-		sprintf errMsg, "Function %s in procedure file %s is unknown\r", funcName, procName
+		sprintf errMsg, "Function %s in procedure file %s is unknown", funcName, procName
 		err = FFNAME_NOT_FOUND
 		return errMsg
 	endif
@@ -683,7 +683,7 @@ static Function/S getFullFunctionName(err, funcName, procName)
 
 		// we can only use static functions if they live in a module
 		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
-			sprintf errMsg, "The procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.\r", procName
+			sprintf errMsg, "The procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.", procName
 			err = FFNAME_NO_MODULE
 			return errMsg
 		endif
@@ -701,7 +701,10 @@ End
 /// Prototype for test cases
 Function TEST_CASE_PROTO()
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -709,35 +712,50 @@ End
 Function TEST_CASE_PROTO_MD_VAR([var])
 	variable var
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_STR([str])
 	string str
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_WV([wv])
 	WAVE wv
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_DFR([dfr])
 	DFREF dfr
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
 Function TEST_CASE_PROTO_MD_CMPL([cmpl])
 	variable/C cmpl
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -746,7 +764,10 @@ End
 Function TEST_CASE_PROTO_MD_INT([int])
 	int64 int
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -755,7 +776,10 @@ End
 Function TEST_CASE_PROTO_MD_INT([int])
 	variable int
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -764,14 +788,20 @@ End
 /// Prototype for multi data test cases data generator
 Function/WAVE TEST_CASE_PROTO_DGEN()
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
 /// Prototype for run functions in autorun mode
 Function AUTORUN_MODE_PROTO()
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -779,7 +809,10 @@ End
 Function USER_HOOK_PROTO(str)
 	string str
 
-	printf "Error: Prototype function %s was called.\r", GetRTStackInfo(1)
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
 	abortNow()
 End
 
@@ -833,7 +866,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	type = ""
 	message = ""
 	if(err)
-		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\", procedure file \"%s\"\r", err, errmessage, funcTypeString, funcName, procWin
+		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\", procedure file \"%s\"", err, errmessage, funcTypeString, funcName, procWin
 		message = str
 		type = "RUNTIME ERROR"
 	endif
@@ -844,31 +877,31 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		str = ""
 		switch(abortCode)
 			case -1:
-				sprintf str, "User aborted Test Run manually in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
+				sprintf str, "User aborted Test Run manually in %s \"%s\", procedure file \"%s\"", funcTypeString, funcName, procWin
 				break
 			case -2:
-				sprintf str, "Stack Overflow in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
+				sprintf str, "Stack Overflow in %s \"%s\", procedure file \"%s\"", funcTypeString, funcName, procWin
 				break
 			case -3:
-				sprintf str, "Encountered \"Abort\" in %s \"%s\", procedure file \"%s\"\r", funcTypeString, funcName, procWin
+				sprintf str, "Encountered \"Abort\" in %s \"%s\", procedure file \"%s\"", funcTypeString, funcName, procWin
 				break
 			default:
 				break
 		endswitch
 		message += str
 		if(abortCode > 0)
-			sprintf str, "Encountered \"AbortOnvalue\" Code %d in %s \"%s\", procedure file \"%s\"\r", abortCode, funcTypeString, funcName, procWin
+			sprintf str, "Encountered \"AbortOnvalue\" Code %d in %s \"%s\", procedure file \"%s\"", abortCode, funcTypeString, funcName, procWin
 			message += str
 		endif
 	endif
 
-	printf "%s", message
+	UTF_PrintStatusMessage(message)
 	systemErr = message
 
 	CheckAbortCondition(abortCode)
 	if(TAP_IsOutputEnabled())
 		SVAR/SDFR=dfr tap_diagnostic
-		tap_diagnostic += message
+		tap_diagnostic += message + "\r"
 	endif
 End
 
@@ -919,6 +952,7 @@ static Function TestBegin(name, allowDebug)
 	variable allowDebug
 
 	variable reEnableDebugOutput, runCountStored
+	string msg
 
 	// remember some state variables
 	if(DataFolderExists(PKG_FOLDER))
@@ -960,7 +994,8 @@ static Function TestBegin(name, allowDebug)
 
 	ClearBaseFilename()
 
-	printf "Start of test \"%s\"\r", name
+	sprintf msg, "Start of test \"%s\"", name
+	UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Testrun
@@ -969,16 +1004,21 @@ static Function TestEnd(name, allowDebug)
 	string name
 	variable allowDebug
 
+	string msg
+
 	dfref dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
 
 	if(global_error_count == 0)
-		printf "Test finished with no errors\r"
+		sprintf msg, "Test finished with no errors"
 	else
-		printf "Test finished with %d errors\r", global_error_count
+		sprintf msg, "Test finished with %d errors", global_error_count
 	endif
 
-	printf "End of test \"%s\"\r", name
+	UTF_PrintStatusMessage(msg)
+
+	sprintf msg, "End of test \"%s\"", name
+	UTF_PrintStatusMessage(msg)
 
 	if (!allowDebug)
 		NVAR/SDFR=dfr igor_debug_state
@@ -991,9 +1031,13 @@ End
 static Function TestSuiteBegin(testSuite)
 	string testSuite
 
+	string msg
+
 	initError()
 	incrRunCount()
-	printf "Entering test suite \"%s\"\r", testSuite
+
+	sprintf msg, "Entering test suite \"%s\"", testSuite
+	UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Suite
@@ -1001,25 +1045,32 @@ End
 static Function TestSuiteEnd(testSuite)
 	string testSuite
 
+	string msg
+
 	dfref dfr = GetPackageFolder()
 	NVAR/SDFR=dfr error_count
 
 	if(error_count == 0)
-		printf "Finished with no errors\r"
+		sprintf msg, "Finished with no errors"
 	else
-		printf "Failed with %d errors\r", error_count
+		sprintf msg, "Failed with %d errors", error_count
 	endif
+
+	UTF_PrintStatusMessage(msg)
 
 	NVAR/SDFR=dfr global_error_count
 	global_error_count += error_count
 
-	printf "Leaving test suite \"%s\"\r", testSuite
+	sprintf msg, "Leaving test suite \"%s\"", testSuite
+	UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Setup for Test Case
 /// @param testCase name of the test case
 static Function TestCaseBegin(testCase)
 	string testCase
+
+	string msg
 
 	initAssertCount()
 
@@ -1033,7 +1084,8 @@ static Function TestCaseBegin(testCase)
 
 	string/G dfr:systemErr = ""
 
-	printf "Entering test case \"%s\"\r", testCase
+	sprintf msg, "Entering test case \"%s\"", testCase
+	UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Case
@@ -1042,13 +1094,16 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 	string testCase
 	variable keepDataFolder
 
+	string msg
+
 	dfref dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr lastFolder
 	SVAR/Z/SDFR=dfr workFolder
 	NVAR/SDFR=dfr assert_count
 
 	if(assert_count == 0)
-		printf "The test case \"%s\" did not make any assertions!\r", testCase
+		sprintf msg, "The test case \"%s\" did not make any assertions!", testCase
+		UTF_PrintStatusMessage(msg)
 	endif
 
 	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
@@ -1060,7 +1115,27 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 		endif
 	endif
 
-	printf "Leaving test case \"%s\"\r", testCase
+	sprintf msg, "Leaving test case \"%s\"", testCase
+	UTF_PrintStatusMessage(msg)
+End
+
+/// @brief Print the given message to the Igor history area and to stdout (IP8 only)
+///
+/// Always use this function if you want to inform the user about something.
+///
+/// @param msg message to be outputted, without trailing end-of-line
+static Function UTF_PrintStatusMessage(msg)
+	string msg
+
+	if(strlen(msg) == 0)
+		return NaN
+	endif
+
+	printf "%s\r", msg
+
+#if (IgorVersion() >= 8.0)
+	fprintf -1, "%s\r\n", msg
+#endif
 End
 
 /// returns the effektive number of test cases to run from a testCaseList / procedure window name
@@ -1135,7 +1210,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 	string procWin
 
 	variable i, err, numTC, wType1, wType0
-	string fullTestCase, testCase, dgen, reducedTCList
+	string fullTestCase, testCase, dgen, reducedTCList, msg
 
 	reducedTCList = ""
 	numTC = ItemsInList(testCaseList)
@@ -1143,7 +1218,8 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 		testCase = StringFromList(i, testCaseList)
 		fullTestCase = getFullFunctionName(err, testCase, procWin)
 		if(err)
-			printf "Could not get full function name of function: %s", fullTestCase
+			sprintf msg, "Could not get full function name of function: %s", fullTestCase
+			UTF_PrintStatusMessage(msg)
 			continue
 		endif
 
@@ -1160,31 +1236,38 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 
 		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
 		if(UTF_Utils#IsEmpty(dgen))
-			printf "Could not find data generator specification for multi data test case %s.\r", fullTestCase
+			sprintf msg, "Could not find data generator specification for multi data test case %s.", fullTestCase
+			UTF_PrintStatusMessage(msg)
 			continue
 		else
 			dgen = getFullFunctionName(err, dgen, procWin)
 			if(err)
-				printf "Could not get full function name of data generator: %s", dgen
+				sprintf msg, "Could not get full function name of data generator: %s", dgen
+				UTF_PrintStatusMessage(msg)
 				continue
 			endif
 			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
 			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-				printf "Data Generator function %s has wrong format. It is referenced by test case %s.\r", dgen, fullTestCase
+				sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullTestCase
+				UTF_PrintStatusMessage(msg)
 				continue
 			endif
 			WAVE/Z wGenerator = fDgen()
 			if(!WaveExists(wGenerator))
-				printf "Data Generator function %s returns a null wave. It is referenced by test case %s.\r", dgen, fullTestCase
+				sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullTestCase
+				UTF_PrintStatusMessage(msg)
 				continue
 			elseif(DimSize(wGenerator, 1) > 0)
-				printf "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.\r", dgen, fullTestCase
+				sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullTestCase
+				UTF_PrintStatusMessage(msg)
 				continue
 			elseif(!((wType1 == WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-				printf "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.\r", dgen, fullTestCase
+				sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullTestCase
+				UTF_PrintStatusMessage(msg)
 				continue
 			elseif(!DimSize(wGenerator, 0))
-				printf "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.\r", dgen, fullTestCase
+				sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullTestCase
+				UTF_PrintStatusMessage(msg)
 				continue
 			else
 				reducedTCList = AddListItem(testCase, reducedTCList)
@@ -1311,7 +1394,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 
 		if(!numMatches)
 			err = err | TC_NOT_FOUND
-			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".\r", testCase, procWinList
+			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".", testCase, procWinList
 		endif
 	endfor
 
@@ -1368,9 +1451,13 @@ End
 
 /// get all available procedures as a ";" separated list
 static Function/S GetProcedureList()
+
+	string msg
+
 	if(!IsProcGlobal())
 		if(!QueryIgorOption("IndependentModuleDev"))
-			printf "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.\r", GetIndependentModuleName()
+			sprintf msg, "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.", GetIndependentModuleName()
+			UTF_PrintStatusMessage(msg)
 			return ""
 		endif
 		return WinList("* [" + GetIndependentModuleName() + "]", ";", "WIN:128,INDEPENDENTMODULE:1")
@@ -1390,7 +1477,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	string procWin
 	string procWinMatch
 	string allProcWindows
-	string errMsg
+	string errMsg, msg
 	variable numItemsPW
 	variable numMatches
 	variable err
@@ -1421,7 +1508,8 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 					default:
 						errMsg = GetErrMessage(err)
 				endswitch
-				printf "Error executing GrepList: %s\r", errMsg
+				sprintf msg, "Error executing GrepList: %s", errMsg
+				UTF_PrintStatusMessage(msg)
 			endtry
 		else
 			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
@@ -1429,7 +1517,8 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 
 		numMatches = ItemsInList(procWinMatch)
 		if(numMatches <= 0)
-			printf "Error: A procedure window matching the pattern \"%s\" could not be found.\r", procWin
+			sprintf msg, "Error: A procedure window matching the pattern \"%s\" could not be found.", procWin
+			UTF_PrintStatusMessage(msg)
 			return ""
 		endif
 
@@ -1438,7 +1527,8 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 			if(FindListItem(procWin, procWinListOut, ";", 0, 0) == -1)
 				procWinListOut = AddListItem(procWin, procWinListOut, ";", INF)
 			else
-				printf "Error: The procedure window named \"%s\" is a duplicate entry in the input list of procedures.\r", procWin
+				sprintf msg, "Error: The procedure window named \"%s\" is a duplicate entry in the input list of procedures.", procWin
+				UTF_PrintStatusMessage(msg)
 				return ""
 			endif
 		endfor
@@ -1896,13 +1986,14 @@ static Function CallTestCase(s, reentry)
 	variable reentry
 
 	variable wType0, wType1
-	string func
+	string func, msg
 
 	if(reentry)
 		DFREF dfr = GetPackageFolder()
 		SVAR reentryFuncName = dfr:BCKG_ReentryFunc
 		func = reentryFuncName
-		printf "Entering reentry \"%s\"\r", func
+		sprintf msg, "Entering reentry \"%s\"", func
+		UTF_PrintStatusMessage(msg)
 	else
 		func = s.fullFuncName
 	endif
@@ -1919,7 +2010,8 @@ static Function CallTestCase(s, reentry)
 
 				FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
-					printf "Fatal: Reentry function %s does not meet required format for Complex argument.\r", func
+					sprintf msg, "Fatal: Reentry function %s does not meet required format for Complex argument.", func
+					UTF_PrintStatusMessage(msg)
 					incrError()
 					abortNow()
 				endif
@@ -1929,7 +2021,8 @@ static Function CallTestCase(s, reentry)
 
 				FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
-					printf "Fatal: Reentry function %s does not meet required format for INT64 argument.\r", func
+					sprintf msg, "Fatal: Reentry function %s does not meet required format for INT64 argument.", func
+					UTF_PrintStatusMessage(msg)
 					incrError()
 					abortNow()
 				endif
@@ -1939,7 +2032,8 @@ static Function CallTestCase(s, reentry)
 
 				FUNCREF TEST_CASE_PROTO_MD_VAR fTCMD_VAR = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_VAR)))
-					printf "Fatal: Reentry function %s does not meet required format for numeric argument.\r", func
+					sprintf msg, "Fatal: Reentry function %s does not meet required format for numeric argument.", func
+					UTF_PrintStatusMessage(msg)
 					incrError()
 					abortNow()
 				endif
@@ -1951,7 +2045,8 @@ static Function CallTestCase(s, reentry)
 			WAVE/T wGeneratorStr = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
-				printf "Fatal: Reentry function %s does not meet required format for string argument.\r", func
+				sprintf msg, "Fatal: Reentry function %s does not meet required format for string argument.", func
+				UTF_PrintStatusMessage(msg)
 				incrError()
 				abortNow()
 			endif
@@ -1962,7 +2057,8 @@ static Function CallTestCase(s, reentry)
 			WAVE/DF wGeneratorDF = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
-				printf "Fatal: Reentry function %s does not meet required format for data folder reference argument.\r", func
+				sprintf msg, "Fatal: Reentry function %s does not meet required format for data folder reference argument.", func
+				UTF_PrintStatusMessage(msg)
 				incrError()
 				abortNow()
 			endif
@@ -1973,7 +2069,8 @@ static Function CallTestCase(s, reentry)
 			WAVE/WAVE wGeneratorWV = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
-				printf "Fatal: Reentry function %s does not meet required format for wave reference argument.\r", func
+				sprintf msg, "Fatal: Reentry function %s does not meet required format for wave reference argument.", func
+				UTF_PrintStatusMessage(msg)
 				incrError()
 				abortNow()
 			endif
@@ -2221,6 +2318,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable numItemsPW, numItemsFFN
 	// used as temporal locals
 	variable var
+	string msg
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -2252,7 +2350,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
 		if(s.enableTAP && s.juProps.enableJU)
-			printf "Error: enableTAP and enableJU can not be both true.\r"
+			sprintf msg, "Error: enableTAP and enableJU can not be both true."
+			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
 
@@ -2275,7 +2374,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		PathInfo home
 		if(!V_flag)
-			printf "Error: Please Save experiment first.\r"
+			sprintf msg, "Error: Please Save experiment first."
+			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
 
@@ -2284,7 +2384,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		numItemsPW = ItemsInList(s.procWinList)
 		if(numItemsPW <= 0)
-			printf "Error: The list of procedure windows is empty or invalid.\r"
+			sprintf msg, "Error: The list of procedure windows is empty or invalid."
+			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
 
@@ -2292,8 +2393,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tcCount, var)
 		s.err = var
 		if(s.err)
-			printf "Error %d in getTestCasesMatch: %s\r", s.err, s.allTestCasesList
-			printf "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".\r", s.testcase, s.procWinList
+			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, s.allTestCasesList
+			UTF_PrintStatusMessage(msg)
+			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, s.procWinList
+			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
 
