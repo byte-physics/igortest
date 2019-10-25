@@ -35,8 +35,6 @@ testing-v6:
     - cp -r docu/examples/Example6 tests
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/Example6.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     reports:
       junit: tests/JU_*.xml
@@ -55,8 +53,6 @@ testing-v7:
     - cp -r docu/examples/Example6 tests
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/Example6.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     reports:
       junit: tests/JU_*.xml
@@ -75,8 +71,6 @@ testing-v8:
     - cp -r docu/examples/Example6 tests
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/Example6.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     reports:
       junit: tests/JU_*.xml
