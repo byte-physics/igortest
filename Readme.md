@@ -1,3 +1,6 @@
+![](https://img.shields.io/github/contributors-anon/byte-physics/igor-unit-testing-framework?style=plastic)
+![](https://img.shields.io/github/license/byte-physics/igor-unit-testing-framework?style=plastic)
+
 This project aims at providing a complete set of tools for programmers for writing and maintaining unit tests.
 
 # Features:
