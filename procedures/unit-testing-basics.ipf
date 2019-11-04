@@ -1111,7 +1111,7 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 	endif
 	if (!keepDataFolder)
 		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
-			KillDataFolder $workFolder
+			KillDataFolder/Z $workFolder
 		endif
 	endif
 
