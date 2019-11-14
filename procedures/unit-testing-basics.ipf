@@ -1292,7 +1292,22 @@ static Function/S getTestCaseList(procWin)
 		testCaseList = testCaseList + testCaseMDList
 	endif
 
+	testCaseList = sortTestCaseList(testCaseList, procWin)
+
 	return CheckFunctionSignaturesTC(testCaseList, procWin)
+End
+
+/// Sort a list of function by line number
+static Function/S sortTestCaseList(testCaseList, procWin)
+	string testCaseList, procWin
+
+	WAVE/T testCases = ListToTextWave(testCaseList, ";")
+	Make/FREE/N=(DimSize(testCases, 0))/U/I lines
+	lines[] = NumberByKey("PROCLINE", FunctionInfo(testCases[p], procWin))
+	Sort lines, testCases
+
+	wfprintf testCaseList, "%s;", testCases
+	return testCaseList
 End
 
 /// @brief get test cases matching a certain pattern
