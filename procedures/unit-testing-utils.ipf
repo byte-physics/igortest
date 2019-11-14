@@ -52,3 +52,17 @@ threadsafe static Function IsEmpty(str)
 End
 
 ///@endcond // HIDDEN_SYMBOL
+
+// from https://github.com/AllenInstitute/MIES/commit/d8d00fa1
+#if (IgorVersion() >= 7.0)
+    // ListToTextWave is available
+#else
+/// @brief Convert a string list to a text wave
+Function/WAVE ListToTextWave(list, sep)
+    string list, sep
+
+    Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
+
+    return result
+End
+#endif
