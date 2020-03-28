@@ -77,13 +77,18 @@ static Function NULL_STR_WRAPPER(str, flags)
 	string &str
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	if(!UTF_Checks#NULL_STR(str))
+	result = UTF_Checks#IsNullString(str)
+	SetTestStatusAndDebug("Assumption of str being null is ", result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -105,13 +110,15 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 	string &str
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	variable result = (strlen(str) == 0)
+	result = UTF_Checks#IsEmptyString(str)
 	SetTestStatusAndDebug("Assumption that the string is empty is", result)
 
 	if(!result)
@@ -136,13 +143,18 @@ static Function NON_NULL_STR_WRAPPER(str, flags)
 	string &str
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	if(!UTF_Checks#NON_NULL_STR(str))
+	result = !UTF_Checks#IsNullString(str)
+	SetTestStatusAndDebug("Assumption that the string is not null is", result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -164,13 +176,15 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 	string &str
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	variable result = (strlen(str) > 0 || UTF_Checks#NULL_STR(str))
+	result = !UTF_Checks#IsEmptyString(str)
 	SetTestStatusAndDebug("Assumption that the string is non empty is", result)
 
 	if(!result)
@@ -196,13 +210,15 @@ static Function PROPER_STR_WRAPPER(str, flags)
 	string &str
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	variable result = (strlen(str) > 0)
+	result = UTF_Checks#IsProperString(str)
 	SetTestStatusAndDebug("Assumption that the string is a proper string is", result)
 
 	if(!result)

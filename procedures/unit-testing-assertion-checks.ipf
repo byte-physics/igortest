@@ -7,6 +7,8 @@
 
 /// @cond HIDDEN_SYMBOL
 
+static Constant NUMTYPE_NAN = 2
+
 /// @name CountObjects and CountObjectsDFR constant
 /// @anchor TypeFlags
 /// @{
@@ -28,22 +30,22 @@ static Function IsTrue(var)
 	return (var == 1)
 End
 
-static Function NON_NULL_STR(str)
+static Function IsNullString(str)
 	string &str
 
-	variable result = (numtype(strlen(str)) == 0)
-
-	SetTestStatusAndDebug("Assumption of str being non null is ", result)
-	return result
+	return (numtype(strlen(str)) == NUMTYPE_NAN)
 End
 
-static Function NULL_STR(str)
+static Function IsEmptyString(str)
 	string &str
 
-	variable result = (numtype(strlen(str)) == 2)
+	return (strlen(str) == 0)
+End
 
-	SetTestStatusAndDebug("Assumption of str being null is ", result)
-	return result
+static Function IsProperString(str)
+	string &str
+
+	return !IsEmptyString(str) && !IsNullString(str)
 End
 
 static Function EQUAL_VAR(var1, var2)
@@ -107,16 +109,16 @@ static Function EQUAL_STR(str1, str2, case_sensitive)
 	variable case_sensitive
 
 	variable result
-	if(NULL_STR(str1) && NULL_STR(str2))
+	if(UTF_Checks#IsNullString(str1) && UTF_Checks#IsNullString(str2))
 		result = 1
-	elseif(NULL_STR(str1) || NULL_STR(str2))
+	elseif(UTF_Checks#IsNullString(str1) || UTF_Checks#IsNullString(str2))
 		result = 0
 	else
 		result = (cmpstr(str1, str2, case_sensitive) == 0)
 	endif
 
 	string str
-	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(NULL_STR(str1), str1, "(null)"), SelectString(NULL_STR(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
+	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
 	SetTestStatusAndDebug(str, result)
 
 	return result
