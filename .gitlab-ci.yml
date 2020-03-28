@@ -32,9 +32,9 @@ testing-v6:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v6
   script:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 6 User Files/User Procedures/utf"
-    - cp -r docu/examples/Example6 tests
+    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 6 User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
@@ -52,9 +52,9 @@ testing-v7:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v7
   script:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 7 User Files/User Procedures/utf"
-    - cp -r docu/examples/Example6 tests
+    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 7 User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
@@ -72,9 +72,9 @@ testing-v8:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v8
   script:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 8 User Files/User Procedures/utf"
-    - cp -r docu/examples/Example6 tests
+    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 8 User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
@@ -92,9 +92,9 @@ testing-v9:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v9
   script:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 9 User Files/User Procedures/utf"
-    - cp -r docu/examples/Example6 tests
+    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 9 User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/Example6.pxp"
+    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
