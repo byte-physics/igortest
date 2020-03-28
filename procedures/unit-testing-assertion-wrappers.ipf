@@ -39,7 +39,8 @@ End
 
 /// @class TRUE_DOCU
 /// Tests if var is true (1).
-/// @param var    variable to test
+///
+/// @param var variable to test
 static Function TRUE_WRAPPER(var, flags)
 	variable var
 	variable flags
@@ -236,6 +237,7 @@ End
 
 /// @class NEQ_VAR_DOCU
 /// Tests two variables for inequality
+///
 /// @param var1    first variable
 /// @param var2    second variable
 static Function NEQ_VAR_WRAPPER(var1, var2, flags)
@@ -270,6 +272,7 @@ End
 
 /// @class NEQ_STR_DOCU
 /// Compares two strings for unequality
+///
 /// @param str1            first string
 /// @param str2            second string
 /// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
@@ -407,6 +410,7 @@ End
 
 /// @class SMALL_VAR_DOCU
 /// Tests if a variable is small using the inequality @f$  | var | < | tol |  @f$
+///
 /// @param var        variable
 /// @param tol        (optional) tolerance, defaults to 1e-8
 static Function SMALL_VAR_WRAPPER(var, flags, [tol])
@@ -485,6 +489,7 @@ End
 
 /// @class EQUAL_STR_DOCU
 /// Compares two strings for equality.
+///
 /// @param str1           first string
 /// @param str2           second string
 /// @param case_sensitive (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
@@ -525,6 +530,7 @@ End
 
 /// @class WAVE_DOCU
 /// Tests a wave for existence and its type
+///
 /// @param wv         wave reference
 /// @param majorType  major wave type
 /// @param minorType  (optional) minor wave type
@@ -581,7 +587,10 @@ End
 /// @class EQUAL_VAR_DOCU
 /// Tests two variables for equality.
 ///
-/// For variables holding floating point values it is often more desirable use CHECK_CLOSE_VAR instead. To fullfill semantic correctness this assertion treats two variables with both holding NaN as equal.
+/// For variables holding floating point values it is often more desirable use
+/// CHECK_CLOSE_VAR instead. To fullfill semantic correctness this assertion
+/// treats two variables with both holding NaN as equal.
+///
 /// @param var1   first variable
 /// @param var2   second variable
 static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
@@ -616,6 +625,7 @@ End
 
 /// @class EQUAL_WAVE_DOCU
 /// Tests two waves for equality
+///
 /// @param wv1    first wave
 /// @param wv2    second wave
 /// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
