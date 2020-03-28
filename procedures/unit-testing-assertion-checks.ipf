@@ -48,23 +48,17 @@ static Function IsProperString(str)
 	return !IsEmptyString(str) && !IsNullString(str)
 End
 
-static Function EQUAL_VAR(var1, var2)
+static Function AreVariablesEqual(var1, var2)
 	variable var1, var2
 
-	variable result
 	variable type1 = numType(var1)
 	variable type2 = numType(var2)
 
-	if(type1 == type2 && type1 == 2) // both variables being NaN is also true
-		result = 1
+	if(type1 == type2 && type1 == NUMTYPE_NAN) // both variables being NaN is also true
+		return 1
 	else
-		result = (var1 == var2)
+		return (var1 == var2)
 	endif
-
-	string str
-	sprintf str, "%g == %g", var1, var2
-	SetTestStatusAndDebug(str, result)
-	return result
 End
 
 static Function SMALL_VAR(var, tol)

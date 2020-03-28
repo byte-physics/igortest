@@ -242,13 +242,20 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2
 	variable flags
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	if(UTF_Checks#EQUAL_VAR(var1, var2))
+	result = !UTF_Checks#AreVariablesEqual(var1, var2)
+	sprintf str, "%g != %g", var1, var2
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -555,13 +562,20 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2
 	variable flags
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	if(!UTF_Checks#EQUAL_VAR(var1, var2))
+	result = UTF_Checks#AreVariablesEqual(var1, var2)
+	sprintf str, "%g == %g", var1, var2
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
