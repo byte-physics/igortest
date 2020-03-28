@@ -73,28 +73,24 @@ static Function SMALL_VAR(var, tol)
 	return result
 End
 
-static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
+static Function AreVariablesClose(var1, var2, tol, strong_or_weak)
 	variable var1, var2
 	variable tol
 	variable strong_or_weak
+
+	strong_or_weak = !!strong_or_weak
 
 	variable diff = abs(var1 - var2)
 	variable d1   = diff / abs(var1)
 	variable d2   = diff / abs(var2)
 
-	variable result
-	if(strong_or_weak == 1)
-		result = (d1 <= tol && d2 <= tol)
-	elseif(strong_or_weak == 0)
-		result = (d1 <= tol || d2 <= tol)
-	else
-		printf "Unknown mode %d\r", strong_or_weak
-	endif
+	// printf "d1 %.15g, d2 %.15g, d1 - d2 %.15g, strong %d, weak %d\r", d1, d2, d1 - d2, (d1 <= tol && d2 <= tol), (d1 <= tol || d2 <= tol)
 
-	string str
-	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak, "weak", "strong"), tol
-	SetTestStatusAndDebug(str, result)
-	return result
+	if(strong_or_weak == 1)
+		return (d1 <= tol && d2 <= tol)
+	else
+		return (d1 <= tol || d2 <= tol)
+	endif
 End
 
 /// @return 1 if both strings are equal and zero otherwise

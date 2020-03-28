@@ -327,6 +327,9 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	variable tol
 	variable strong_or_weak
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -341,7 +344,11 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	if(!UTF_Checks#CLOSE_VAR(var1, var2, tol, strong_or_weak))
+	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong_or_weak)
+	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak, "weak", "strong"), tol
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -364,6 +371,9 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 	variable tol
 	variable strong_or_weak
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -378,7 +388,11 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	if(!UTF_Checks#CLOSE_VAR(real(var1), real(var2), tol, strong_or_weak) || !UTF_Checks#CLOSE_VAR(imag(var1), imag(var2), tol, strong_or_weak))
+	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong_or_weak) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong_or_weak)
+	sprintf str, "(%g, %g) ~ (%g, %g) with %s check and tol %g", real(var1), imag(var1), real(var2), imag(var2), SelectString(strong_or_weak, "weak", "strong"), tol
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
