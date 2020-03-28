@@ -104,6 +104,52 @@ static Function AreStringsEqual(str1, str2, case_sensitive)
 	endif
 End
 
+static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
+	Wave/Z wv1, wv2
+	variable mode, tol
+	string &detailedMsg
+
+	variable result
+
+	// handle NaN return values from EqualWaves for unknown modes
+	result = EqualWaves(wv1, wv2, mode, tol) == 1
+
+	detailedMsg = ""
+
+	if(!result)
+		switch(mode)
+			 case WAVE_DATA:
+			 case WAVE_DATA_TYPE:
+			 case WAVE_SCALING:
+			 case DATA_UNITS:
+			 case DIMENSION_UNITS:
+			 case WAVE_NOTE:
+			 case WAVE_LOCK_STATE:
+			 case DATA_FULL_SCALE:
+			 case DIMENSION_SIZES:
+				 // FIXME add detailed msg generation functions
+				 break
+			 case DIMENSION_LABELS:
+				// work around buggy EqualWaves versions which detect some
+				// waves as differing but they are not in reality
+#if IgorVersion() >= 9.0
+				GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#elif IgorVersion() >= 8.0
+#if NumberByKey("BUILD", IgorInfo(0)) >= 33425
+				GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#else // old IP8
+				result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+#else // IP7 and older
+				result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+#endif
+				break
+		endswitch
+	endif
+
+	return result
+End
+
 static Function HasWaveMajorType(wv, majorType)
 	WAVE/Z wv
 	variable majorType
