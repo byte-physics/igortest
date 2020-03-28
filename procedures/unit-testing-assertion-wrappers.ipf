@@ -278,6 +278,9 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable case_sensitive
 	variable flags
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -288,7 +291,11 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		case_sensitive = 0
 	endif
 
-	if(UTF_Checks#EQUAL_STR(str1, str2, case_sensitive))
+	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
+	sprintf str, "\"%s\" != \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -458,6 +465,9 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable case_sensitive
 	variable flags
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -468,7 +478,11 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		case_sensitive = 0
 	endif
 
-	if(!UTF_Checks#EQUAL_STR(str1, str2, case_sensitive))
+	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
+	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif

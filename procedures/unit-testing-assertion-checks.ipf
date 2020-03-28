@@ -98,24 +98,19 @@ static Function CLOSE_VAR(var1, var2, tol, strong_or_weak)
 End
 
 /// @return 1 if both strings are equal and zero otherwise
-static Function EQUAL_STR(str1, str2, case_sensitive)
+static Function AreStringsEqual(str1, str2, case_sensitive)
 	string &str1, &str2
 	variable case_sensitive
 
-	variable result
-	if(UTF_Checks#IsNullString(str1) && UTF_Checks#IsNullString(str2))
-		result = 1
-	elseif(UTF_Checks#IsNullString(str1) || UTF_Checks#IsNullString(str2))
-		result = 0
+	case_sensitive = !!case_sensitive
+
+	if(IsNullString(str1) && IsNullString(str2))
+		return 1
+	elseif(IsNullString(str1) || IsNullString(str2))
+		return 0
 	else
-		result = (cmpstr(str1, str2, case_sensitive) == 0)
+		return (cmpstr(str1, str2, case_sensitive) == 0)
 	endif
-
-	string str
-	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
-	SetTestStatusAndDebug(str, result)
-
-	return result
 End
 
 /// @endcond // HIDDEN_SYMBOL
