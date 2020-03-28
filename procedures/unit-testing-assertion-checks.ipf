@@ -61,16 +61,11 @@ static Function AreVariablesEqual(var1, var2)
 	endif
 End
 
-static Function SMALL_VAR(var, tol)
+static Function IsVariableSmall(var, tol)
 	variable var
 	variable tol
 
-	variable result = (abs(var) < abs(tol))
-
-	string str
-	sprintf str, "%g ~ 0 with tol %g", var, tol
-	SetTestStatusAndDebug(str, result)
-	return result
+	return (abs(var) < abs(tol))
 End
 
 static Function AreVariablesClose(var1, var2, tol, strong_or_weak)

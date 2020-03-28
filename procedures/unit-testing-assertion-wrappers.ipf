@@ -414,6 +414,9 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable flags
 	variable tol
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -424,7 +427,11 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	if(!UTF_Checks#SMALL_VAR(var, tol))
+	result = UTF_Checks#IsVariableSmall(var, tol)
+	sprintf str, "%g ~ 0 with tol %g", var, tol
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
@@ -446,6 +453,9 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	variable flags
 	variable tol
 
+	variable result
+	string str
+
 	incrAssert()
 
 	if(shouldDoAbort())
@@ -456,7 +466,11 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	if(!UTF_Checks#SMALL_VAR(cabs(var), tol))
+	result = UTF_Checks#IsVariableSmall(cabs(var), tol)
+	sprintf str, "(%g, %g) ~ 0 with tol %g", real(var), imag(var), tol
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
 		if(flags & OUTPUT_MESSAGE)
 			printFailInfo()
 		endif
