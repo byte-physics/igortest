@@ -12,14 +12,15 @@
 static Function CDF_EMPTY_WRAPPER(flags)
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	string folder = ":"
-	variable result = (CountObjects(folder, 1) + CountObjects(folder, 2) + CountObjects(folder, 3) + CountObjects(folder, 4)  == 0)
+	result = UTF_Checks#IsDataFolderEmpty(":")
 
 	if(!result)
 		if(flags & OUTPUT_MESSAGE)

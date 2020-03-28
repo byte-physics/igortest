@@ -7,6 +7,21 @@
 
 /// @cond HIDDEN_SYMBOL
 
+/// @name CountObjects and CountObjectsDFR constant
+/// @anchor TypeFlags
+/// @{
+static Constant COUNTOBJECTS_WAVES      = 1
+static Constant COUNTOBJECTS_VAR        = 2
+static Constant COUNTOBJECTS_STR        = 3
+static Constant COUNTOBJECTS_DATAFOLDER = 4
+/// @}
+
+static Function IsDataFolderEmpty(folder)
+	string folder
+
+	return ((CountObjects(folder, COUNTOBJECTS_WAVES) + CountObjects(folder, COUNTOBJECTS_VAR) + CountObjects(folder, COUNTOBJECTS_STR) + CountObjects(folder, COUNTOBJECTS_DATAFOLDER)) == 0)
+End
+
 static Function NON_NULL_STR(str)
 	string &str
 
