@@ -58,6 +58,7 @@ static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
 /// Tag for test case data generator function
 static StrConstant UTF_TD_GENERATOR = "UTF_TD_GENERATOR"
+
 /// How many lines are scanned for tag prior Function key word
 static Constant UTF_TD_GENERATOR_L = 3
 
@@ -2083,7 +2084,6 @@ static Function CallTestCase(s, reentry)
 
 End
 
-
 /// @brief initialize all strings in strRunTest structure to be non <null>
 static Function InitStrRunTest(s)
 	STRUCT strRunTest &s
@@ -2135,6 +2135,7 @@ static Structure strRunTest
 	variable j
 	variable err
 EndStructure
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @brief Registers a background monitor for a list of other background tasks
