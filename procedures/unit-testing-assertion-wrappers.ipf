@@ -534,7 +534,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	variable majorType, minorType
 	variable flags
 
-	variable result, type, type1, type2
+	variable result
 	string str
 
 	incrAssert()
@@ -543,21 +543,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		return NaN
 	endif
 
-	type2 = WaveType(wv, 2)
-	type1 = WaveType(wv, 1)
-	if(type1 > 0 && type1 <= 4)
-		type = type | 2^(type1 - 1)
-	endif
-	if(type2 > 0 && type2 <= 2)
-		type = type | 2^(type2 + 3)
-	endif
-
-	if((type1 == 0 && type2 == 0) || !WaveExists(wv))
-		type = NULL_WAVE
-	endif
-
-	result = (type & majorType) == majorType
-
+	result = UTF_Checks#HasWaveMajorType(wv, majorType)
 	sprintf str, "Assumption that the wave's main type is %d", majorType
 	SetTestStatusAndDebug(str, result)
 
@@ -574,9 +560,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	endif
 
 	if(!ParamIsDefault(minorType))
-		type = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
-
-		result = (type & minorType) == minorType
+		result = UTF_Checks#HasWaveMinorType(wv, minorType)
 		sprintf str, "Assumption that the wave's sub type is %d", minorType
 		SetTestStatusAndDebug(str, result)
 

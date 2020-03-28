@@ -104,4 +104,39 @@ static Function AreStringsEqual(str1, str2, case_sensitive)
 	endif
 End
 
+static Function HasWaveMajorType(wv, majorType)
+	WAVE/Z wv
+	variable majorType
+
+	variable type, type1, type2
+
+	type2 = WaveType(wv, 2)
+	type1 = WaveType(wv, 1)
+
+	if(type1 > 0 && type1 <= 4)
+		type = type | 2^(type1 - 1)
+	endif
+
+	if(type2 > 0 && type2 <= 2)
+		type = type | 2^(type2 + 3)
+	endif
+
+	if((type1 == 0 && type2 == 0) || !WaveExists(wv))
+		type = NULL_WAVE
+	endif
+
+	return (type & majorType) == majorType
+End
+
+static Function HasWaveMinorType(wv, minorType)
+	WAVE/Z wv
+	variable minorType
+
+	variable type
+
+	type = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
+
+	return (type & minorType) == minorType
+End
+
 /// @endcond // HIDDEN_SYMBOL
