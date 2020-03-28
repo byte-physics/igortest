@@ -21,20 +21,7 @@ static Function CDF_EMPTY_WRAPPER(flags)
 	endif
 
 	result = UTF_Checks#IsDataFolderEmpty(":")
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
-
-	SetTestStatusAndDebug("Assumption that the current data folder is empty is", result)
+	ReportResults(result, "Assumption that the current data folder is empty is", flags)
 End
 
 /// @class TRUE_DOCU
@@ -54,19 +41,7 @@ static Function TRUE_WRAPPER(var, flags)
 	endif
 
 	result = UTF_Checks#IsTrue(var)
-	SetTestStatusAndDebug(num2istr(var), result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, num2istr(var), flags)
 End
 
 /// @class NULL_STR_DOCU
@@ -87,19 +62,7 @@ static Function NULL_STR_WRAPPER(str, flags)
 	endif
 
 	result = UTF_Checks#IsNullString(str)
-	SetTestStatusAndDebug("Assumption of str being null is ", result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, "Assumption that str is null is", flags)
 End
 
 /// @class EMPTY_STR_DOCU
@@ -120,19 +83,7 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 	endif
 
 	result = UTF_Checks#IsEmptyString(str)
-	SetTestStatusAndDebug("Assumption that the string is empty is", result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, "Assumption that the string is empty is", flags)
 End
 
 /// @class NON_NULL_STR_DOCU
@@ -153,19 +104,7 @@ static Function NON_NULL_STR_WRAPPER(str, flags)
 	endif
 
 	result = !UTF_Checks#IsNullString(str)
-	SetTestStatusAndDebug("Assumption that the string is not null is", result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, "Assumption of the string being non null is", flags)
 End
 
 /// @class NON_EMPTY_STR_DOCU
@@ -186,19 +125,7 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 	endif
 
 	result = !UTF_Checks#IsEmptyString(str)
-	SetTestStatusAndDebug("Assumption that the string is non empty is", result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, "Assumption that the string is non empty is", flags)
 End
 
 /// @class PROPER_STR_DOCU
@@ -220,19 +147,7 @@ static Function PROPER_STR_WRAPPER(str, flags)
 	endif
 
 	result = UTF_Checks#IsProperString(str)
-	SetTestStatusAndDebug("Assumption that the string is a proper string is", result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, "Assumption that the string is a proper string is", flags)
 End
 
 /// @class NEQ_VAR_DOCU
@@ -255,19 +170,7 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 
 	result = !UTF_Checks#AreVariablesEqual(var1, var2)
 	sprintf str, "%g != %g", var1, var2
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class NEQ_STR_DOCU
@@ -296,19 +199,8 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
 	sprintf str, "\"%s\" != \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
-	SetTestStatusAndDebug(str, result)
 
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class CLOSE_VAR_DOCU
@@ -349,19 +241,7 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 
 	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong_or_weak)
 	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak, "weak", "strong"), tol
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class CLOSE_CMPLX_DOCU
@@ -393,19 +273,7 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 
 	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong_or_weak) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong_or_weak)
 	sprintf str, "(%g, %g) ~ (%g, %g) with %s check and tol %g", real(var1), imag(var1), real(var2), imag(var2), SelectString(strong_or_weak, "weak", "strong"), tol
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class SMALL_VAR_DOCU
@@ -433,19 +301,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 
 	result = UTF_Checks#IsVariableSmall(var, tol)
 	sprintf str, "%g ~ 0 with tol %g", var, tol
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class SMALL_CMPLX_DOCU
@@ -472,19 +328,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 
 	result = UTF_Checks#IsVariableSmall(cabs(var), tol)
 	sprintf str, "(%g, %g) ~ 0 with tol %g", real(var), imag(var), tol
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class EQUAL_STR_DOCU
@@ -513,19 +357,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
 	sprintf str, "\"%s\" == \"%s\" %s case", SelectString(UTF_Checks#IsNullString(str1), str1, "(null)"), SelectString(UTF_Checks#IsNullString(str2), str2, "(null)"), SelectString(case_sensitive, "not respecting", "respecting")
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class WAVE_DOCU
@@ -551,36 +383,12 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 
 	result = UTF_Checks#HasWaveMajorType(wv, majorType)
 	sprintf str, "Assumption that the wave's main type is %d", majorType
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 
 	if(!ParamIsDefault(minorType))
 		result = UTF_Checks#HasWaveMinorType(wv, minorType)
 		sprintf str, "Assumption that the wave's sub type is %d", minorType
-		SetTestStatusAndDebug(str, result)
-
-		if(!result)
-			if(flags & OUTPUT_MESSAGE)
-				printFailInfo()
-			endif
-			if(flags & INCREASE_ERROR)
-				incrError()
-			endif
-			if(flags & ABORT_FUNCTION)
-				abortNow()
-			endif
-		endif
+		ReportResults(result, str, flags)
 	endif
 End
 
@@ -608,19 +416,7 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 
 	result = UTF_Checks#AreVariablesEqual(var1, var2)
 	sprintf str, "%g == %g", var1, var2
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
-	endif
+	ReportResults(result, str, flags)
 End
 
 /// @class EQUAL_WAVE_DOCU
@@ -635,7 +431,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable flags
 	variable mode, tol
 
-	variable i
+	variable i, result
 	string str, detailedMsg
 
 	incrAssert()
@@ -644,51 +440,24 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		return NaN
 	endif
 
-	variable result = WaveExists(wv1)
-	SetTestStatusAndDebug("Assumption that the first wave (wv1) exists", result)
+	result = WaveExists(wv1)
+	ReportResults(result, "Assumption that the first wave (wv1) exists", flags)
 
 	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
 		return NaN
 	endif
 
 	result = WaveExists(wv2)
-	SetTestStatusAndDebug("Assumption that the second wave (wv2) exists", result)
+	ReportResults(result, "Assumption that the second wave (wv2) exists", flags)
 
 	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
 		return NaN
 	endif
 
 	result = !WaveRefsEqual(wv1, wv2)
-	SetTestStatusAndDebug("Assumption that both waves are distinct", result)
+	ReportResults(result, "Assumption that both waves are distinct", flags)
 
 	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
-		endif
 		return NaN
 	endif
 
@@ -712,18 +481,6 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 			str += "; detailed: " + detailedMsg
 		endif
 
-		SetTestStatusAndDebug(str, result)
-
-		if(!result)
-			if(flags & OUTPUT_MESSAGE)
-				printFailInfo()
-			endif
-			if(flags & INCREASE_ERROR)
-				incrError()
-			endif
-			if(flags & ABORT_FUNCTION)
-				abortNow()
-			endif
-		endif
+		ReportResults(result, str, flags)
 	endfor
 End

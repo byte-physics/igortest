@@ -457,6 +457,29 @@ static Function setAbortFlag()
 	variable/G dfr:abortFlag = 1
 End
 
+/// @brief Wrapper function result reporting
+///
+/// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
+/// @param str    Message string
+/// @param flags  Wrapper function `flags` argument
+Function ReportResults(result, str, flags)
+	variable result, flags
+	string str
+
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
+		if(flags & OUTPUT_MESSAGE)
+			printFailInfo()
+		endif
+		if(flags & INCREASE_ERROR)
+			incrError()
+		endif
+		if(flags & ABORT_FUNCTION)
+			abortNow()
+		endif
+	endif
+End
 
 Function abortNow()
 	setAbortFlag()
