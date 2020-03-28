@@ -44,13 +44,15 @@ static Function TRUE_WRAPPER(var, flags)
 	variable var
 	variable flags
 
+	variable result
+
 	incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	variable result = (var == 1)
+	result = UTF_Checks#IsTrue(var)
 	SetTestStatusAndDebug(num2istr(var), result)
 
 	if(!result)

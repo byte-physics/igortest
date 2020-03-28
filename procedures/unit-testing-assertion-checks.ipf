@@ -22,6 +22,12 @@ static Function IsDataFolderEmpty(folder)
 	return ((CountObjects(folder, COUNTOBJECTS_WAVES) + CountObjects(folder, COUNTOBJECTS_VAR) + CountObjects(folder, COUNTOBJECTS_STR) + CountObjects(folder, COUNTOBJECTS_DATAFOLDER)) == 0)
 End
 
+static Function IsTrue(var)
+	variable var
+
+	return (var == 1)
+End
+
 static Function NON_NULL_STR(str)
 	string &str
 
