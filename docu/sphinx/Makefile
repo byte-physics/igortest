@@ -27,6 +27,9 @@ debug:
 deploy:
 	@lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" byte-physics-docs
 
+deploy_staging:
+	@lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" byte-physics-docs-staging
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new

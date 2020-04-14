@@ -104,6 +104,17 @@ testing-v9:
       - tests/JU_*.xml
       - screenshot/*.png
 
+deployment_staging:
+  when: manual
+  tags:
+    - macosx, shell
+  stage: deploy
+  script:
+    - cd docu/sphinx
+    - make deploy_staging
+  dependencies:
+    - documentation
+
 deployment:
   only:
     - master
