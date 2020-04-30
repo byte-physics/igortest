@@ -93,101 +93,101 @@ Function REQUIRE_NEQ_VAR(var1, var2)
 End
 
 /// @copydoc CLOSE_VAR_DOCU
-Function WARN_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+Function WARN_CLOSE_VAR(var1, var2, [tol, strong])
 	variable var1, var2
 	variable tol
-	variable strong_or_weak
+	variable strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong=strong)
 	endif
 End
 
 /// @copydoc CLOSE_VAR_DOCU
-Function CHECK_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+Function CHECK_CLOSE_VAR(var1, var2, [tol, strong])
 	variable var1, var2
 	variable tol
-	variable strong_or_weak
+	variable strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong=strong)
 	endif
 End
 
 /// @copydoc CLOSE_VAR_DOCU
-Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong_or_weak])
+Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong])
 	variable var1, var2
 	variable tol
-	variable strong_or_weak
+	variable strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong=strong)
 	endif
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong])
 	variable/C var1, var2
-	variable tol, strong_or_weak
+	variable tol, strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong=strong)
 	endif
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong])
 	variable/C var1, var2
-	variable tol, strong_or_weak
+	variable tol, strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong=strong)
 	endif
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong_or_weak])
+Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong])
 	variable/C var1, var2
-	variable tol, strong_or_weak
+	variable tol, strong
 
-	if(ParamIsDefault(tol) && ParamIsDefault(strong_or_weak))
+	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE)
 	elseif(ParamIsDefault(tol))
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, strong_or_weak=strong_or_weak)
-	elseif(ParamIsDefault(strong_or_weak))
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, strong=strong)
+	elseif(ParamIsDefault(strong))
 		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
 	else
-		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong_or_weak=strong_or_weak)
+		UTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong=strong)
 	endif
 End
 

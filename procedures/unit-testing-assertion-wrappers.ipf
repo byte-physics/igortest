@@ -212,15 +212,15 @@ End
 /// The art of computer programming (Vol II). Donald. E. Knuth. 0-201-89684-2. Addison-Wesley Professional;
 /// 3 edition, page 234 equation (34) and (35).
 ///
-/// @param var1            first variable
-/// @param var2            second variable
-/// @param tol             (optional) tolerance, defaults to 1e-8
-/// @param strong_or_weak  (optional) type of condition, can be 0 for weak or 1 for strong (default)
-static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
+/// @param var1   first variable
+/// @param var2   second variable
+/// @param tol    (optional) tolerance, defaults to 1e-8
+/// @param strong (optional) type of condition, can be 0 for weak or 1 for strong (default)
+static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	variable var1, var2
 	variable flags
 	variable tol
-	variable strong_or_weak
+	variable strong
 
 	variable result
 	string str
@@ -231,16 +231,16 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 		return NaN
 	endif
 
-	if(ParamIsDefault(strong_or_weak))
-		strong_or_weak  = CLOSE_COMPARE_STRONG_OR_WEAK
+	if(ParamIsDefault(strong))
+		strong  = CLOSE_COMPARE_STRONG
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong_or_weak)
-	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong_or_weak, "weak", "strong"), tol
+	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong)
+	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong, "weak", "strong"), tol
 	ReportResults(result, str, flags)
 End
 
@@ -248,11 +248,11 @@ End
 /// @copydoc CLOSE_VAR_DOCU
 ///
 /// Variant for complex numbers.
-static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
+static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	variable/C var1, var2
 	variable flags
 	variable tol
-	variable strong_or_weak
+	variable strong
 
 	variable result
 	string str
@@ -263,16 +263,16 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong_or_weak])
 		return NaN
 	endif
 
-	if(ParamIsDefault(strong_or_weak))
-		strong_or_weak  = CLOSE_COMPARE_STRONG_OR_WEAK
+	if(ParamIsDefault(strong))
+		strong  = CLOSE_COMPARE_STRONG
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong_or_weak) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong_or_weak)
-	sprintf str, "(%g, %g) ~ (%g, %g) with %s check and tol %g", real(var1), imag(var1), real(var2), imag(var2), SelectString(strong_or_weak, "weak", "strong"), tol
+	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
+	sprintf str, "(%g, %g) ~ (%g, %g) with %s check and tol %g", real(var1), imag(var1), real(var2), imag(var2), SelectString(strong, "weak", "strong"), tol
 	ReportResults(result, str, flags)
 End
 

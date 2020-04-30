@@ -68,12 +68,12 @@ static Function IsVariableSmall(var, tol)
 	return (abs(var) < abs(tol))
 End
 
-static Function AreVariablesClose(var1, var2, tol, strong_or_weak)
+static Function AreVariablesClose(var1, var2, tol, strong)
 	variable var1, var2
 	variable tol
-	variable strong_or_weak
+	variable strong
 
-	strong_or_weak = !!strong_or_weak
+	strong = !!strong
 
 	variable diff = abs(var1 - var2)
 	variable d1   = diff / abs(var1)
@@ -81,7 +81,7 @@ static Function AreVariablesClose(var1, var2, tol, strong_or_weak)
 
 	// printf "d1 %.15g, d2 %.15g, d1 - d2 %.15g, strong %d, weak %d\r", d1, d2, d1 - d2, (d1 <= tol && d2 <= tol), (d1 <= tol || d2 <= tol)
 
-	if(strong_or_weak == 1)
+	if(strong)
 		return (d1 <= tol && d2 <= tol)
 	else
 		return (d1 <= tol || d2 <= tol)

@@ -243,21 +243,21 @@ static Function TestUTF()
 
 	// CHECK_CLOSE
 	// @{
-	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong_or_weak=STRONG_CLOSENESS)
-	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong_or_weak=WEAK_CLOSENESS)
+	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong=1)
+	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong=0)
 
-	CHECK_CLOSE_VAR(1, 2, tol = 1, strong_or_weak=STRONG_CLOSENESS)
-	CHECK_CLOSE_VAR(1, 2, tol = 1, strong_or_weak=WEAK_CLOSENESS)
+	CHECK_CLOSE_VAR(1, 2, tol = 1, strong=1)
+	CHECK_CLOSE_VAR(1, 2, tol = 1, strong=0)
 	// @}
 
 	// CHECK_CLOSE_CMPLX
 	// @{
 
-	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong_or_weak=STRONG_CLOSENESS)
-	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong_or_weak=WEAK_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong=STRONG_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong=WEAK_CLOSENESS)
 
-	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong_or_weak=STRONG_CLOSENESS)
-	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong_or_weak=WEAK_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong=STRONG_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong=WEAK_CLOSENESS)
 	// @}
 
 	// AreWavesEqual
