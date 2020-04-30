@@ -25,7 +25,7 @@ static Function CDF_EMPTY_WRAPPER(flags)
 End
 
 /// @class TRUE_DOCU
-/// Tests if var is true (1).
+/// Tests if var is non-zero and not "Not a Number" (NaN).
 ///
 /// @param var variable to test
 static Function TRUE_WRAPPER(var, flags)

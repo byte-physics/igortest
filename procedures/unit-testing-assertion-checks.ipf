@@ -27,7 +27,7 @@ End
 static Function IsTrue(var)
 	variable var
 
-	return (var == 1)
+	return (var != 0 && numType(var) != NUMTYPE_NAN)
 End
 
 static Function IsNullString(str)

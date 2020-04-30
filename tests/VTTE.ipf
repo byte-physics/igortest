@@ -92,10 +92,12 @@ static Function TestUTF()
 	// IsTrue
 	// @{
 	Ensure(UTF_Checks#IsTrue(1))
-	Ensure(!UTF_Checks#IsTrue(-1))
-	Ensure(!UTF_Checks#IsTrue(inf))
-	Ensure(!UTF_Checks#IsTrue(-inf))
+	Ensure(UTF_Checks#IsTrue(-1))
+	Ensure(UTF_Checks#IsTrue(1e-15))
+	Ensure(UTF_Checks#IsTrue(inf))
+	Ensure(UTF_Checks#IsTrue(-inf))
 	Ensure(!UTF_Checks#IsTrue(NaN))
+	Ensure(!UTF_Checks#IsTrue(0))
 	// @}
 
 	CHECK(1)
