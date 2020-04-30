@@ -38,6 +38,7 @@ testing-v6:
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
+    when: always
     reports:
       junit: tests/JU_*.xml
     paths:
@@ -58,6 +59,7 @@ testing-v7:
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
+    when: always
     reports:
       junit: tests/JU_*.xml
     paths:
@@ -78,6 +80,7 @@ testing-v8:
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
+    when: always
     reports:
       junit: tests/JU_*.xml
     paths:
@@ -98,6 +101,7 @@ testing-v9:
       # generate a proper exit value
     - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
+    when: always
     reports:
       junit: tests/JU_*.xml
     paths:
