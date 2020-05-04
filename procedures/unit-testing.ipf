@@ -4,11 +4,13 @@
 
 // Licensed under 3-Clause BSD, see License.txt
 
-#include "unit-testing-constants"
-#include "unit-testing-basics"
-#include "unit-testing-comparators"
-#include "unit-testing-hooks"
+#include "unit-testing-assertion-checks"
+#include "unit-testing-assertion-wrappers"
+#include "unit-testing-assertions"
 #include "unit-testing-autorun"
+#include "unit-testing-basics"
+#include "unit-testing-constants"
+#include "unit-testing-hooks"
 #include "unit-testing-junit"
 #include "unit-testing-tap"
 #include "unit-testing-utils"

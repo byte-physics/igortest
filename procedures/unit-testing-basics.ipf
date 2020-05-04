@@ -58,6 +58,7 @@ static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
 /// Tag for test case data generator function
 static StrConstant UTF_TD_GENERATOR = "UTF_TD_GENERATOR"
+
 /// How many lines are scanned for tag prior Function key word
 static Constant UTF_TD_GENERATOR_L = 3
 
@@ -456,6 +457,29 @@ static Function setAbortFlag()
 	variable/G dfr:abortFlag = 1
 End
 
+/// @brief Wrapper function result reporting
+///
+/// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
+/// @param str    Message string
+/// @param flags  Wrapper function `flags` argument
+Function ReportResults(result, str, flags)
+	variable result, flags
+	string str
+
+	SetTestStatusAndDebug(str, result)
+
+	if(!result)
+		if(flags & OUTPUT_MESSAGE)
+			printFailInfo()
+		endif
+		if(flags & INCREASE_ERROR)
+			incrError()
+		endif
+		if(flags & ABORT_FUNCTION)
+			abortNow()
+		endif
+	endif
+End
 
 Function abortNow()
 	setAbortFlag()
@@ -2083,7 +2107,6 @@ static Function CallTestCase(s, reentry)
 
 End
 
-
 /// @brief initialize all strings in strRunTest structure to be non <null>
 static Function InitStrRunTest(s)
 	STRUCT strRunTest &s
@@ -2135,6 +2158,7 @@ static Structure strRunTest
 	variable j
 	variable err
 EndStructure
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @brief Registers a background monitor for a list of other background tasks
