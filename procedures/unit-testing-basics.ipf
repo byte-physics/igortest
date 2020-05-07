@@ -1250,7 +1250,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 		// Simple Test Cases
 		FUNCREF TEST_CASE_PROTO fTC = $fullTestCase
 		if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
-			reducedTCList = AddListItem(testCase, reducedTCList)
+			reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
 			continue
 		endif
 		// Multi Data Test Cases
@@ -1294,7 +1294,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 				UTF_PrintStatusMessage(msg)
 				continue
 			else
-				reducedTCList = AddListItem(testCase, reducedTCList)
+				reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
 			endif
 		endif
 	endfor
@@ -1411,7 +1411,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 					sprintf errMsg, "Could not get full function name: %s", fullFuncName
 					return errMsg
 				endif
-				testCaseList = AddListItem(fullFuncName, testCaseList, ";")
+				testCaseList = AddListItem(fullFuncName, testCaseList, ";", inf)
 				tcCount += GetTestCaseCount(fullFuncName, procWin)
 			endfor
 		endfor
@@ -2481,7 +2481,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			numItemsFFN = 1
 		endif
 
-		for(j = numItemsFFN - 1; j >= 0; j -= 1)
+		for(j = 0; j < numItemsFFN; j += 1)
 			s.j = j
 
 			if(!reentry)
