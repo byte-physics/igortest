@@ -1303,7 +1303,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 End
 
 /// Returns List of Test Functions in Procedure Window procWin
-static Function/S getTestCaseList(procWin)
+static Function/S GetTestCaseList(procWin)
 	string procWin
 
 	string testCaseList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,VALTYPE:1,WIN:" + procWin)
@@ -1315,9 +1315,45 @@ static Function/S getTestCaseList(procWin)
 	if(!UTF_Utils#IsEmpty(testCaseMDList))
 		testCaseList = testCaseList + testCaseMDList
 	endif
+	testCaseList = SortTestCaseList(procWin, testCaseList)
 
 	return CheckFunctionSignaturesTC(testCaseList, procWin)
 End
+
+/// Returns the list of testcases sorted by line number
+static Function/S SortTestCaseList(procWin, testCaseList)
+	string procWin, testCaseList
+
+	if(UTF_Utils#IsEmpty(testCaseList))
+		return ""
+	endif
+
+	Wave/T testCaseWave = ListToTextWave(testCaseList, ";")
+
+	Make/FREE/N=(ItemsInList(testCaseList)) lineNumberWave
+	lineNumberWave[] = str2num(StringByKey("PROCLINE", FunctionInfo(testCaseWave[p], procWin)))
+	
+	Sort lineNumberWave, testCaseWave
+	
+	return UTF_Utils#TextWaveToList(testCaseWave, ";")
+End
+
+#if (IgorVersion() >= 7.0)
+    // ListToTextWave is available
+#else
+/// @brief Convert a string list to a text wave
+///
+/// @param[in] list string list
+/// @param[in] sep separator string
+/// @returns wave reference to free wave
+static Function/WAVE ListToTextWave(list, sep)
+    string list, sep
+
+    Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
+
+    return result
+End
+#endif
 
 /// @brief get test cases matching a certain pattern
 ///
