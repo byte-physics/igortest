@@ -51,4 +51,25 @@ threadsafe static Function IsEmpty(str)
 	return numtype(len) == 2 || len <= 0
 End
 
+
+// @brief Convert a text wave to string list
+///
+/// @param[in] txtWave 1D text wave
+/// @param[in] sep separator string
+/// @returns string with list of former text wave elements
+static Function/S TextWaveToList(txtWave, sep)
+	WAVE/T txtWave
+	string sep
+
+	string list = ""
+	variable i, numRows
+
+	numRows = DimSize(txtWave, 0)
+	for(i = 0; i < numRows; i += 1)
+		list = AddListItem(txtWave[i], list, sep, inf)
+	endfor
+
+	return list
+End
+
 ///@endcond // HIDDEN_SYMBOL
