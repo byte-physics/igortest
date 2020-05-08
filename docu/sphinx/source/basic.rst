@@ -45,7 +45,8 @@ Test Suite
 
 A Test Suite is a group of :ref:`Test Cases<TestCase>` which should belong
 together. All :ref:`test functions<TestCase>` are defined in a single
-procedure file. Generally speaking, a Test Suite is equal to a procedure file.
+procedure file, :cpp:func:`RunTest` calls them from top to bottom. Generally speaking,
+a Test Suite is equal to a procedure file.
 Therefore tests suites can not be nested, although multiple test suites can be
 run with one command by supplying a list to the parameter :code:`procWinList` in
 :cpp:func:`RunTest`.
