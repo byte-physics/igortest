@@ -166,16 +166,12 @@ static Function/S JU_TrimSOUT(input, [listSepStr])
 	return output
 End
 
-/// Returns the current TimeStamp in the form yyyy-mm-ddThh:mm:ssZ±hh:mm in UTC + time zone
+/// Returns the current TimeStamp in the form yyyy-mm-ddThh:mm:ss in local time
 static Function/S JU_GetISO8601TimeStamp()
-	variable timezone, utctime
-	variable tzmin, tzhour
-	string tz
+	variable localtime
 
-	timezone = Date2Secs(-1,-1,-1)
-	utctime = DateTime - timezone
-	sprintf tz, "%+03d:%02d", trunc(timezone / 3600), abs(mod(timezone / 60, 60))
-	return (Secs2Date(utctime, -2) + "T" + Secs2Time(utctime, 3) + "Z" + tz)
+	localtime = DateTime
+	return (Secs2Date(localtime, -2) + "T" + Secs2Time(localtime, 3))
 End
 
 /// Evaluates last Test Case and returns JUNIT XML Output from Test Case
