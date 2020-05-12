@@ -422,7 +422,7 @@ Function incrAssert()
 End
 
 /// Prints an informative message that the test failed
-Function printFailInfo()
+Function PrintFailInfo()
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
@@ -431,7 +431,7 @@ Function printFailInfo()
 
 	sprintf message, "%s  %s", status, getInfo(0)
 
-	print message
+	UTF_PrintStatusMessage(message)
 	type = "FAIL"
 	systemErr = message
 
