@@ -921,6 +921,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 
 	UTF_PrintStatusMessage(message)
 	systemErr = message
+	incrError()
 
 	CheckAbortCondition(abortCode)
 	if(TAP_IsOutputEnabled())
@@ -1682,7 +1683,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 		EvaluateRTE(err, errorMessage, V_AbortCode, name, USER_HOOK_TYPE, procWin)
 
 		setAbortFlag()
-		incrError()
 	endtry
 
 	switch(hookType)
@@ -2573,13 +2573,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						ClearRTError()
 						CallTestCase(s, reentry)
 					catch
-						// only complain here if the error counter if the abort happened not in our code
-						if(!shouldDoAbort())
-							message = GetRTErrMessage()
-							s.err = GetRTError(1)
-							EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
-							incrError()
-						endif
+						message = GetRTErrMessage()
+						s.err = GetRTError(1)
+						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
 
 						if(shouldDoAbort())
 							// abort condition is on hold while in catch/endtry, so all cleanup must happen here
