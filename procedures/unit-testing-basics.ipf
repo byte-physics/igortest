@@ -47,6 +47,17 @@ static Constant WAVETYPE1_DFR = 0x03
 static Constant WAVETYPE1_WREF = 0x04
 /// @}
 
+/// @name Constants for Debugger mode
+/// @anchor DebugConstants
+/// @{
+Constant IUTF_DEBUG_DISABLE = 0x00
+Constant IUTF_DEBUG_ENABLE = 0x01
+Constant IUTF_DEBUG_ON_ERROR = 0x02
+Constant IUTF_DEBUG_NVAR_SVAR_WAVE = 0x04
+Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
+Constant IUTF_DEBUG_ALLOW = 0x10
+/// @}
+
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
 
@@ -307,19 +318,51 @@ static Function DisableIgorDebugger()
 
 	variable debuggerState
 
+/// Set the Igor Debugger, returns the previous state
+/// @param state		3 bits to set
+///						0x01: debugger enable
+///						0x02: debug on error
+///						0x04: debug on NVAR SVAR WAVE reference error
+static Function SetIgorDebugger(state)
+	variable state
+	
+	variable prevState, enable, debugOnError, nvarSvarWave
+
 	DebuggerOptions
-	debuggerState = V_enable
+	prevState = (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
 
-	DebuggerOptions enable=0
+	enable = !!(state & IUTF_DEBUG_ENABLE)
+	debugOnError = !!(state & IUTF_DEBUG_ON_ERROR)
+	nvarSvarWave = !!(state & IUTF_DEBUG_NVAR_SVAR_WAVE)
 
-	return debuggerState
+	DebuggerOptions enable=enable, debugOnError=debugOnError, NVAR_SVAR_WAVE_Checking=nvarSvarWave
+	
+	return prevState
+End
+
+/// Enable the Igor Pro Debugger in a certain state, return its previous state
+static Function EnableIgorDebugger(debugMode)
+	variable debugMode
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr igor_debug_assertion
+
+	igor_debug_assertion = !!(debugMode & IUTF_DEBUG_FAILED_ASSERTION)
+
+	return SetIgorDebugger(debugMode | IUTF_DEBUG_ENABLE)
+End
+
+/// Disable the Igor Pro Debugger, return its previous state
+static Function DisableIgorDebugger()
+
+	return SetIgorDebugger(IUTF_DEBUG_DISABLE)
 End
 
 /// Restore the Igor Pro Debugger to its prior state
 static Function RestoreIgorDebugger(debuggerState)
 	variable debuggerState
 
-	DebuggerOptions enable=debuggerState
+	SetIgorDebugger(debuggerState)
 End
 
 /// Create the variable igorDebugState in PKG_FOLDER
