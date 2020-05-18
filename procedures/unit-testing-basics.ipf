@@ -285,7 +285,7 @@ static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
-	sprintf str, "%s: is %s", str, SelectString(booleanValue, "false", "true")
+	sprintf str, "%s: is %s.", str, SelectString(booleanValue, "false", "true")
 	if(EnabledDebug())
 		UTF_PrintStatusMessage(str)
 	endif
