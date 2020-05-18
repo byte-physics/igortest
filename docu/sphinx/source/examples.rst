@@ -108,7 +108,7 @@ This test suite emphasizes the difference between the :cpp:func:`WARN`,
 The :cpp:func:`WARN_* <WARN>` variant does not increment the error count if the
 executed assertion fails. :cpp:func:`CHECK_* <CHECK>` variants increase the
 error count. :cpp:func:`REQUIRE_* <REQUIRE>` variants also increment the error
-count but will stop the execution of the test case immediately if the assertion
+count but will stop the execution of the test run immediately if the assertion
 fails.
 
 Even if a test has failed, the test end hook is still executed. See
