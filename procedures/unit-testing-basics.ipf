@@ -285,7 +285,7 @@ static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
-	sprintf str, "%s: is %s", str, SelectString(booleanValue, "false", "true")
+	sprintf str, "%s: is %s.", str, SelectString(booleanValue, "false", "true")
 	if(EnabledDebug())
 		UTF_PrintStatusMessage(str)
 	endif
@@ -422,7 +422,7 @@ Function incrAssert()
 End
 
 /// Prints an informative message that the test failed
-Function printFailInfo()
+Function PrintFailInfo()
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
@@ -431,7 +431,7 @@ Function printFailInfo()
 
 	sprintf message, "%s  %s", status, getInfo(0)
 
-	print message
+	UTF_PrintStatusMessage(message)
 	type = "FAIL"
 	systemErr = message
 
@@ -502,7 +502,9 @@ End
 // 0 failed, 1 succeeded
 static Function/S getInfo(result)
 	variable result
-
+	
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr assert_count
 	string caller, procedure, callStack, contents
 	string text, cleanText, line, callerTestCase
 	variable numCallers, i
@@ -532,7 +534,7 @@ static Function/S getInfo(result)
 		endif
 	endfor
 
-	if(UTF_Utils#IsNaN(callerIndex))
+	if(UTF_Utils#IsNaN(callerIndex) && assert_count != 0)
 		return "Assertion failed in unknown location"
 	endif
 
@@ -554,6 +556,10 @@ static Function/S getInfo(result)
 	text = StringFromList(str2num(line), contents, "\r")
 
 	cleanText = trimstring(text)
+
+	if(assert_count == 0)
+		return "The test case did not make any assertions!"
+	endif
 
 	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
@@ -1124,11 +1130,9 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 	SVAR/Z/SDFR=dfr lastFolder
 	SVAR/Z/SDFR=dfr workFolder
 	NVAR/SDFR=dfr assert_count
-
-	if(assert_count == 0)
-		sprintf msg, "The test case \"%s\" did not make any assertions!", testCase
-		UTF_PrintStatusMessage(msg)
-	endif
+	
+	sprintf msg, "Test case \"%s\" contained at least one assertion", testCase
+	ReportResults(assert_count, msg, OUTPUT_MESSAGE | INCREASE_ERROR)
 
 	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
 		SetDataFolder $lastFolder
