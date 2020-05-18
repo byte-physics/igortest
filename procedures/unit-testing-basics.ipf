@@ -365,11 +365,12 @@ static Function RestoreIgorDebugger(debuggerState)
 	SetIgorDebugger(debuggerState)
 End
 
-/// Create the variable igorDebugState in PKG_FOLDER
-/// and initialize it to zero
-static Function InitIgorDebugState()
+/// Create the variables igor_debug_state and igor_debug_assertion
+/// in PKG_FOLDER and initialize it to zero
+static Function InitIgorDebugVariables()
 	DFREF dfr = GetPackageFolder()
-	variable/G dfr:igor_debug_state = 0
+	Variable/G dfr:igor_debug_state = 0
+	Variable/G dfr:igor_debug_assertion = 0
 End
 
 /// Creates the variable status in PKG_FOLDER
@@ -1021,9 +1022,9 @@ End
 
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
-static Function TestBegin(name, allowDebug)
+static Function TestBegin(name, debugMode)
 	string name
-	variable allowDebug
+	variable debugMode
 
 	variable reEnableDebugOutput, runCountStored
 	string msg
@@ -1056,10 +1057,13 @@ static Function TestBegin(name, allowDebug)
 		EnableDebugOutput()
 	endif
 
-	if(!allowDebug)
-		initIgorDebugState()
-		NVAR/SDFR=dfr igor_debug_state
+	InitIgorDebugVariables()
+	NVAR/SDFR=dfr igor_debug_state
+	if(!debugMode)
 		igor_debug_state = DisableIgorDebugger()
+	endif
+	if(debugMode & (IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION))
+		igor_debug_state = EnableIgorDebugger(debugMode)
 	endif
 
 	string/G dfr:message = ""
@@ -1074,9 +1078,9 @@ End
 
 /// Internal Cleanup for Testrun
 /// @param name   name of the test suite group
-static Function TestEnd(name, allowDebug)
+static Function TestEnd(name, debugMode)
 	string name
-	variable allowDebug
+	variable debugMode
 
 	string msg
 
@@ -1094,7 +1098,7 @@ static Function TestEnd(name, allowDebug)
 	sprintf msg, "End of test \"%s\"", name
 	UTF_PrintStatusMessage(msg)
 
-	if (!allowDebug)
+	if (debugMode != IUTF_DEBUG_ALLOW)
 		NVAR/SDFR=dfr igor_debug_state
 		RestoreIgorDebugger(igor_debug_state)
 	endif
@@ -2219,6 +2223,7 @@ static Structure strRunTest
 	variable enableTAP
 	variable enableRegExp
 	variable allowDebug
+	variable debugMode
 	variable keepDataFolder
 
 	string procWin
@@ -2395,7 +2400,22 @@ End
 ///
 /// @param   allowDebug     (optional) default disabled, enabled when set to 1: @n
 ///                         The Igor debugger will be left in its current state when running the
-///                         tests.
+///                         tests. Is ignored when debugMode is also enabled.
+///
+/// @param	debugMode      (optional) default disabled, enabled when set to 1-15: @n
+///                         The Igor debugger will be turned on in the state: @n
+///								  1st bit = 1 (IUTF_DEBUG_ENABLE): Enable Debugger (only breakpoints) @n
+///                         2nd bit = 1 (IUTF_DEBUG_ON_ERROR): Debug on Error @n
+///								  3rd bit = 1 (IUTF_DEBUG_NVAR_SVAR_WAVE): Check NVAR SVAR WAVE @n
+///                         4th bit = 1 (IUTF_DEBUG_FAILED_ASSERTION): Debug on failed assertion
+///                         @verbatim embed:rst:leading-slashes
+///                             .. code-block:: igor
+///                                :caption: Example
+///
+///                                RunTest(..., debugMode = IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_FAILED_ASSERTION)
+///
+///                             This will enable the debugger with Debug On Error and debugging on failed assertion.
+///                         @endverbatim
 ///
 /// @param   keepDataFolder (optional) default disabled, enabled when set to 1: @n
 ///                         The temporary data folder wherein each test case is executed is not
@@ -2403,10 +2423,10 @@ End
 ///                         produced data.
 ///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, keepDataFolder])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
-	variable allowDebug, keepDataFolder
+	variable allowDebug, debugMode, keepDataFolder
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -2454,6 +2474,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
 		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
 		s.allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
+		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
 		if(s.enableTAP && s.juProps.enableJU)
@@ -2461,6 +2482,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
+
+		var = (IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION)
+		if(s.debugMode > var || s.debugMode < 0 || !UTF_Utils#IsInteger(s.debugMode))
+			printf "debugMode can only be an integer between 0 and %d. The input %g is wrong, aborting!.\r", var, s.debugMode
+			printf "For easy handling you can use IUTF_DEBUG_ENABLE, IUTF_DEBUG_ON_ERROR,\r"
+			printf "IUTF_DEBUG_NVAR_SVAR_WAVE and IUTF_DEBUG_FAILED_ASSERTION.\r\r"
+			printf "Example: debugMode = IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE\r"
+			Abort
+		endif
+		s.debugMode = (s.allowDebug * IUTF_DEBUG_ALLOW) | s.debugMode
 
 		if(ParamIsDefault(name))
 			s.name = "Unnamed"
@@ -2513,7 +2544,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		getGlobalHooks(s.hooks)
 
 		// Kills data folder and reinitializes
-		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.allowDebug)
+		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
 		if(s.enableTAP)
@@ -2522,7 +2553,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(TAP_CheckAllSkip(s.allTestCasesList))
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.allowDebug)
+				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort
 			else
 				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
@@ -2630,7 +2661,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 							ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
 
-							ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.allowDebug)
+							ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
 
 							ClearReentrytoUTF()
 							QuitOnAutoRunFull()
@@ -2672,7 +2703,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 	endfor
 
-	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.allowDebug)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
 
 	ClearReentrytoUTF()
 	QuitOnAutoRunFull()
