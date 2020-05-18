@@ -313,10 +313,25 @@ Function SetTestStatusAndDebug(str, booleanValue)
 	SetTestStatus(str)
 End
 
-/// Disable the Igor Pro Debugger and return its state prior to deactivation
-static Function DisableIgorDebugger()
+Function EvaluateResults(result, str, flags)
+	variable result, flags
+	string str
+	
+	DebugFailedAssertion(result)
+	ReportResults(result, str, flags)
+End
 
-	variable debuggerState
+/// Opens the Debugger if the assertion failed and the debugMode option is set
+static Function DebugFailedAssertion(result)
+	variable result
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr igor_debug_assertion
+
+	if(igor_debug_assertion && !result)
+		Debugger
+	endif
+End
 
 /// Set the Igor Debugger, returns the previous state
 /// @param state		3 bits to set
@@ -506,7 +521,7 @@ End
 /// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
 /// @param str    Message string
 /// @param flags  Wrapper function `flags` argument
-Function ReportResults(result, str, flags)
+static Function ReportResults(result, str, flags)
 	variable result, flags
 	string str
 
