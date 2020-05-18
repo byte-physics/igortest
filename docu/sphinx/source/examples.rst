@@ -139,7 +139,7 @@ Example4
 
 This test suite shows the use of test assertions for waves.
 
-The type of a wave can be checked with :cpp:func:`CHECK_EQUAL_WAVES` and
+The type of a wave can be checked with :cpp:func:`CHECK_WAVE` and
 binary flags for the :ref:`flags_testwave_minor` and
 :ref:`flags_testwave_major`. All flags are defined in :ref:`flags_testwave` and
 can be concatenated as shown in line 45. If the comparison is done against such a
