@@ -332,7 +332,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 End
 
 /// @class EQUAL_STR_DOCU
-/// Compares two strings for equality.
+/// Compares two strings for byte-wise equality. (no encoding considered, no unicode normalization)
 ///
 /// @param str1           first string
 /// @param str2           second string
