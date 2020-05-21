@@ -264,7 +264,8 @@ Example7
 This test suite is showing how unhandled aborts in the test cases are displayed.
 
 The Test environment catches such conditions and treats them accordingly. This
-works with both :code:`Abort` and :code:`AbortOnValue`.
+works with :code:`Abort`, :code:`AbortOnValue` and :code:`AbortOnRTE` (see
+:ref:`example8`).
 
 .. literalinclude:: ../../examples/example7-uncaught-aborts.ipf
    :caption: example7-uncaught-aborts.ipf
