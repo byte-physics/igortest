@@ -1241,13 +1241,15 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 	variable i, err, numTC, wType1, wType0
 	string fullTestCase, testCase, dgen, reducedTCList, msg
 
+	sprintf msg, "Error in test suite %s:\n \n", procWin
+
 	reducedTCList = ""
 	numTC = ItemsInList(testCaseList)
 	for(i = 0; i < numTC; i += 1)
 		testCase = StringFromList(i, testCaseList)
 		fullTestCase = getFullFunctionName(err, testCase, procWin)
 		if(err)
-			sprintf msg, "Could not get full function name of function: %s", fullTestCase
+			sprintf msg, "%sCould not get full function name of function: %s", msg, fullTestCase
 			UTF_PrintStatusMessage(msg)
 			continue
 		endif
@@ -1265,37 +1267,31 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 
 		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
 		if(UTF_Utils#IsEmpty(dgen))
-			sprintf msg, "Could not find data generator specification for multi data test case %s.", fullTestCase
-			UTF_PrintStatusMessage(msg)
-			continue
+			sprintf msg, "%sCould not find data generator specification for multi data test case %s.", msg, fullTestCase
+			Abort msg
 		else
 			dgen = getFullFunctionName(err, dgen, procWin)
 			if(err)
-				sprintf msg, "Could not get full function name of data generator: %s", dgen
-				UTF_PrintStatusMessage(msg)
-				continue
+				sprintf msg, "%sCould not get full function name of data generator: %s", msg, dgen
+				Abort msg
 			endif
 			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
 			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-				sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				continue
+				sprintf msg, "%sData Generator function %s has wrong format. It is referenced by test case %s.", msg, dgen, fullTestCase
+				Abort msg
 			endif
 			WAVE/Z wGenerator = fDgen()
 			if(!WaveExists(wGenerator))
-				sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				continue
+				sprintf msg, "%sData Generator function %s returns a null wave. It is referenced by test case %s.", msg, dgen, fullTestCase
+				Abort msg
 			elseif(DimSize(wGenerator, 1) > 0)
-				sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				continue
+				sprintf msg, "%sData Generator function %s returns not a 1D wave. It is referenced by test case %s.", msg, dgen, fullTestCase
+				Abort msg
 			elseif(!((wType1 == WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-				sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				continue
+				sprintf msg, "%sData Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", msg, dgen, fullTestCase
+				Abort msg
 			elseif(!DimSize(wGenerator, 0))
-				sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullTestCase
+				sprintf msg, "%sData Generator function %s returns a wave with zero points. It is referenced by test case %s.", msg, dgen, fullTestCase
 				UTF_PrintStatusMessage(msg)
 				continue
 			else
