@@ -111,11 +111,13 @@ testing-v9:
 deployment_staging:
   when: manual
   tags:
-    - macosx, shell
+    - debian, docker
   stage: deploy
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
   script:
     - cd docu/sphinx
-    - make deploy_staging
+    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
   dependencies:
     - documentation
 
@@ -123,10 +125,12 @@ deployment:
   only:
     - master
   tags:
-    - macosx, shell
+    - debian, docker
   stage: deploy
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
   script:
     - cd docu/sphinx
-    - make deploy
+    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
   dependencies:
     - documentation
