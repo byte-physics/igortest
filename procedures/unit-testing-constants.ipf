@@ -92,3 +92,31 @@ Constant AUTORUN_PLAIN = 0x2
 Constant BACKGROUNDMONMODE_AND  = 0
 Constant BACKGROUNDMONMODE_OR   = 1
 /// @}
+
+/// @anchor dimensionIndices
+/// @{
+Constant UTF_ROW = 0
+Constant UTF_COLUMN = 1
+Constant UTF_LAYER = 2
+Constant UTF_CHUNK = 3
+/// @}
+
+/// @name error codes for function tags
+/// @anchor FunctionTagErrors
+/// @{
+Constant UTF_TAG_OK        = 0x00
+Constant UTF_TAG_NOT_FOUND = 0x01
+Constant UTF_TAG_EMPTY     = 0x02
+Constant UTF_TAG_ABORTED   = 0x04
+///@}
+
+/// @name String constants for function tags
+/// Need to be added to UTF_Utils#GetTagConstants!
+///
+/// @anchor FunctionTagStrings
+/// @{
+StrConstant UTF_FTAG_TD_GENERATOR      = "UTF_TD_GENERATOR"
+StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
+StrConstant UTF_FTAG_TAP_DIRECTIVE     = "#TAPDirective:"
+StrConstant UTF_FTAG_TAP_DESCRIPTION   = "#TAPDescription:"
+///@}
