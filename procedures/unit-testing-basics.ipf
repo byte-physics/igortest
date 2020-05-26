@@ -67,12 +67,6 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
-/// Tag for test case data generator function
-static StrConstant UTF_TD_GENERATOR = "UTF_TD_GENERATOR"
-
-/// How many lines are scanned for tag prior Function key word
-static Constant UTF_TD_GENERATOR_L = 3
-
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
 /// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
@@ -1011,35 +1005,6 @@ static Function CheckAbortCondition(abortCode)
 	endif
 End
 
-/// @brief Reads a function tag in the comments preceding the function keyword identified by tagName
-/// returns the tag or "" if tagName identifier was not found
-///
-/// @param funcName Name of procedure
-///
-/// @param tagName string identifier that precedes the tag
-///
-/// @param numLines number of lines that is looked for tagName before the function keyword appears
-static Function/S GetFunctionTag(funcName, tagName, numLines)
-	string funcName, tagName
-	variable numLines
-
-	string funcText, funcLine, funcTag, str, expr
-	variable i
-
-	expr = "\/\/*[[:space:]]*\\Q" + tagName + "\\E(.*)$"
-
-	funcText = ProcedureText(funcName, numLines, "[" + GetIndependentModuleName() + "]")
-	for(i = 0; i < numLines; i +=1 )
-		funcLine = StringFromList(i, funcText, "\r")
-		SplitString/E=expr funcLine, funcTag
-		if(V_flag == 1)
-			return TrimString(funcTag)
-		endif
-	endfor
-
-	return ""
-End
-
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
 static Function TestBegin(name, debugMode)
@@ -1239,7 +1204,7 @@ End
 static function GetTestCaseCount(testCaseList, procWin)
 	string testCaseList, procWin
 
-	variable i, err, numTC, tcCount
+	variable i, err, numTC, tcCount, var
 	string testCase, dgenFuncName
 
 	numTC = ItemsInList(testCaseList)
@@ -1249,7 +1214,7 @@ static function GetTestCaseCount(testCaseList, procWin)
 		if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
 			tcCount += 1
 		else
-			dgenFuncName = GetFunctionTag(testCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+			dgenFuncName = UTF_Utils#GetFunctionTagValue(testCase, UTF_FTAG_TD_GENERATOR, var)
 			dgenFuncName = GetFullFunctionName(err, dgenFuncName, procWin)
 			FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $dgenFuncName
 			WAVE wGenerator = DataGenFunc()
@@ -1330,9 +1295,9 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 			continue
 		endif
 
-		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
-		if(UTF_Utils#IsEmpty(dgen))
-			sprintf msg, "Could not find data generator specification for multi data test case %s.", fullTestCase
+		dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
+		if(err)
+			sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
 			UTF_PrintStatusMessage(msg)
 			continue
 		else
@@ -2641,7 +2606,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 							s.mdMode = 0
 						else
 							s.mdMode = 1
-							s.dgenFuncName = GetFunctionTag(s.fullFuncName, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+							s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
 							s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
 							FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
 							WAVE wGenerator = DataGenFunc()
