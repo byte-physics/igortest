@@ -51,6 +51,12 @@ threadsafe static Function IsEmpty(str)
 	return numtype(len) == 2 || len <= 0
 End
 
+/// @brief Returns one if var is a nonfinite integer, zero otherwise
+threadsafe static Function IsInteger(var)
+	variable var
+
+	return trunc(var) == var && numtype(var) == 0
+End
 
 // @brief Convert a text wave to string list
 ///
