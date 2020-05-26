@@ -475,14 +475,19 @@ Function incrAssert()
 End
 
 /// Prints an informative message that the test failed
-Function PrintFailInfo()
+/// @param prefix string to be added at the beginning
+Function PrintFailInfo([prefix])
+	String prefix
+
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
-	sprintf message, "%s  %s", status, getInfo(0)
+	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
+
+	sprintf message, "%s%s  %s", prefix, status, getInfo(0)
 
 	UTF_PrintStatusMessage(message)
 	type = "FAIL"
