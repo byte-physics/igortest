@@ -527,14 +527,20 @@ static Function ReportResults(result, str, flags)
 	SetTestStatusAndDebug(str, result)
 
 	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
+		if(IsExpectedFailure())
+			if(flags & OUTPUT_MESSAGE)
+				printFailInfo(prefix = "Expected Failure: ")
+			endif
+		else
+			if(flags & OUTPUT_MESSAGE)
+				printFailInfo()
+			endif
+			if(flags & INCREASE_ERROR)
+				incrError()
+			endif
+			if(flags & ABORT_FUNCTION)
+				abortNow()
+			endif
 		endif
 	endif
 End
