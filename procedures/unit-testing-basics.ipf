@@ -1737,7 +1737,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
-				TAP_TestCaseBegin()
+				TAP_TestCaseBegin(name)
 				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name)
 				userHook(name); AbortOnRTE

@@ -167,11 +167,8 @@ Function TAP_CheckAllSkip(testCaseList)
 	string testCaseList
 
 	TAP_ClearNotes()
-	dfref dfr = GetPackageFolder()
-	SVAR/SDFR=dfr tap_directive
 
 	string funcName
-
 	variable i, numItems
 
 	numItems = ItemsInList(testCaseList)
@@ -184,13 +181,160 @@ Function TAP_CheckAllSkip(testCaseList)
 	return 1
 End
 
-Function TAP_TestCaseBegin()
-	DFREF dfr = GetPackageFolder()
+/// @brief returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
+///
+/// @param testCaseList list of function names
+/// @returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
+Function TAP_AreAllFunctionsSkip(testCaseList)
+	string testCaseList
 
+	string funcName
+	variable i, numItems
+
+	numItems = ItemsInList(testCaseList)
+	for(i = 0; i < numItems; i += 1)
+		funcName = StringFromList(i, testCaseList)
+		if(!TAP_IsFunctionSkip(funcName))
+			return 0
+		endif
+	endfor
+	return 1
+End
+
+/// @brief returns 1 if function is marked as TODO, zero otherwise
+///
+/// @param funcName name of function
+/// @returns 1 if function is marked as TODO, zero otherwise
+Function TAP_IsFunctionTodo(funcName)
+	string funcName
+
+	variable err
+	string str
+	
+	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	if(!err)
+		return strsearch(str, "TODO", 0, 2) == 0
+	endif
+
+	return 0
+End
+
+/// @brief returns 1 if current function is marked as TODO, zero otherwise.
+///        Faster because it only reads out a string, needs to be called after TAP_TestCaseBegin.
+///
+/// @returns 1 if current function is marked as TODO, zero otherwise
+Function TAP_IsFunctionTodo_Fast()
+	string funcName
+
+	variable result, err
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr tap_directive
+	
+	return strsearch(tap_directive, "# TODO", 0, 2) == 0
+End
+
+/// @brief returns 1 if function is marked as SKIP, zero otherwise
+///
+/// @param funcName name of function
+/// @returns 1 if function is marked as SKIP, zero otherwise
+Function TAP_IsFunctionSkip(funcName)
+	string funcName
+
+	variable err
+	string str
+
+	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	if(!err)
+		return strsearch(str, "SKIP", 0, 2) == 0
+	endif
+
+	return 0
+End
+
+/// If a TAP Description starts with a digit (which is invalid), add a '_' at the front
+static Function/S TAP_GetValidDescription(str)
+	string str
+
+	string str_notAllowedStart
+	variable i
+
+	str_notAllowedStart = "0123456789"
+
+	for(i = 0; i < strlen(str_notAllowedStart); i += 1)
+		if(strsearch(str, str_notAllowedStart[i], 0) == 0)
+			return ("_" + str)
+		endif
+	endfor
+	return str
+end
+
+/// @brief writes string to either tap_directive or tap_description in correct format
+///
+/// @param str         string to write
+/// @param isDirective unequal zero if directive, zero if description
+static Function TAP_WriteValidTag(str, isDirective)
+	string str
+	variable isDirective
+
+	dfref dfr = GetPackageFolder()
+	SVAR/SDFR=dfr tap_directive
+	SVAR/SDFR=dfr tap_description
+
+	str = ReplaceString("#", str, "_")
+
+	if(isDirective)
+		tap_directive = "# " + str
+	else
+		tap_description = TAP_GetValidDescription(str)
+	endif
+End
+
+/// @brief writes the tag information on directive and description in the according global strings
+///
+/// @param funcName name of function
+Function TAP_SetDirectiveAndDescription(funcName)
+	string funcName
+
+	variable err
+	string directive, description
+	
+	directive = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	if(err == UTF_TAG_OK)
+		TAP_WriteValidTag(directive, 1)
+	endif
+
+	description = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DESCRIPTION, err)
+	if(err == UTF_TAG_OK)
+		TAP_WriteValidTag(description, 0)
+	endif
+End
+
+/// @brief if the current test case is marked as expected failure, TAP will treat it as TODO
+static Function TAP_treatExpectedFailureAsTodo()
+	dfref dfr = GetPackageFolder()
+	SVAR/SDFR=dfr tap_directive
+
+	string buf = tap_directive
+
+	if(UTF_Utils#IsEmpty(buf))
+		if(IsExpectedFailure())
+			tap_directive = "# TODO due to function tag EXPECTED_FAILURE"
+		endif
+	endif
+End
+
+Function TAP_TestCaseBegin(funcNameWithSuffix)
+	string funcNameWithSuffix
+
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr error_count
 
 	string/G dfr:tap_diagnostic = ""
 	variable/G dfr:tap_caseErr = error_count
+
+	TAP_ClearNotes()
+	SplitString/E="[^:]*" funcNameWithSuffix
+	TAP_SetDirectiveAndDescription(S_Value)
 End
 
 Function TAP_TestCaseEnd()
@@ -200,6 +344,8 @@ Function TAP_TestCaseEnd()
 	NVAR/SDFR=dfr tap_caseErr
 
 	tap_caseErr -= error_count
+
+	TAP_treatExpectedFailureAsTodo()
 
 	if(shouldDoAbort())
 		TAP_WriteOutputIfReq("Bail out!")
