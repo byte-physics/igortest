@@ -6,17 +6,25 @@
 
 Function TestWaveOp()
 
-		WAVE/Z/SDFR=$"I dont exist" wv;
+		Wave wv = $""
+		print wv[0]
+		print "This will be printed, even if a RTE occurs."
+
+		WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
+		print "This will not be printed, as AbortOnRTE aborts the test case."
 End
 
 Function TestWaveOpSelfCatch()
 
 	try
 		WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
+		// If an RTE happens, the execution will jump to catch.
 		PASS()
 	catch
-		// Do not forget to clear the RTE
-		variable err = getRTError(1)
+		print "Here you can print additional info to understand the RTE."
+		// There is no need to clear the RTE (e.g. with GetRTError(1) )
+		// RunTest will take care and print the error message.
 		FAIL()
 	endtry
+	print "I only get printed when no RTE occurs"
 End

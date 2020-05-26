@@ -264,7 +264,8 @@ Example7
 This test suite is showing how unhandled aborts in the test cases are displayed.
 
 The Test environment catches such conditions and treats them accordingly. This
-works with both :code:`Abort` and :code:`AbortOnValue`.
+works with :code:`Abort`, :code:`AbortOnValue` and :code:`AbortOnRTE` (see
+:ref:`example8`).
 
 .. literalinclude:: ../../examples/example7-uncaught-aborts.ipf
    :caption: example7-uncaught-aborts.ipf
@@ -286,24 +287,36 @@ Example8
 --------
 
 This test suite shows the behaviour of the unit testing environment if user
-code generates an uncaught Runtime Error. The test environment catches this
-condition and gives a detailed error message in the history. The runtime error
-(RTE) is of course treated as :cpp:func:`FAIL`.
+code generates an uncaught Runtime Error (RTE). The test environment catches
+this condition and gives a detailed error message in the history. The runtime
+error is of course treated as an error.
 
-In this example, the highlighted lines both generate such a RTE due to a
-missing data folder reference.
+In this example, the highlighted lines generate such a RTE due to a
+missing references. Be aware that for multiple runtime errors without
+:code:`AbortOnRTE`, only the message of the first RTE gets displayed. To find
+every RTE at its correct line you can open the debugger with:
 
-There might be situations where the user wants to catch a runtime error (RTE)
-himself. In line 12 :code:`TestWaveOpSelfCatch` shows how to catch the RTE
-before the test environment handles it. The test environment is controlled
-manually by :cpp:func:`PASS` and :cpp:func:`FAIL`. :cpp:func:`PASS` increases
-the assertion counter and :cpp:func:`FAIL` treats this assertion as fail when a
-RTE was caught.
+.. code-block:: igor
+   :caption: command
+
+   RunTest(..., debugMode = IUTF_DEBUG_ON_ERROR)
+
+
+There might be situations where the user wants to catch a runtime error
+himself. In line 17 :code:`TestWaveOpSelfCatch` shows how to catch the RTE
+before the test environment handles it. Do not use :code:`GetRTError(1)`,
+as it clears the RTE and thereby masks it from the Test environment.
+
+In the second function, if :code:`AbortOnRTE` is activated the execution jumps
+to :code:`catch`. Here the user can generate additional information on the RTE,
+before :cpp:func:`FAIL` increases the error counter and aborts the test run.
+So TestWaveOpSelfCatch reports two errors, one from FAIL and one from the
+uncaught RTE.
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
    :caption: example8-uncaught-runtime-errors
    :linenos:
-   :emphasize-lines: 9,15
+   :emphasize-lines: 10,13,20
 
 .. code-block:: igor
    :caption: command

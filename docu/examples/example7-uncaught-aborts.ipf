@@ -11,10 +11,11 @@ Function CheckNumber(a)
 	if(numType(a) == 2)
 		Abort
 	endif
+	AbortOnValue a == 5, 100
 	return 1
 End
 
-static Function CheckNumber_not_nan()
+static Function CheckNumber_correct()
 
 	CheckNumber(1.0)
 End
@@ -22,4 +23,9 @@ End
 static Function CheckNumber_nan()
 
 	CheckNumber(NaN)
+End
+
+static Function CheckNumber_wrong_value()
+	
+	CheckNumber(5)
 End
