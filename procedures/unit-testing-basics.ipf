@@ -545,6 +545,49 @@ static Function InitAbortFlag()
 	variable/G dfr:abortFlag = 0
 End
 
+/// @brief returns 1 if the current testcase is marked as expected failure, zero otherwise
+///
+/// @returns 1 if the current testcase is marked as expected failure, zero otherwise
+Function IsExpectedFailure()
+	NVAR/Z/SDFR=GetPackageFolder() expected_failure_flag
+
+	if(NVAR_Exists(expected_failure_flag) && expected_failure_flag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+/// Sets the expected_failure_flag according to if a test case is defined as expected failure
+static Function InitExpectedFailure(testCase)
+	string testCase
+
+	variable err
+	DFREF dfr = GetPackageFolder()
+	NVAR/Z/SDFR=dfr expected_failure_flag
+
+	if(!NVAR_Exists(expected_failure_flag))
+		Variable/G dfr:expected_failure_flag
+		NVAR/SDFR=dfr expected_failure_flag
+	endif
+
+	expected_failure_flag = UTF_Utils#HasFunctionTag(testCase, UTF_FTAG_EXPECTED_FAILURE)
+End
+
+/// @brief executes GetFunctionTagWave for every function to test for abort
+static Function TestAllFunctionTags(funcList)
+	string funcList
+
+	variable i, listLength
+	string funcName
+
+	listLength = ItemsInList(funcList)
+	for(i = 0; i < listLength; i += 1)
+		funcName = StringFromList(i, funcList)
+		UTF_Utils#GetFunctionTagWave(funcName)
+	endfor
+End
+
 /// Return true if running in `ProcGlobal`, false otherwise
 static Function IsProcGlobal()
 
@@ -1136,6 +1179,7 @@ static Function TestCaseBegin(testCase)
 	string msg
 
 	initAssertCount()
+	InitExpectedFailure(StringFromList(0, testCase, ":"))
 
 	// create a new unique folder as working folder
 	dfref dfr = GetPackageFolder()
@@ -2522,6 +2566,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
+		TestAllFunctionTags(s.allTestCasesList)
 
 		// 1.) set the hooks to the default implementations
 		setDefaultHooks(s.hooks)
