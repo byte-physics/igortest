@@ -2592,7 +2592,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			TAP_EnableOutput()
 			TAP_CreateFile()
 
-			if(TAP_CheckAllSkip(s.allTestCasesList))
+			if(TAP_AreAllFunctionsSkip(s.allTestCasesList))
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
 				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort
@@ -2645,7 +2645,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				// get Description and Directive of current Function for TAP
 				s.tap_skipCase = 0
 				if(TAP_IsOutputEnabled())
-					s.tap_skipCase = TAP_GetNotes(s.fullFuncName)
+					s.tap_skipCase = TAP_IsFunctionSkip(s.fullFuncName)
 				endif
 				s.dgenIndex = 0
 				s.tcSuffix = ""
@@ -2730,7 +2730,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					endif
 
 				else
-					TAP_GetNotes(s.fullFuncName)
+					TAP_SetDirectiveAndDescription(s.fullFuncName)
 				endif
 				
 				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)

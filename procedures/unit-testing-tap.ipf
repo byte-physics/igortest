@@ -101,86 +101,6 @@ static Function TAP_ClearNotes()
 	string/G dfr:tap_description = ""
 End
 
-/// If a TAP Description starts with a digit (which is invalid), add a '_' at the front
-static Function/S TAP_GetValidDescription(str)
-	string str
-
-	string str_notAllowedStart
-	variable i
-
-	str_notAllowedStart = "0123456789"
-
-	for(i = 0; i < strlen(str_notAllowedStart); i += 1)
-		if(strsearch(str, str_notAllowedStart[i], 0) == 0)
-			return ("_" + str)
-		endif
-	endfor
-	return str
-end
-
-/// Parses a string for TAP Description/Directives keys, converts to valid ones for TAP output, key char '#' is replaced by '_'
-static Function TAP_ValidNote(str)
-	string str
-
-	dfref dfr = GetPackageFolder()
-	SVAR/SDFR=dfr tap_directive
-	SVAR/SDFR=dfr tap_description
-	variable s_key_pos
-
-	s_key_pos = strsearch(str, TAP_DIRECTIVE_STR, 0)
-	if(s_key_pos > 0)
-		tap_directive = str[s_key_pos + strlen(TAP_DIRECTIVE_STR), Inf]
-		tap_directive = TrimString(tap_directive)
-		if(strlen(tap_directive) > 0)
-			tap_directive = ReplaceString("#", tap_directive, "_")
-			tap_directive = "# " + tap_directive
-		endif
-	endif
-
-	s_key_pos = strsearch(str, TAP_DESCRIPTION_STR, 0)
-	if(s_key_pos > 0)
-		tap_description	= str[s_key_pos + strlen(TAP_DESCRIPTION_STR), Inf]
-		tap_description = TrimString(tap_description)
-		tap_description = ReplaceString("#", tap_description, "_")
-		tap_description = TAP_GetValidDescription(tap_description)
-
-	endif
-End
-
-/// Reads the preceding two lines of a function, finds optional TAP Directive/Description, Checks the TAP Directive for the SKIP keyword, returns 1 if present
-Function TAP_GetNotes(s_funcName)
-	string s_funcName
-
-	string s_funcText
-
-	TAP_ClearNotes()
-	SVAR/SDFR=GetPackageFolder() tap_directive
-
-	s_funcText = ProcedureText(s_funcName, 2, "[" + GetIndependentModuleName() + "]")
-	TAP_ValidNote(StringFromList(0, s_funcText, "\r"))
-	TAP_ValidNote(StringFromList(1, s_funcText, "\r"))
-	return (strsearch(tap_directive, "# SKIP", 0) >= 0)
-End
-
-/// Checks optional TAP Directives of all Test Case functions for the SKIP keyword, returns 1 if all is SKIPped
-Function TAP_CheckAllSkip(testCaseList)
-	string testCaseList
-
-	TAP_ClearNotes()
-
-	string funcName
-	variable i, numItems
-
-	numItems = ItemsInList(testCaseList)
-	for(i = 0; i < numItems; i += 1)
-		funcName = StringFromList(i, testCaseList)
-		if(!TAP_GetNotes(funcName))
-			return 0
-		endif
-	endfor
-	return 1
-End
-
 /// @brief returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
 ///
 /// @param testCaseList list of function names
@@ -333,8 +253,7 @@ Function TAP_TestCaseBegin(funcNameWithSuffix)
 	variable/G dfr:tap_caseErr = error_count
 
 	TAP_ClearNotes()
-	SplitString/E="[^:]*" funcNameWithSuffix
-	TAP_SetDirectiveAndDescription(S_Value)
+	TAP_SetDirectiveAndDescription(StringFromList(0, funcNameWithSuffix, ":"))
 End
 
 Function TAP_TestCaseEnd()
