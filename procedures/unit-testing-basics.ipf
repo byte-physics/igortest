@@ -940,6 +940,11 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	SVAR/SDFR=dfr type
 	string str, funcTypeString
 
+	if(!err && !abortCode)
+		return NaN
+	endif
+
+
 	switch(funcType)
 		case TEST_CASE_TYPE:
 			funcTypeString = "test case"
@@ -2668,6 +2673,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					catch
 						message = GetRTErrMessage()
 						s.err = GetRTError(1)
+						// clear the abort code from abortNow()
+						V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
 						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
 
 						if(shouldDoAbort())
