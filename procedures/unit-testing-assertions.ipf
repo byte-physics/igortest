@@ -71,7 +71,9 @@ Function REQUIRE_EQUAL_VAR(var1, var2)
 	UTF_Wrapper#EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-#if IgorVersion() >= 7.00
+/// @cond HIDDEN_SYMBOL
+#if IgorVersion() >= 7.0
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc EQUAL_INT64_DOCU
 Function WARN_EQUAL_INT64(int64 var1, int64 var2)
@@ -103,7 +105,9 @@ Function REQUIRE_EQUAL_UINT64(uint64 var1, uint64 var2)
 	UTF_Wrapper#EQUAL_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
@@ -126,7 +130,9 @@ Function REQUIRE_NEQ_VAR(var1, var2)
 	UTF_Wrapper#NEQ_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
-#if IgorVersion() >= 7
+/// @cond HIDDEN_SYMBOL
+#if IgorVersion() >= 7.0
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc NEQ_INT64_DOCU
 Function WARN_NEQ_INT64(int64 var1, int64 var2)
@@ -158,7 +164,9 @@ Function REQUIRE_NEQ_UINT64(uint64 var1, uint64 var2)
 	UTF_Wrapper#NEQ_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong])
@@ -259,7 +267,9 @@ Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong])
 	endif
 End
 
+/// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc CLOSE_INT64_DOCU
 Function WARN_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
@@ -315,7 +325,9 @@ Function REQUIRE_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
 	endif
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
@@ -389,7 +401,9 @@ Function REQUIRE_SMALL_CMPLX(var, [tol])
 	endif
 End
 
+/// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc SMALL_INT64_DOCU
 Function WARN_SMALL_INT64(int64 var, [int64 tol])
@@ -445,7 +459,9 @@ Function REQUIRE_SMALL_UINT64(uint64 var, [uint64 tol])
 	endif
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond HIDDEN_SYMBOL
 
 /// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
