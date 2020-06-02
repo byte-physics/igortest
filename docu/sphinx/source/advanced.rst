@@ -295,7 +295,7 @@ The data generator function name must be attributed with a comment within three
 lines above the test cases Function line. The key word is `UTF_TD_GENERATOR` with
 the data generators function name following as seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit
-to the wave type then a error message is printed and the test case is ignored.
+to the wave type then a error message is printed and the test run is aborted.
 
 The test case names are by default extended with `:num` where num is the index
 of the wave returned from the data generator. For convenience in the data generator
