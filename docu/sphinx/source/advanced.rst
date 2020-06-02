@@ -273,10 +273,21 @@ case is run. This sketches a simple multi data test case:
    End
 
 To the test case `myTestCase` a data generator function name is attributed with the
-comment line above following the key word `UTF_TD_GENERATOR` (maximum 4 lines above :code:`Function` are considered as tags, every tag in separate line).
-The data generator `DataGeneratorFunction` returns a wave of numeric type and
-the test case takes one optional argument of numeric type. When run
-`myTestCase` is executed four times with argument arg 1, 2, 3 and 4.
+comment line above following the tag word `UTF_TD_GENERATOR`.
+A maximum of four lines above :code:`Function` are considered as tags with every tag in a separate line.
+If the data generator function is not found in the current procedure file it is searched
+in all procedure files of the current compilation unit as a non-static function. (ProcGlobal context)
+Also a static data generator function in another procedure file can be specified by
+adding the Module name in the specification. There is no search in other procedure
+files if such specified function is not found.
+
+.. code-block:: igor
+
+   // UTF_TD_GENERATOR GeneratorModule#DataGeneratorFunction
+
+The data generator `DataGeneratorFunction` returns a wave of numeric type and the
+test case takes one optional argument of numeric type. When run `myTestCase` is
+executed four times with argument arg 1, 2, 3 and 4.
 
 Supported types for `arg` are variable, string, complex, Integer64, data folder
 references and wave references. The type of the returned wave of the attributed
