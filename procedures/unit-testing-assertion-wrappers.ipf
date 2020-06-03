@@ -276,6 +276,60 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	EvaluateResults(result, str, flags)
 End
 
+#if IgorVersion() >= 7.0
+
+/// @class CLOSE_INT64_DOCU
+/// Compares two int64 and determines if they are close.
+///
+/// @param var1   first int64 variable
+/// @param var2   second int64 variable
+/// @param tol    (optional) int64 tolerance, defaults to 16
+static Function CLOSE_INT64_WRAPPER(int64 var1, int64 var2, variable flags, [int64 tol])
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE_INT
+	endif
+
+	result = UTF_Checks#AreINT64Close(var1, var2, tol)
+	sprintf str, "%d ~ %d with tol %d", var1, var2, tol
+	EvaluateResults(result, str, flags)
+End
+
+/// @class CLOSE_UINT64_DOCU
+/// Compares two uint64 and determines if they are close.
+///
+/// @param var1   first uint64 variable
+/// @param var2   second uint64 variable
+/// @param tol    (optional) uint64 tolerance, defaults to 16
+static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [uint64 tol])
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE_INT
+	endif
+
+	result = UTF_Checks#AreUINT64Close(var1, var2, tol)
+	sprintf str, "%d ~ %d with tol %d", var1, var2, tol
+	EvaluateResults(result, str, flags)
+End
+
+#endif
+
 /// @class SMALL_VAR_DOCU
 /// Tests if a variable is small using the inequality @f$  | var | < | tol |  @f$
 ///
@@ -330,6 +384,58 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	sprintf str, "(%g, %g) ~ 0 with tol %g", real(var), imag(var), tol
 	EvaluateResults(result, str, flags)
 End
+
+#if IgorVersion() >= 7.0
+
+/// @class SMALL_INT64_DOCU
+/// Tests if a int64 variable is small using the inequality @f$  | var | < | tol |  @f$
+///
+/// @param var        int64 variable
+/// @param tol        (optional) int64 tolerance, defaults to 16
+static Function SMALL_INT64_WRAPPER(int64 var, variable flags, [int64 tol])
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE_INT
+	endif
+
+	result = UTF_Checks#IsINT64Small(var, tol)
+	sprintf str, "%d ~ 0 with tol %g", var, tol
+	EvaluateResults(result, str, flags)
+End
+
+/// @class SMALL_UINT64_DOCU
+/// Tests if a uint64 variable is small using the inequality @f$  var < tol  @f$
+///
+/// @param var        uint64 variable
+/// @param tol        (optional) uint64 tolerance, defaults to 16
+static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(ParamIsDefault(tol))
+		tol = DEFAULT_TOLERANCE_INT
+	endif
+
+	result = UTF_Checks#IsUINT64Small(var, tol)
+	sprintf str, "%d ~ 0 with tol %g", var, tol
+	EvaluateResults(result, str, flags)
+End
+
+#endif
 
 /// @class EQUAL_STR_DOCU
 /// Compares two strings for byte-wise equality. (no encoding considered, no unicode normalization)
@@ -418,6 +524,90 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	sprintf str, "%g == %g", var1, var2
 	EvaluateResults(result, str, flags)
 End
+
+#if IgorVersion() >= 7.00
+
+/// @class EQUAL_INT64_DOCU
+/// Tests two int64 for equality.
+///
+/// @param var1   first variable
+/// @param var2   second variable
+static Function EQUAL_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#AreInt64Equal(var1, var2)
+	sprintf str, "%d == %d", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class EQUAL_UINT64_DOCU
+/// Tests two uint64 for equality.
+///
+/// @param var1   first variable
+/// @param var2   second variable
+static Function EQUAL_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#AreUInt64Equal(var1, var2)
+	sprintf str, "%u == %u", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class NEQ_INT64_DOCU
+/// Tests two int64 for unequality.
+///
+/// @param var1   first variable
+/// @param var2   second variable
+static Function NEQ_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = !UTF_Checks#AreInt64Equal(var1, var2)
+	sprintf str, "%d == %d", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class NEQ_UINT64_DOCU
+/// Tests two uint64 for unequality.
+///
+/// @param var1   first variable
+/// @param var2   second variable
+static Function NEQ_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = !UTF_Checks#AreUInt64Equal(var1, var2)
+	sprintf str, "%u == %u", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+#endif
 
 /// @class EQUAL_WAVE_DOCU
 /// Tests two waves for equality of content (use @link WARN_WAVE@endlink, @link CHECK_WAVE@endlink or @link REQUIRE_WAVE@endlink for type)

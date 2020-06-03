@@ -71,6 +71,40 @@ Function REQUIRE_EQUAL_VAR(var1, var2)
 	UTF_Wrapper#EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
 
+#if IgorVersion() >= 7.00
+
+/// @copydoc EQUAL_INT64_DOCU
+Function WARN_EQUAL_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#EQUAL_INT64_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc EQUAL_INT64_DOCU
+Function CHECK_EQUAL_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#EQUAL_INT64_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc EQUAL_INT64_DOCU
+Function REQUIRE_EQUAL_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#EQUAL_INT64_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+/// @copydoc EQUAL_UINT64_DOCU
+Function WARN_EQUAL_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#EQUAL_UINT64_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc EQUAL_UINT64_DOCU
+Function CHECK_EQUAL_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#EQUAL_UINT64_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc EQUAL_UINT64_DOCU
+Function REQUIRE_EQUAL_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#EQUAL_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+#endif
+
 /// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
 	variable var1, var2
@@ -91,6 +125,40 @@ Function REQUIRE_NEQ_VAR(var1, var2)
 
 	UTF_Wrapper#NEQ_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 End
+
+#if IgorVersion() >= 7
+
+/// @copydoc NEQ_INT64_DOCU
+Function WARN_NEQ_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#NEQ_INT64_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc NEQ_INT64_DOCU
+Function CHECK_NEQ_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#NEQ_INT64_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc NEQ_INT64_DOCU
+Function REQUIRE_NEQ_INT64(int64 var1, int64 var2)
+	UTF_Wrapper#NEQ_INT64_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+/// @copydoc NEQ_UINT64_DOCU
+Function WARN_NEQ_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#NEQ_UINT64_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc NEQ_UINT64_DOCU
+Function CHECK_NEQ_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#NEQ_UINT64_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc NEQ_UINT64_DOCU
+Function REQUIRE_NEQ_UINT64(uint64 var1, uint64 var2)
+	UTF_Wrapper#NEQ_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+#endif
 
 /// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong])
@@ -191,6 +259,64 @@ Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong])
 	endif
 End
 
+#if IgorVersion() >= 7.0
+
+/// @copydoc CLOSE_INT64_DOCU
+Function WARN_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, WARN_MODE)
+	else
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc CLOSE_INT64_DOCU
+Function CHECK_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, CHECK_MODE)
+	else
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc CLOSE_INT64_DOCU
+Function REQUIRE_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, REQUIRE_MODE)
+	else
+		UTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc CLOSE_UINT64_DOCU
+Function WARN_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, WARN_MODE)
+	else
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc CLOSE_UINT64_DOCU
+Function CHECK_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, CHECK_MODE)
+	else
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc CLOSE_UINT64_DOCU
+Function REQUIRE_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
+	else
+		UTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+	endif
+End
+
+#endif
+
 /// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
 	variable var
@@ -262,6 +388,64 @@ Function REQUIRE_SMALL_CMPLX(var, [tol])
 		UTF_Wrapper#SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE, tol=tol)
 	endif
 End
+
+#if IgorVersion() >= 7.0
+
+/// @copydoc SMALL_INT64_DOCU
+Function WARN_SMALL_INT64(int64 var, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, WARN_MODE)
+	else
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, WARN_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_INT64_DOCU
+Function CHECK_SMALL_INT64(int64 var, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, CHECK_MODE)
+	else
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, CHECK_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_INT64_DOCU
+Function REQUIRE_SMALL_INT64(int64 var, [int64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, REQUIRE_MODE)
+	else
+		UTF_Wrapper#SMALL_INT64_WRAPPER(var, REQUIRE_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_UINT64_DOCU
+Function WARN_SMALL_UINT64(uint64 var, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, WARN_MODE)
+	else
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, WARN_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_UINT64_DOCU
+Function CHECK_SMALL_UINT64(uint64 var, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, CHECK_MODE)
+	else
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, CHECK_MODE, tol=tol)
+	endif
+End
+
+/// @copydoc SMALL_UINT64_DOCU
+Function REQUIRE_SMALL_UINT64(uint64 var, [uint64 tol])
+	if(ParamIsDefault(tol))
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, REQUIRE_MODE)
+	else
+		UTF_Wrapper#SMALL_UINT64_WRAPPER(var, REQUIRE_MODE, tol=tol)
+	endif
+End
+
+#endif
 
 /// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
