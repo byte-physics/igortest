@@ -241,11 +241,11 @@ static Function TAP_WriteCase(case_cnt, skipcase)
 
 	if(skipcase)
 		str_ok = "ok"
+		tap_diagnostic = ""
 	else
 		str_ok = SelectString(tap_caseErr == 0, "not ok", "ok")
+		tap_diagnostic = TAP_ValidDiagnostic(tap_diagnostic)
 	endif
-
-	tap_diagnostic = TAP_ValidDiagnostic(tap_diagnostic)
 
 	// Write Out Test Case Result, TAP counts starting with 1
 	sprintf str_out, "%s %d %s %s" + TAP_LINEEND_STR, str_ok, case_cnt, tap_description, tap_directive

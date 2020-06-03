@@ -2630,9 +2630,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				s.tcSuffix = ""
 			endif
 
-			if(!s.tap_skipCase || reentry)
+			do
 
-				do
+				if(!s.tap_skipCase || reentry)
 
 					if(!reentry)
 
@@ -2708,13 +2708,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						break
 					endif
 
-					TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
-					s.tap_caseCount += 1
+				else
+					TAP_SetDirectiveAndDescription(s.fullFuncName)
+				endif
+				
+				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
+				s.tap_caseCount += 1
 
-					s.dgenIndex += 1
-				while(s.mdMode && s.dgenIndex < s.dgenSize)
+				s.dgenIndex += 1
 
-			endif
+			while(s.mdMode && s.dgenIndex < s.dgenSize)
 
 		endfor
 
