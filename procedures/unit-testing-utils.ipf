@@ -58,7 +58,7 @@ threadsafe static Function IsInteger(var)
 	return trunc(var) == var && numtype(var) == 0
 End
 
-// @brief Convert a text wave to string list
+/// @brief Convert a text wave to string list
 ///
 /// @param[in] txtWave 1D text wave
 /// @param[in] sep separator string
