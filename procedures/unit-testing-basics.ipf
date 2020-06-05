@@ -2709,7 +2709,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					endif
 
 				else
-					TAP_SetDirectiveAndDescription(s.fullFuncName)
+					TAP_GetNotes(s.fullFuncName)
 				endif
 				
 				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
