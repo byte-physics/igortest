@@ -2698,7 +2698,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
 						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
 
-						if(shouldDoAbort())
+						if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
 							// abort condition is on hold while in catch/endtry, so all cleanup must happen here
 							ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
 
