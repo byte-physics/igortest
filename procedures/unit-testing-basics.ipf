@@ -757,8 +757,9 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	string funcName, procName
 
 	err = FFNAME_OK
-	string infoStr = FunctionInfo(funcName, procName)
-	string errMsg
+	string errMsg, module, infoStr, funcNameReturn
+
+	infoStr = FunctionInfo(funcName, procName)
 
 	if(UTF_Utils#IsEmpty(infoStr))
 		sprintf errMsg, "Function %s in procedure file %s is unknown", funcName, procName
@@ -766,25 +767,26 @@ static Function/S getFullFunctionName(err, funcName, procName)
 		return errMsg
 	endif
 
-	string module = StringByKey("MODULE", infoStr)
+	funcNameReturn = StringByKey("NAME", infoStr)
 
-	if(UTF_Utils#IsEmpty(module))
+	if(!cmpstr(StringByKey("SPECIAL", infoStr), "static"))
+		module = StringByKey("MODULE", infoStr)
 
 		// we can only use static functions if they live in a module
-		if(cmpstr(StringByKey("SPECIAL", infoStr), "static") == 0)
+		if(UTF_Utils#IsEmpty(module))
 			sprintf errMsg, "The procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.", procName
 			err = FFNAME_NO_MODULE
 			return errMsg
 		endif
 
-		return funcName
+		funcNameReturn = module + "#" + funcNameReturn
 	endif
 
 	// even if we are running in an independent module we don't need its name prepended as we
 	// 1.) run in the same IM anyway
 	// 2.) FuncRef does not accept that
 
-	return module + "#" + StringByKey("NAME", infoStr)
+	return funcNameReturn
 End
 
 /// Prototype for test cases
