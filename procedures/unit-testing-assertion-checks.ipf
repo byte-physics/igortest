@@ -61,12 +61,59 @@ static Function AreVariablesEqual(var1, var2)
 	endif
 End
 
+#if IgorVersion() >= 7.00
+
+static Function AreINT64Equal(int64 var1, int64 var2)
+	int64 IsEqual
+
+	IsEqual = var1 == var2
+	return IsEqual
+End
+
+static Function AreUINT64Equal(uint64 var1, uint64 var2)
+	uint64 IsEqual
+
+	IsEqual = var1 == var2
+	return IsEqual
+End
+
+#endif
+
 static Function IsVariableSmall(var, tol)
 	variable var
 	variable tol
 
 	return (abs(var) < abs(tol))
 End
+
+#if IgorVersion() >= 7.0
+
+static Function IsINT64Small(int64 var, int64 tol)
+	int64 comparison
+
+	comparison = tol < 0
+	if(comparison)
+		tol = - tol
+	endif
+
+	comparison = var < 0
+	if(comparison)
+		var = - var
+	endif
+
+	comparison = var < tol
+	return comparison
+End
+
+static Function IsUINT64Small(uint64 var, uint64 tol)
+	uint64 comparison
+
+	comparison = var < tol
+
+	return comparison
+End
+
+#endif
 
 static Function AreVariablesClose(var1, var2, tol, strong)
 	variable var1, var2
@@ -87,6 +134,47 @@ static Function AreVariablesClose(var1, var2, tol, strong)
 		return (d1 <= tol || d2 <= tol)
 	endif
 End
+
+#if IgorVersion() >= 7.0
+
+static Function AreINT64Close(int64 var1, int64 var2, int64 tol)
+	int64 temp, diff, comparison
+
+	comparison = tol < 0
+	if(comparison)
+		tol = - tol
+	endif
+
+	comparison = var2 > var1
+	if(comparison)
+		temp = var1
+		var1 = var2
+		var2 = temp
+	endif
+
+	diff = var1 - var2
+	comparison = diff < tol
+
+	return comparison
+End
+
+static Function AreUINT64Close(uint64 var1, uint64 var2, uint64 tol)
+	uint64 temp, diff, comparison
+
+	comparison = var2 > var1
+	if(comparison)
+		temp = var1
+		var1 = var2
+		var2 = temp
+	endif
+
+	diff = var1 - var2
+	comparison = diff < tol
+
+	return comparison
+End
+
+#endif
 
 /// @return 1 if both strings are equal and zero otherwise
 static Function AreStringsEqual(str1, str2, case_sensitive)

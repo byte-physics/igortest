@@ -448,6 +448,58 @@ static Function TestUTF()
 
 #endif
 
+#if IgorVersion() >= 7.0
+
+	int64 i64zero     = 0
+	int64 i64one      = 1
+	int64 i64big      = 0x7FFFFFFFFFFFFFFE
+	int64 i64biggest  = 0x7FFFFFFFFFFFFFFF
+	int64 i64minustwo = 0xFFFFFFFFFFFFFFFE
+	int64 i64minusone = 0xFFFFFFFFFFFFFFFF
+	Ensure(UTF_Checks#AreINT64Equal(i64zero, i64zero))
+	Ensure(UTF_Checks#AreINT64Equal(i64big, i64big))
+	Ensure(UTF_Checks#AreINT64Equal(i64minusone, i64minusone))
+	Ensure(!UTF_Checks#AreINT64Equal(i64minusone, i64minustwo))
+	Ensure(!UTF_Checks#AreINT64Equal(i64zero, i64one))
+	Ensure(!UTF_Checks#AreINT64Equal(i64big, i64biggest))
+	Ensure(!UTF_Checks#AreINT64Equal(i64one, i64biggest))
+	Ensure(UTF_Checks#AreINT64Close(i64zero, i64one, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreINT64Close(i64big, i64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(!UTF_Checks#AreINT64Close(i64one, i64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreINT64Close(i64zero, i64minusone, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreINT64Close(i64minustwo, i64minusone, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreINT64Close(i64one, i64biggest, i64biggest))
+	Ensure(!UTF_Checks#AreINT64Close(i64big, i64biggest, i64zero))
+	Ensure(UTF_Checks#IsINT64Small(i64zero, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#IsINT64Small(i64one, DEFAULT_TOLERANCE_INT))
+	Ensure(!UTF_Checks#IsINT64Small(i64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#IsINT64Small(i64minustwo, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#IsINT64Small(i64big, i64Biggest))
+	Ensure(!UTF_Checks#IsINT64Small(i64one, i64zero))
+	Ensure(UTF_Checks#IsINT64Small(i64one, i64minustwo))
+
+	uint64 ui64zero     = 0
+	uint64 ui64one      = 1
+	uint64 ui64big      = 0xFFFFFFFFFFFFFFFE
+	uint64 ui64biggest  = 0xFFFFFFFFFFFFFFFF
+	Ensure(UTF_Checks#AreUINT64Equal(ui64zero, ui64zero))
+	Ensure(UTF_Checks#AreUINT64Equal(ui64big, ui64big))
+	Ensure(!UTF_Checks#AreUINT64Equal(ui64zero, ui64one))
+	Ensure(!UTF_Checks#AreUINT64Equal(ui64big, ui64biggest))
+	Ensure(!UTF_Checks#AreUINT64Equal(ui64one, ui64biggest))
+	Ensure(UTF_Checks#AreUINT64Close(ui64zero, ui64one, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreUINT64Close(ui64big, ui64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(!UTF_Checks#AreUINT64Close(ui64one, ui64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#AreUINT64Close(ui64one, ui64biggest, ui64biggest))
+	Ensure(!UTF_Checks#AreUINT64Close(ui64big, ui64biggest, ui64zero))
+	Ensure(UTF_Checks#IsUINT64Small(ui64zero, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#IsUINT64Small(ui64one, DEFAULT_TOLERANCE_INT))
+	Ensure(!UTF_Checks#IsUINT64Small(ui64biggest, DEFAULT_TOLERANCE_INT))
+	Ensure(UTF_Checks#IsUINT64Small(ui64big, ui64Biggest))
+	Ensure(!UTF_Checks#IsUINT64Small(ui64one, ui64zero))
+
+#endif
+
 	// @}
 
 	// CHECK_WAVE

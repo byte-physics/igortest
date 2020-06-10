@@ -13,8 +13,9 @@ Constant PKG_VERSION = 1.08
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
 StrConstant PKG_FOLDER_SAVE = "root:Packages:UnitTesting:SaveState"
 
-Constant CLOSE_COMPARE_STRONG = 1
-Constant DEFAULT_TOLERANCE    = 1e-8
+Constant CLOSE_COMPARE_STRONG  = 1
+Constant DEFAULT_TOLERANCE     = 1e-8
+Constant DEFAULT_TOLERANCE_INT = 16
 
 // This RegEx matches all procedure names that do not end with "_reentry" (non case sensitive)
 StrConstant PROCNAME_NOT_REENTRY = "^(?!(?i).*_REENTRY$).*$"
