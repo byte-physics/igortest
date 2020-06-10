@@ -2,7 +2,7 @@
 
 #include "unit-testing"
 
-// RunTest("tap_example1b-warn_and_error.ipf;tap_example1a-uncaught-aborts.ipf",tapEnable=1)
+// RunTest("tap_example1b-warn_and_error.ipf", enableTAP = 1)
 
 // #TAPDirective: ### Double Cross Enclosed Text ###
 // #TAPDescription: 123_Description_starts_with_digit_and_ends_with_double_cross_###

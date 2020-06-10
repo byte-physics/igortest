@@ -3,7 +3,7 @@
 
 #include "unit-testing"
 
-// RunTest("tap_example1b-warn_and_error.ipf;tap_example1a-uncaught-aborts.ipf",tapEnable=1)
+// RunTest("tap_example1a-uncaught-aborts.ipf", enableTAP = 1)
 
 // Showing the effect of uncaught aborts
 // PASS() just increases the assertion counter
