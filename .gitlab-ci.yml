@@ -13,7 +13,7 @@ documentation:
     - debian, docker
   stage: build
   image:
-    name: ${CI_REGISTRY}/internal/docker-sphinx:latest
+    name: ${CI_REGISTRY}/internal/docker-sphinx:update-to-sphinx-3
   script:
     - cd docu/doxygen
     - doxygen
