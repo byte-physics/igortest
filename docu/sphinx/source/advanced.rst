@@ -120,8 +120,9 @@ The output is written into a file in the experiment folder with a unique
 generated name `tap_'time'.log`. This prevents accidental overwrites of
 previous test runs. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
-and directives for each Test Case can be added in the two lines preceeding the
-function of a Test Case:
+and directives for each Test Case can be added in the lines preceeding the
+function of a Test Case (maximum 4 lines above :code:`Function` are considered
+as tags, every tag in separate line):
 
 .. code-block:: igor
 
@@ -282,16 +283,16 @@ case is run. This sketches a simple multi data test case:
    End
 
 To the test case `myTestCase` a data generator function name is attributed with the
-comment line above following the key word `UTF_TD_GENERATOR`. The data generator
-`DataGeneratorFunction` returns a wave of numeric type and the test case takes
-one optional argument of numeric type. When run `myTestCase` is executed four times
-with argument arg 1, 2, 3 and 4.
+comment line above following the key word `UTF_TD_GENERATOR` (maximum 4 lines above :code:`Function` are considered as tags, every tag in separate line).
+The data generator `DataGeneratorFunction` returns a wave of numeric type and
+the test case takes one optional argument of numeric type. When run
+`myTestCase` is executed four times with argument arg 1, 2, 3 and 4.
 
 Supported types for `arg` are variable, string, complex, Integer64, data folder
 references and wave references. The type of the returned wave of the attributed
 data generator function must fit to the argument type that the multi data test
 case takes.
-The data generator function name must be attributed with a comment within three
+The data generator function name must be attributed with a comment within four
 lines above the test cases Function line. The key word is `UTF_TD_GENERATOR` with
 the data generators function name following as seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit

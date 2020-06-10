@@ -85,6 +85,18 @@ parameter :code:`testCase` of :cpp:func:`RunTest`. When executing multiple test
 suites and a test case is found in more than one test suite, it is executed in
 every matching test suite.
 
+Test cases can be marked as expected failures, e.g. if the test case is written
+before the functions are fully implemented. The assertions are executed, but
+neither does the error counter increase nor is the test run aborted. To mark
+a test case as expected failure write the keyword in the comment above
+(maximum 4 lines above :code:`Function` are considered as tags, every tag in
+separate line):
+
+.. code-block:: igor
+
+   // UTF_EXPECTED_FAILURE
+   Function TestCase_NotWorkingYet()
+
 Example:
 ^^^^^^^^
 

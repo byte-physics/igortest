@@ -67,12 +67,6 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
-/// Tag for test case data generator function
-static StrConstant UTF_TD_GENERATOR = "UTF_TD_GENERATOR"
-
-/// How many lines are scanned for tag prior Function key word
-static Constant UTF_TD_GENERATOR_L = 3
-
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
 /// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
@@ -481,14 +475,19 @@ Function incrAssert()
 End
 
 /// Prints an informative message that the test failed
-Function PrintFailInfo()
+/// @param prefix string to be added at the beginning
+Function PrintFailInfo([prefix])
+	String prefix
+
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
-	sprintf message, "%s  %s", status, getInfo(0)
+	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
+
+	sprintf message, "%s%s  %s", prefix, status, getInfo(0)
 
 	UTF_PrintStatusMessage(message)
 	type = "FAIL"
@@ -528,14 +527,20 @@ static Function ReportResults(result, str, flags)
 	SetTestStatusAndDebug(str, result)
 
 	if(!result)
-		if(flags & OUTPUT_MESSAGE)
-			printFailInfo()
-		endif
-		if(flags & INCREASE_ERROR)
-			incrError()
-		endif
-		if(flags & ABORT_FUNCTION)
-			abortNow()
+		if(IsExpectedFailure())
+			if(flags & OUTPUT_MESSAGE)
+				printFailInfo(prefix = "Expected Failure: ")
+			endif
+		else
+			if(flags & OUTPUT_MESSAGE)
+				printFailInfo()
+			endif
+			if(flags & INCREASE_ERROR)
+				incrError()
+			endif
+			if(flags & ABORT_FUNCTION)
+				abortNow()
+			endif
 		endif
 	endif
 End
@@ -549,6 +554,49 @@ End
 static Function InitAbortFlag()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
+End
+
+/// @brief returns 1 if the current testcase is marked as expected failure, zero otherwise
+///
+/// @returns 1 if the current testcase is marked as expected failure, zero otherwise
+Function IsExpectedFailure()
+	NVAR/Z/SDFR=GetPackageFolder() expected_failure_flag
+
+	if(NVAR_Exists(expected_failure_flag) && expected_failure_flag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+/// Sets the expected_failure_flag according to if a test case is defined as expected failure
+static Function InitExpectedFailure(testCase)
+	string testCase
+
+	variable err
+	DFREF dfr = GetPackageFolder()
+	NVAR/Z/SDFR=dfr expected_failure_flag
+
+	if(!NVAR_Exists(expected_failure_flag))
+		Variable/G dfr:expected_failure_flag
+		NVAR/SDFR=dfr expected_failure_flag
+	endif
+
+	expected_failure_flag = UTF_Utils#HasFunctionTag(testCase, UTF_FTAG_EXPECTED_FAILURE)
+End
+
+/// @brief executes GetFunctionTagWave for every function to test for abort
+static Function TestAllFunctionTags(funcList)
+	string funcList
+
+	variable i, listLength
+	string funcName
+
+	listLength = ItemsInList(funcList)
+	for(i = 0; i < listLength; i += 1)
+		funcName = StringFromList(i, funcList)
+		UTF_Utils#GetFunctionTagWave(funcName)
+	endfor
 End
 
 /// Return true if running in `ProcGlobal`, false otherwise
@@ -1013,35 +1061,6 @@ static Function CheckAbortCondition(abortCode)
 	endif
 End
 
-/// @brief Reads a function tag in the comments preceding the function keyword identified by tagName
-/// returns the tag or "" if tagName identifier was not found
-///
-/// @param funcName Name of procedure
-///
-/// @param tagName string identifier that precedes the tag
-///
-/// @param numLines number of lines that is looked for tagName before the function keyword appears
-static Function/S GetFunctionTag(funcName, tagName, numLines)
-	string funcName, tagName
-	variable numLines
-
-	string funcText, funcLine, funcTag, str, expr
-	variable i
-
-	expr = "\/\/*[[:space:]]*\\Q" + tagName + "\\E(.*)$"
-
-	funcText = ProcedureText(funcName, numLines, "[" + GetIndependentModuleName() + "]")
-	for(i = 0; i < numLines; i +=1 )
-		funcLine = StringFromList(i, funcText, "\r")
-		SplitString/E=expr funcLine, funcTag
-		if(V_flag == 1)
-			return TrimString(funcTag)
-		endif
-	endfor
-
-	return ""
-End
-
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
 static Function TestBegin(name, debugMode)
@@ -1173,6 +1192,7 @@ static Function TestCaseBegin(testCase)
 	string msg
 
 	initAssertCount()
+	InitExpectedFailure(StringFromList(0, testCase, ":"))
 
 	// create a new unique folder as working folder
 	dfref dfr = GetPackageFolder()
@@ -1241,7 +1261,7 @@ End
 static function GetTestCaseCount(testCaseList, procWin)
 	string testCaseList, procWin
 
-	variable i, err, numTC, tcCount
+	variable i, err, numTC, tcCount, var
 	string testCase, dgenFuncName
 
 	numTC = ItemsInList(testCaseList)
@@ -1251,7 +1271,7 @@ static function GetTestCaseCount(testCaseList, procWin)
 		if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
 			tcCount += 1
 		else
-			dgenFuncName = GetFunctionTag(testCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+			dgenFuncName = UTF_Utils#GetFunctionTagValue(testCase, UTF_FTAG_TD_GENERATOR, var)
 			dgenFuncName = GetFullFunctionName(err, dgenFuncName, procWin)
 			FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $dgenFuncName
 			WAVE wGenerator = DataGenFunc()
@@ -1332,9 +1352,9 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 			continue
 		endif
 
-		dgen = GetFunctionTag(fullTestCase, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
-		if(UTF_Utils#IsEmpty(dgen))
-			sprintf msg, "Could not find data generator specification for multi data test case %s.", fullTestCase
+		dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
+		if(err)
+			sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
 			UTF_PrintStatusMessage(msg)
 			continue
 		else
@@ -1719,7 +1739,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
-				TAP_TestCaseBegin()
+				TAP_TestCaseBegin(name)
 				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name)
 				userHook(name); AbortOnRTE
@@ -2559,6 +2579,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
+		TestAllFunctionTags(s.allTestCasesList)
 
 		// 1.) set the hooks to the default implementations
 		setDefaultHooks(s.hooks)
@@ -2573,7 +2594,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			TAP_EnableOutput()
 			TAP_CreateFile()
 
-			if(TAP_CheckAllSkip(s.allTestCasesList))
+			if(TAP_AreAllFunctionsSkip(s.allTestCasesList))
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
 				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort
@@ -2626,7 +2647,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				// get Description and Directive of current Function for TAP
 				s.tap_skipCase = 0
 				if(TAP_IsOutputEnabled())
-					s.tap_skipCase = TAP_GetNotes(s.fullFuncName)
+					s.tap_skipCase = TAP_IsFunctionSkip(s.fullFuncName)
 				endif
 				s.dgenIndex = 0
 				s.tcSuffix = ""
@@ -2643,7 +2664,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 							s.mdMode = 0
 						else
 							s.mdMode = 1
-							s.dgenFuncName = GetFunctionTag(s.fullFuncName, UTF_TD_GENERATOR, UTF_TD_GENERATOR_L)
+							s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
 							s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
 							FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
 							WAVE wGenerator = DataGenFunc()
@@ -2679,7 +2700,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
 						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
 
-						if(shouldDoAbort())
+						if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
 							// abort condition is on hold while in catch/endtry, so all cleanup must happen here
 							ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
 
@@ -2711,7 +2732,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					endif
 
 				else
-					TAP_GetNotes(s.fullFuncName)
+					TAP_SetDirectiveAndDescription(s.fullFuncName)
 				endif
 				
 				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)

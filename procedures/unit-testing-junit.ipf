@@ -435,10 +435,13 @@ Function JU_TestCaseEnd(s, funcName, procWin)
 
 	s.juTC.timeTaken = DateTime - s.juTC.timeStart
 	s.juTC.error_count = error_count - s.juTC.error_count
-	// skip code 3, disabled code 4 is currently not implemented
+	// disabled code 4 is currently not implemented
 	if(shouldDoAbort())
 		s.juTC.testResult = 2
 		s.juTS.errors += 1
+	elseif(IsExpectedFailure())
+		s.juTC.testResult = 3
+		s.juTS.skipped += 1
 	else
 		s.juTC.testResult = (s.juTC.error_count != 0)
 		s.juTS.failures += (s.juTC.error_count != 0)
