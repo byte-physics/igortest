@@ -276,7 +276,9 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
+/// @endcond
 
 /// @class CLOSE_INT64_DOCU
 /// Compares two int64 and determines if they are close.
@@ -328,7 +330,9 @@ static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond
 
 /// @class SMALL_VAR_DOCU
 /// Tests if a variable is small using the inequality @f$  | var | < | tol |  @f$
@@ -385,7 +389,9 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
+/// @endcond
 
 /// @class SMALL_INT64_DOCU
 /// Tests if a int64 variable is small using the inequality @f$  | var | < | tol |  @f$
@@ -435,7 +441,9 @@ static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond
 
 /// @class EQUAL_STR_DOCU
 /// Compares two strings for byte-wise equality. (no encoding considered, no unicode normalization)
@@ -525,7 +533,9 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.00
+/// @endcond
 
 /// @class EQUAL_INT64_DOCU
 /// Tests two int64 for equality.
@@ -607,7 +617,9 @@ static Function NEQ_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	EvaluateResults(result, str, flags)
 End
 
+/// @cond HIDDEN_SYMBOL
 #endif
+/// @endcond
 
 /// @class EQUAL_WAVE_DOCU
 /// Tests two waves for equality of content (use @link WARN_WAVE@endlink, @link CHECK_WAVE@endlink or @link REQUIRE_WAVE@endlink for type)

@@ -73,7 +73,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc EQUAL_INT64_DOCU
 Function WARN_EQUAL_INT64(int64 var1, int64 var2)
@@ -107,7 +107,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #endif
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
@@ -132,7 +132,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc NEQ_INT64_DOCU
 Function WARN_NEQ_INT64(int64 var1, int64 var2)
@@ -166,7 +166,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #endif
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc CLOSE_VAR_DOCU
 Function WARN_CLOSE_VAR(var1, var2, [tol, strong])
@@ -269,7 +269,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc CLOSE_INT64_DOCU
 Function WARN_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
@@ -327,7 +327,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #endif
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc SMALL_VAR_DOCU
 Function WARN_SMALL_VAR(var, [tol])
@@ -403,7 +403,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #if IgorVersion() >= 7.0
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc SMALL_INT64_DOCU
 Function WARN_SMALL_INT64(int64 var, [int64 tol])
@@ -461,7 +461,7 @@ End
 
 /// @cond HIDDEN_SYMBOL
 #endif
-/// @endcond HIDDEN_SYMBOL
+/// @endcond
 
 /// @copydoc EMPTY_STR_DOCU
 Function WARN_EMPTY_STR(str)
