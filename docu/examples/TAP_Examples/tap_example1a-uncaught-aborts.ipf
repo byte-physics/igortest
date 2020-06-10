@@ -34,5 +34,5 @@ End
 // #TAPDescription: Planned abort here
 static Function Bail_Out()
 
-	AbortNow()
+	FAIL()
 End
