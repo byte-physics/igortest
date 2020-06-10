@@ -68,16 +68,6 @@ can be defined locally within the current :ref:`TestSuite` by declaring them
 any previously defined global functions. The functionality with additional user
 code at certain points of a Test Run is demonstrated in :ref:`example5`.
 
-.. note::
-
-   If the locally defined function should only extend a global function the
-   user can call the global function within the local function as follows:
-
-   .. code-block:: igor
-
-      FUNCREF USER_HOOK_PROTO tcbegin_global = TEST_CASE_BEGIN_OVERRIDE
-      tcbegin_global(TestCaseName)
-
 To give a possible use case, take a look at the following scenario: By default,
 each :ref:`TestCase` is executed in its own temporary data folder.
 :cpp:func:`TEST_CASE_BEGIN_OVERRIDE` can be used to set the data folder to
