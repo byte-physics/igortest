@@ -2655,40 +2655,42 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			do
 
-				if(!s.tap_skipCase || reentry)
+				if(!reentry)
 
-					if(!reentry)
-
-						FUNCREF TEST_CASE_PROTO TestCaseFunc = $s.fullFuncName
-						if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
-							s.mdMode = 0
-						else
-							s.mdMode = 1
-							s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
-							s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
-							FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
-							WAVE wGenerator = DataGenFunc()
-							s.dgenSize = DimSize(wGenerator, 0)
-							s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
-							if(strlen(s.tcSuffix) == 1)
-								s.tcSuffix = ":" + num2str(s.dgenIndex)
-							endif
-						endif
-						ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin)
+					FUNCREF TEST_CASE_PROTO TestCaseFunc = $s.fullFuncName
+					if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
+						s.mdMode = 0
 					else
-
-						DFREF dfSave = $PKG_FOLDER_SAVE
-						RestoreState(dfSave, s)
-						// restore all loop counters and end loop locals
-						i = s.i
-						j = s.j
-						numItemsPW = ItemsInList(s.procWinList)
-						numItemsFFN = ItemsInList(s.testCaseList)
-						// restore state done
-						DFREF dfSave = $""
-						ClearReentrytoUTF()
-
+						s.mdMode = 1
+						s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
+						s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
+						FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
+						WAVE wGenerator = DataGenFunc()
+						s.dgenSize = DimSize(wGenerator, 0)
+						s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
+						if(strlen(s.tcSuffix) == 1)
+							s.tcSuffix = ":" + num2str(s.dgenIndex)
+						endif
 					endif
+					if(!s.tap_skipCase)
+						ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin)
+					endif
+				else
+
+					DFREF dfSave = $PKG_FOLDER_SAVE
+					RestoreState(dfSave, s)
+					// restore all loop counters and end loop locals
+					i = s.i
+					j = s.j
+					numItemsPW = ItemsInList(s.procWinList)
+					numItemsFFN = ItemsInList(s.testCaseList)
+					// restore state done
+					DFREF dfSave = $""
+					ClearReentrytoUTF()
+
+				endif
+
+				if(!s.tap_skipCase)
 
 					try
 						ClearRTError()
@@ -2714,25 +2716,25 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						endif
 					endtry
 
-					reentry = 0
+				endif
 
-					if(IsBckgRegistered())
-						// save state
-						NewDataFolder $PKG_FOLDER_SAVE
-						DFREF dfSave = $PKG_FOLDER_SAVE
-						SaveState(dfSave, s)
+				reentry = 0
 
-						return RUNTEST_RET_BCKG
-					endif
+				if(IsBckgRegistered())
+					// save state
+					NewDataFolder $PKG_FOLDER_SAVE
+					DFREF dfSave = $PKG_FOLDER_SAVE
+					SaveState(dfSave, s)
 
+					return RUNTEST_RET_BCKG
+				endif
+
+				if(!s.tap_skipCase)
 					ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
+				endif
 
-					if(shouldDoAbort())
-						break
-					endif
-
-				else
-					TAP_SetDirectiveAndDescription(s.fullFuncName)
+				if(shouldDoAbort())
+					break
 				endif
 				
 				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
