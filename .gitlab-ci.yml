@@ -24,78 +24,19 @@ documentation:
     paths:
       - docu/sphinx/build/html
 
-testing-v6:
+testing:
   stage: build
   tags:
     - debian, docker
+  parallel:
+    matrix:
+      - IGOR_VERSION: [6, 7, 8, 9]
+        USELESS_VAR: USELESS_VALUE
   image:
-    name: ${CI_REGISTRY}/internal/docker-igorpro:v6
+    name: ${CI_REGISTRY}/internal/docker-igorpro:v${IGOR_VERSION}
   script:
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 6 User Files/User Procedures/utf"
-    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 6 User Files/User Procedures/tests"
-    - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
-  artifacts:
-    when: always
-    reports:
-      junit: tests/JU_*.xml
-    paths:
-      - tests/JU_*.xml
-      - screenshot/*.png
-
-testing-v7:
-  stage: build
-  tags:
-    - debian, docker
-  image:
-    name: ${CI_REGISTRY}/internal/docker-igorpro:v7
-  script:
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 7 User Files/User Procedures/utf"
-    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 7 User Files/User Procedures/tests"
-    - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
-  artifacts:
-    when: always
-    reports:
-      junit: tests/JU_*.xml
-    paths:
-      - tests/JU_*.xml
-      - screenshot/*.png
-
-testing-v8:
-  stage: build
-  tags:
-    - debian, docker
-  image:
-    name: ${CI_REGISTRY}/internal/docker-igorpro:v8
-  script:
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 8 User Files/User Procedures/utf"
-    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 8 User Files/User Procedures/tests"
-    - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
-  artifacts:
-    when: always
-    reports:
-      junit: tests/JU_*.xml
-    paths:
-      - tests/JU_*.xml
-      - screenshot/*.png
-
-testing-v9:
-  stage: build
-  tags:
-    - debian, docker
-  image:
-    name: ${CI_REGISTRY}/internal/docker-igorpro:v9
-  script:
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro 9 User Files/User Procedures/utf"
-    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro 9 User Files/User Procedures/tests"
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
+    - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
       # generate a proper exit value
