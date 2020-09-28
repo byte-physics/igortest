@@ -63,8 +63,8 @@ deployment_staging:
     - documentation
 
 deployment:
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
   tags:
     - debian, docker
   stage: deploy
