@@ -95,38 +95,35 @@ End
 static Function/WAVE GetFunctionTagWave(funcName)
 	string funcName
 
-	string msg, expr, funcText, funcLine, tagName, tagValue
-	variable i, j, numPossibleTags, functionPosition, doubleSlashPosition, numFound
+	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue
+	variable i, j, numPossibleTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
 	numPossibleTags = DimSize(tag_constants, 0)
 	Make/FREE/T/N=(numPossibleTags) tagValueWave
-	
+
 	numFound = 0
 
-	funcText = ProcedureText(funcName, -numPossibleTags, "[" + GetIndependentModuleName() + "]")
-	for(i = 0; i < numPossibleTags; i += 1 )
+	funcTextWithContext = ProcedureText(funcName, -1, "[" + GetIndependentModuleName() + "]")
+	funcTextWithoutContext = ProcedureText(funcName, 0, "[" + GetIndependentModuleName() + "]")
+	funcText = ReplaceString(funcTextWithoutContext, funcTextWithContext, "")
+	numLines = ItemsInList(funcText, "\r")
+
+	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1 )
 		funcLine = StringFromList(i, funcText, "\r")
 		if(IsEmpty(funcLine))
 			continue
 		endif
 
-		functionPosition = strSearch(funcLine, "function", 0, 2)
-		doubleSlashPosition = strSearch(funcLine, "//", 0, 2)
-		if(functionPosition != -1 && (functionPosition < doubleSlashPosition || doubleSlashPosition == -1))
-			// function keyword is reached
-			break
-		endif
-		
 		for(j = 0; j < numPossibleTags; j += 1 )
 			tagName = tag_constants[j]
 			expr = "\/\/*[[:space:]]*\\Q" + tagName + "\\E(.*)$"
-	
+
 			SplitString/E=expr funcLine, tagValue
 			if(V_flag != 1)
 				continue
 			endif
-				
+
 			tagValue = TrimString(tagValue)
 			if(FindDimLabel(tagValueWave, 0, tagName) != -2)
 				sprintf msg, "Test case %s has the tag %s at least twice.", funcName, tagValue
