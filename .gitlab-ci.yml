@@ -57,7 +57,7 @@ deployment_staging:
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
-  dependencies:
+  needs:
     - documentation
 
 deployment:
@@ -71,5 +71,7 @@ deployment:
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
-  dependencies:
+  needs:
     - documentation
+    - job: testing
+      artifacts: false
