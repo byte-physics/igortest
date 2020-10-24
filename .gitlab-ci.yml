@@ -39,8 +39,7 @@ testing:
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
