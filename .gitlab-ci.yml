@@ -31,7 +31,6 @@ testing:
   parallel:
     matrix:
       - IGOR_VERSION: [6, 7, 8, 9]
-        USELESS_VAR: USELESS_VALUE
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v${IGOR_VERSION}
   script:
