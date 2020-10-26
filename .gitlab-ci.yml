@@ -31,7 +31,6 @@ testing:
   parallel:
     matrix:
       - IGOR_VERSION: [6, 7, 8, 9]
-        USELESS_VAR: USELESS_VALUE
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v${IGOR_VERSION}
   script:
@@ -39,8 +38,7 @@ testing:
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
     - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
-      # generate a proper exit value
-    - exit $(grep "errors\|failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
@@ -59,7 +57,7 @@ deployment_staging:
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
-  dependencies:
+  needs:
     - documentation
 
 deployment:
@@ -73,5 +71,7 @@ deployment:
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
-  dependencies:
+  needs:
     - documentation
+    - job: testing
+      artifacts: false
