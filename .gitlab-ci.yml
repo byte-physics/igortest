@@ -12,6 +12,8 @@ documentation:
   tags:
     - debian, docker
   stage: build
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_SPHINX}"
   image:
     name: ${CI_REGISTRY}/internal/docker-sphinx:latest
   script:
@@ -31,6 +33,8 @@ testing:
   parallel:
     matrix:
       - IGOR_VERSION: [6, 7, 8, 9]
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_IGOR_PRO}"
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v${IGOR_VERSION}
   script:
@@ -54,6 +58,8 @@ deployment_staging:
   stage: deploy
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
@@ -68,6 +74,8 @@ deployment:
   stage: deploy
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
