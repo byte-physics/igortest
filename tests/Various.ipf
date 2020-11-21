@@ -4,6 +4,12 @@
 
 // Licensed under 3-Clause BSD, see License.txt
 
-Function DoNothing()
-	PASS()
+Function DoesNotBugOutOnLongString()
+
+	string a = PadString("a", 10e4, 0x20)
+	string b = PadString("b", 10e4, 0x20)
+	WARN_EQUAL_STR(a, b)
+	WARN_NULL_STR(a)
+	WARN_PROPER_STR(a)
+	REQUIRE_EQUAL_VAR(GetRTError(0), 0)
 End

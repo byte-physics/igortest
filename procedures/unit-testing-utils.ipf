@@ -7,6 +7,10 @@
 
 ///@cond HIDDEN_SYMBOL
 
+// Choosen so that we don't hit the IP6 limit of 1000 chars
+// with two %s and some other text.
+static Constant MAX_STRING_LENGTH = 250
+
 /// @brief Returns 1 if var is a finite/normal number, 0 otherwise
 ///
 /// @hidecallgraph
@@ -188,4 +192,30 @@ static Function/T GetFunctionTagValue(funcName, tagName, err)
 	err = UTF_TAG_OK
 	return tagValue
 End
+
+/// @brief Prepare the passed string for output
+///
+/// We return a fixed string if it is null and limit its size so that it can be used in a sprintf statement using plain
+/// "%s". We also do that for IP9, where this limit does not exist anymore, to have a consistent output across all IP
+/// versions.
+static Function/S PrepareStringForOut(str)
+	string &str
+
+	variable length
+	string suffix
+
+	if(IsNull(str))
+		return "(null)"
+	endif
+
+	length = strlen(str)
+
+	if(length < MAX_STRING_LENGTH)
+		return str
+	endif
+
+	suffix = ".."
+	return str[0, MAX_STRING_LENGTH - 1 - strlen(suffix)] + suffix
+End
+
 ///@endcond // HIDDEN_SYMBOL
