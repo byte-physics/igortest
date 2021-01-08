@@ -68,9 +68,10 @@ deployment_staging:
 
 deployment:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$SCHEDULER_TYPE'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: on_success
   tags:
     - debian, docker
   stage: deploy
