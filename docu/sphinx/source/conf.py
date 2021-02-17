@@ -133,7 +133,7 @@ html_sidebars = {
 
 # open javascript analytics: https://matomo.org/
 def setup(app):
-    app.add_javascript('js/matomo.js')
+    app.add_js_file('js/matomo.js')
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
