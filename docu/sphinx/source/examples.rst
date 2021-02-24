@@ -24,6 +24,7 @@ function is also capable of handling :code:`INF` singularities.
 
 .. literalinclude:: ../../examples/example1-plain.ipf
    :caption: example1-plain.ipf
+   :tab-width: 4
    :linenos:
    :emphasize-lines: 11
 
@@ -80,6 +81,7 @@ ModuleName=Example2`
 
 .. literalinclude:: ../../examples/example2-plain.ipf
    :caption: example2-plain.ipf
+   :tab-width: 4
    :name: example2-code
    :emphasize-lines: 3
 
@@ -116,6 +118,7 @@ Even if a test has failed, the test end hook is still executed. See
 
 .. literalinclude:: ../../examples/example3-plain.ipf
    :caption: example3-plain.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
@@ -152,6 +155,7 @@ datafolder. There is no need to use :code:`KillWaves` or :code:`Make/O` here.
 
 .. literalinclude:: ../../examples/example4-wavechecking.ipf
    :caption: example4-wavechecking.ipf
+   :tab-width: 4
    :linenos:
    :emphasize-lines: 10,45,47
 
@@ -202,10 +206,12 @@ context so the test hook extensions are also global.
 
 .. literalinclude:: ../../examples/example5-extensionhooks.ipf
    :caption: example5-extensionhooks.ipf
+   :tab-width: 4
    :name: example5-code-1
 
 .. literalinclude:: ../../examples/example5-extensionhooks-otherSuite.ipf
    :caption: example5-extensionhooks-otherSuite.ipf
+   :tab-width: 4
    :name: example5-code-2
 
 .. code-block:: igor
@@ -240,10 +246,12 @@ on :ref:`automate`.
 
 .. literalinclude:: ../../examples/Example6/example6-automatic-invocation.ipf
    :caption: example6-automatic-invocation.ipf
+   :tab-width: 4
    :name: example6-code-1
 
 .. literalinclude:: ../../examples/Example6/example6-runner.ipf
    :caption: example6-runner.ipf
+   :tab-width: 4
    :name: example6-code-2
 
 In this example, the automatic invocation of the Unit Testing Framework is also
@@ -269,6 +277,7 @@ works with :code:`Abort`, :code:`AbortOnValue` and :code:`AbortOnRTE` (see
 
 .. literalinclude:: ../../examples/example7-uncaught-aborts.ipf
    :caption: example7-uncaught-aborts.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
@@ -315,6 +324,7 @@ uncaught RTE.
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
    :caption: example8-uncaught-runtime-errors
+   :tab-width: 4
    :linenos:
    :emphasize-lines: 10,13,20
 
@@ -343,6 +353,7 @@ Please note that when calling the test suite, the procedure window name does
 
 .. literalinclude:: ../../examples/example9-IM.ipf
    :caption: example9-IM.ipf
+   :tab-width: 4
    :emphasize-lines: 3
 
 .. code-block:: igor
@@ -370,6 +381,7 @@ only as good as the unit test the define it.
 
 .. literalinclude:: ../../examples/example10-peakfind.ipf
    :caption: example10-peakfind.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
@@ -399,6 +411,7 @@ registers the same user task again with another `_REENTRY` function to resume.
 
 .. literalinclude:: ../../examples/example11-background.ipf
    :caption: example11-background.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
@@ -422,6 +435,7 @@ The background monitor registration can be called from any begin hook.
 
 .. literalinclude:: ../../examples/example12-background-using-hooks.ipf
    :caption: example12-background-using-hooks.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
@@ -446,6 +460,7 @@ case is called for each element of that wave.
 
 .. literalinclude:: ../../examples/example13-multi-test-data.ipf
    :caption: example13-multi-test-data.ipf
+   :tab-width: 4
 
 .. code-block:: igor
    :caption: command
