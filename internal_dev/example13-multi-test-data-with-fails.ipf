@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma rtFunctionErrors=1
 #pragma ModuleName=Example13internal
 
 #include "unit-testing"
