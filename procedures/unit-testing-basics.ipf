@@ -798,6 +798,51 @@ static Function getLocalHooks(hooks, procName)
 	abortWithInvalidHooks(hooks)
 End
 
+/// Returns the functionName of the specified DataGenerator. The priority is first local then ProcGlobal.
+/// If funcName is specified with Module then in all procedures is looked. No ProcGlobal function is returned in that case.
+static Function/S GetDataGeneratorFunctionName(err, funcName, procName)
+	variable &err
+	string funcName, procName
+
+	string infoStr, modName, pName, errMsg
+
+	err = 0
+	if(ItemsInList(funcName, "#") > 2)
+		sprintf errMsg, "Data Generator Function %s is specified with Independent Module, this is not supported.", funcName
+		err = 1
+		return errMsg
+	endif
+	// if funcName is specified without Module then FunctionInfo looks in procedure procName only.
+	// if funcName is specified with Module then FunctionInfo looks in all procedures of current compile unit, independent of procName
+	infoStr = FunctionInfo(funcName, procName)
+	if(!UTF_Utils#IsEmpty(infoStr))
+		modName = StringByKey("MODULE", infoStr)
+		pName = StringByKey("NAME", infoStr)
+		if(CmpStr(StringByKey("SPECIAL", infoStr), "static"))
+			sprintf errMsg, "Data Generator Function %s#%s must be static.", modName, pName
+			err = 1
+			return errMsg
+		endif
+		return modName + "#" + pName
+	else
+		// look in ProcGlobal of current compile unit
+		infoStr = FunctionInfo(funcName)
+		if(!UTF_Utils#IsEmpty(infoStr))
+			pName = StringByKey("NAME", infoStr)
+			return pName
+		endif
+	endif
+	infoStr = GetIndependentModuleName()
+	if(!CmpStr(infoStr, "ProcGlobal"))
+		sprintf errMsg, "Data Generator Function %s not found in %s or ProcGlobal.", funcName, procName
+	else
+		sprintf errMsg, "In Independent Module %s, data Generator Function %s not found in %s or globally in IM.", infoStr, funcName, procName
+	endif
+	err = 1
+
+	return errMsg
+End
+
 /// Returns the full name of a function including its module
 /// @param &err returns 0 for no error, 1 if function not found, 2 is static function in proc without ModuleName
 static Function/S getFullFunctionName(err, funcName, procName)
@@ -1272,7 +1317,7 @@ static function GetTestCaseCount(testCaseList, procWin)
 			tcCount += 1
 		else
 			dgenFuncName = UTF_Utils#GetFunctionTagValue(testCase, UTF_FTAG_TD_GENERATOR, var)
-			dgenFuncName = GetFullFunctionName(err, dgenFuncName, procWin)
+			dgenFuncName = GetDataGeneratorFunctionName(err, dgenFuncName, procWin)
 			FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $dgenFuncName
 			WAVE wGenerator = DataGenFunc()
 			tcCount += DimSize(wGenerator, 0)
@@ -1358,7 +1403,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 			UTF_PrintStatusMessage(msg)
 			Abort msg
 		else
-			dgen = getFullFunctionName(err, dgen, procWin)
+			dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
 			if(err)
 				sprintf msg, "Could not get full function name of data generator: %s", dgen
 				UTF_PrintStatusMessage(msg)
@@ -2663,7 +2708,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					else
 						s.mdMode = 1
 						s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
-						s.dgenFuncName = GetFullFunctionName(var, s.dgenFuncName, s.procWin)
+						s.dgenFuncName = GetDataGeneratorFunctionName(var, s.dgenFuncName, s.procWin)
 						FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
 						WAVE wGenerator = DataGenFunc()
 						s.dgenSize = DimSize(wGenerator, 0)
