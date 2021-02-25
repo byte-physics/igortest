@@ -818,10 +818,13 @@ static Function/S GetDataGeneratorFunctionName(err, funcName, procName)
 	if(!UTF_Utils#IsEmpty(infoStr))
 		modName = StringByKey("MODULE", infoStr)
 		pName = StringByKey("NAME", infoStr)
-		if(CmpStr(StringByKey("SPECIAL", infoStr), "static"))
-			sprintf errMsg, "Data Generator Function %s#%s must be static.", modName, pName
+		if(!CmpStr(StringByKey("SPECIAL", infoStr), "static") && UTF_Utils#IsEmpty(modName))
+			sprintf errMsg, "Data Generator Function %s is declared static but the procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.", pName, procName
 			err = 1
 			return errMsg
+		endif
+		if(UTF_Utils#IsEmpty(modName))
+			return pName
 		endif
 		return modName + "#" + pName
 	else
