@@ -192,7 +192,7 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 			str2 = GetDimLabel(wv2, i, -1)
 
 			if(cmpstr(str1, str2))
-				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, str1, str2
+				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, UTF_Utils#PrepareStringForOut(str1), UTF_Utils#PrepareStringForOut(str2)
 				return 0
 			endif
 
@@ -210,8 +210,9 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 				if(!cmpstr(label1[j], label2[j]))
 					continue
 				endif
-
-				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, label1[j], label2[j]
+				str1 = label1[j]
+				str2 = label2[j]
+				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, UTF_Utils#PrepareStringForOut(str2), UTF_Utils#PrepareStringForOut(str2)
 				return 0
 			endfor
 		endif
@@ -479,6 +480,8 @@ End
 Function PrintFailInfo([prefix])
 	String prefix
 
+	string str
+
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
@@ -487,7 +490,8 @@ Function PrintFailInfo([prefix])
 
 	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
 
-	sprintf message, "%s%s  %s", prefix, status, getInfo(0)
+	str = getInfo(0)
+	sprintf message, "%s%s  %s", prefix, status, UTF_Utils#PrepareStringForOut(str)
 
 	UTF_PrintStatusMessage(message)
 	type = "FAIL"
@@ -668,7 +672,7 @@ static Function/S getInfo(result)
 		return "The test case did not make any assertions!"
 	endif
 
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", cleanText,  SelectString(result, "failed", "succeeded"), line, procedure
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", UTF_Utils#PrepareStringForOut(cleanText),  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
 End
 
@@ -2532,7 +2536,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable numItemsPW, numItemsFFN
 	// used as temporal locals
 	variable var
-	string msg
+	string msg, str
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -2618,9 +2622,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tcCount, var)
 		s.err = var
 		if(s.err)
-			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, s.allTestCasesList
+			str = s.allTestCasesList
+			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, UTF_Utils#PrepareStringForOut(str)
 			UTF_PrintStatusMessage(msg)
-			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, s.procWinList
+			str = s.procWinList
+			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, UTF_Utils#PrepareStringForOut(str)
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif

@@ -30,7 +30,14 @@ testing:
     - debian, docker
   parallel:
     matrix:
-      - IGOR_VERSION: [6, 7, 8, 9]
+      - IGOR_VERSION:
+          - 6
+          - 7
+          - 8
+          - 9
+        EXPERIMENT:
+          - VeryTinyTestEnvironment.pxp
+          - Various.pxp
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_IGOR_PRO}"
   image:
@@ -39,7 +46,7 @@ testing:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch tests/DO_AUTORUN.TXT
-    - igorpro execute --verbose --screenshot "tests/VeryTinyTestEnvironment.pxp"
+    - igorpro execute --verbose --screenshot "tests/${EXPERIMENT}"
     - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
