@@ -83,17 +83,18 @@ cleanup is done afterward. The *next* Test Case then starts with the data the
 JUNIT Output
 ------------
 
+All common continuous integration frameworks support input as JUNIT XML files.
 The igor unit testing framework supports output of test run results in JUNIT
-compatible format. The output can be enabled by adding the optional parameter
-`enableJU=1` to :cpp:func:`RunTest()`. The XML output files are written to the
-experiments `home` directory with naming `JU_Experiment_Date_Time.xml`. If a
-file with the same name already exists a three digit number is added to the
-name. The JUNIT Output also contains the history log of each test case and test
-suite.
+XML format. The output can be enabled by adding the optional parameter
+:code:`enableJU=1` to :cpp:func:`RunTest()`.
 
-.. todo::
+The XML output files are written to the experiments `home` directory with naming
+`JU_Experiment_Date_Time.xml`. If a file with the same name already exists a
+three digit number is added to the name. The JUNIT Output includes the results
+and history log of each test case and test suite.
 
-   reference function parameters with their breathe links
+The format reference that the IUTF uses is described in the section
+:ref:`junit_reference`.
 
 Test Anything Protocol Output
 -----------------------------
@@ -369,3 +370,29 @@ test execution is aborted.
      print "Reentered test case with argument ", var
      PASS()
    End
+
+.. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
+
+.. _junit_reference:
+
+JUNIT Reference
+---------------
+
+The JUNIT implementation in the IUTF is based on the XML scheme definition from `Jenkins XUnit plugin`_.
+
+Example XML reference file.
+
+.. literalinclude:: junit.xml
+   :caption: Example XML file with attributes used also supported by the Jenkins JUnit plugin based on the file published at <https://llg.cubic.org/docs/junit/>.
+   :name: JUNIT_XML_Example
+   :language: xml
+   :force:
+   :dedent:
+   :tab-width: 4
+
+.. literalinclude:: junit.xsd
+   :caption: XSD (XML scheme definition) file for JUNIT
+   :name: JUNIT_XSD
+   :language: xml
+   :dedent:
+   :tab-width: 4
