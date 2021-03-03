@@ -1,5 +1,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3
+#pragma rtFunctionErrors=1
 #pragma version=1.08
 
 // Licensed under 3-Clause BSD, see License.txt

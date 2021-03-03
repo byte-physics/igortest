@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma rtFunctionErrors=1
 #pragma IndependentModule=ABCD
 #pragma ModuleName=test6a
 #include "unit-testing"

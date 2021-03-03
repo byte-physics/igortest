@@ -1,4 +1,5 @@
 #pragma rtGlobals=3
+#pragma rtFunctionErrors=1
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=ExampleXX
 
