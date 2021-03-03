@@ -66,23 +66,27 @@ static Function TestUTF()
 	Ensure(UTF_Checks#IsDataFolderEmpty("test1"))
 
 	// wave
-	NewDataFolder/O/S test2
-	Make data
+	NewDataFolder/O test2
+	DFREF dfr = test2
+	Make dfr:data
 	Ensure(!UTF_Checks#IsDataFolderEmpty("test2"))
 
 	// datafolder
-	NewDataFolder/O/S test3
-	NewDataFolder data
+	NewDataFolder/O test3
+	DFREF dfr = test3
+	NewDataFolder/O dfr:data
 	Ensure(!UTF_Checks#IsDataFolderEmpty("test3"))
 
 	// variable
-	NewDataFolder/O/S test4
-	variable/G var
+	NewDataFolder/O test4
+	DFREF dfr = test4
+	variable/G dfr:var
 	Ensure(!UTF_Checks#IsDataFolderEmpty("test4"))
 
 	// string
-	NewDataFolder/O/S test5
-	string/G globalstr
+	NewDataFolder/O test5
+	DFREF dfr = test5
+	string/G dfr:globalstr
 	Ensure(!UTF_Checks#IsDataFolderEmpty("test5"))
 	// @}
 
