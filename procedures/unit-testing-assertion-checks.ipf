@@ -198,10 +198,15 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	variable mode, tol
 	string &detailedMsg
 
-	variable result
+	variable result, err
 
 	// handle NaN return values from EqualWaves for unknown modes
-	result = EqualWaves(wv1, wv2, mode, tol) == 1
+	try
+		result = EqualWaves(wv1, wv2, mode, tol) == 1; AbortOnRTE
+	catch
+		err = GetRTError(1)
+		result = 0
+	endtry
 
 	detailedMsg = ""
 
