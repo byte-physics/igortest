@@ -610,6 +610,38 @@ static Function IsProcGlobal()
 	return !cmpstr("ProcGlobal", GetIndependentModuleName())
 End
 
+/// @brief Saves the current assertion counter in global saveAssertCount
+static Function SaveAssertionCounter()
+
+	DFREF dfr = GetPackageFolder()
+
+	NVAR/SDFR=dfr/Z assert_count
+	if(!NVAR_Exists(assert_count))
+		initAssertCount()
+		NVAR/SDFR=dfr assert_count
+	endif
+
+	NVAR/SDFR=dfr/Z saveAssertCount
+	if(!NVAR_Exists(saveAssertCount))
+		variable/G dfr:saveAssertCount = assert_count
+	else
+		saveAssertCount = assert_count
+	endif
+End
+
+/// @brief Retrieves the saved assertion counter from global saveAssertCount
+static Function GetSavedAssertionCounter()
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr/Z saveAssertCount
+
+	if(!NVAR_Exists(saveAssertCount))
+		return NaN
+	endif
+
+	return saveAssertCount
+End
+
 /// Prints an informative message about the test's success or failure
 // 0 failed, 1 succeeded
 static Function/S getInfo(result)
@@ -646,8 +678,14 @@ static Function/S getInfo(result)
 		endif
 	endfor
 
-	if(UTF_Utils#IsNaN(callerIndex) && assert_count != 0)
-		return "Assertion failed in unknown location"
+	if(UTF_Utils#IsNaN(callerIndex))
+		if(assert_count - GetSavedAssertionCounter() == 0)
+			// We have no external caller, assuming the internal call was the check in AfterTestCase()
+			return "The test case did not make any assertions!"
+		else
+			// We have no external caller, but a test case assertion - should never happen
+			return "Assertion failed in unknown location"
+		endif
 	endif
 
 	callerTestCase = StringFromList(testCaseIndex, callStack)
@@ -668,10 +706,6 @@ static Function/S getInfo(result)
 	text = StringFromList(str2num(line), contents, "\r")
 
 	cleanText = trimstring(text)
-
-	if(assert_count == 0)
-		return "The test case did not make any assertions!"
-	endif
 
 	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", UTF_Utils#PrepareStringForOut(cleanText),  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
@@ -1302,10 +1336,6 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 	dfref dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr lastFolder
 	SVAR/Z/SDFR=dfr workFolder
-	NVAR/SDFR=dfr assert_count
-	
-	sprintf msg, "Test case \"%s\" contained at least one assertion", testCase
-	ReportResults(assert_count, msg, OUTPUT_MESSAGE | INCREASE_ERROR)
 
 	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
 		SetDataFolder $lastFolder
@@ -1792,6 +1822,26 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	return procWinListOut
 End
 
+/// @brief Called after the test case begin user hook and before the test case function
+static Function BeforeTestCase(name)
+	string name
+
+	SaveAssertionCounter()
+End
+
+/// @brief Called after the test case and before the test case end user hook
+static Function AfterTestCase(name)
+	string name
+
+	string msg
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr assert_count
+
+	sprintf msg, "Test case \"%s\" contained at least one assertion", name
+	ReportResults(assert_count != GetSavedAssertionCounter(), msg, OUTPUT_MESSAGE | INCREASE_ERROR)
+End
+
 /// @brief Execute the builtin and user hooks
 ///
 /// @param hookType One of @ref HookTypes
@@ -1844,10 +1894,12 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name)
 				userHook(name); AbortOnRTE
+				BeforeTestCase(name)
 				break
 			case TEST_CASE_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
 
+				AfterTestCase(name)
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE
