@@ -32,20 +32,20 @@ static Constant TEST_CASE_END_CONST    = 0x20
 /// @name Constants for WaveTypes
 /// @anchor WaveTypes
 /// @{
-static Constant WAVETYPE0_CMPL = 0x01
-static Constant WAVETYPE0_FP32 = 0x02
-static Constant WAVETYPE0_FP64 = 0x04
-static Constant WAVETYPE0_INT8 = 0x08
-static Constant WAVETYPE0_INT16 = 0x10
-static Constant WAVETYPE0_INT32 = 0x20
-static Constant WAVETYPE0_INT64 = 0x80
-static Constant WAVETYPE0_USGN = 0x40
+Constant IUTF_WAVETYPE0_CMPL = 0x01
+Constant IUTF_WAVETYPE0_FP32 = 0x02
+Constant IUTF_WAVETYPE0_FP64 = 0x04
+Constant IUTF_WAVETYPE0_INT8 = 0x08
+Constant IUTF_WAVETYPE0_INT16 = 0x10
+Constant IUTF_WAVETYPE0_INT32 = 0x20
+Constant IUTF_WAVETYPE0_INT64 = 0x80
+Constant IUTF_WAVETYPE0_USGN = 0x40
 
-static Constant WAVETYPE1_NULL = 0x00
-static Constant WAVETYPE1_NUM = 0x01
-static Constant WAVETYPE1_TEXT = 0x02
-static Constant WAVETYPE1_DFR = 0x03
-static Constant WAVETYPE1_WREF = 0x04
+Constant IUTF_WAVETYPE1_NULL = 0x00
+Constant IUTF_WAVETYPE1_NUM = 0x01
+Constant IUTF_WAVETYPE1_TEXT = 0x02
+Constant IUTF_WAVETYPE1_DFR = 0x03
+Constant IUTF_WAVETYPE1_WREF = 0x04
 /// @}
 
 /// @name Constants for Debugger mode
@@ -1418,29 +1418,29 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
-		wType0 = 0xff %^ WAVETYPE0_CMPL %^ WAVETYPE0_INT64
-		wType1 = WAVETYPE1_NUM
+		wType0 = 0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64
+		wType1 = IUTF_WAVETYPE1_NUM
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
-		wType1 = WAVETYPE1_TEXT
+		wType1 = IUTF_WAVETYPE1_TEXT
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
-		wType1 = WAVETYPE1_DFR
+		wType1 = IUTF_WAVETYPE1_DFR
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
-		wType1 = WAVETYPE1_WREF
+		wType1 = IUTF_WAVETYPE1_WREF
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
-		wType1 = WAVETYPE1_WREF
-		wrefSubType = WAVETYPE1_TEXT
+		wType1 = IUTF_WAVETYPE1_WREF
+		wrefSubType = IUTF_WAVETYPE1_TEXT
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
-		wType1 = WAVETYPE1_WREF
-		wrefSubType = WAVETYPE1_DFR
+		wType1 = IUTF_WAVETYPE1_WREF
+		wrefSubType = IUTF_WAVETYPE1_DFR
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
-		wType1 = WAVETYPE1_WREF
-		wrefSubType = WAVETYPE1_WREF
+		wType1 = IUTF_WAVETYPE1_WREF
+		wrefSubType = IUTF_WAVETYPE1_WREF
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
-		wType0 = WAVETYPE0_CMPL
-		wType1 = WAVETYPE1_NUM
+		wType0 = IUTF_WAVETYPE0_CMPL
+		wType1 = IUTF_WAVETYPE1_NUM
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
-		wType0 = WAVETYPE0_INT64
-		wType1 = WAVETYPE1_NUM
+		wType0 = IUTF_WAVETYPE0_INT64
+		wType1 = IUTF_WAVETYPE1_NUM
 	else
 		return 0
 	endif
@@ -1506,7 +1506,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 				sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullTestCase
 				UTF_PrintStatusMessage(msg)
 				Abort msg
-			elseif(!((wType1 == WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
+			elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
 				sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullTestCase
 				UTF_PrintStatusMessage(msg)
 				Abort msg
@@ -1514,7 +1514,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 				sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullTestCase
 				UTF_PrintStatusMessage(msg)
 				continue
-			elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
+			elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
 				sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullTestCase, wRefSubType, dgen
 				UTF_PrintStatusMessage(msg)
 				Abort msg
@@ -2311,8 +2311,8 @@ static Function CallTestCase(s, reentry)
 		WAVE wGenerator = DataGenFunc()
 		wType0 = WaveType(wGenerator)
 		wType1 = WaveType(wGenerator, 1)
-		if(wType1 == WAVETYPE1_NUM)
-			if(wType0 & WAVETYPE0_CMPL)
+		if(wType1 == IUTF_WAVETYPE1_NUM)
+			if(wType0 & IUTF_WAVETYPE0_CMPL)
 
 				FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
@@ -2323,7 +2323,7 @@ static Function CallTestCase(s, reentry)
 				endif
 				fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
 
-			elseif(wType0 & WAVETYPE0_INT64)
+			elseif(wType0 & IUTF_WAVETYPE0_INT64)
 
 				FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
@@ -2346,7 +2346,7 @@ static Function CallTestCase(s, reentry)
 				fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
 
 			endif
-		elseif(wType1 == WAVETYPE1_TEXT)
+		elseif(wType1 == IUTF_WAVETYPE1_TEXT)
 
 			WAVE/T wGeneratorStr = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
@@ -2358,7 +2358,7 @@ static Function CallTestCase(s, reentry)
 			endif
 			fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
 
-		elseif(wType1 == WAVETYPE1_DFR)
+		elseif(wType1 == IUTF_WAVETYPE1_DFR)
 
 			WAVE/DF wGeneratorDF = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
@@ -2370,7 +2370,7 @@ static Function CallTestCase(s, reentry)
 			endif
 			fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
 
-		elseif(wType1 == WAVETYPE1_WREF)
+		elseif(wType1 == IUTF_WAVETYPE1_WREF)
 
 			WAVE/WAVE wGeneratorWV = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
@@ -2378,21 +2378,21 @@ static Function CallTestCase(s, reentry)
 				fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 			else
 				wRefSubType = WaveType(wGeneratorWV[s.dgenIndex], 1)
-				if(wRefSubType == WAVETYPE1_TEXT)
+				if(wRefSubType == IUTF_WAVETYPE1_TEXT)
 					FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMD_WVTEXT = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
 						fTCMD_WVTEXT(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
-				elseif(wRefSubType == WAVETYPE1_DFR)
+				elseif(wRefSubType == IUTF_WAVETYPE1_DFR)
 					FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMD_WVDFREF = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
 						fTCMD_WVDFREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
-				elseif(wRefSubType == WAVETYPE1_WREF)
+				elseif(wRefSubType == IUTF_WAVETYPE1_WREF)
 					FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMD_WVWAVEREF = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
 						fTCMD_WVWAVEREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
