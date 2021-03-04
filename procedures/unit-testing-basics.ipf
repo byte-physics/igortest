@@ -46,6 +46,10 @@ Constant IUTF_WAVETYPE1_NUM = 0x01
 Constant IUTF_WAVETYPE1_TEXT = 0x02
 Constant IUTF_WAVETYPE1_DFR = 0x03
 Constant IUTF_WAVETYPE1_WREF = 0x04
+
+Constant IUTF_WAVETYPE2_NULL = 0x00
+Constant IUTF_WAVETYPE2_GLOBAL = 0x01
+Constant IUTF_WAVETYPE2_FREE = 0x02
 /// @}
 
 /// @name Constants for Debugger mode

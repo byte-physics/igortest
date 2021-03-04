@@ -198,42 +198,51 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	variable mode, tol
 	string &detailedMsg
 
+	string waveDataMsg = ""
+	string dimLabelMsg = ""
 	variable result, err
 
 	result = EqualWaves(wv1, wv2, mode, tol) == 1
 
-	detailedMsg = ""
-
 	if(!result)
 		switch(mode)
-			 case WAVE_DATA:
-			 case WAVE_DATA_TYPE:
-			 case WAVE_SCALING:
-			 case DATA_UNITS:
-			 case DIMENSION_UNITS:
-			 case WAVE_NOTE:
-			 case WAVE_LOCK_STATE:
-			 case DATA_FULL_SCALE:
-			 case DIMENSION_SIZES:
-				 // FIXME add detailed msg generation functions
-				 break
-			 case DIMENSION_LABELS:
+			case WAVE_DATA:
+				waveDataMsg = UTF_Utils#DetermineWaveDataDifference(wv1, wv2, tol)
+			case WAVE_DATA_TYPE:
+			case WAVE_SCALING:
+			case DATA_UNITS:
+			case DIMENSION_UNITS:
+			case WAVE_NOTE:
+			case WAVE_LOCK_STATE:
+			case DATA_FULL_SCALE:
+			case DIMENSION_SIZES:
+				// FIXME add detailed msg generation functions
+				break
+			case DIMENSION_LABELS:
 				// work around buggy EqualWaves versions which detect some
 				// waves as differing but they are not in reality
 #if IgorVersion() >= 9.0
-				GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+				GenerateDimLabelDifference(wv1, wv2, dimLabelMsg)
 #elif IgorVersion() >= 8.0
 #if NumberByKey("BUILD", IgorInfo(0)) >= 33425
-				GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+				GenerateDimLabelDifference(wv1, wv2, dimLabelMsg)
 #else // old IP8
-				result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+				result = GenerateDimLabelDifference(wv1, wv2, dimLabelMsg)
 #endif
 #else // IP7 and older
-				result = GenerateDimLabelDifference(wv1, wv2, detailedMsg)
+				result = GenerateDimLabelDifference(wv1, wv2, dimLabelMsg)
 #endif
 				break
 		endswitch
+
+		detailedMsg = waveDataMsg
+		if(!UTF_Utils#IsEmpty(dimLabelMsg))
+			detailedMsg += "\r" + dimLabelMsg
+		endif
+	else
+		detailedMsg = ""
 	endif
+
 
 	return result
 End
