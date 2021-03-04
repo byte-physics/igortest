@@ -321,6 +321,15 @@ The optional argument of the test case function is always given from the data
 generator wave elements. Thus the case that `ParamIsDefault(arg)` is true never
 happens.
 
+When setting up a multi data test case with a data generator returning wave
+references then the test case can also use typed waves. Supported are
+text waves (``WAVE/T``), waves with data folder references (``WAVE/DF``) and
+waves with wave references (``WAVE/WAVE``). For such a test case or reentry
+function the associated data generator must return a wave reference wave where
+each wave element refers to a wave of the fitting type.
+For a test case setup with the generic ``WAVE`` the type is not fixed for all
+elements of from the data generator.
+
  See also :ref:`example13`.
 
 Multi Data Test Cases with Background Activity
