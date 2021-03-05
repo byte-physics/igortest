@@ -462,6 +462,8 @@ Function incrError()
 		NVAR/SDFR=dfr error_count
 	endif
 
+	AddMessageToBuffer()
+
 	error_count +=1
 End
 
@@ -470,6 +472,31 @@ End
 static Function initAssertCount()
 	dfref dfr = GetPackageFolder()
 	variable/G dfr:assert_count = 0
+End
+
+/// Creates the failure message buffer wave
+static Function initMessageBuffer()
+	DFREF dfr = GetPackageFolder()
+	Make/O/T/N=(0, 2) dfr:messageBuffer
+	WAVE/T messageBuffer = dfr:messageBuffer
+	SetDimLabel UTF_COLUMN, 0, MESSAGE, messageBuffer
+	SetDimLabel UTF_COLUMN, 1, TYPE, messageBuffer
+End
+
+/// Adds current Message to buffer
+static Function AddMessageToBuffer()
+
+	variable size
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr type
+	WAVE/T/SDFR=dfr messageBuffer
+
+	size = DimSize(messageBuffer, UTF_ROW)
+	Redimension/N=(size + 1, -1) messageBuffer
+	messageBuffer[size][%MESSAGE] = message
+	messageBuffer[size][%TYPE] = type
 End
 
 /// Increments the assert_count in PKG_FOLDER and creates it if necessary
@@ -486,6 +513,16 @@ Function incrAssert()
 	assert_count +=1
 End
 
+/// Adds a string to the system error log, it is reset at each test case begin
+static Function UTF_ToSystemErrorStream(message)
+	string message
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr systemErr
+
+	systemErr += message + "\r"
+End
+
 /// Prints an informative message that the test failed
 /// @param prefix string to be added at the beginning
 Function PrintFailInfo([prefix])
@@ -497,7 +534,6 @@ Function PrintFailInfo([prefix])
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
-	SVAR/SDFR=dfr systemErr
 
 	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
 
@@ -506,7 +542,7 @@ Function PrintFailInfo([prefix])
 
 	UTF_PrintStatusMessage(message)
 	type = "FAIL"
-	systemErr = message
+	UTF_ToSystemErrorStream(message)
 
 	if(TAP_IsOutputEnabled())
 		SVAR/SDFR=dfr tap_diagnostic
@@ -1114,7 +1150,6 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 
 	dfref dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr systemErr
 	SVAR/SDFR=dfr type
 	string str, funcTypeString
 
@@ -1168,7 +1203,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	endif
 
 	UTF_PrintStatusMessage(message)
-	systemErr = message
+	UTF_ToSystemErrorStream(message)
 	incrError()
 
 	CheckAbortCondition(abortCode)
@@ -1320,6 +1355,7 @@ static Function TestCaseBegin(testCase)
 	string msg
 
 	initAssertCount()
+	initMessageBuffer()
 	InitExpectedFailure(StringFromList(0, testCase, ":"))
 
 	// create a new unique folder as working folder
