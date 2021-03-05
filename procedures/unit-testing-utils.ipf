@@ -220,3 +220,15 @@ static Function/S PrepareStringForOut(str)
 End
 
 ///@endcond // HIDDEN_SYMBOL
+
+/// @brief Returns 1 if all wave elements in wave reference wave wv are of type subType, 0 otherwise
+static Function HasConstantWaveTypes(wv, subType)
+	WAVE/WAVE wv
+	variable subType
+
+	Make/FREE/N=(DimSize(wv, UTF_ROW)) matches
+	MultiThread matches = WaveType(wv[p], 1) == subType
+
+	FindValue/V=(0) matches
+	return V_Value == -1
+End

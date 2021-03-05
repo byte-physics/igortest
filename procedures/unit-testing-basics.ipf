@@ -931,6 +931,36 @@ Function TEST_CASE_PROTO_MD_WV([wv])
 	abortNow()
 End
 
+Function TEST_CASE_PROTO_MD_WVTEXT([wv])
+	WAVE/T wv
+
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
+	abortNow()
+End
+
+Function TEST_CASE_PROTO_MD_WVDFREF([wv])
+	WAVE/DF wv
+
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
+	abortNow()
+End
+
+Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
+	WAVE/WAVE wv
+
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
+	abortNow()
+End
+
 Function TEST_CASE_PROTO_MD_DFR([dfr])
 	DFREF dfr
 
@@ -1338,18 +1368,23 @@ End
 /// Checks functions signature of each multi data test case candidate
 /// returns 1 if ok, 0 otherwise
 /// when 1 is returned the wave type variable contain the format
-static Function GetFunctionSignatureTCMD(testCase, wType0, wType1)
+static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	string testCase
 	variable &wType0
 	variable &wType1
+	variable &wrefSubType
 
 	wType0 = NaN
 	wType1 = NaN
+	wrefSubType = NaN
 	// Check function signature
 	FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_DFR fTCMDDFR = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_WV fTCMDWV = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMDWVTEXT = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMDWVDFREF = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMDWVWAVEREF = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
@@ -1361,6 +1396,15 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1)
 		wType1 = WAVETYPE1_DFR
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
 		wType1 = WAVETYPE1_WREF
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
+		wType1 = WAVETYPE1_WREF
+		wrefSubType = WAVETYPE1_TEXT
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
+		wType1 = WAVETYPE1_WREF
+		wrefSubType = WAVETYPE1_DFR
+	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
+		wType1 = WAVETYPE1_WREF
+		wrefSubType = WAVETYPE1_WREF
 	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
 		wType0 = WAVETYPE0_CMPL
 		wType1 = WAVETYPE1_NUM
@@ -1380,7 +1424,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 	string testCaseList
 	string procWin
 
-	variable i, err, numTC, wType1, wType0
+	variable i, err, numTC, wType1, wType0, wRefSubType
 	string fullTestCase, testCase, dgen, reducedTCList, msg
 
 	reducedTCList = ""
@@ -1401,7 +1445,7 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 			continue
 		endif
 		// Multi Data Test Cases
-		if(!GetFunctionSignatureTCMD(fullTestCase, wType0, wType1))
+		if(!GetFunctionSignatureTCMD(fullTestCase, wType0, wType1, wRefSubType))
 			continue
 		endif
 
@@ -1440,9 +1484,13 @@ static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
 				sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullTestCase
 				UTF_PrintStatusMessage(msg)
 				continue
-			else
-				reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
+			elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
+				sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullTestCase, wRefSubType, dgen
+				UTF_PrintStatusMessage(msg)
+				Abort msg
 			endif
+
+			reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
 		endif
 	endfor
 
@@ -2191,7 +2239,7 @@ static Function CallTestCase(s, reentry)
 	STRUCT strRunTest &s
 	variable reentry
 
-	variable wType0, wType1
+	variable wType0, wType1, wRefSubType, err
 	string func, msg
 
 	if(reentry)
@@ -2274,13 +2322,44 @@ static Function CallTestCase(s, reentry)
 
 			WAVE/WAVE wGeneratorWV = DataGenFunc()
 			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
-			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
-				sprintf msg, "Fatal: Reentry function %s does not meet required format for wave reference argument.", func
-				UTF_PrintStatusMessage(msg)
-				incrError()
-				abortNow()
+			if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
+				fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+			else
+				wRefSubType = WaveType(wGeneratorWV[s.dgenIndex], 1)
+				if(wRefSubType == WAVETYPE1_TEXT)
+					FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMD_WVTEXT = $func
+					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
+						fTCMD_WVTEXT(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+					else
+						err = 1
+					endif
+				elseif(wRefSubType == WAVETYPE1_DFR)
+					FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMD_WVDFREF = $func
+					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
+						fTCMD_WVDFREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+					else
+						err = 1
+					endif
+				elseif(wRefSubType == WAVETYPE1_WREF)
+					FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMD_WVWAVEREF = $func
+					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
+						fTCMD_WVWAVEREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+					else
+						err = 1
+					endif
+				else
+					sprintf msg, "Fatal: Got wave reference wave from Data Generator %s with waves of unsupported type for reentry of test case %s.", s.dgenFuncName, func
+					UTF_PrintStatusMessage(msg)
+					incrError()
+					abortNow()
+				endif
+				if(err)
+					sprintf msg, "Fatal: Reentry function %s does not meet required format for wave reference argument from data generator %s.", func, s.dgenFuncName
+					UTF_PrintStatusMessage(msg)
+					incrError()
+					abortNow()
+				endif
 			endif
-			fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 
 		endif
 	else
@@ -2419,7 +2498,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)))
-		if(!GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar))
+		if(!GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
 			print "Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type])."
 			incrError()
 			Abort
