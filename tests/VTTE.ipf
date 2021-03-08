@@ -30,6 +30,8 @@ End
 // One test case for everyting
 // This is done so that we don't rely on the UTF test case discovery logic to work.
 static Function TestUTF()
+	variable err
+
 	PASS()
 
 	// test VTEE's Ensure
@@ -278,8 +280,6 @@ static Function TestUTF()
 	Ensure(strlen(detailedMsg) == 0)
 	Ensure(UTF_Checks#AreWavesEqual(numData1, numData2, ALL_MODES, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(strlen(detailedMsg) == 0)
-	// unknown mode
-	Ensure(!UTF_Checks#AreWavesEqual(numData1, numData2, 0x10000000, DEFAULT_TOLERANCE, detailedMsg))
 
 	Make/FREE/T textData1, textData2
 	Ensure(UTF_Checks#AreWavesEqual(textData1, textData2, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
@@ -287,6 +287,11 @@ static Function TestUTF()
 	// all modes
 	Ensure(UTF_Checks#AreWavesEqual(textData1, textData2, ALL_MODES, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(strlen(detailedMsg) == 0)
+	// If the following invalid tol or mode is improperly checked the function fails with an uncaught RTE
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = WAVE_DATA, tol = NaN)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = WAVE_DATA, tol = -1)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = NaN, tol = DEFAULT_TOLERANCE)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = 0x10000000, tol = DEFAULT_TOLERANCE)
 	// @}
 
 	// AreWavesEqual

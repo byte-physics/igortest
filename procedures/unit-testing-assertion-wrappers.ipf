@@ -667,11 +667,25 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	if(ParamIsDefault(mode))
 		Make/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
 	else
+		if(!UTF_Utils#IsFinite(mode))
+			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
+			return NaN
+		elseif(!(mode & (WAVE_DATA | WAVE_DATA_TYPE | WAVE_SCALING | DATA_UNITS | DIMENSION_UNITS | DIMENSION_LABELS | WAVE_NOTE | WAVE_LOCK_STATE | DATA_FULL_SCALE | DIMENSION_SIZES)))
+			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
+			return NaN
+		endif
+
 		Make/I/FREE modes = { mode }
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = 0.0
+	elseif(UTF_Utils#IsNaN(tol))
+		EvaluateResults(0, "Valid tolerance for EQUAL_WAVE check.", flags)
+		return NaN
+	elseif(tol < 0)
+		EvaluateResults(0, "Valid tolerance for EQUAL_WAVE check.", flags)
+		return NaN
 	endif
 
 	for(i = 0; i < DimSize(modes, 0); i += 1)
