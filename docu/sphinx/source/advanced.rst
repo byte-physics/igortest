@@ -78,6 +78,9 @@ cleanup is done afterward. The *next* Test Case then starts with the data the
 .. note::
    By default the Igor debugger is disabled during the execution of a test run.
 
+Assertions can be used in test hooks. However it is enforced by the IUTF that
+the test case itself must contain at least one assertion.
+
 .. _JUNITOutput:
 
 JUNIT Output
