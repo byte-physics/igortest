@@ -201,8 +201,9 @@ End
 /// We return a fixed string if it is null and limit its size so that it can be used in a sprintf statement using plain
 /// "%s". We also do that for IP9, where this limit does not exist anymore, to have a consistent output across all IP
 /// versions.
-static Function/S PrepareStringForOut(str)
+static Function/S PrepareStringForOut(str, [maxLen])
 	string &str
+	variable maxLen
 
 	variable length
 	string suffix
@@ -211,14 +212,16 @@ static Function/S PrepareStringForOut(str)
 		return "(null)"
 	endif
 
+	maxLen = ParamIsDefault(maxLen) ? MAX_STRING_LENGTH : maxLen
+
 	length = strlen(str)
 
-	if(length < MAX_STRING_LENGTH)
+	if(length < maxLen)
 		return str
 	endif
 
 	suffix = ".."
-	return str[0, MAX_STRING_LENGTH - 1 - strlen(suffix)] + suffix
+	return str[0, maxLen - 1 - strlen(suffix)] + suffix
 End
 
 ///@endcond // HIDDEN_SYMBOL

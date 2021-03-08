@@ -71,6 +71,7 @@ static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
 static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
+static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
@@ -296,7 +297,7 @@ static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
-	sprintf str, "%s: is %s.", str, SelectString(booleanValue, "false", "true")
+	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 	if(EnabledDebug())
 		UTF_PrintStatusMessage(str)
 	endif
@@ -496,7 +497,7 @@ Function PrintFailInfo([prefix])
 	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
 
 	str = getInfo(0)
-	sprintf message, "%s%s  %s", prefix, status, UTF_Utils#PrepareStringForOut(str)
+	message = prefix + status + " " + str
 
 	UTF_PrintStatusMessage(message)
 	type = "FAIL"
@@ -1366,9 +1367,19 @@ static Function UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
+#if (IgorVersion() >= 9.0)
 	printf "%s\r", msg
+#elif  (IgorVersion() >= 8.0)
+	print/LEN=2500 msg
+#elif  (IgorVersion() >= 7.0)
+	print/LEN=1000 msg
+#elif  (IgorVersion() >= 6.0)
+	print/LEN=400 msg
+#endif
 
 #if (IgorVersion() >= 8.0)
+	fprintf -1, "%s\r\n", UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
+#elif	(IgorVersion() >= 9.0)
 	fprintf -1, "%s\r\n", msg
 #endif
 End
