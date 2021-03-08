@@ -273,9 +273,19 @@ static Function TestUTF()
 	// @{
 	string detailedMsg
 	Make/FREE numData1, numData2
-	Ensure(!UTF_Checks#AreWavesEqual($"", $"", WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
-	Ensure(!UTF_Checks#AreWavesEqual(numData1, $"", WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
-	Ensure(!UTF_Checks#AreWavesEqual($"", numData2, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
+	// Null Waves are checked in the wrapper, call to test that no RTE comes up
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER($"", $"", !OUTPUT_MESSAGE)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(numData1, $"", !OUTPUT_MESSAGE)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER($"", numData2, !OUTPUT_MESSAGE)
+	// different type zero sized waves
+	Make/FREE/N=0/D wNumType1
+	Make/FREE/N=0/I wNumType2
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(wNumType1, wNumType2, !OUTPUT_MESSAGE)
+	// different basic type waves
+	Make/FREE/N=1/D wNumType1
+	Make/FREE/WAVE wWRrefType = {wNumType1}
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(wNumType1, wWRrefType, !OUTPUT_MESSAGE)
+
 	Ensure(UTF_Checks#AreWavesEqual(numData1, numData2, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(strlen(detailedMsg) == 0)
 	Ensure(UTF_Checks#AreWavesEqual(numData1, numData2, ALL_MODES, DEFAULT_TOLERANCE, detailedMsg))
@@ -288,10 +298,10 @@ static Function TestUTF()
 	Ensure(UTF_Checks#AreWavesEqual(textData1, textData2, ALL_MODES, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(strlen(detailedMsg) == 0)
 	// If the following invalid tol or mode is improperly checked the function fails with an uncaught RTE
-	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = WAVE_DATA, tol = NaN)
-	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = WAVE_DATA, tol = -1)
-	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = NaN, tol = DEFAULT_TOLERANCE)
-	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, 0, mode = 0x10000000, tol = DEFAULT_TOLERANCE)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, !OUTPUT_MESSAGE, mode = WAVE_DATA, tol = NaN)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, !OUTPUT_MESSAGE, mode = WAVE_DATA, tol = -1)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, !OUTPUT_MESSAGE, mode = NaN, tol = DEFAULT_TOLERANCE)
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(textData1, textData2, !OUTPUT_MESSAGE, mode = 0x10000000, tol = DEFAULT_TOLERANCE)
 	// @}
 
 	// AreWavesEqual
