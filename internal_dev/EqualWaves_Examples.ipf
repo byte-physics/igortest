@@ -30,6 +30,13 @@ Function EqualWavesType1()
 	CHECK_EQUAL_WAVES(wv1, wv2, mode=WAVE_DATA)
 End
 
+Function EqualWavesType1_1()
+
+	Make/FREE/N=0/D wv1
+	Make/FREE/N=1/I wv2
+	CHECK_EQUAL_WAVES(wv1, wv2, mode=WAVE_DATA)
+End
+
 Function EqualWavesType2()
 
 	Make/FREE/N=1/D wv1
@@ -61,6 +68,22 @@ Function EqualWaves3()
 	Make/FREE wTest1, wTest2
 	Make/FREE/WAVE wv1 = {wTest1, wTest2}
 	Make/FREE/WAVE wv2 = {wTest2, wTest1}
+	CHECK_EQUAL_WAVES(wv1, wv2, mode=WAVE_DATA)
+End
+
+Function EqualWaves3_1()
+
+	Make/FREE wTest1, wTest2
+	Make/FREE/WAVE wv1 = {wTest1, wTest2}
+	Make/FREE wv2 = {0, 0}
+	CHECK_EQUAL_WAVES(wv1, wv2, mode=WAVE_DATA)
+End
+
+Function EqualWaves3_2()
+
+	Make/FREE wTest1, wTest2
+	Make/FREE/WAVE wv1 = {wTest1, wTest2}
+	Make/FREE/DF wv2 = {NewFreeDataFolder(), NewFreeDataFolder()}
 	CHECK_EQUAL_WAVES(wv1, wv2, mode=WAVE_DATA)
 End
 
