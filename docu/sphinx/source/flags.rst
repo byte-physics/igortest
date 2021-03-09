@@ -27,14 +27,6 @@ Test Wave Flags
 The following flags are used in :cpp:func:`CHECK_WAVE`. Note that there is a
 minor and a major wave type.
 
-.. _flags_testwave_general:
-
-General
-"""""""
-
-.. doxygengroup:: TestWaveFlagsGeneral
-   :content-only:
-
 .. _flags_testwave_major:
 
 MajorType
