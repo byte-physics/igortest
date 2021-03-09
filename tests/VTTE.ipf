@@ -529,4 +529,26 @@ static Function TestUTF()
 	CHECK_WAVE({0}, NUMERIC_WAVE, minorType = FLOAT_WAVE)
 
 	// @}
+
+	// TestCaseNameNotation
+	// @{
+
+	variable tmpVar1, tmpVar2
+	string thisProcName, tcList
+	thisProcName = ParseFilePath(0, FunctionPath("TestCaseNameTest2"), ":", 1, 0)
+	tcList = UTF_Basics#getTestCasesMatch(thisProcName, ".*", 1, tmpVar1, tmpVar2)
+	Ensure(WhichListItem("UTF_Tests#TestCaseNameTest1", tcList) >= 0)
+	Ensure(WhichListItem("TestCaseNameTest2", tcList) >= 0)
+
+	// @}
+End
+
+static Function TestCaseNameTest1()
+
+	PASS()
+End
+
+Function TestCaseNameTest2()
+
+	PASS()
 End

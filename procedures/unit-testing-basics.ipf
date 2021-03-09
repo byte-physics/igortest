@@ -2,6 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.08
 #pragma TextEncoding="UTF-8"
+#pragma ModuleName=UTF_Basics
 
 // Licensed under 3-Clause BSD, see License.txt
 
