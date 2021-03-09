@@ -39,11 +39,6 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 /// @addtogroup assertionFlags
 ///@{
 
-/// @addtogroup testWaveFlagsGeneral
-///@{
-Constant NULL_WAVE       = 0x1000
-///@}
-
 /// @addtogroup testWaveFlagsMinor
 ///@{
 Constant COMPLEX_WAVE    = 0x01
@@ -58,6 +53,7 @@ Constant UNSIGNED_WAVE   = 0x40
 
 /// @addtogroup testWaveFlagsMajor
 ///@{
+Constant NULL_WAVE       = 0x1000
 Constant NUMERIC_WAVE    = 0x01
 Constant TEXT_WAVE       = 0x02
 Constant DATAFOLDER_WAVE = 0x04
