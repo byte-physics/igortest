@@ -1555,9 +1555,8 @@ static Function/S GetTestCaseList(procWin)
 	if(!UTF_Utils#IsEmpty(testCaseMDList))
 		testCaseList = testCaseList + testCaseMDList
 	endif
-	testCaseList = SortTestCaseList(procWin, testCaseList)
 
-	return CheckFunctionSignaturesTC(testCaseList, procWin)
+	return SortTestCaseList(procWin, testCaseList)
 End
 
 /// Returns the list of testcases sorted by line number
@@ -1677,6 +1676,8 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 				endif
 				testCaseMatch = testCase
 			endif
+
+			testCaseMatch = CheckFunctionSignaturesTC(testCaseMatch, procWin)
 
 			numFL = ItemsInList(testCaseMatch)
 			numMatches += numFL
