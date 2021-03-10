@@ -186,7 +186,7 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -199,7 +199,9 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
-	sprintf str, "\"%s\" != \"%s\" %s case", UTF_Utils#PrepareStringForOut(str1), UTF_Utils#PrepareStringForOut(str2), SelectString(case_sensitive, "not respecting", "respecting")
+	tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
+	tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+	sprintf str, "\"%s\" != \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
 
 	EvaluateResults(result, str, flags)
 End
@@ -458,7 +460,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -471,7 +473,9 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
-	sprintf str, "\"%s\" == \"%s\" %s case", UTF_Utils#PrepareStringForOut(str1), UTF_Utils#PrepareStringForOut(str2), SelectString(case_sensitive, "not respecting", "respecting")
+	tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
+	tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+	sprintf str, "\"%s\" == \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
 	EvaluateResults(result, str, flags)
 End
 

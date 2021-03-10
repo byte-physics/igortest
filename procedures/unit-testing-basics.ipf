@@ -173,7 +173,7 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 	string &msg
 
 	variable i, j, numEntries
-	string str1, str2
+	string str1, str2, tmpStr1, tmpStr2
 	variable ret
 
 	msg = ""
@@ -199,7 +199,9 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 			str2 = GetDimLabel(wv2, i, -1)
 
 			if(cmpstr(str1, str2))
-				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, UTF_Utils#PrepareStringForOut(str1), UTF_Utils#PrepareStringForOut(str2)
+				tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
+				tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, tmpStr1, tmpStr2
 				return 0
 			endif
 
@@ -219,7 +221,9 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 				endif
 				str1 = label1[j]
 				str2 = label2[j]
-				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, UTF_Utils#PrepareStringForOut(str2), UTF_Utils#PrepareStringForOut(str2)
+				tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
+				tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, tmpStr1, tmpStr2
 				return 0
 			endfor
 		endif
@@ -656,7 +660,7 @@ static Function/S getInfo(result)
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
 	string caller, procedure, callStack, contents
-	string text, cleanText, line, callerTestCase
+	string text, cleanText, line, callerTestCase, tmpStr
 	variable numCallers, i
 	variable callerIndex = NaN
 	variable testCaseIndex
@@ -713,7 +717,8 @@ static Function/S getInfo(result)
 
 	cleanText = trimstring(text)
 
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", UTF_Utils#PrepareStringForOut(cleanText),  SelectString(result, "failed", "succeeded"), line, procedure
+	tmpStr = UTF_Utils#PrepareStringForOut(cleanText)
+	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", tmpStr,  SelectString(result, "failed", "succeeded"), line, procedure
 	return text
 End
 
@@ -1364,6 +1369,8 @@ End
 static Function UTF_PrintStatusMessage(msg)
 	string msg
 
+	string tmpStr
+
 	if(strlen(msg) == 0)
 		return NaN
 	endif
@@ -1379,7 +1386,8 @@ static Function UTF_PrintStatusMessage(msg)
 #endif
 
 #if (IgorVersion() >= 8.0)
-	fprintf -1, "%s\r\n", UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
+	tmpStr = UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
+	fprintf -1, "%s\r\n", tmpStr
 #elif	(IgorVersion() >= 9.0)
 	fprintf -1, "%s\r\n", msg
 #endif
@@ -2775,10 +2783,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.err = var
 		if(s.err)
 			str = s.allTestCasesList
-			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, UTF_Utils#PrepareStringForOut(str)
+			str = UTF_Utils#PrepareStringForOut(str)
+			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, str
 			UTF_PrintStatusMessage(msg)
 			str = s.procWinList
-			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, UTF_Utils#PrepareStringForOut(str)
+			str = UTF_Utils#PrepareStringForOut(str)
+			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, str
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif

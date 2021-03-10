@@ -37,6 +37,7 @@ testing:
         EXPERIMENT:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
+          - IMTest.pxp
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_IGOR_PRO}"
   image:
