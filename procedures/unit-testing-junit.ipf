@@ -179,7 +179,12 @@ End
 static Function/S JU_CaseToOut(juTC)
 	STRUCT strTestCase &juTC
 
-	string sout, s
+	string sout, s, tmpStr
+	variable i, size
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/T/SDFR=dfr messageBuffer
+	size = DimSize(messageBuffer, UTF_ROW)
 
 	juTC.name = JU_ToXMLToken( JU_ToXMLCharacters(juTC.name))
 	juTC.classname = JU_ToXMLToken( JU_ToXMLCharacters(juTC.classname))
@@ -193,10 +198,20 @@ static Function/S JU_CaseToOut(juTC)
 			s = "\t\t\t<skipped/>\n"
 			break
 		case 1:
-			sprintf s, "\t\t\t<failure message=\"%s\" type=\"%s\"></failure>\n", juTC.message, juTC.type
+			for(i = 0; i < size; i += 1)
+				juTC.message = JU_ToXMLCharacters(messageBuffer[i][%MESSAGE])
+				juTC.type = JU_ToXMLCharacters(messageBuffer[i][%TYPE])
+				sprintf tmpStr, "\t\t\t<failure message=\"%s\" type=\"%s\"></failure>\n", juTC.message, juTC.type
+				s += tmpStr
+			endfor
 			break
 		case 2:
-			sprintf s, "\t\t\t<error message=\"%s\" type=\"%s\"></error>\n", juTC.message, juTC.type
+			for(i = 0; i < size; i += 1)
+				juTC.message = JU_ToXMLCharacters(messageBuffer[i][%MESSAGE])
+				juTC.type = JU_ToXMLCharacters(messageBuffer[i][%TYPE])
+				sprintf tmpStr, "\t\t\t<error message=\"%s\" type=\"%s\"></error>\n", juTC.message, juTC.type
+				s += tmpStr
+			endfor
 			break
 		default:
 			break
@@ -425,9 +440,6 @@ Function JU_TestCaseEnd(s, funcName, procWin)
 
 	dfref dfr = GetPackageFolder()
 	NVAR/SDFR=dfr error_count
-	NVAR/SDFR=dfr assert_count
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr systemErr
 
 	if(!s.enableJU)
@@ -446,14 +458,6 @@ Function JU_TestCaseEnd(s, funcName, procWin)
 	else
 		s.juTC.testResult = (s.juTC.error_count != 0)
 		s.juTS.failures += (s.juTC.error_count != 0)
-	endif
-	if(s.juTC.testResult)
-		s.juTC.message = message
-		s.juTC.type = type
-	else
-		if(!assert_count)
-			s.juTC.systemOut += "No Assertions found in Test Case " + funcName + ", procedure file " + procWin + "\r"
-		endif
 	endif
 	Notebook HistoryCarbonCopy, getData = 1
 	s.juTC.systemOut += S_Value[strlen(s.juTC.history), Inf]
