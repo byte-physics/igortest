@@ -627,7 +627,7 @@ End
 /// @endcond
 
 /// @class EQUAL_WAVE_DOCU
-/// Tests two waves for equality of content (use @link WARN_WAVE@endlink, @link CHECK_WAVE@endlink or @link REQUIRE_WAVE@endlink for type)
+/// Tests two waves for equality
 ///
 /// @param wv1    first wave
 /// @param wv2    second wave
