@@ -20,9 +20,15 @@ documentation:
     - cp -r xml ../sphinx/source
     - cd ../sphinx
     - make html
+    - DOXYGEN_LOG=docu/doxygen/doxygen.log
+    - if [[ -s ${DOXYGEN_LOG} ]]; then cat ${DOXYGEN_LOG}; exit 1; fi
+    - SPHINX_LOG=docu/sphinx/sphinx.log
+    - if [[ -s ${SPHINX_LOG} ]]; then cat ${SPHINX_LOG}; exit 1; fi
   artifacts:
     paths:
       - docu/sphinx/build/html
+      - docu/doxygen/doxygen.log
+      - docu/sphinx/sphinx.log
 
 testing:
   stage: build

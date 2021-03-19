@@ -763,7 +763,7 @@ End
 #else
 
 /// @class TEXT_WAVE_EQUAL_DOCU
-/// Tests two text waves for equality of content (use @link WARN_WAVE@endlink, @link CHECK_WAVE@endlink or @link REQUIRE_WAVE@endlink for type)
+/// Tests two text waves for equality
 ///
 /// @param wv1    first text wave, can be invalid for Igor Pro 7 or later
 /// @param wv2    second text wave, can be invalid for Igor Pro 7 or later
