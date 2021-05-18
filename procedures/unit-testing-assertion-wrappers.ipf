@@ -668,8 +668,10 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		return NaN
 	endif
 
+	Make/FREE validModes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+
 	if(ParamIsDefault(mode))
-		Make/I/FREE modes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+		WAVE modes = validModes
 	else
 		if(!UTF_Utils#IsFinite(mode))
 			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
@@ -679,7 +681,16 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 			return NaN
 		endif
 
-		Make/I/FREE modes = { mode }
+		// mode can be a bit pattern, split into separate entities for better debugging
+		Duplicate/FREE validModes, modes
+
+		modes[] = (validModes[p] == (validModes[p] & mode)) ? validModes[p] : NaN
+		WaveTransform/O zapNaNs modes
+
+		if(!DimSize(modes, 0))
+			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
+			return NaN
+		endif
 	endif
 
 	if(ParamIsDefault(tol))
