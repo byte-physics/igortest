@@ -15,3 +15,5 @@
 #include "unit-testing-junit"
 #include "unit-testing-tap"
 #include "unit-testing-utils"
+#include "unit-testing-tracing"
+#include "unit-testing-tracing-auto"

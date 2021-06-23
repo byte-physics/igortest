@@ -118,3 +118,13 @@ StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
 StrConstant UTF_FTAG_TAP_DIRECTIVE     = "#TAPDirective:"
 StrConstant UTF_FTAG_TAP_DESCRIPTION   = "#TAPDescription:"
 ///@}
+
+/// @name Keys for traceOptions parameter
+///
+/// @addtogroup TraceOptionKeyStrings
+/// @{
+StrConstant UTF_KEY_NOINSTR              = "EXCFUNCLIST"
+StrConstant UTF_KEY_INSTRUMENTATIONONLY  = "INSTRUMENTONLY"
+StrConstant UTF_KEY_NORTFCREATION        = "NORTFCREATION"
+StrConstant UTF_KEY_REGEXP               = "REGEXP"
+///@}

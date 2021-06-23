@@ -64,6 +64,8 @@ Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
 Constant IUTF_DEBUG_ALLOW = 0x10
 /// @}
 
+StrConstant IUTF_TRACE_REENTRY_KEYWORD = " *** REENTRY ***"
+
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
 
@@ -2143,6 +2145,8 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SdgenIndex = s.dgenIndex
 	variable/G dfr:SdgenSize = s.dgenSize
 	variable/G dfr:SmdMode = s.mdMode
+	variable/G dfr:StracingEnabled = s.tracingEnabled
+	variable/G dfr:SrtfCreation = s.rtfCreation
 	string/G dfr:StcSuffix = s.tcSuffix
 	string/G dfr:SdgenFuncName = s.dgenFuncName
 
@@ -2236,6 +2240,10 @@ static Function RestoreState(dfr, s)
 	s.dgenSize = var
 	NVAR var = dfr:SmdMode
 	s.mdMode = var
+	NVAR var = dfr:StracingEnabled
+	s.tracingEnabled = var
+	NVAR var = dfr:SrtfCreation
+	s.rtfCreation = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
 	SVAR str = dfr:SdgenFuncName
@@ -2524,6 +2532,8 @@ static Structure strRunTest
 	variable dgenIndex
 	variable dgenSize
 	variable mdMode
+	variable tracingEnabled
+	variable rtfCreation
 	string tcSuffix
 	string dgenFuncName
 	STRUCT JU_Props juProps
@@ -2709,11 +2719,24 @@ End
 ///                         removed at the end of the test case. This allows to review the
 ///                         produced data.
 ///
+/// @param   traceWinList   (optional) default ""
+///                         A list of windows where execution gets traced. The unit testing framework saves a RTF document
+///                         for each traced procedure file. Wnen REGEXP was set in traceOptions then traceWinList is also interpreted
+///                         as a regular expression.
+///
+/// @param   traceOptions   (optional) default ""
+///                         A key:value pair list of additional tracing options. Currently supported is:
+///                         EXCFUNCLIST:<Comma separated list of functions> This lists functions that are excluded from instrumentations. References to static function names must include the module name.
+///                         INSTRUMENTONLY:<boolean> When set, run instrumentation only and return. No tests are executed.
+///                         NORTFCREATION:<boolean> When set, no rtf files are created at the end of the run
+///                         REGEXP:<boolean> When set, traceWinList is interpreted as regular expression
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
+	string traceWinList, traceOptions
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -2754,6 +2777,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	else
 
+		PathInfo home
+		if(!V_flag)
+			sprintf msg, "Error: Please Save experiment first."
+			UTF_PrintStatusMessage(msg)
+			return NaN
+		endif
+
 		// transfer parameters to s. variables
 		s.enableRegExp = enableRegExp
 		s.enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
@@ -2763,6 +2793,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+
+		s.tracingEnabled = !ParamIsDefault(traceWinList)
 
 		if(s.enableTAP && s.juProps.enableJU)
 			sprintf msg, "Error: enableTAP and enableJU can not be both true."
@@ -2780,6 +2812,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 		s.debugMode = (s.allowDebug * IUTF_DEBUG_ALLOW) | s.debugMode
 
+		traceOptions = SelectString(ParamIsDefault(traceOptions), traceOptions, "")
+
 		if(ParamIsDefault(name))
 			s.name = "Unnamed"
 		else
@@ -2793,16 +2827,39 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			s.testCase = testCase
 		endif
 		s.procWinList = procWinList
+
+		if(s.tracingEnabled)
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
+			if(!CmpStr(traceWinList, IUTF_TRACE_REENTRY_KEYWORD))
+				DFREF dfSave = $PKG_FOLDER_SAVE
+				RestoreState(dfSave, s)
+				ClearReentrytoUTF()
+			else
+				ClearReentrytoUTF()
+
+				var = NumberByKey(UTF_KEY_NORTFCREATION, traceOptions)
+				s.rtfCreation = UTF_Utils#IsNaN(var) ? 1 : !var
+
+				NewDataFolder $PKG_FOLDER_SAVE
+				DFREF dfSave = $PKG_FOLDER_SAVE
+				SaveState(dfSave, s)
+				TUFXOP_Init/N="IUTF_Testrun"
+				UTF_Tracing#SetupTracing(traceWinList, traceOptions)
+				return NaN
+			endif
+#else
+			printf "Tracing requires the Thread Utilities XOP.\r"
+			Abort
+#endif
+		else
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
+			TUFXOP_Init/N="IUTF_Testrun"
+#endif
+		endif
+
 		// below here use only s. variables to keep local state in struct
 		ClearBaseFilename()
 		CreateHistoryLog()
-
-		PathInfo home
-		if(!V_flag)
-			sprintf msg, "Error: Please Save experiment first."
-			UTF_PrintStatusMessage(msg)
-			return NaN
-		endif
 
 		s.procWinList = AdaptProcWinList(s.procWinList, s.enableRegExpTS)
 		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
@@ -3005,6 +3062,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
 
 	ClearReentrytoUTF()
+
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
+	if(s.rtfCreation)
+		UTF_Tracing#AnalyzeTracingResult()
+	endif
+#endif
+
 	QuitOnAutoRunFull()
 
 	return global_error_count
