@@ -383,6 +383,70 @@ test execution is aborted.
      PASS()
    End
 
+Code Coverage Determination
+---------------------------
+
+When running Igor Pro 9 or newer the Igor Unit testing Framework offers the feature to obtain code coverage
+information. When enabled the IUTF add to functions in target procedure files code to track execution.
+At the end of the test run the IUTF outputs files in RTF format with coverage information.
+
+This feature is enabled when the optional parameter ``traceWinList`` is set when calling ``RunTest``.
+Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
+The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
+The coverage results are output as RTF file in the experiments folder for each procedure file in the form:
+
+.. literalinclude:: rtfoutput.txt
+
+The code is prefixed with three columns where the number in the first column is the count how often this line was executed.
+In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
+the execution for the case the condition was ``true`` and the third column counts when the condition was ``false`` respectively.
+
+Details
+^^^^^^^
+
+The optional parameter ``traceOptions`` for ``RunTest`` allows to tune execution with code coverage. This parameter is a list
+with key-value pairs that can be set using the Igor functions ``ReplaceNumberByKey`` or ``ReplaceStringByKey`` respectively.
+For each settings key a constant is defined in :ref:`TraceOptionKeyStrings`. The following keys are available:
+
+* ``UTF_KEY_REGEXP`` (``REGEXP:<boolean>``) When set the parameter ``traceWinList`` is parsed as a regular expression for all procedure window names.
+* ``UTF_KEY_NORTFCREATION`` (``NORTFCREATION:<boolean>``) When set no RTF files are created after the test run.
+  RTF files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
+* ``UTF_KEY_NOINSTR`` (``EXCFUNCLIST:<functionList>``) This option allows to set a list of functions that get excluded from instrumentation.
+  A typical case is, when specific simple functions are called very often and the instrumentation slows down execution considerably.
+  The function list must by comma separated. Names of static functions in procedure files must have the ModuleName prefix, e.g. ``MyModule#MyStaticFunction``.
+* ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:<boolean>``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
+
+Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
+For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
+appear in the coverage result file with zero executions.
+
+Instrumented code runs roughly 20% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
+very often called functions from the instrumentation.
+
+Coverage is logged also for threadsafe functions.
+
+Examples
+^^^^^^^^
+
+.. literalinclude:: CoverageDemoCode.ipf
+   :caption: Sets up a test, enables coverage determination for all procedure files that start with ``CODE_``, but excludes four often called functions.
+   :name: IUTF_Coverage_example1
+   :language: igor
+   :start-after: // IUTF_Coverage_example1_begin
+   :end-before: // IUTF_Coverage_example1_end
+   :dedent:
+   :tab-width: 4
+
+.. literalinclude:: CoverageDemoCode.ipf
+   :caption: Enables coverage determination for all procedure files that start with ``CODE_``, but stops after instrumentation of the code.
+   :name: IUTF_Coverage_example2
+   :language: igor
+   :start-after: // IUTF_Coverage_example2_begin
+   :end-before: // IUTF_Coverage_example2_end
+   :dedent:
+   :tab-width: 4
+
+
 .. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
 
 .. _junit_reference:
