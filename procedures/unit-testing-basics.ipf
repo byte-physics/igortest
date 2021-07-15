@@ -2146,7 +2146,7 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SdgenSize = s.dgenSize
 	variable/G dfr:SmdMode = s.mdMode
 	variable/G dfr:StracingEnabled = s.tracingEnabled
-	variable/G dfr:SrtfCreation = s.rtfCreation
+	variable/G dfr:ShtmlCreation = s.htmlCreation
 	string/G dfr:StcSuffix = s.tcSuffix
 	string/G dfr:SdgenFuncName = s.dgenFuncName
 
@@ -2242,8 +2242,8 @@ static Function RestoreState(dfr, s)
 	s.mdMode = var
 	NVAR var = dfr:StracingEnabled
 	s.tracingEnabled = var
-	NVAR var = dfr:SrtfCreation
-	s.rtfCreation = var
+	NVAR var = dfr:ShtmlCreation
+	s.htmlCreation = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
 	SVAR str = dfr:SdgenFuncName
@@ -2533,7 +2533,7 @@ static Structure strRunTest
 	variable dgenSize
 	variable mdMode
 	variable tracingEnabled
-	variable rtfCreation
+	variable htmlCreation
 	string tcSuffix
 	string dgenFuncName
 	STRUCT JU_Props juProps
@@ -2721,15 +2721,14 @@ End
 ///
 /// @param   traceWinList   (optional) default ""
 ///                         A list of windows where execution gets traced. The unit testing framework saves a RTF document
-///                         for each traced procedure file. Wnen REGEXP was set in traceOptions then traceWinList is also interpreted
+///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
 ///
 /// @param   traceOptions   (optional) default ""
 ///                         A key:value pair list of additional tracing options. Currently supported is:
-///                         EXCFUNCLIST:<Comma separated list of functions> This lists functions that are excluded from instrumentations. References to static function names must include the module name.
-///                         INSTRUMENTONLY:<boolean> When set, run instrumentation only and return. No tests are executed.
-///                         NORTFCREATION:<boolean> When set, no rtf files are created at the end of the run
-///                         REGEXP:<boolean> When set, traceWinList is interpreted as regular expression
+///                         INSTRUMENTONLY:boolean When set, run instrumentation only and return. No tests are executed.
+///                         HTMLCREATION:boolean When set to zero, no htm result files are created at the end of the run
+///                         REGEXP:boolean When set, traceWinList is interpreted as regular expression
 ///
 /// @return                 total number of errors
 Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions])
@@ -2829,7 +2828,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = procWinList
 
 		if(s.tracingEnabled)
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37700)
 			if(!CmpStr(traceWinList, IUTF_TRACE_REENTRY_KEYWORD))
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				RestoreState(dfSave, s)
@@ -2837,8 +2836,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			else
 				ClearReentrytoUTF()
 
-				var = NumberByKey(UTF_KEY_NORTFCREATION, traceOptions)
-				s.rtfCreation = UTF_Utils#IsNaN(var) ? 1 : !var
+				var = NumberByKey(UTF_KEY_HTMLCREATION, traceOptions)
+				s.htmlCreation = UTF_Utils#IsNaN(var) ? 1 : var
 
 				NewDataFolder $PKG_FOLDER_SAVE
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -2848,11 +2847,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return NaN
 			endif
 #else
-			printf "Tracing requires the Thread Utilities XOP.\r"
+			printf "Tracing requires Igor Pro 9 and the Thread Utilities XOP.\r"
 			Abort
 #endif
 		else
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37700)
 			TUFXOP_Init/N="IUTF_Testrun"
 #endif
 		endif
@@ -3063,8 +3062,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	ClearReentrytoUTF()
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
-	if(s.rtfCreation)
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37700)
+	if(s.htmlCreation)
 		UTF_Tracing#AnalyzeTracingResult()
 	endif
 #endif

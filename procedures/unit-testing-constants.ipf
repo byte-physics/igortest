@@ -106,25 +106,32 @@ Constant UTF_TAG_OK        = 0x00
 Constant UTF_TAG_NOT_FOUND = 0x01
 Constant UTF_TAG_EMPTY     = 0x02
 Constant UTF_TAG_ABORTED   = 0x04
-///@}
+/// @}
 
 /// @name String constants for function tags
 /// Need to be added to UTF_Utils#GetTagConstants!
 ///
 /// @anchor FunctionTagStrings
 /// @{
+StrConstant UTF_FTAG_NOINSTRUMENTATION = "UTF_NOINSTRUMENTATION"
 StrConstant UTF_FTAG_TD_GENERATOR      = "UTF_TD_GENERATOR"
 StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
 StrConstant UTF_FTAG_TAP_DIRECTIVE     = "#TAPDirective:"
 StrConstant UTF_FTAG_TAP_DESCRIPTION   = "#TAPDescription:"
-///@}
+/// @}
 
 /// @name Keys for traceOptions parameter
 ///
-/// @addtogroup TraceOptionKeyStrings
+/// @anchor TraceOptionKeyStrings
 /// @{
-StrConstant UTF_KEY_NOINSTR              = "EXCFUNCLIST"
 StrConstant UTF_KEY_INSTRUMENTATIONONLY  = "INSTRUMENTONLY"
-StrConstant UTF_KEY_NORTFCREATION        = "NORTFCREATION"
+StrConstant UTF_KEY_HTMLCREATION         = "HTMLCREATION"
 StrConstant UTF_KEY_REGEXP               = "REGEXP"
-///@}
+/// @}
+
+/// @name Maximum number of procedure lines allowed for code coverage tracing
+///
+/// @anchor TraceMaxProcLines
+/// @{
+Constant UTF_MAX_PROC_LINES = 10000
+/// @}

@@ -88,7 +88,7 @@ End
 /// @brief returns a wave consisting of function tags (see UTF_UTILS#FunctionTagStrings)
 static Function/WAVE GetTagConstants()
 
-	Make/T/FREE tagConstants = {UTF_FTAG_TD_GENERATOR, UTF_FTAG_EXPECTED_FAILURE, UTF_FTAG_TAP_DIRECTIVE, UTF_FTAG_TAP_DESCRIPTION}
+	Make/T/FREE tagConstants = {UTF_FTAG_NOINSTRUMENTATION, UTF_FTAG_TD_GENERATOR, UTF_FTAG_EXPECTED_FAILURE, UTF_FTAG_TAP_DIRECTIVE, UTF_FTAG_TAP_DESCRIPTION}
 	
 	return tagConstants
 End
