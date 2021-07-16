@@ -73,7 +73,7 @@ static Function TracingTest2()
 	Make/FREE/D/N=(max_proc_lines) logSimple, logRef
 	logSimple = logData[p][0][0] != 0
 
-	Make/FREE/D logRefGen = {13, 15, 16, 20, 21, 23, 24, 27, 28, 29, 32, 34, 36 ,37, 38, 39, 41, 44, 45, 46, 48, 49, 50, 51}
+	Make/FREE/D logRefGen = {11, 13, 15, 16, 18, 51, 20, 21, 23, 25, 27, 28, 30, 32, 33, 34, 36 ,37, 38, 39, 41, 44, 45, 46, 48, 49, 50}
 	numRefLines = DimSize(logRefGen, UTF_ROW)
 	for(i = 0; i < numrefLines; i += 1)
 		logRef[logRefGen[i]] = 1
