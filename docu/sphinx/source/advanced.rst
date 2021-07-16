@@ -429,7 +429,7 @@ Examples
 ^^^^^^^^
 
 .. literalinclude:: ../../examples/CoverageDemoCode.ipf
-   :caption: Sets up a test, enables coverage determination for all procedure files that start with ``CODE_``, but excludes four often called functions.
+   :caption: Sets up a test, enables coverage determination for all procedure files that start with ``CODE_``.
    :name: IUTF_Coverage_example1
    :language: igor
    :start-after: // IUTF_Coverage_example1_begin
