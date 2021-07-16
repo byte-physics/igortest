@@ -428,7 +428,7 @@ Coverage is logged also for threadsafe functions.
 Examples
 ^^^^^^^^
 
-.. literalinclude:: CoverageDemoCode.ipf
+.. literalinclude:: ../../examples/CoverageDemoCode.ipf
    :caption: Sets up a test, enables coverage determination for all procedure files that start with ``CODE_``, but excludes four often called functions.
    :name: IUTF_Coverage_example1
    :language: igor
@@ -437,7 +437,7 @@ Examples
    :dedent:
    :tab-width: 4
 
-.. literalinclude:: CoverageDemoCode.ipf
+.. literalinclude:: ../../examples/CoverageDemoCode.ipf
    :caption: Enables coverage determination for all procedure files that start with ``CODE_``, but stops after instrumentation of the code.
    :name: IUTF_Coverage_example2
    :language: igor
