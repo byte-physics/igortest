@@ -387,13 +387,13 @@ Code Coverage Determination
 ---------------------------
 
 When running Igor Pro 9 or newer the Igor Unit testing Framework offers the feature to obtain code coverage
-information. When enabled the IUTF add to functions in target procedure files code to track execution.
-At the end of the test run the IUTF outputs files in RTF format with coverage information.
+information. When enabled the IUTF adds to functions in target procedure files code to track execution.
+At the end of the test run the IUTF outputs files in HTML format with coverage information.
 
 This feature is enabled when the optional parameter ``traceWinList`` is set when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
 The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
-The coverage results are output as RTF file in the experiments folder for each procedure file in the form:
+The coverage results are output as HTML files in the experiments folder for each procedure file in the form:
 
 ..
    To create htmloutput.txt run the tests from Various.pxp. Then a file test-tracing2.htm is created in the folder of the experiment file.
@@ -402,7 +402,7 @@ The coverage results are output as RTF file in the experiments folder for each p
 
 .. literalinclude:: htmloutput.txt
 
-The code is prefixed with three columns where the number in the first column is the count how often this line was executed.
+The code is prefixed with three columns where the number in the first column is the count how many times the line was executed.
 In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
 the execution for the case the condition was ``true`` and the third column counts when the condition was ``false`` respectively.
 
@@ -411,24 +411,30 @@ Details
 
 The optional parameter ``traceOptions`` for ``RunTest`` allows to tune execution with code coverage. This parameter is a list
 with key-value pairs that can be set using the Igor functions ``ReplaceNumberByKey`` or ``ReplaceStringByKey`` respectively.
-For each settings key a constant is defined in :ref:`TraceOptionKeyStrings`. The following keys are available:
+For each settings key a constant is defined in ``TraceOptionKeyStrings``. The following keys are available:
 
-* ``UTF_KEY_REGEXP`` (``REGEXP:<boolean>``) When set the parameter ``traceWinList`` is parsed as a regular expression for all procedure window names.
-* ``UTF_KEY_NORTFCREATION`` (``NORTFCREATION:<boolean>``) When set no RTF files are created after the test run.
-  RTF files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
-* ``UTF_KEY_NOINSTR`` (``EXCFUNCLIST:<functionList>``) This option allows to set a list of functions that get excluded from instrumentation.
-  A typical case is, when specific simple functions are called very often and the instrumentation slows down execution considerably.
-  The function list must by comma separated. Names of static functions in procedure files must have the ModuleName prefix, e.g. ``MyModule#MyStaticFunction``.
-* ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:<boolean>``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
+* ``UTF_KEY_REGEXP`` (``REGEXP:boolean``) When set the parameter ``traceWinList`` is parsed as a regular expression for all procedure window names.
+* ``UTF_KEY_HTMLCREATION`` (``HTMLCREATION:boolean``) When set to zero no HTML files are created after the test run.
+  HTML files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
+* ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
+
+Additionally function can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
+This special comment can be in one of the fives lines before the function starts.
+Excluding basic functions that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
 For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
 appear in the coverage result file with zero executions.
 
-Instrumented code runs roughly 20% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
-very often called functions from the instrumentation.
+Instrumented code runs roughly 30% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
+very often called functions from the instrumentation with the special comment ``// UTF_NOINSTRUMENTATION`` as described above.
 
-Coverage is logged also for threadsafe functions.
+Coverage logging also works for threadsafe functions and functions that are executed in preemptive threads.
+
+The instrumented code that is written to disk and executed with code coverage logging is based on the current code within Igor Pro at the time when ``RunTest`` is called.
+The evaluation of gathered coverage data refers to the procedure file content on disk when ``RunTest`` was called. Thus, unsaved changes
+in procedure files that are targeted for instrumentation will result in incorrect result files. It is strongly recommended to save all
+procedure file changes to disk before running a test with code coverage logging.
 
 Examples
 ^^^^^^^^
