@@ -395,7 +395,12 @@ Before the actual tests are executed the given procedure files are modified on d
 The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
 The coverage results are output as RTF file in the experiments folder for each procedure file in the form:
 
-.. literalinclude:: rtfoutput.txt
+..
+   To create htmloutput.txt run the tests from Various.pxp. Then a file test-tracing2.htm is created in the folder of the experiment file.
+   For htmloutput.txt the content from the first function Workload is taken and from the second function TracingTest the first
+   Make/MultiThread block as well as the second if block with if/elseif/else/endif.
+
+.. literalinclude:: htmloutput.txt
 
 The code is prefixed with three columns where the number in the first column is the count how often this line was executed.
 In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
