@@ -201,16 +201,14 @@ static Function/S JU_CaseToOut(juTC)
 			for(i = 0; i < size; i += 1)
 				juTC.message = JU_ToXMLCharacters(messageBuffer[i][%MESSAGE])
 				juTC.type = JU_ToXMLCharacters(messageBuffer[i][%TYPE])
-				sprintf tmpStr, "\t\t\t<failure message=\"%s\" type=\"%s\"></failure>\n", juTC.message, juTC.type
-				s += tmpStr
+				s += "\t\t\t<failure message=\"" + juTC.message + "\" type=\"" + juTC.type + "\"></failure>\n"
 			endfor
 			break
 		case 2:
 			for(i = 0; i < size; i += 1)
 				juTC.message = JU_ToXMLCharacters(messageBuffer[i][%MESSAGE])
 				juTC.type = JU_ToXMLCharacters(messageBuffer[i][%TYPE])
-				sprintf tmpStr, "\t\t\t<error message=\"%s\" type=\"%s\"></error>\n", juTC.message, juTC.type
-				s += tmpStr
+				s += "\t\t\t<error message=\"" + juTC.message + "\" type=\"" + juTC.type + "\"></error>\n"
 			endfor
 			break
 		default:
