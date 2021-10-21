@@ -64,6 +64,18 @@ static Function AreVariablesEqual(var1, var2)
 	return AreBothVariablesNaN(var1, var2) || (var1 == var2)
 End
 
+static Function IsLessOrEqual(var1, var2)
+	variable var1, var2
+
+	return AreVariablesEqual(var1, var2) || IsLess(var1, var2)
+End
+
+static Function IsLess(var1, var2)
+	variable var1, var2
+
+	return var1 < var2
+End
+
 #if IgorVersion() >= 7.00
 
 static Function AreINT64Equal(int64 var1, int64 var2)

@@ -728,3 +728,91 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		EvaluateResults(result, str, flags)
 	endfor
 End
+
+/// @class LESS_EQUAL_VAR_DOCU
+/// Tests that var1 is less or equal than var2
+///
+/// @param var1 first variable
+/// @param var2 second variable
+static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
+	variable var1, var2, flags
+
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#IsLessOrEqual(var1, var2)
+	sprintf str, "%g <= %g", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class LESS_THAN_VAR_DOCU
+/// Tests that var1 is less than var2
+///
+/// @param var1 first variable
+/// @param var2 second variable
+static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
+	variable var1, var2, flags
+
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#IsLess(var1, var2)
+	sprintf str, "%g < %g", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class GREATER_EQUAL_VAR_DOCU
+/// Tests that var1 is greather or equal than var2
+///
+/// @param var1 first variable
+/// @param var2 second variable
+static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
+	variable var1, var2, flags
+
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#IsLessOrEqual(var2, var1)
+	sprintf str, "%g >= %g", var1, var2
+	EvaluateResults(result, str, flags)
+End
+
+/// @class GREATER_THAN_VAR_DOCU
+/// Tests that var1 is greather than var2
+///
+/// @param var1 first variable
+/// @param var2 second variable
+static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
+	variable var1, var2, flags
+
+	variable result
+	string str
+
+	incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = UTF_Checks#IsLess(var2, var1)
+	sprintf str, "%g > %g", var1, var2
+	EvaluateResults(result, str, flags)
+End

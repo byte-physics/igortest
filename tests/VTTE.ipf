@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma ModuleName=UTF_Tests
@@ -195,6 +195,48 @@ static Function TestUTF()
 
 	CHECK_EQUAL_VAR(1, 1)
 	CHECK_NEQ_VAR(1, 0)
+
+	// IsLessOrEqual
+	// @{
+	Ensure(UTF_Checks#IsLessOrEqual(0, 0))
+	Ensure(UTF_Checks#IsLessOrEqual(0, -0))
+	Ensure(UTF_Checks#IsLessOrEqual(0, 0.1))
+	Ensure(UTF_Checks#IsLessOrEqual(inf, inf))
+	Ensure(UTF_Checks#IsLessOrEqual(-inf, -inf))
+	Ensure(UTF_Checks#IsLessOrEqual(-inf, inf))
+	Ensure(!UTF_Checks#IsLessOrEqual(inf, -inf))
+	Ensure(UTF_Checks#IsLessOrEqual(NaN, NaN))
+	Ensure(UTF_Checks#IsLessOrEqual(1, 1 + 1e-16))
+	Ensure(UTF_Checks#IsLessOrEqual(1, 1 + 1e-15))
+	// @}
+
+	CHECK_LE_VAR(0, 1)
+	CHECK_LE_VAR(0, 0)
+
+	// Uses IsLessOrEqual internally
+	CHECK_GE_VAR(1, 0)
+	CHECK_GE_VAR(1, 1)
+
+	// IsLess
+	// @{
+	Ensure(UTF_Checks#IsLess(0, 1))
+	Ensure(!UTF_Checks#IsLess(0, 0))
+	Ensure(UTF_Checks#IsLess(-1, 0))
+	Ensure(!UTF_Checks#IsLess(inf, inf))
+	Ensure(!UTF_Checks#IsLess(-inf, -inf))
+	Ensure(UTF_Checks#IsLess(-inf, inf))
+	Ensure(!UTF_Checks#IsLess(inf, -inf))
+	Ensure(!UTF_Checks#IsLess(NaN, NaN))
+	Ensure(!UTF_Checks#IsLess(1, 1 + 1e-16))
+	Ensure(UTF_Checks#IsLess(1, 1 + 1e-15))
+	// @}
+
+	CHECK_LT_VAR(0, 1)
+	CHECK_LT_VAR(-1, 0)
+
+	// Uses IsLess internally
+	CHECK_GT_VAR(1, 0)
+	CHECK_GT_VAR(0, -1)
 
 	// IsVariableSmall
 	// @{

@@ -110,6 +110,90 @@ End
 #endif
 /// @endcond
 
+/// @copydoc LESS_EQUAL_VAR_DOCU
+Function WARN_LE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc LESS_EQUAL_VAR_DOCU
+Function CHECK_LE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc LESS_EQUAL_VAR_DOCU
+Function REQUIRE_LE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+/// @copydoc LESS_THAN_VAR_DOCU
+Function WARN_LT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_THAN_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc LESS_THAN_VAR_DOCU
+Function CHECK_LT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_THAN_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc LESS_THAN_VAR_DOCU
+Function REQUIRE_LT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#LESS_THAN_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+/// @copydoc GREATER_EQUAL_VAR_DOCU
+Function WARN_GE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_EQUAL_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc GREATER_EQUAL_VAR_DOCU
+Function CHECK_GE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_EQUAL_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc GREATER_EQUAL_VAR_DOCU
+Function REQUIRE_GE_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_EQUAL_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
+/// @copydoc GREATER_THAN_VAR_DOCU
+Function WARN_GT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_THAN_VAR_WRAPPER(var1, var2, WARN_MODE)
+End
+
+/// @copydoc GREATER_THAN_VAR_DOCU
+Function CHECK_GT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_THAN_VAR_WRAPPER(var1, var2, CHECK_MODE)
+End
+
+/// @copydoc GREATER_THAN_VAR_DOCU
+Function REQUIRE_GT_VAR(var1, var2)
+	variable var1, var2
+
+	UTF_Wrapper#GREATER_THAN_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
+End
+
 /// @copydoc NEQ_VAR_DOCU
 Function WARN_NEQ_VAR(var1, var2)
 	variable var1, var2
