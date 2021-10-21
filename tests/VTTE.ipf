@@ -183,6 +183,7 @@ static Function TestUTF()
 	// AreVariablesEqual
 	// @{
 	Ensure(UTF_Checks#AreVariablesEqual(0, 0))
+	Ensure(UTF_Checks#AreVariablesEqual(0, -0))
 	Ensure(UTF_Checks#AreVariablesEqual(1, 1))
 	Ensure(UTF_Checks#AreVariablesEqual(inf, inf))
 	Ensure(UTF_Checks#AreVariablesEqual(-inf, -inf))
