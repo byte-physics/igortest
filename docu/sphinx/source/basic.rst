@@ -97,6 +97,30 @@ separate line):
    // UTF_EXPECTED_FAILURE
    Function TestCase_NotWorkingYet()
 
+Only assertions in a test case are marked as expected failures. If the test case
+ends due to an :code:`Abort` or :code:`AbortOnRTE` then the error counter is increased
+and the test case fails regularly. If such abort condition should be covered as
+expected failure use the following code construct:
+
+.. code-block:: igor
+
+   // UTF_EXPECTED_FAILURE
+   Function TestCase_NotWorkingYet()
+
+       PASS()
+       try
+           CodeThatAborts()
+       catch
+           FAIL()
+       endtry
+  End
+
+If the test case actually passed the :code:`PASS()` prevents an fail due to zero
+assertions in the test case. In case the test case should be evaluated as fail
+if it passes then remove the :code:`PASS()`. The fail due to zero assertions encountered
+is a regular fail and not evaluated as expected failure.
+
+
 Example:
 ^^^^^^^^
 
