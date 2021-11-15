@@ -49,17 +49,31 @@ static Function IsProperString(str)
 	return !IsEmptyString(str) && !IsNullString(str)
 End
 
-static Function AreVariablesEqual(var1, var2)
+static Function AreBothVariablesNaN(var1, var2)
 	variable var1, var2
 
 	variable type1 = numType(var1)
 	variable type2 = numType(var2)
 
-	if(type1 == type2 && type1 == NUMTYPE_NAN) // both variables being NaN is also true
-		return 1
-	else
-		return (var1 == var2)
-	endif
+	return (type1 == type2) && (type1 == NUMTYPE_NAN)
+End
+
+static Function AreVariablesEqual(var1, var2)
+	variable var1, var2
+
+	return AreBothVariablesNaN(var1, var2) || (var1 == var2)
+End
+
+static Function IsLessOrEqual(var1, var2)
+	variable var1, var2
+
+	return AreVariablesEqual(var1, var2) || IsLess(var1, var2)
+End
+
+static Function IsLess(var1, var2)
+	variable var1, var2
+
+	return var1 < var2
 End
 
 #if IgorVersion() >= 7.00
