@@ -15,6 +15,25 @@ Function DoesNotBugOutOnLongString()
 	REQUIRE_EQUAL_VAR(GetRTError(0), 0)
 End
 
+Function GetWavePointerWorks()
+	variable pointer, err
+
+	Make/FREE content
+
+	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	CHECK_GT_VAR(pointer, 0)
+
+	Make/N=(inf) data
+
+	// check that lingering RTE's are not changed
+	err = GetRTError(0)
+	CHECK_GT_VAR(err, 0)
+	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	CHECK_EQUAL_VAR(err, GetRTError(0))
+
+	// clear RTE to make the testing framework happy
+	err = GetRTError(1)
+End
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37631)
 static Function/S TracingTestLoadFile(string fName)

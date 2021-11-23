@@ -417,29 +417,55 @@ static Function IterateOverWaves(table, wv1, wv2, rows, cols, layers, chunks, to
 	return NaN
 End
 
+threadsafe static Function/S GetWavePointer_Impl(wv)
+	WAVE wv
+
+	variable err
+	string str
+
+	Make/FREE/WAVE refWave = {wv}
+
+	WAVE ref = refWave
+
+#if IgorVersion() >= 7.0
+	sprintf str, "0x08%x", ref[0]; err = GetRTError(1)
+#else
+	sprintf str, "0x08%x", ref[0]
+#endif
+
+	return str
+End
+
+/// @brief Return the memory address of the passed wave
+///
+/// Works on all Igor Pro versions without clearing lingering runtime errors.
+/// The idea is that clearing RTE's in preemptive threads does not modify the
+/// main thread's one.
+threadsafe static Function/S GetWavePointer(wv)
+	WAVE wv
+
+#if IgorVersion() >= 7.0
+
+	Make/FREE/T/N=2 address
+	MultiThread address = GetWavePointer_Impl(wv)
+
+	return address[0]
+#else
+	return GetWavePointer_Impl(wv)
+#endif
+
+End
+
 static Function/S GetWaveNameInDFStr(w)
 	WAVE w
 
-	string str, tmpStr
-	variable err
+	string str
 
 	str = NameOfWave(w)
 	if(WaveType(w, 2) != IUTF_WAVETYPE2_FREE)
 		str += " in " + GetWavesDataFolder(w, 1)
 	else
-		Make/FREE/WAVE/N=1 wRef
-		wRef[0] = w
-		WAVE wNum = wRef
-#if IgorVersion() < 9.00
-		sprintf tmpStr, "0x08%x", wNum[0]
-#else
-		if(GetRTError(0))
-			tmpStr = "_free_"
-		else
-			sprintf tmpStr, "0x08%x", wNum[0]; err = GetRTError(1)
-		endif
-#endif
-		str = tmpStr
+		str = GetWavePointer(w)
 	endif
 
 	return str
