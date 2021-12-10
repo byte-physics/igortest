@@ -846,7 +846,7 @@ static Function AnalyzeTracingResult()
 		fName = procWin[0, strlen(procWin) - 5] + ".htm"
 		SaveNotebook/O/P=home/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as fName
 	endfor
-	printf "Done."
+	printf "Done.\r"
 End
 
 #endif
