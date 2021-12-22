@@ -2793,7 +2793,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
-		s.tracingEnabled = !ParamIsDefault(traceWinList)
+		s.tracingEnabled = !ParamIsDefault(traceWinList) && !UTF_Utils#IsEmpty(traceWinList)
 
 		if(s.enableTAP && s.juProps.enableJU)
 			sprintf msg, "Error: enableTAP and enableJU can not be both true."

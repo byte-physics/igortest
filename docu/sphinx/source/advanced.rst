@@ -390,7 +390,7 @@ When running Igor Pro 9 or newer the Igor Unit testing Framework offers the feat
 information. When enabled the IUTF adds to functions in target procedure files code to track execution.
 At the end of the test run the IUTF outputs files in HTML format with coverage information.
 
-This feature is enabled when the optional parameter ``traceWinList`` is set when calling ``RunTest``.
+This feature is enabled when the optional parameter ``traceWinList`` is set and non-empty when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
 The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
 The coverage results are output as HTML files in the experiments folder for each procedure file in the form:
