@@ -61,7 +61,6 @@ Constant IUTF_DEBUG_ENABLE = 0x01
 Constant IUTF_DEBUG_ON_ERROR = 0x02
 Constant IUTF_DEBUG_NVAR_SVAR_WAVE = 0x04
 Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
-Constant IUTF_DEBUG_ALLOW = 0x10
 /// @}
 
 StrConstant IUTF_TRACE_REENTRY_KEYWORD = " *** REENTRY ***"
@@ -341,6 +340,13 @@ static Function DebugFailedAssertion(result)
 	endif
 End
 
+/// Returns the current state of the Igor Debugger as ORed bitmask of IUTF_DEBUG_* constants
+static Function GetCurrentDebuggerState()
+
+	DebuggerOptions
+	return (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
+End
+
 /// Set the Igor Debugger, returns the previous state
 /// @param state		3 bits to set
 ///						0x01: debugger enable
@@ -351,8 +357,7 @@ static Function SetIgorDebugger(state)
 	
 	variable prevState, enable, debugOnError, nvarSvarWave
 
-	DebuggerOptions
-	prevState = (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
+	prevState = GetCurrentDebuggerState()
 
 	enable = !!(state & IUTF_DEBUG_ENABLE)
 	debugOnError = !!(state & IUTF_DEBUG_ON_ERROR)
@@ -1304,10 +1309,8 @@ static Function TestEnd(name, debugMode)
 	sprintf msg, "End of test \"%s\"", name
 	UTF_PrintStatusMessage(msg)
 
-	if (debugMode != IUTF_DEBUG_ALLOW)
-		NVAR/SDFR=dfr igor_debug_state
-		RestoreIgorDebugger(igor_debug_state)
-	endif
+	NVAR/SDFR=dfr igor_debug_state
+	RestoreIgorDebugger(igor_debug_state)
 End
 
 /// Internal Setup for Test Suite
@@ -2132,7 +2135,6 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SenableJU = s.enableJU
 	variable/G dfr:SenableTAP = s.enableTAP
 	variable/G dfr:SenableRegExp = s.enableRegExp
-	variable/G dfr:SallowDebug = s.allowDebug
 	variable/G dfr:SkeepDataFolder = s.keepDataFolder
 	string/G dfr:SprocWin = s.procWin
 	string/G dfr:StestCaseList = s.testCaseList
@@ -2213,8 +2215,6 @@ static Function RestoreState(dfr, s)
 	s.enableTAP = var
 	NVAR var = dfr:SenableRegExp
 	s.enableRegExp = var
-	NVAR var = dfr:SallowDebug
-	s.allowDebug = var
 	NVAR var = dfr:SkeepDataFolder
 	s.keepDataFolder = var
 	SVAR str = dfr:SprocWin
@@ -2517,7 +2517,6 @@ static Structure strRunTest
 	variable enableJU
 	variable enableTAP
 	variable enableRegExp
-	variable allowDebug
 	variable debugMode
 	variable keepDataFolder
 
@@ -2783,13 +2782,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
+		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
+
 		// transfer parameters to s. variables
 		s.enableRegExp = enableRegExp
 		s.enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 		s.enableRegExpTS = s.enableRegExpTC
 		s.juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
 		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
-		s.allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
@@ -2801,15 +2801,21 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		var = (IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION)
+		var = IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION
 		if(s.debugMode > var || s.debugMode < 0 || !UTF_Utils#IsInteger(s.debugMode))
 			printf "debugMode can only be an integer between 0 and %d. The input %g is wrong, aborting!.\r", var, s.debugMode
-			printf "For easy handling you can use IUTF_DEBUG_ENABLE, IUTF_DEBUG_ON_ERROR,\r"
-			printf "IUTF_DEBUG_NVAR_SVAR_WAVE and IUTF_DEBUG_FAILED_ASSERTION.\r\r"
+			printf "Use the constants IUTF_DEBUG_ENABLE, IUTF_DEBUG_ON_ERROR,\r"
+			printf "IUTF_DEBUG_NVAR_SVAR_WAVE and IUTF_DEBUG_FAILED_ASSERTION for debugMode.\r\r"
 			printf "Example: debugMode = IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE\r"
 			Abort
 		endif
-		s.debugMode = (s.allowDebug * IUTF_DEBUG_ALLOW) | s.debugMode
+
+		if(s.debugMode > 0 && allowDebug > 0)
+			print "Note: debugMode parameter is set, allowDebug parameter is ignored."
+		endif
+		if(s.debugMode == 0 && allowDebug > 0)
+			s.debugMode = GetCurrentDebuggerState()
+		endif
 
 		traceOptions = SelectString(ParamIsDefault(traceOptions), traceOptions, "")
 
