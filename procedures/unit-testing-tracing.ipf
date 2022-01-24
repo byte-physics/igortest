@@ -785,7 +785,7 @@ static Function AnalyzeTracingResult()
 		procText = ""
 		Open/R/Z fNum as funcPath
 		if(V_flag)
-			printf "Open faled for file %s.", funcPath
+			printf "Open failed for file %s.", funcPath
 			Abort
 		endif
 

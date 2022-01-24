@@ -35,7 +35,7 @@ deployment of quality software.
 
 A review typically involves testing the functionality of the code output for
 different inputs. These tests are equally performed during code production and
-review stages. The problem, this review step is targetting onto, is that a
+review stages. The problem, this review step is targeting onto, is that a
 programmer typically does not think of all critical test situations. The
 tester, in turn, does not know about the code and its context and therefore the
 reviewer needs time to understand the context of the program. In an attempt to
