@@ -728,6 +728,7 @@ static Function AnalyzeTracingResult()
 	variable numThreads, numProcs, i, j, err, fNum, numProcLines
 	variable execC, branchC, nobranchC
 	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace
+	string procLineFormat
 	variable colR, colG, colB
 
 	printf "Generating coverage output."
@@ -811,6 +812,8 @@ static Function AnalyzeTracingResult()
 		DoWindow/HIDE=1 NBTracedData
 		Notebook NBTracedData, ruler=Normal, margins={0,0,10000}, fStyle=1, font="Courier New"
 
+		sprintf procLineFormat, "%%0%dd", strlen(num2istr(numProcLines))
+
 		for(j = 0; j < numProcLines; j += 1)
 
 			procLine = ReplaceString("\t", wProcText[j], tabReplace)
@@ -819,7 +822,8 @@ static Function AnalyzeTracingResult()
 			nobranchC = logData[j][1][i]
 			branchC = logData[j][2][i]
 			if(!(execC + nobranchC + branchC))
-				prefix = "________|________|________|" + procLine + "\r"
+				sprintf prefix, procLineFormat + "|________|________|________|", j
+				prefix += procLine + "\r"
 				Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
 				if(!instrData[j][i])
 					colR = 0xc0
@@ -835,9 +839,9 @@ static Function AnalyzeTracingResult()
 			endif
 
 			if(!(noBranchC + branchC))
-				sprintf prefix, "%.8#d|________|________|", execC
+				sprintf prefix, procLineFormat + "|%.8#d|________|________|", j, execC
 			else
-				sprintf prefix, "%.8#d|%.8#d|%.8#d|", execC, branchC, nobranchC
+				sprintf prefix, procLineFormat + "|%.8#d|%.8#d|%.8#d|", j, execC, branchC, nobranchC
 			endif
 			prefix +=  procLine + "\r"
 			Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
