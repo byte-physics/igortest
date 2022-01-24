@@ -436,6 +436,10 @@ The evaluation of gathered coverage data refers to the procedure file content on
 in procedure files that are targeted for instrumentation will result in incorrect result files. It is strongly recommended to save all
 procedure file changes to disk before running a test with code coverage logging.
 
+At the end of a run with code coverage determination Igor Pro outputs the global coverage to stdout in the form ``Coverage: 12.3%``.
+The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
+``(?:^Coverage: )(\d+.\d+)(?:%$)``.
+
 Examples
 ^^^^^^^^
 
