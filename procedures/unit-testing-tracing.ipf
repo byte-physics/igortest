@@ -313,7 +313,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	variable funcLines, reqNumChars, currFuncLineNum, currProcLineNum, maxFuncLine
 	variable functionLineCnt, vTmp
 
-	// Z after keys get checked first
+	// lineStartZReplaceKeys keys get checked first
 	Make/FREE/T lineStartZAfterKeys = { \
 	"case ", \
 	"default :", \
@@ -468,9 +468,9 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 				continue
 			endif
 
-			for(k = 0; k < numLineStartZAfterKeys; k += 1)
-				if(strsearch(line, lineStartZAfterKeys[k], 0) == 0)
-					newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum, addAfter=1)
+			for(k = 0; k < numLineStartZReplaceKeys; k += 1)
+				if(strsearch(line, lineStartZReplaceKeys[k], 0) == 0)
+					newProcCode += ReplaceWithZ(origLines, currProcLineNum, lineCnt, procNum)
 					doNextLine = 1
 					break
 				endif
@@ -478,9 +478,10 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 			if(doNextLine)
 				continue
 			endif
-			for(k = 0; k < numLineStartZReplaceKeys; k += 1)
-				if(strsearch(line, lineStartZReplaceKeys[k], 0) == 0)
-					newProcCode += ReplaceWithZ(origLines, currProcLineNum, lineCnt, procNum)
+
+			for(k = 0; k < numLineStartZAfterKeys; k += 1)
+				if(strsearch(line, lineStartZAfterKeys[k], 0) == 0)
+					newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum, addAfter=1)
 					doNextLine = 1
 					break
 				endif
