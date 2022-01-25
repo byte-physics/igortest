@@ -16,6 +16,9 @@ static StrConstant GLOBAL_IPROCLIST = "instrumentedProcWins"
 static StrConstant INSTRUDATA_FILENAME = "iutf_instrumentation_data.txt"
 static Constant TABSIZE = 4
 
+static Constant STAT_LINES = 0
+static Constant STAT_COVERED = 1
+
 static Function SetupTracing(string procWinList, string traceOptions)
 
 	variable instrumentOnly
@@ -726,9 +729,9 @@ End
 
 static Function AnalyzeTracingResult()
 
-	variable numThreads, numProcs, i, j, err, fNum, numProcLines
+	variable numThreads, numProcs, i, j, err, fNum, numProcLines, countProcLine
 	variable execC, branchC, nobranchC
-	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace
+	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace, statOut
 	string procLineFormat
 	variable colR, colG, colB
 
@@ -769,6 +772,8 @@ static Function AnalyzeTracingResult()
 	for(i = 0; i < TABSIZE; i += 1)
 		tabReplace += NBSpace
 	endfor
+
+	Make/FREE/I/U/N=(numProcs, 2) statistics
 
 	for(i = 0; i < numProcs; i += 1)
 		printf "."
@@ -818,6 +823,7 @@ static Function AnalyzeTracingResult()
 		for(j = 0; j < numProcLines; j += 1)
 
 			procLine = ReplaceString("\t", wProcText[j], tabReplace)
+			countProcLine = !UTF_Utils#IsEmpty(procLine)
 
 			execC = logData[j][0][i]
 			nobranchC = logData[j][1][i]
@@ -831,6 +837,7 @@ static Function AnalyzeTracingResult()
 					colG = 0xc0
 					colB = 0xc0
 				else
+					statistics[i][STAT_LINES] += countProcLine
 					colR = 0x40
 					colG = 0x40
 					colB = 0x40
@@ -839,6 +846,8 @@ static Function AnalyzeTracingResult()
 				continue
 			endif
 
+			statistics[i][STAT_LINES] += countProcLine
+			statistics[i][STAT_COVERED] += countProcLine
 			if(!(noBranchC + branchC))
 				sprintf prefix, procLineFormat + "|%.8#d|________|________|", j, execC
 			else
@@ -851,7 +860,14 @@ static Function AnalyzeTracingResult()
 		fName = procWin[0, strlen(procWin) - 5] + ".htm"
 		SaveNotebook/O/P=home/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as fName
 	endfor
+
+	MatrixOP/FREE statLines = sum(col(statistics, STAT_LINES))
+	MatrixOP/FREE statCovered = sum(col(statistics, STAT_COVERED))
+	sprintf statOut, "Code lines: %d\rLines covered : %d\rCoverage: %.1f%%\r", statLines[0], statCovered[0], statCovered[0] * 100 / statLines[0]
+	fprintf -1, "%s", statOut
+
 	printf "Done.\r"
+	printf "%s", statOut
 End
 
 #endif
