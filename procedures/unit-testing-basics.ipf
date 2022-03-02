@@ -2186,7 +2186,6 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SJUPTSfailures = s.juProps.juTS.failures
 	variable/G dfr:SJUPTSerrors = s.juProps.juTS.errors
 	variable/G dfr:SJUPTSskipped = s.juProps.juTS.skipped
-	variable/G dfr:SJUPTSdisabled = s.juProps.juTS.disabled
 	variable/G dfr:SJUPTStimeTaken = s.juProps.juTS.timeTaken
 	string/G dfr:SJUPTSsystemErr = s.juProps.juTS.systemErr
 	string/G dfr:SJUPTSsystemOut = s.juProps.juTS.systemOut
@@ -2312,8 +2311,6 @@ static Function RestoreState(dfr, s)
 	s.juProps.juTS.errors = var
 	NVAR var = dfr:SJUPTSskipped
 	s.juProps.juTS.skipped = var
-	NVAR var = dfr:SJUPTSdisabled
-	s.juProps.juTS.disabled = var
 	NVAR var = dfr:SJUPTStimeTaken
 	s.juProps.juTS.timeTaken = var
 	SVAR str = dfr:SJUPTSsystemErr
