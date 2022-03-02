@@ -1426,11 +1426,11 @@ static Function UTF_PrintStatusMessage(msg)
 	print/LEN=400 msg
 #endif
 
-#if (IgorVersion() >= 8.0)
+#if	(IgorVersion() >= 9.0)
+	fprintf -1, "%s\r\n", msg
+#elif (IgorVersion() >= 8.0)
 	tmpStr = UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
 	fprintf -1, "%s\r\n", tmpStr
-#elif	(IgorVersion() >= 9.0)
-	fprintf -1, "%s\r\n", msg
 #endif
 End
 
