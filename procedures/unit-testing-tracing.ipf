@@ -325,6 +325,8 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	"endswitch;", \
 	"endswitch", \
 	"endif", \
+	"#endif", \
+	"#else", \
 	"else" \
 	}
 	Make/FREE/T lineStartZReplaceKeys = { \
