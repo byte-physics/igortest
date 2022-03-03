@@ -98,12 +98,12 @@ Z_(0, 77)
 #if IgorVersion() < 9
 Z_(0, 78)
 	print "not nine"
-Z_(0, 79)
 #else
+Z_(0, 79)
 Z_(0, 80)
 	print "nine"
-Z_(0, 81)
 #endif
+Z_(0, 81)
 End
 // After Function 7
 
