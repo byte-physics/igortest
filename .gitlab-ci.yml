@@ -75,6 +75,19 @@ testing:
       - tests/JU_*.xml
       - screenshot/*.png
 
+xml_verification:
+  tags:
+    - debian, docker
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
+  script:
+    - cd tests
+    - ./check-junit-xml-files.sh
+  needs:
+    - testing
+
 deployment_staging:
   when: manual
   tags:

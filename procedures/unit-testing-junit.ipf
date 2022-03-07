@@ -16,7 +16,6 @@ Structure strTestSuite
 	variable failures // *xs:int
 	variable errors // *xs:int
 	variable skipped // xs:int
-	variable disabled // xs:int
 	variable timeTaken // *xs:decimal
 	string systemErr // pre-string with preserved whitespaces
 	string systemOut // pre-string with preserved whitespaces
@@ -254,8 +253,8 @@ static Function/S JU_CaseListToSuiteOut(juTestCaseListOut, juTS, juTSProp)
 	juTS.name = JU_ToXMLToken( JU_ToXMLCharacters(juTS.name))
 	juTS.package = JU_ToXMLToken( JU_ToXMLCharacters(juTS.package))
 
-	sformat = "\t<testsuite package=\"%s\" id=\"%d\" name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" disabled=\"%d\" time=\"%.3f\">\n"
-	sprintf sout, sformat, juTS.package, juTS.id, juTS.name, juTS.timestamp, juTS.hostname, juTS.tests, juTS.failures, juTS.errors, juTS.skipped, juTS.disabled, juTS.timeTaken
+	sformat = "\t<testsuite package=\"%s\" id=\"%d\" name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" time=\"%.3f\">\n"
+	sprintf sout, sformat, juTS.package, juTS.id, juTS.name, juTS.timestamp, juTS.hostname, juTS.tests, juTS.failures, juTS.errors, juTS.skipped, juTS.timeTaken
 
 	if(ItemsInList(juTSProp.propNameList, "<"))
 		sout += "\t\t<properties>\n"
@@ -382,7 +381,6 @@ Function JU_TestSuiteBegin(s, name, procWin)
 	s.juTS.failures = 0
 	s.juTS.errors = 0
 	s.juTS.skipped = 0
-	s.juTS.disabled = 0
 	s.juTS.systemOut = ""
 	s.juTS.systemErr = ""
 	s.juTSProp.propNameList = ""
