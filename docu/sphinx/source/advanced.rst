@@ -426,6 +426,20 @@ Static functions in procedure files can only be instrumented, if the procedure f
 For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
 appear in the coverage result file with zero executions.
 
+Macros, Proc and Window macros are included in the instrumentation and tracing if the procedure file where they appear contains at least one function.
+This is a current limitation of Igor Pro.
+For procedure files that contain only macros an empty static function needs to be added:
+
+.. code-block:: igor
+
+   static Function IUTF_InstrumentationHelper()
+   End
+
+Note that the procedure file must also have the ModuleName pragma added if not present.
+Another limitation for macro instrumentation is that there must not be multiple macros with the same name in the same procedure file that are
+selected through ``#ifdef`` or similar preprocessor directives. The Igor Unit Testing Framework will abort the instrumentation with an error
+message for these cases.
+
 Instrumented code runs roughly 30% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
 very often called functions from the instrumentation with the special comment ``// UTF_NOINSTRUMENTATION`` as described above.
 
