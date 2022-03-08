@@ -18,7 +18,6 @@
   <testsuite name=""      <!-- Full (class) name of the test for non-aggregated testsuite documents.
                                Class name without the package for aggregated testsuites documents. Required -->
 	     tests=""     <!-- The total number of tests in the suite, required. -->
-	     disabled=""  <!-- the total number of disabled tests in the suite. optional. not supported by maven surefire. -->
              errors=""    <!-- The total number of tests in the suite that errored. An errored test is one that had an unanticipated problem,
                                for example an unchecked throwable; or a problem with the implementation of the test. optional -->
              failures=""  <!-- The total number of tests in the suite that failed. A failure is a test which the code has explicitly failed
