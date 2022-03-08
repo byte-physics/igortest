@@ -207,6 +207,46 @@ Z_(0, 139)
 	print "commenttest end"
 End
 
+// Before TraceMacroTest
+Macro TraceMacroTest()
+Z_(0, 143)
+Z_(0, 147)
+Z_(0, 144)
+	print "1"
+
+Z_(0, 146)
+	print "2"
+EndMacro
+
+// Before TraceWindowTest
+Window TraceWindowTest() : Panel
+Z_(0, 150)
+Z_(0, 154)
+Z_(0, 151)
+	print "1"
+
+Z_(0, 153)
+	print "2"
+EndMacro
+
+// Before TraceProcTest
+Proc TraceProcTest()
+Z_(0, 157)
+Z_(0, 161)
+Z_(0, 158)
+	print "1"
+
+Z_(0, 160)
+	print "2"
+EndMacro
+
+// Before uninstrumented Macro
+// UTF_NOINSTRUMENTATION
+Macro TraceMacroNoInstrument()
+	print "1"
+
+	print "2"
+EndMacro
 #endif
 Function IUTF_TagFunc_2c4825972717351a1e6e21b29ee64c5d2572501d0f67b2d3231ce87cee9d0a9b_IGNORE()
 End

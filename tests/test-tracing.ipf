@@ -140,4 +140,32 @@ static Function commenttest()
 	print "commenttest end"
 End
 
+// Before TraceMacroTest
+Macro TraceMacroTest()
+	print "1"
+
+	print "2"
+EndMacro
+
+// Before TraceWindowTest
+Window TraceWindowTest() : Panel
+	print "1"
+
+	print "2"
+EndMacro
+
+// Before TraceProcTest
+Proc TraceProcTest()
+	print "1"
+
+	print "2"
+EndMacro
+
+// Before uninstrumented Macro
+// UTF_NOINSTRUMENTATION
+Macro TraceMacroNoInstrument()
+	print "1"
+
+	print "2"
+EndMacro
 #endif
