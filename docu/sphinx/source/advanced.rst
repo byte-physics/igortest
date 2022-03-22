@@ -418,27 +418,13 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
   HTML files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
-Additionally function can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
-This special comment can be in one of the fives lines before the function starts.
-Excluding basic functions that are called very often can speed up the execution of instrumented code.
+Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
+This special comment can be in one of the fives lines before the function or macro starts.
+Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
 For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
 appear in the coverage result file with zero executions.
-
-Macros, Proc and Window macros are included in the instrumentation and tracing if the procedure file where they appear contains at least one function.
-This is a current limitation of Igor Pro.
-For procedure files that contain only macros an empty static function needs to be added:
-
-.. code-block:: igor
-
-   static Function IUTF_InstrumentationHelper()
-   End
-
-Note that the procedure file must also have the ModuleName pragma added if not present.
-Another limitation for macro instrumentation is that there must not be multiple macros with the same name in the same procedure file that are
-selected through ``#ifdef`` or similar preprocessor directives. The Igor Unit Testing Framework will abort the instrumentation with an error
-message for these cases.
 
 Instrumented code runs roughly 30% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
 very often called functions from the instrumentation with the special comment ``// UTF_NOINSTRUMENTATION`` as described above.
@@ -453,6 +439,15 @@ procedure file changes to disk before running a test with code coverage logging.
 At the end of a run with code coverage determination Igor Pro outputs the global coverage to stdout in the form ``Coverage: 12.3%``.
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
 ``(?:^Coverage: )(\d+.\d+)(?:%$)``.
+
+Limitations
+^^^^^^^^^^^
+
+The function that calls RunTest with tracing enabled must return to the Igor Pro command line afterwards to allow recompilation of the instrumented code.
+It is not allowed to have another RunTest call in between. The unit testing framework will abort with an error in that case.
+
+If the full autorun feature is enabled through ``DO_AUTORUN.TXT`` the RunTest call with instrumentation must be the only call in the experiment.
+Specifically, if a RunTest call without tracing is placed before then the RunTest call with tracing will not execute tests.
 
 Examples
 ^^^^^^^^
