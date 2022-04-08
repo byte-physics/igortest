@@ -89,7 +89,7 @@ End
 static Function/WAVE GetTagConstants()
 
 	Make/T/FREE tagConstants = {UTF_FTAG_NOINSTRUMENTATION, UTF_FTAG_TD_GENERATOR, UTF_FTAG_EXPECTED_FAILURE, UTF_FTAG_TAP_DIRECTIVE, UTF_FTAG_TAP_DESCRIPTION}
-	
+
 	return tagConstants
 End
 
@@ -157,7 +157,7 @@ static Function HasFunctionTag(funcName, tagName)
 	string funcName, tagName
 
 	WAVE tagValues = GetFunctionTagWave(funcName)
-	
+
 	return (FindDimLabel(tagValues, UTF_ROW, tagName) != -2)
 End
 
@@ -184,7 +184,7 @@ static Function/T GetFunctionTagValue(funcName, tagName, err)
 		sprintf msg, "The tag %s was not found.", tagName
 		return msg
 	endif
-	
+
 	tagValue = tagValueWave[tagPosition]
 	if(IsEmpty(tagValue))
 		err = UTF_TAG_EMPTY
