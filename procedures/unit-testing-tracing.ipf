@@ -3,7 +3,7 @@
 #pragma rtFunctionErrors=1
 #pragma ModuleName=UTF_Tracing
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 37700)
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
 static StrConstant TRACING_AUTOGEN_PROCEDURE = "unit-testing-tracing-auto.ipf"
 static StrConstant TRACING_AUTOGEN_FUNCTION = "GetTracedProcedureNames"
@@ -302,28 +302,11 @@ static Function/WAVE FindFunctionLocations(WAVE/T wFuncList, string procWin)
 	return wFuncLineStart
 End
 
-/// @brief returns the macro line numbers of the input macro list, keyWord specifies what macro keyWord is expected "proc", "window" or "macro"
-///        All macros in the list must be of the same type.
-static Function/WAVE FindMacroLocations(WAVE/T wMacroList, string keyWord, string procWin)
+/// @brief returns the macro line numbers of the input macro list
+static Function/WAVE FindMacroLocations(WAVE/T wMacroList)
 
-	variable i, j, numLines, numMacros
-	string errMsg
-
-	numMacros = DimSize(wMacroList, UTF_ROW)
-	Make/FREE/N=(numMacros) wMacroLineStart = NaN
-	WAVE/T wProcText = ListToTextWave(ProcedureText("", NaN, procWin), "\r")
-	numLines = DimSize(wProcText, UTF_ROW)
-	for(i = 0; i < numLines; i += 1)
-		for(j = 0; j < numMacros; j += 1)
-			if(GrepString(wProcText[i], "(?i)\s*" + keyWord + "\s+" + wMacroList[j] + "\s*\("))
-				if(!UTF_Utils#IsNaN(wMacroLineStart[j]))
-					sprintf errMsg, "Error: Found %s %s twice in procedure file %s.\rNote that instrumentation does not support #ifdef constructs to select macro variants\r", keyWord, wMacroList[j], procWin
-					Abort errMsg
-				endif
-				wMacroLineStart[j] = i
-			endif
-		endfor
-	endfor
+	Make/FREE/N=(DimSize(wMacroList, UTF_ROW)) wMacroLineStart
+	wMacroLineStart[] = NumberByKey("PROCLINE", MacroInfo(wMacroList[p]))
 
 	return wMacroLineStart
 End
@@ -355,7 +338,7 @@ End
 static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(string procWin, variable procNum)
 
 	string allProcWins, errMsg
-	string funcList, fullFuncName, funcName, funcPath
+	string funcList, fullFuncName, funcName, procedurePath
 	string allMacrosList
 	string line, preLine, origLines, preFuncLines
 	string newLine, newProcCode, sTmp
@@ -405,26 +388,19 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 		return [$"", "", $""]
 	endif
 
-	Make/FREE/T macroKeyWords = {"proc", "macro", "window"}
-	numMacroKeys = DimSize(macroKeyWords, UTF_ROW)
-	Make/FREE/WAVE/N=(numMacroKeys) macList, macroLineStarts, macroExclusionFlag, macroTexts
-	for(i = 0; i < numMacroKeys; i += 1)
-		macList[i] = ListToTextWave(MacroList("*", ";", "KIND:" + num2istr(2^i) + ",WIN:" + procWin), ";")
-		WAVE/T macListTmp = macList[i]
-		numMacros = DimSize(macListTmp, UTF_ROW)
-		Make/FREE/N=(numMacros) macroExclusionFlagTmp
-		if(numMacros > 0)
-			macroExclusionFlagTmp[] = UTF_Utils#HasFunctionTag(macListTmp[p], UTF_FTAG_NOINSTRUMENTATION)
+	WAVE/T wMacroList = ListToTextWave(allMacrosList, ";")
+	numMacros = DimSize(wMacroList, UTF_ROW)
+	WAVE macroLineStarts = FindMacroLocations(wMacroList)
+	Make/FREE/WAVE/N=(numMacros) macroTexts
+	macroTexts[] = ListToTextWave(ProcedureText(wMacroList[p], 0, procWin), "\r")
+	Make/FREE/D/N=(numMacros) macroExclusionFlag
+	macroExclusionFlag[] = UTF_Utils#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
+	for(i = 0; i < numMacros; i += 1)
+		if(UTF_Utils#isEmpty(procedurePath))
+			procedurePath = MacroPath(wMacroList[i])
+			break
 		endif
-		macroExclusionFlag[i] = macroExclusionFlagTmp
-
-		Make/FREE/WAVE/N=(numMacros) macroTextsTmp
-		if(numMacros > 0)
-			macroTextsTmp[] = ListToTextWave(ProcedureText(macListTmp[p], 0, procWin), "\r")
-		endif
-		macroTexts[i] = macroTextsTmp
 	endfor
-	macroLineStarts[] = FindMacroLocations(macList[p], macroKeyWords[p], procWin)
 
 	WAVE/T wFuncList = ListToTextWave(funcList, ";")
 	numFunc = DimSize(wFuncList, UTF_ROW)
@@ -440,23 +416,22 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 			continue
 		endif
 		funcExclusionFlag[i] = UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
-		if(UTF_Utils#isEmpty(funcPath))
-			funcPath = FunctionPath(fullFuncName)
+		if(UTF_Utils#isEmpty(procedurePath))
+			procedurePath = FunctionPath(fullFuncName)
 		endif
 	endfor
-	if(UTF_Utils#isEmpty(funcPath))
-		printf "Unable to retrieve path of procedure file %s as no function could be resolved. Procedure files that contain macros only require to have a dummy function added to them!\r", procWin
+
+	if(UTF_Utils#isEmpty(procedurePath))
+		printf "Unable to retrieve path of procedure file %s as no macro or function could be resolved.\r", procWin
 		Abort
 	endif
 
-	for(i = 0; i < numMacroKeys; i += 1)
-		Concatenate/FREE/NP/T {macList[i]}, wFuncList
-		Concatenate/FREE/NP {macroExclusionFlag[i]}, funcExclusionFlag
-		Concatenate/FREE/NP/WAVE {macroTexts[i]}, funcTexts
-		Concatenate/FREE/NP {macroLineStarts[i]}, funcLineStart
-	endfor
-	numFunc = DimSize(wFuncList, UTF_ROW)
+	Concatenate/FREE/NP/T {wMacroList}, wFuncList
+	Concatenate/FREE/NP {macroExclusionFlag}, funcExclusionFlag
+	Concatenate/FREE/NP/WAVE {macroTexts}, funcTexts
+	Concatenate/FREE/NP {macroLineStarts}, funcLineStart
 
+	numFunc = DimSize(wFuncList, UTF_ROW)
 	Sort funcLineStart, funcLineStart, wFuncList, funcExclusionFlag, funcTexts
 
 	WAVE/T wProcText = ListToTextWave(ProcedureText("", NaN, procWin), "\r")
@@ -587,7 +562,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	DeletePoints 0, maxFuncLine, wProcText
 	newProcCode += UTF_Utils#TextWaveToList(wProcText, "\r")
 
-	return [ListToTextWave(newProcCode, "\r"), funcPath, betweenLineHelper]
+	return [ListToTextWave(newProcCode, "\r"), procedurePath, betweenLineHelper]
 End
 
 /// @brief Adds the Z_ function for function line
