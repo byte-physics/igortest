@@ -675,7 +675,7 @@ static Function CheckDeclarationLine(string line, WAVE/T decList)
 	type = StringFromList(0, line, " ")
 
 	for(i = 0; i < numParams; i += 1)
-		if(strsearch(type, validParameters[i], 0) >= 0)
+		if(strsearch(type, validParameters[i], 0, 2) >= 0)
 			foundType = 1
 			break
 		endif
