@@ -216,7 +216,11 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	string dimLabelMsg = ""
 	variable result, err
 
-	result = EqualWaves(wv1, wv2, mode, tol) == 1
+	if((!numpnts(wv1) || !numpnts(wv2)) && mode == WAVE_DATA)
+		result = !numpnts(wv1) && !numpnts(wv2)
+	else
+		result = EqualWaves(wv1, wv2, mode, tol) == 1
+	endif
 
 	if(!result)
 		switch(mode)

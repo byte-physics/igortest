@@ -627,7 +627,9 @@ End
 /// @endcond
 
 /// @class EQUAL_WAVE_DOCU
-/// Tests two waves for equality
+/// Tests two waves for equality.
+/// If one wave has a zero size and the other one does not then properties like DIMENSION_UNITS are compared to unequal as a property for a
+/// non-existing dimension is always unequal to a property of an existing dimension.
 ///
 /// @param wv1    first wave
 /// @param wv2    second wave
@@ -703,16 +705,9 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		return NaN
 	endif
 
-	if(WaveType(wv1, 1) != WaveType(wv2, 1))
+	if((WaveType(wv1, 1) != WaveType(wv2, 1)) && !(!numpnts(wv1) && !numpnts(wv2)))
 		EvaluateResults(0, "Compatible basic wave type for EQUAL_WAVE check.", flags)
 		return NaN
-	endif
-
-	if(!numpnts(wv1) || !numpnts(wv2))
-		if(WaveType(wv1) != WaveType(wv2))
-			EvaluateResults(0, "Compatible wave type of zero sized wave for EQUAL_WAVE check.", flags)
-			return NaN
-		endif
 	endif
 
 	for(i = 0; i < DimSize(modes, 0); i += 1)

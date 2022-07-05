@@ -34,3 +34,32 @@ Function GetWavePointerWorks()
 	// clear RTE to make the testing framework happy
 	err = GetRTError(1)
 End
+
+static Function CompareZeroSizedWaves()
+
+	Make/FREE/N=0 wvSP
+	Make/FREE/D/N=0 wvDP
+
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = WAVE_DATA)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = WAVE_SCALING)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = DATA_UNITS)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = DIMENSION_UNITS)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = DIMENSION_LABELS)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = WAVE_NOTE)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = WAVE_LOCK_STATE)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = DATA_FULL_SCALE)
+	CHECK_EQUAL_WAVES(wvSP, wvDP, mode = DIMENSION_SIZES)
+
+	Make/FREE/N=0 wvSP
+	Make/FREE/T/N=0 wvT
+
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = WAVE_DATA)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = WAVE_SCALING)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = DATA_UNITS)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = DIMENSION_UNITS)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = DIMENSION_LABELS)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = WAVE_NOTE)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = WAVE_LOCK_STATE)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = DATA_FULL_SCALE)
+	CHECK_EQUAL_WAVES(wvSP, wvT, mode = DIMENSION_SIZES)
+End
