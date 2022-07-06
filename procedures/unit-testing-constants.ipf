@@ -36,10 +36,10 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 
 ///@endcond // HIDDEN_SYMBOL
 
-/// @addtogroup assertionFlags
+/// @addtogroup AssertionFlags
 ///@{
 
-/// @addtogroup testWaveFlagsMinor
+/// @addtogroup TestWaveFlagsMinor
 ///@{
 Constant COMPLEX_WAVE    = 0x01
 Constant FLOAT_WAVE      = 0x02
@@ -51,7 +51,7 @@ Constant INT64_WAVE      = 0x80
 Constant UNSIGNED_WAVE   = 0x40
 ///@}
 
-/// @addtogroup testWaveFlagsMajor
+/// @addtogroup TestWaveFlagsMajor
 ///@{
 Constant NULL_WAVE       = 0x1000
 Constant NUMERIC_WAVE    = 0x01
@@ -63,7 +63,7 @@ Constant NORMAL_WAVE     = 0x10
 Constant FREE_WAVE       = 0x20
 ///@}
 
-/// @addtogroup equalWaveFlags
+/// @addtogroup EqualWaveFlags
 ///@{
 Constant WAVE_DATA        =   1
 Constant WAVE_DATA_TYPE   =   2

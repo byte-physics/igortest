@@ -633,7 +633,7 @@ End
 ///
 /// @param wv1    first wave
 /// @param wv2    second wave
-/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref equalWaveFlags
+/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref EqualWaveFlags
 /// @param tol    (optional) tolerance for comparison, by default 0.0 which does byte-by-byte comparison (relevant only for mode=WAVE_DATA)
 static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	Wave/Z wv1, wv2
