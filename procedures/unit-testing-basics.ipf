@@ -1814,8 +1814,11 @@ End
 /// Function determines the total number of test cases
 /// Normal test cases are counted with 1
 /// MD test cases are counted by multiplying all data generator wave sizes
+/// When the optional string procWin is given then the number of test cases for that
+/// procedure window (test suite) is returned.
 /// Returns the total number of all test cases to be called
-static Function GetTestCaseCount()
+static Function GetTestCaseCount([procWin])
+	string procWin
 
 	variable i, j, size, dgenSize
 	variable tcCount, dgenCount
@@ -1825,6 +1828,10 @@ static Function GetTestCaseCount()
 	WAVE/T testRunData = GetTestRunData()
 	size = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < size; i += 1)
+		if(!ParamIsDefault(procWin) && CmpStr(procWin, testRunData[i][%PROCWIN]))
+			continue
+		endif
+
 		dgenCount = 1
 		dgenList = testRunData[i][%DGENLIST]
 		dgenSize = ItemsInList(dgenList)
@@ -3052,8 +3059,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			getLocalHooks(s.procHooks, procWin)
 
 			if(startNextTS)
-				// TODO need tcCount for procWin
-				s.juProps.testCaseCount = s.tcCount
+				s.juProps.testCaseCount = GetTestCaseCount(procWin=procWin)
 				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, procWin, procWin)
 				s.juProps.testSuiteNumber += 1
 			endif
