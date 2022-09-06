@@ -165,7 +165,7 @@ Function TAP_IsFunctionSkip(funcName)
 	string str
 
 	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
-	if(!err)
+	if(err == UTF_TAG_OK)
 		return strsearch(str, "SKIP", 0, 2) == 0
 	endif
 

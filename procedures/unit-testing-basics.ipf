@@ -115,6 +115,22 @@ static Function/WAVE GetDataGeneratorWaves()
 	return wv
 End
 
+/// @brief Returns a global wave that stores the Function Tag Waves of this testrun
+static Function/WAVE GetFunctionTagWaves()
+
+	string name = "FunctionTagWaves"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/WAVE wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/WAVE/N=0 dfr:$name/WAVE=wv
+
+	return wv
+End
+
 /// @brief Simple function to automatically increase the wave size by a chunk in the rows dimension
 ///        The actual (filled) wave size is not tracked, the caller has to do that.
 ///        Returns 1 if the wave was resized, 0 if it was not resized
@@ -700,20 +716,6 @@ static Function InitExpectedFailure(testCase)
 	endif
 
 	expected_failure_flag = UTF_Utils#HasFunctionTag(testCase, UTF_FTAG_EXPECTED_FAILURE)
-End
-
-/// @brief executes GetFunctionTagWave for every function to test for abort
-static Function TestAllFunctionTags(funcList)
-	string funcList
-
-	variable i, listLength
-	string funcName
-
-	listLength = ItemsInList(funcList)
-	for(i = 0; i < listLength; i += 1)
-		funcName = StringFromList(i, funcList)
-		UTF_Utils#GetFunctionTagWave(funcName)
-	endfor
 End
 
 /// Return true if running in `ProcGlobal`, false otherwise
@@ -1782,6 +1784,8 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 					return errMsg
 				endif
 
+				AddFunctionTagWave(fullFuncName)
+
 				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList))
 					continue
 				endif
@@ -1813,6 +1817,21 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 	endif
 
 	return testCaseList
+End
+
+static Function AddFunctionTagWave(fullFuncName)
+	string fullFuncName
+
+	variable size
+
+	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
+	WAVE/T tags = UTF_Utils#GetFunctionTagWave(fullFuncName)
+	if(DimSize(tags, UTF_ROW))
+		size = DimSize(ftagWaves, UTF_ROW)
+		Redimension/N=(size + 1) ftagWaves
+		ftagWaves[size] = tags
+		SetDimLabel UTF_ROW, size, $fullFuncName, ftagWaves
+	endif
 End
 
 /// Function determines the total number of test cases
@@ -2730,7 +2749,8 @@ static Function ClearTestSetupWaves()
 
 	WAVE/T testRunData = GetTestRunData()
 	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	KillWaves testRunData, dgenWaves
+	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
+	KillWaves testRunData, dgenWaves, ftagWaves
 End
 
 /// @brief Main function to execute test suites with the unit testing framework.
@@ -2988,7 +3008,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
-		TestAllFunctionTags(s.allTestCasesList)
 
 		// 1.) set the hooks to the default implementations
 		setDefaultHooks(s.hooks)
