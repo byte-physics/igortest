@@ -2845,14 +2845,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS
-<<<<<<< HEAD
-	string procWin, fullFuncName, previousProcWin
-||||||| parent of a6297a8 (Retrieve Data Generator for TC from Setup Wave)
-	string procWin, fullFuncName
-=======
-	string procWin, fullFuncName, dgenFuncName
->>>>>>> a6297a8 (Retrieve Data Generator for TC from Setup Wave)
+	variable i, tcFuncCount, startNextTS, tap_skipCase
+	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var
 	string msg, str
@@ -3065,10 +3059,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			// get Description and Directive of current Function for TAP
-			s.tap_skipCase = 0
-			if(TAP_IsOutputEnabled())
-				s.tap_skipCase = TAP_IsFunctionSkip(fullFuncName)
-			endif
+			tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix = ""
 		endif
@@ -3090,22 +3081,25 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						s.tcSuffix = ":" + num2istr(s.dgenIndex)
 					endif
 				endif
-				if(!s.tap_skipCase)
+				if(!tap_skipCase)
 					ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin)
 				endif
 			else
 
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				RestoreState(dfSave, s)
-				// restore all loop counters and end loop locals
-				i = s.i
 				// restore state done
 				DFREF dfSave = $""
 				ClearReentrytoUTF()
+				// restore all loop counters and end loop locals
+				i = s.i
+				procWin = testRunData[i][%PROCWIN]
+				fullFuncName = testRunData[i][%FULLFUNCNAME]
+				tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
 
 			endif
 
-			if(!s.tap_skipCase)
+			if(!tap_skipCase)
 
 				try
 					ClearRTError()
@@ -3144,7 +3138,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return RUNTEST_RET_BCKG
 			endif
 
-			if(!s.tap_skipCase)
+			if(!tap_skipCase)
 				ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, param = s.keepDataFolder)
 			endif
 
@@ -3152,7 +3146,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				break
 			endif
 
-			TAP_WriteCaseIfReq(s.i + 1, s.tap_skipCase)
+			TAP_WriteCaseIfReq(s.i + 1, tap_skipCase)
 
 			s.dgenIndex += 1
 
