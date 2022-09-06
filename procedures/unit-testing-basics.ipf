@@ -1668,7 +1668,7 @@ static Function/WAVE ListToTextWave(list, sep)
 End
 #endif
 
-/// @brief get test cases matching a certain pattern
+/// @brief get test cases matching a certain pattern and fill TesRunSetup wave
 ///
 /// This function searches for test cases in a given list of test suites. The
 /// search can be performed either using a regular expression or on a defined
@@ -1682,30 +1682,27 @@ End
 /// @param[in]  matchStr    * List of test cases, separated by ";" (enableRegExp = 0)
 ///                         * *one* regular expression without ";" (enableRegExp = 1)
 /// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
-/// @param[out] Effective test case count, including multi data test cases
-/// @param[out] err Numeric Error Code
+/// @param[out] errMsg error message in case of error
 ///
-/// @returns fullname list of matching test cases
-static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
+/// @returns Numeric Error Code
+static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 	string procWinList
 	string matchStr
 	variable enableRegExp
-	variable &err
-	err = TC_MATCH_OK
+	string &errMsg
 
 	string procWin
 	string funcName
 	string funcList
 	string fullFuncName, dgenList
-	string testCase, testCaseMatch, testCaseList
+	string testCase, testCaseMatch
 	variable numTC, numpWL, numFL, numMatches
 	variable i,j,k, tdIndex
-	string errMsg = ""
+	variable err = TC_MATCH_OK
 
 	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
-		err = TC_REGEX_INVALID
-		errMsg = "semicolon is not allowed in regex pattern"
-		return errMsg
+		errMsg = "semicolon is not allowed in given regex pattern: " + matchStr
+		return TC_REGEX_INVALID
 	endif
 
 	if(enableRegExp)
@@ -1714,7 +1711,6 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 
 	WAVE/T testRunData = GetTestRunData()
 
-	testCaseList = ""
 	numTC = ItemsInList(matchStr)
 	numpWL = ItemsInList(procWinList)
 	for(i = 0; i < numTC; i += 1)
@@ -1734,7 +1730,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 					err = GetRTError(1)
 					switch(err)
 						case 1233:
-							errMsg = "Regular expression error"
+							errMsg = "Regular expression error: " + matchStr
 							err = TC_REGEX_INVALID
 							break
 						default:
@@ -1742,7 +1738,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 							err = GREPLIST_ERROR
 					endswitch
 					sprintf errMsg, "Error executing GrepList: %s", errMsg
-					return errMsg
+					return err
 				endtry
 			else
 				if(WhichListItem(testCase, funcList, ";", 0, 0) < 0)
@@ -1758,7 +1754,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 				fullFuncName = getFullFunctionName(err, funcName, procWin)
 				if(err)
 					sprintf errMsg, "Could not get full function name: %s", fullFuncName
-					return errMsg
+					return err
 				endif
 
 				AddFunctionTagWave(fullFuncName)
@@ -1766,8 +1762,6 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList))
 					continue
 				endif
-
-				testCaseList = AddListItem(fullFuncName, testCaseList, ";", inf)
 
 				EnsureLargeEnoughWaveSimple(testRunData, tdIndex)
 				testRunData[tdIndex][%PROCWIN] = procWin
@@ -1781,19 +1775,18 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 		endfor
 
 		if(!numMatches)
-			err = err | TC_NOT_FOUND
 			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".", testCase, procWinList
+			return TC_NOT_FOUND
 		endif
 	endfor
 	Redimension/N=(tdIndex, -1, -1, -1) testRunData
 
-	if(!ItemsInList(testCaseList))
-		err = err | TC_LIST_EMPTY
-		errMsg = "No test case found"
-		return errMsg
+	if(!tdIndex)
+		errMsg = "No test cases found."
+		return TC_LIST_EMPTY
 	endif
 
-	return testCaseList
+	return TC_MATCH_OK
 End
 
 static Function AddFunctionTagWave(fullFuncName)
@@ -2855,8 +2848,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable i, tcFuncCount, startNextTS, tap_skipCase
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
-	variable var
-	string msg, str
+	variable var, err
+	string msg, errMsg
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -2978,19 +2971,20 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		var = s.err
-		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, var)
+		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg)
 		s.tcCount = GetTestCaseCount()
 
-		s.err = var
-		if(s.err)
-			str = s.allTestCasesList
-			str = UTF_Utils#PrepareStringForOut(str)
-			sprintf msg, "Error %d in getTestCasesMatch: %s", s.err, str
-			UTF_PrintStatusMessage(msg)
-			str = s.procWinList
-			str = UTF_Utils#PrepareStringForOut(str)
-			sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, str
+		if(err != TC_MATCH_OK)
+			if(err == TC_LIST_EMPTY)
+				errMsg = s.procWinList
+				errMsg = UTF_Utils#PrepareStringForOut(errMsg)
+				sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, errMsg
+				UTF_PrintStatusMessage(msg)
+				return NaN
+			endif
+
+			errMsg = UTF_Utils#PrepareStringForOut(errMsg)
+			sprintf msg, "Error %d in CreateTestRunSetup: %s", err, errMsg
 			UTF_PrintStatusMessage(msg)
 			return NaN
 		endif
@@ -3008,7 +3002,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			TAP_EnableOutput()
 			TAP_CreateFile()
 
-			if(TAP_AreAllFunctionsSkip(s.allTestCasesList))
+			if(TAP_AreAllFunctionsSkip())
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
 				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort

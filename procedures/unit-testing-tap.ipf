@@ -106,20 +106,15 @@ End
 ///
 /// @param testCaseList list of function names
 /// @returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
-Function TAP_AreAllFunctionsSkip(testCaseList)
-	string testCaseList
+Function TAP_AreAllFunctionsSkip()
 
-	string funcName
-	variable i, numItems
+	variable dimPos
 
-	numItems = ItemsInList(testCaseList)
-	for(i = 0; i < numItems; i += 1)
-		funcName = StringFromList(i, testCaseList)
-		if(!TAP_IsFunctionSkip(funcName))
-			return 0
-		endif
-	endfor
-	return 1
+	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	dimPos = FindDimLabel(testRunData, UTF_COLUMN, "TAP_SKIP")
+	Duplicate/FREE/R=[][dimPos, dimPos] testRunData, skipCol
+
+	return DimSize(testRunData, UTF_ROW) == sum(skipCol)
 End
 
 /// @brief returns 1 if function is marked as TODO, zero otherwise
