@@ -2217,14 +2217,6 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SenableTAP = s.enableTAP
 	variable/G dfr:SenableRegExp = s.enableRegExp
 	variable/G dfr:SkeepDataFolder = s.keepDataFolder
-	variable/G dfr:StcCount = s.tcCount
-
-	string/G dfr:SprocWin = s.procWin
-	string/G dfr:StestCaseList = s.testCaseList
-	string/G dfr:SallTestCasesList = s.allTestCasesList
-	string/G dfr:SfullFuncName = s.fullFuncName
-	variable/G dfr:Stap_skipCase = s.tap_skipCase
-	variable/G dfr:Stap_caseCount = s.tap_caseCount
 	variable/G dfr:SenableRegExpTC = s.enableRegExpTC
 	variable/G dfr:SenableRegExpTS = s.enableRegExpTS
 	variable/G dfr:SdgenIndex = s.dgenIndex
@@ -2233,10 +2225,8 @@ static Function SaveState(dfr, s)
 	variable/G dfr:StracingEnabled = s.tracingEnabled
 	variable/G dfr:ShtmlCreation = s.htmlCreation
 	string/G dfr:StcSuffix = s.tcSuffix
-	string/G dfr:SdgenFuncName = s.dgenFuncName
 
 	variable/G dfr:Si = s.i
-	variable/G dfr:Sj = s.j
 	variable/G dfr:Serr = s.err
 	StoreHooks(dfr, s.hooks, "TH")
 	StoreHooks(dfr, s.procHooks, "PH")
@@ -2299,20 +2289,6 @@ static Function RestoreState(dfr, s)
 	s.enableRegExp = var
 	NVAR var = dfr:SkeepDataFolder
 	s.keepDataFolder = var
-	NVAR var = dfr:StcCount
-	s.tcCount = var
-	SVAR str = dfr:SprocWin
-	s.procWin = str
-	SVAR str = dfr:StestCaseList
-	s.testCaseList = str
-	SVAR str = dfr:SallTestCasesList
-	s.allTestCasesList = str
-	SVAR str = dfr:SfullFuncName
-	s.fullFuncName = str
-	NVAR var = dfr:Stap_skipCase
-	s.tap_skipCase = var
-	NVAR var = dfr:Stap_caseCount
-	s.tap_caseCount = var
 	NVAR var = dfr:SenableRegExpTC
 	s.enableRegExpTC = var
 	NVAR var = dfr:SenableRegExpTS
@@ -2330,13 +2306,9 @@ static Function RestoreState(dfr, s)
 	s.htmlCreation = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
-	SVAR str = dfr:SdgenFuncName
-	s.dgenFuncName = str
 
 	NVAR var = dfr:Si
 	s.i = var
-	NVAR var = dfr:Sj
-	s.j = var
 	NVAR var = dfr:Serr
 	s.err = var
 
@@ -2584,13 +2556,7 @@ static Function InitStrRunTest(s)
 	s.name = ""
 	s.testCase = ""
 
-	s.procWin = ""
-	s.testCaseList = ""
-	s.allTestCasesList = ""
-	s.fullFuncName = ""
 	s.tcSuffix = ""
-	s.dgenFuncName = ""
-	s.tcCount = 0
 
 	InitJUProp(s.juProps)
 	InitHooks(s.hooks)
@@ -2607,14 +2573,6 @@ static Structure strRunTest
 	variable enableRegExp
 	variable debugMode
 	variable keepDataFolder
-	variable tcCount
-
-	string procWin
-	string testCaseList
-	string allTestCasesList
-	string fullFuncName
-	variable tap_skipCase
-	variable tap_caseCount
 	variable enableRegExpTC
 	variable enableRegExpTS
 	variable dgenIndex
@@ -2623,12 +2581,10 @@ static Structure strRunTest
 	variable tracingEnabled
 	variable htmlCreation
 	string tcSuffix
-	string dgenFuncName
 	STRUCT JU_Props juProps
 	STRUCT TestHooks hooks
 	STRUCT TestHooks procHooks
 	variable i
-	variable j
 	variable err
 EndStructure
 
@@ -2845,7 +2801,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS, tap_skipCase
+	variable i, tcFuncCount, startNextTS, tap_skipCase, tcCount
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
@@ -2972,7 +2928,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 
 		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg)
-		s.tcCount = GetTestCaseCount()
+		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)
 			if(err == TC_LIST_EMPTY)
@@ -3007,7 +2963,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort
 			else
-				TAP_WriteOutputIfReq("1.." + num2str(s.tcCount))
+				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
 			endif
 		endif
 
