@@ -619,17 +619,56 @@ static Function TestUTF()
 
 	// @}
 
+End
+
+static Function/WAVE GeneratorSC()
+
+	Make/FREE/N=10 data
+
+	NVAR/Z cc = root:dgenCallCount
+	if(!NVAR_Exists(cc))
+		variable/G root:dgenCallCount = 1
+	else
+		cc += 1
+	endif
+
+	return data
+End
+
+// UTF_TD_GENERATOR GeneratorSC
+static Function TestDGenSingleCall_A([var])
+	variable var
+
+	PASS()
+End
+
+static Function TestDGenSingleCall_B()
+
+	NVAR/Z cc = root:dgenCallCount
+	REQUIRE(NVAR_Exists(cc))
+	CHECK_EQUAL_VAR(cc, 1)
+End
+
+static Function TestIUTFSetup()
+
 	// TestCaseNameNotation
 	// @{
 
-	variable tmpVar1, tmpVar2
-	string thisProcName, tcList
+	variable tmpVar1
+	string thisProcName, tmpStr
 	thisProcName = ParseFilePath(0, FunctionPath("TestCaseNameTest2"), ":", 1, 0)
-	tcList = UTF_Basics#getTestCasesMatch(thisProcName, ".*", 1, tmpVar1, tmpVar2)
-	Ensure(WhichListItem("UTF_Tests#TestCaseNameTest1", tcList) >= 0)
-	Ensure(WhichListItem("TestCaseNameTest2", tcList) >= 0)
+	Ensure(UTF_Basics#CreateTestRunSetup(thisProcName, ".*", 1, tmpStr) == 0)
+	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	tmpVar1 = FindDimLabel(testRunData, UTF_COLUMN, "TESTCASE")
+	Duplicate/FREE/R=[][tmpVar1, tmpVar1] testRunData, tcCol
+	FindValue/TXOP=4/TEXT="UTF_Tests#TestCaseNameTest1" tcCol
+	Ensure(V_value >= 0)
+	FindValue/TXOP=4/TEXT="TestCaseNameTest2" tcCol
+	Ensure(V_value >= 0)
 
 	// @}
+
+	PASS()
 End
 
 static Function TestCaseNameTest1()
@@ -641,3 +680,12 @@ Function TestCaseNameTest2()
 
 	PASS()
 End
+
+#if IgorVersion() >= 7
+static Function TEST_SUITE_END_OVERRIDE(name)
+	string name
+
+	NVAR/Z cc = root:dgenCallCount
+	KillVariables/Z cc
+End
+#endif
