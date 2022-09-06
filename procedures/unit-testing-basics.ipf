@@ -2438,13 +2438,14 @@ static Function ResetBckgRegistered()
 	variable/G dfr:BCKG_Registered = 0
 End
 
-static Function CallTestCase(s, tcIndex, reentry)
-	STRUCT strRunTest &s
+static Function CallTestCase(tcIndex, reentry, mdMode, dgenIndex)
 	variable tcIndex
 	variable reentry
+	variable mdMode
+	variable dgenIndex
 
 	variable wType0, wType1, wRefSubType, err
-	string func, msg
+	string func, msg, dgenFuncName
 
 	WAVE/T testRunData = GetTestRunData()
 
@@ -2459,10 +2460,11 @@ static Function CallTestCase(s, tcIndex, reentry)
 	endif
 
 	FUNCREF TEST_CASE_PROTO TestCaseFunc = $func
-	if((s.mdMode && !reentry) || (s.mdMode && reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc))))
+	if((mdMode && !reentry) || (mdMode && reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc))))
 
-		FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
-		WAVE wGenerator = DataGenFunc()
+		WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+		dgenFuncName = StringFromList(0, testRunData[tcIndex][%DGENLIST])
+		WAVE wGenerator = dgenWaves[%$dgenFuncName]
 		wType0 = WaveType(wGenerator)
 		wType1 = WaveType(wGenerator, 1)
 		if(wType1 == IUTF_WAVETYPE1_NUM)
@@ -2475,7 +2477,7 @@ static Function CallTestCase(s, tcIndex, reentry)
 					incrError()
 					abortNow()
 				endif
-				fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_CMPL(cmpl=wGenerator[dgenIndex]); AbortOnRTE
 
 			elseif(wType0 & IUTF_WAVETYPE0_INT64)
 
@@ -2486,7 +2488,7 @@ static Function CallTestCase(s, tcIndex, reentry)
 					incrError()
 					abortNow()
 				endif
-				fTCMD_INT(int=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_INT(int=wGenerator[dgenIndex]); AbortOnRTE
 
 			else
 
@@ -2497,12 +2499,12 @@ static Function CallTestCase(s, tcIndex, reentry)
 					incrError()
 					abortNow()
 				endif
-				fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_VAR(var=wGenerator[dgenIndex]); AbortOnRTE
 
 			endif
 		elseif(wType1 == IUTF_WAVETYPE1_TEXT)
 
-			WAVE/T wGeneratorStr = DataGenFunc()
+			WAVE/T wGeneratorStr = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
 				sprintf msg, "Fatal: Reentry function %s does not meet required format for string argument.", func
@@ -2510,11 +2512,11 @@ static Function CallTestCase(s, tcIndex, reentry)
 				incrError()
 				abortNow()
 			endif
-			fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
+			fTCMD_STR(str=wGeneratorStr[dgenIndex]); AbortOnRTE
 
 		elseif(wType1 == IUTF_WAVETYPE1_DFR)
 
-			WAVE/DF wGeneratorDF = DataGenFunc()
+			WAVE/DF wGeneratorDF = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
 				sprintf msg, "Fatal: Reentry function %s does not meet required format for data folder reference argument.", func
@@ -2522,45 +2524,45 @@ static Function CallTestCase(s, tcIndex, reentry)
 				incrError()
 				abortNow()
 			endif
-			fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
+			fTCMD_DFR(dfr=wGeneratorDF[dgenIndex]); AbortOnRTE
 
 		elseif(wType1 == IUTF_WAVETYPE1_WREF)
 
-			WAVE/WAVE wGeneratorWV = DataGenFunc()
+			WAVE/WAVE wGeneratorWV = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
 			if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
-				fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+				fTCMD_WV(wv=wGeneratorWV[dgenIndex]); AbortOnRTE
 			else
-				wRefSubType = WaveType(wGeneratorWV[s.dgenIndex], 1)
+				wRefSubType = WaveType(wGeneratorWV[dgenIndex], 1)
 				if(wRefSubType == IUTF_WAVETYPE1_TEXT)
 					FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMD_WVTEXT = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
-						fTCMD_WVTEXT(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVTEXT(wv=wGeneratorWV[dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_DFR)
 					FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMD_WVDFREF = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
-						fTCMD_WVDFREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVDFREF(wv=wGeneratorWV[dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_WREF)
 					FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMD_WVWAVEREF = $func
 					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
-						fTCMD_WVWAVEREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVWAVEREF(wv=wGeneratorWV[dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				else
-					sprintf msg, "Fatal: Got wave reference wave from Data Generator %s with waves of unsupported type for reentry of test case %s.", s.dgenFuncName, func
+					sprintf msg, "Fatal: Got wave reference wave from Data Generator %s with waves of unsupported type for reentry of test case %s.", dgenFuncName, func
 					UTF_PrintStatusMessage(msg)
 					incrError()
 					abortNow()
 				endif
 				if(err)
-					sprintf msg, "Fatal: Reentry function %s does not meet required format for wave reference argument from data generator %s.", func, s.dgenFuncName
+					sprintf msg, "Fatal: Reentry function %s does not meet required format for wave reference argument from data generator %s.", func, dgenFuncName
 					UTF_PrintStatusMessage(msg)
 					incrError()
 					abortNow()
@@ -2844,7 +2846,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
 	variable i, tcFuncCount, startNextTS
+<<<<<<< HEAD
 	string procWin, fullFuncName, previousProcWin
+||||||| parent of a6297a8 (Retrieve Data Generator for TC from Setup Wave)
+	string procWin, fullFuncName
+=======
+	string procWin, fullFuncName, dgenFuncName
+>>>>>>> a6297a8 (Retrieve Data Generator for TC from Setup Wave)
 	// used as temporal locals
 	variable var
 	string msg, str
@@ -3015,6 +3023,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	NVAR/SDFR=dfr global_error_count
 
 	// The Test Run itself is split into Test Suites for each Procedure File
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
 	WAVE/T testRunData = GetTestRunData()
 	tcFuncCount = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < tcFuncCount; i += 1)
@@ -3073,14 +3082,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.mdMode = 0
 				else
 					s.mdMode = 1
-					s.dgenFuncName = UTF_Utils#GetFunctionTagValue(fullFuncName, UTF_FTAG_TD_GENERATOR, var)
-					s.dgenFuncName = GetDataGeneratorFunctionName(var, s.dgenFuncName, procWin)
-					FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
-					WAVE wGenerator = DataGenFunc()
-					s.dgenSize = DimSize(wGenerator, 0)
-					s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
+					dgenFuncName = StringFromList(0, testRunData[i][%DGENLIST])
+					WAVE wGenerator = dgenWaves[%$dgenFuncName]
+					s.dgenSize = DimSize(wGenerator, UTF_ROW)
+					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
-						s.tcSuffix = ":" + num2str(s.dgenIndex)
+						s.tcSuffix = ":" + num2istr(s.dgenIndex)
 					endif
 				endif
 				if(!s.tap_skipCase)
@@ -3102,7 +3109,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 				try
 					ClearRTError()
-					CallTestCase(s, i, reentry)
+					CallTestCase(i, reentry, s.mdMode, s.dgenIndex)
 				catch
 					message = GetRTErrMessage()
 					s.err = GetRTError(1)
