@@ -702,11 +702,10 @@ Function IsExpectedFailure()
 	endif
 End
 
-/// Sets the expected_failure_flag according to if a test case is defined as expected failure
-static Function InitExpectedFailure(testCase)
-	string testCase
+/// Sets the expected_failure_flag global
+static Function SetExpectedFailure(val)
+	variable val
 
-	variable err
 	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr expected_failure_flag
 
@@ -715,7 +714,7 @@ static Function InitExpectedFailure(testCase)
 		NVAR/SDFR=dfr expected_failure_flag
 	endif
 
-	expected_failure_flag = UTF_Utils#HasFunctionTag(testCase, UTF_FTAG_EXPECTED_FAILURE)
+	expected_failure_flag = val
 End
 
 /// Return true if running in `ProcGlobal`, false otherwise
@@ -1399,7 +1398,6 @@ static Function TestCaseBegin(testCase)
 
 	initAssertCount()
 	initMessageBuffer()
-	InitExpectedFailure(StringFromList(0, testCase, ":"))
 
 	// create a new unique folder as working folder
 	dfref dfr = GetPackageFolder()
@@ -3014,6 +3012,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				s.juProps.testSuiteNumber += 1
 			endif
 
+			SetExpectedFailure(str2num(testRunData[i][%EXPECTFAIL]))
 			// get Description and Directive of current Function for TAP
 			tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
 			s.dgenIndex = 0
