@@ -76,6 +76,14 @@ static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 static Constant WAVECHUNK_SIZE = 1024
 
+static StrConstant DGEN_VAR_TEMPLATE = "v"
+static StrConstant DGEN_STR_TEMPLATE = "s"
+static StrConstant DGEN_DFR_TEMPLATE = "dfr"
+static StrConstant DGEN_WAVE_TEMPLATE = "w"
+static StrConstant DGEN_CMPLX_TEMPLATE = "c"
+static StrConstant DGEN_INT64_TEMPLATE = "i"
+static Constant DGEN_NUM_VARS = 5
+
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
 
@@ -1566,7 +1574,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 	string fullFuncName
 	string &dgenList
 
-	variable err, wType1, wType0, wRefSubType, dgenSize
+	variable err, wType1, wType0, wRefSubType
 	string dgen, msg
 
 	dgenList = ""
@@ -1576,12 +1584,110 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
 		return 0
 	endif
+	// MMD Test Case
+	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
+	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
+		dgenList = CheckFunctionSignatureMDgen(procWin, fullFuncName)
+		return 0
+	endif
+
 	// Multi Data Test Cases
 	if(!GetFunctionSignatureTCMD(fullFuncName, wType0, wType1, wRefSubType))
 		return 1
 	endif
 
 	dgen = GetDataGenFullFunctionName(procWin, fullFuncName)
+	WAVE wGenerator = CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
+
+	dgenList = AddListItem(dgen, dgenList, ";", Inf)
+	AddDataGeneratorWave(dgen, wGenerator)
+
+	return 0
+End
+
+static Function AddDataGeneratorWave(dgen, dgenWave)
+	string dgen
+	WAVE dgenWave
+
+	variable dgenSize
+
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	if(FindDimLabel(dgenWaves, UTF_ROW, dgen) == -2)
+		dgenSize = DimSize(dgenWaves, UTF_ROW)
+		Redimension/N=(dgenSize + 1) dgenWaves
+		dgenWaves[dgenSize] = dgenWave
+		SetDimLabel UTF_ROW, dgenSize, $dgen, dgenWaves
+	endif
+End
+
+static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName)
+	string procWin, fullFuncName
+
+	variable i, j, numTypes
+	string msg
+	string dgenList = ""
+
+	Make/FREE/T templates = {DGEN_VAR_TEMPLATE, DGEN_STR_TEMPLATE, DGEN_DFR_TEMPLATE, DGEN_WAVE_TEMPLATE, DGEN_CMPLX_TEMPLATE, DGEN_INT64_TEMPLATE}
+	Make/FREE/D wType0 = {0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64, NaN, NaN, NaN, IUTF_WAVETYPE0_CMPL, IUTF_WAVETYPE0_INT64}
+	Make/FREE/D wType1 = {IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_TEXT, IUTF_WAVETYPE1_DFR, IUTF_WAVETYPE1_WREF, IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_NUM}
+
+	numTypes = DimSize(templates, UTF_ROW)
+	for(i = 0; i < numTypes; i += 1)
+		for(j = 0; j < DGEN_NUM_VARS; j += 1)
+			CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i], dgenList)
+		endfor
+	endfor
+
+	if(UTF_Utils#IsEmpty(dgenList))
+		sprintf msg, "No data generator functions specified for test case %s in test suite %s.", fullFuncName, procWin
+		Abort msg
+	endif
+
+	return dgenList
+End
+
+static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wType0, wType1, dgenList)
+	string procWin, fullFuncName, varTemplate
+	variable index, wType0, wType1
+	string &dgenList
+
+	string varName, tagName, dgen
+	variable err
+
+	varName = varTemplate + num2istr(index)
+	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
+	dgen = UTF_Utils#GetFunctionTagValue(fullFuncName, tagName, err)
+	if(err == UTF_TAG_NOT_FOUND)
+		return NaN
+	endif
+	EvaluateDgenTagResult(err, fullFuncName, varName)
+
+	WAVE wGenerator = CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, NaN)
+	AddDataGeneratorWave(dgen, wGenerator)
+	dgenList = AddListItem(dgen, dgenList, ";", Inf)
+End
+
+static Function EvaluateDgenTagResult(err, fullFuncName, varName)
+	variable err
+	string fullFuncName, varName
+
+	string msg
+
+	if(err == UTF_TAG_EMPTY)
+		sprintf msg, "No data generator function specified for function %s data generator variable %s.", fullFuncName, varName
+		Abort msg
+	endif
+	if(err != UTF_TAG_OK)
+		sprintf msg, "Problem determining data generator function specified for function %s data generator variable %s.", fullFuncName, varName
+		Abort msg
+	endif
+End
+
+static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
+	string procWin, fullFuncName, dgen
+	variable wType0, wType1, wRefSubType
+
+	string msg
 
 	FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
 	if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
@@ -1594,7 +1700,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
 		Abort msg
-	elseif(DimSize(wGenerator, 1) > 0)
+	elseif(DimSize(wGenerator, UTF_COLUMN) > 0)
 		sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
 		Abort msg
@@ -1602,27 +1708,17 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
 		Abort msg
-	elseif(!DimSize(wGenerator, 0))
+	elseif(!DimSize(wGenerator, UTF_ROW))
 		sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
-		return 1
+		Abort msg
 	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
 		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
 		UTF_PrintStatusMessage(msg)
 		Abort msg
 	endif
 
-	dgenList = AddListItem(dgen, dgenList, ";", Inf)
-
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	if(FindDimLabel(dgenWaves, UTF_ROW, dgen) == -2)
-		dgenSize = DimSize(dgenWaves, UTF_ROW)
-		Redimension/N=(dgenSize + 1) dgenWaves
-		dgenWaves[dgenSize] = wGenerator
-		SetDimLabel UTF_ROW, dgenSize, $dgen, dgenWaves
-	endif
-
-	return 0
+	return wGenerator
 End
 
 /// Returns List of Test Functions in Procedure Window procWin
