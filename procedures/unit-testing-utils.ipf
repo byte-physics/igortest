@@ -137,6 +137,11 @@ static Function/WAVE GetFunctionTagWave(funcName)
 				Abort msg
 			endif
 
+			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
+				tagName = UTF_FTAG_TD_GENERATOR + " " + StringFromList(0, tagvalue, ":")
+				tagValue = StringFromList(1, tagvalue, ":")
+			endif
+
 			tagValueWave[numFound] = tagValue
 			SetDimLabel UTF_ROW, numFound, $tagName, tagValueWave
 			numfound += 1
