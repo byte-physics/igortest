@@ -1186,6 +1186,17 @@ Function USER_HOOK_PROTO(str)
 	abortNow()
 End
 
+/// Prototype for multi multi data test case functions
+Function TEST_CASE_PROTO_MD([md])
+	STRUCT IUTF_mData &md
+
+	string msg
+
+	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
+	UTF_PrintStatusMessage(msg)
+	abortNow()
+End
+
 ///@endcond // HIDDEN_SYMBOL
 
 ///@addtogroup Helpers
@@ -2545,6 +2556,70 @@ static Function CallTestCase(tcIndex, reentry, mdMode, dgenIndex)
 	endif
 
 End
+
+/// @brief Structure for multi data function using multiple data generators
+#if (IgorVersion() >= 7.0)
+Structure IUTF_mData
+	variable v0
+	variable v1
+	variable v2
+	variable v3
+	variable v4
+	string s0
+	string s1
+	string s2
+	string s3
+	string s4
+	DFREF dfr0
+	DFREF dfr1
+	DFREF dfr2
+	DFREF dfr3
+	DFREF dfr4
+	WAVE/WAVE w0
+	WAVE/WAVE w1
+	WAVE/WAVE w2
+	WAVE/WAVE w3
+	WAVE/WAVE w4
+	variable/C c0
+	variable/C c1
+	variable/C c2
+	variable/C c3
+	variable/C c4
+	int64 i0
+	int64 i1
+	int64 i2
+	int64 i3
+	int64 i4
+EndStructure
+#else
+Structure IUTF_mData
+	variable v0
+	variable v1
+	variable v2
+	variable v3
+	variable v4
+	string s0
+	string s1
+	string s2
+	string s3
+	string s4
+	DFREF dfr0
+	DFREF dfr1
+	DFREF dfr2
+	DFREF dfr3
+	DFREF dfr4
+	WAVE/WAVE w0
+	WAVE/WAVE w1
+	WAVE/WAVE w2
+	WAVE/WAVE w3
+	WAVE/WAVE w4
+	variable/C c0
+	variable/C c1
+	variable/C c2
+	variable/C c3
+	variable/C c4
+EndStructure
+#endif
 
 /// @brief initialize all strings in strRunTest structure to be non <null>
 static Function InitStrRunTest(s)
