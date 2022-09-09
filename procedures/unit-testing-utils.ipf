@@ -103,11 +103,11 @@ static Function/WAVE GetFunctionTagWave(funcName)
 	string funcName
 
 	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue
-	variable i, j, numPossibleTags, numLines, numFound
+	variable i, j, numUniqueTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
-	numPossibleTags = DimSize(tag_constants, 0)
-	Make/FREE/T/N=(numPossibleTags) tagValueWave
+	WAVE templates = UTF_Basics#GetMMDVarTemplates()
+	numUniqueTags = DimSize(tag_constants, UTF_ROW)
 
 	numFound = 0
 
@@ -116,13 +116,15 @@ static Function/WAVE GetFunctionTagWave(funcName)
 	funcText = ReplaceString(funcTextWithoutContext, funcTextWithContext, "")
 	numLines = ItemsInList(funcText, "\r")
 
+	Make/FREE/T/N=(numLines) tagValueWave
+
 	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1 )
 		funcLine = StringFromList(i, funcText, "\r")
 		if(IsEmpty(funcLine))
 			continue
 		endif
 
-		for(j = 0; j < numPossibleTags; j += 1 )
+		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
 			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(.*)$"
 
