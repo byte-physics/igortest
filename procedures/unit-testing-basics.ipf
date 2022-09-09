@@ -88,6 +88,8 @@ static Constant TC_MODE_NORMAL = 0
 static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
+static StrConstant TC_SUFFIX_SEP = ":"
+
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
 
@@ -3214,9 +3216,9 @@ static Function/S GetMMDTCSuffix(tdIndex)
 		WAVE wGenerator = dgenWaves[%$dgen]
 		lbl = GetDimLabel(wGenerator, UTF_ROW, index)
 		if(!UTF_Utils#IsEmpty(lbl))
-			tcSuffix += ":" + lbl
+			tcSuffix += TC_SUFFIX_SEP + lbl
 		else
-			tcSuffix += ":" + num2istr(index)
+			tcSuffix += TC_SUFFIX_SEP + num2istr(index)
 		endif
 	endfor
 
@@ -3572,7 +3574,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				if(s.mdMode == TC_MODE_MD)
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
-						s.tcSuffix = ":" + num2istr(s.dgenIndex)
+						s.tcSuffix = TC_SUFFIX_SEP + num2istr(s.dgenIndex)
 					endif
 				elseif(s.mdMode == TC_MODE_MMD)
 					s.tcSuffix = GetMMDTCSuffix(i)
