@@ -1764,19 +1764,36 @@ static Function EvaluateDgenTagResult(err, fullFuncName, varName)
 	endif
 End
 
+static Function/WAVE GetGeneratorWave(dgen, fullFuncName)
+	string dgen, fullFuncName
+
+	variable dimPos
+	string msg
+
+	WAVE/WAVE wDgen = GetDataGeneratorWaves()
+	dimPos = FindDimlabel(wDgen, UTF_ROW, dgen)
+	if(dimPos == -2)
+		FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
+		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
+			sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
+			UTF_PrintStatusMessage(msg)
+			Abort msg
+		endif
+		WAVE/Z wGenerator = fDgen()
+	else
+		WAVE wGenerator = wDgen[dimPos]
+	endif
+
+	return wGenerator
+End
+
 static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
 	string procWin, fullFuncName, dgen
 	variable wType0, wType1, wRefSubType
 
 	string msg
 
-	FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
-	if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-		sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_PrintStatusMessage(msg)
-		Abort msg
-	endif
-	WAVE/Z wGenerator = fDgen()
+	WAVE/Z wGenerator = GetGeneratorWave(dgen, fullFuncName)
 	if(!WaveExists(wGenerator))
 		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
