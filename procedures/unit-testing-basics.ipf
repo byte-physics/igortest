@@ -84,6 +84,10 @@ static StrConstant DGEN_CMPLX_TEMPLATE = "c"
 static StrConstant DGEN_INT64_TEMPLATE = "i"
 static Constant DGEN_NUM_VARS = 5
 
+static Constant TC_MODE_NORMAL = 0
+static Constant TC_MODE_MD = 1
+static Constant TC_MODE_MMD = 2
+
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
 
@@ -2537,7 +2541,7 @@ static Function CallTestCase(tcIndex, reentry, mdMode, dgenIndex)
 	endif
 
 	FUNCREF TEST_CASE_PROTO TestCaseFunc = $func
-	if((mdMode && !reentry) || (mdMode && reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc))))
+	if((mdMode  == TC_MODE_MD && !reentry) || (mdMode == TC_MODE_MD && reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc))))
 
 		WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
 		dgenFuncName = StringFromList(0, testRunData[tcIndex][%DGENLIST])
@@ -3188,25 +3192,29 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix = ""
+			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
+			if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
+				s.mdMode = TC_MODE_NORMAL
+			else
+				s.mdMode = TC_MODE_MD
+				dgenFuncName = StringFromList(0, testRunData[i][%DGENLIST])
+				WAVE wGenerator = dgenWaves[%$dgenFuncName]
+				s.dgenSize = DimSize(wGenerator, UTF_ROW)
+			endif
+
 		endif
 
 		do
 
 			if(!reentry)
 
-				FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
-				if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
-					s.mdMode = 0
-				else
-					s.mdMode = 1
-					dgenFuncName = StringFromList(0, testRunData[i][%DGENLIST])
-					WAVE wGenerator = dgenWaves[%$dgenFuncName]
-					s.dgenSize = DimSize(wGenerator, UTF_ROW)
+				if(s.mdMode == TC_MODE_MD)
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
 						s.tcSuffix = ":" + num2istr(s.dgenIndex)
 					endif
 				endif
+
 				if(!tap_skipCase)
 					ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin)
 				endif
@@ -3276,7 +3284,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			s.dgenIndex += 1
 
-		while(s.mdMode && s.dgenIndex < s.dgenSize)
+		while(s.mdMode == TC_MODE_MD && s.dgenIndex < s.dgenSize)
 
 		if(shouldDoAbort())
 			break
