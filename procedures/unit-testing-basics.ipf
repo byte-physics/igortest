@@ -3193,6 +3193,36 @@ static Function ClearTestSetupWaves()
 	KillWaves testRunData, dgenWaves, ftagWaves, mdState
 End
 
+static Function/S GetMMDTCSuffix(tdIndex)
+	variable tdIndex
+
+	variable i, numVars, index
+	string fullFuncName, dgen, lbl
+	string tcSuffix = ""
+
+	WAVE/T testRunData = GetTestRunData()
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	WAVE/WAVE mdState = GetMMDataState()
+
+	fullFuncName = testRunData[tdIndex][%FULLFUNCNAME]
+	WAVE/T mdFunState = mdState[%$fullFuncName]
+
+	numVars = DimSize(mdFunState, UTF_ROW)
+	for(i = 0; i < numVars; i += 1)
+		dgen = mdFunState[i][%DATAGEN]
+		index = str2num(mdFunState[i][%INDEX])
+		WAVE wGenerator = dgenWaves[%$dgen]
+		lbl = GetDimLabel(wGenerator, UTF_ROW, index)
+		if(!UTF_Utils#IsEmpty(lbl))
+			tcSuffix += ":" + lbl
+		else
+			tcSuffix += ":" + num2istr(index)
+		endif
+	endfor
+
+	return tcSuffix
+End
+
 /// @brief Main function to execute test suites with the unit testing framework.
 ///
 /// @verbatim embed:rst:leading-slashes
@@ -3545,7 +3575,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						s.tcSuffix = ":" + num2istr(s.dgenIndex)
 					endif
 				elseif(s.mdMode == TC_MODE_MMD)
-					// TODO tcSuffix
+					s.tcSuffix = GetMMDTCSuffix(i)
 				endif
 
 				if(!tap_skipCase)
