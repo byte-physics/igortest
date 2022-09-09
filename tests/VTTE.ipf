@@ -621,34 +621,6 @@ static Function TestUTF()
 
 End
 
-static Function/WAVE GeneratorSC()
-
-	Make/FREE/N=10 data
-
-	NVAR/Z cc = root:dgenCallCount
-	if(!NVAR_Exists(cc))
-		variable/G root:dgenCallCount = 1
-	else
-		cc += 1
-	endif
-
-	return data
-End
-
-// UTF_TD_GENERATOR GeneratorSC
-static Function TestDGenSingleCall_A([var])
-	variable var
-
-	PASS()
-End
-
-static Function TestDGenSingleCall_B()
-
-	NVAR/Z cc = root:dgenCallCount
-	REQUIRE(NVAR_Exists(cc))
-	CHECK_EQUAL_VAR(cc, 1)
-End
-
 static Function TestIUTFSetup()
 
 	// TestCaseNameNotation
@@ -680,12 +652,3 @@ Function TestCaseNameTest2()
 
 	PASS()
 End
-
-#if IgorVersion() >= 7
-static Function TEST_SUITE_END_OVERRIDE(name)
-	string name
-
-	NVAR/Z cc = root:dgenCallCount
-	KillVariables/Z cc
-End
-#endif
