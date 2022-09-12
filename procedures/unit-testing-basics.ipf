@@ -1621,15 +1621,17 @@ End
 /// Checks functions signature of a test case candidate
 /// and its attributed data generator function
 /// Returns 1 on error, 0 on success
-static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
+static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip)
 	string procWin
 	string fullFuncName
 	string &dgenList
+	variable &markSkip
 
 	variable err, wType1, wType0, wRefSubType
 	string dgen, msg
 
 	dgenList = ""
+	markSkip = 0
 
 	// Simple Test Cases
 	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
@@ -1639,7 +1641,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
-		dgenList = CheckFunctionSignatureMDgen(procWin, fullFuncName)
+		dgenList = CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 		return 0
 	endif
 
@@ -1653,6 +1655,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
 
 	dgenList = AddListItem(dgen, dgenList, ";", Inf)
 	AddDataGeneratorWave(dgen, wGenerator)
+	markSkip = CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 
 	return 0
 End
@@ -1678,8 +1681,9 @@ static Function/WAVE GetMMDVarTemplates()
 	return templates
 End
 
-static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName)
+static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 	string procWin, fullFuncName
+	variable &markSkip
 
 	variable i, j, numTypes
 	string msg
@@ -1692,7 +1696,7 @@ static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName)
 	numTypes = DimSize(templates, UTF_ROW)
 	for(i = 0; i < numTypes; i += 1)
 		for(j = 0; j < DGEN_NUM_VARS; j += 1)
-			CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i], dgenList)
+			markSkip = markSkip | CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i], dgenList)
 		endfor
 	endfor
 
@@ -1704,6 +1708,8 @@ static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName)
 	return dgenList
 End
 
+/// Check Multi-Multi Data Generator output
+/// return 1 if one data generator has a zero sized wave, 0 otherwise
 static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wType0, wType1, dgenList)
 	string procWin, fullFuncName, varTemplate
 	variable index, wType0, wType1
@@ -1732,6 +1738,23 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 	dgenList = AddListItem(dgen, dgenList, ";", Inf)
 
 	AddMMDTestCaseData(fullFuncName, dgen, varName, DimSize(wGenerator, UTF_ROW))
+
+	return CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
+End
+
+static Function CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
+	WAVE wGenerator
+	string fullFuncName, dgen
+
+	string msg
+
+	if(!DimSize(wGenerator, UTF_ROW))
+		sprintf msg, "Note: In test case %s data generator function (%s) returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
+		UTF_PrintStatusMessage(msg)
+		return 1
+	endif
+
+	return 0
 End
 
 static Function/WAVE GetMMDFuncState()
@@ -1835,10 +1858,6 @@ static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1
 		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
 		UTF_PrintStatusMessage(msg)
 		Abort msg
-	elseif(!DimSize(wGenerator, UTF_ROW))
-		sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_PrintStatusMessage(msg)
-		Abort msg
 	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
 		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
 		UTF_PrintStatusMessage(msg)
@@ -1928,7 +1947,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 	string funcList
 	string fullFuncName, dgenList
 	string testCase, testCaseMatch
-	variable numTC, numpWL, numFL, numMatches
+	variable numTC, numpWL, numFL, numMatches, markSkip
 	variable i,j,k, tdIndex
 	variable err = TC_MATCH_OK
 
@@ -1991,7 +2010,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 
 				AddFunctionTagWave(fullFuncName)
 
-				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList))
+				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip))
 					continue
 				endif
 
@@ -2000,7 +2019,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
-				testRunData[tdIndex][%TAP_SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(0), num2istr(TAP_IsFunctionSkip(fullFuncName)))
+				testRunData[tdIndex][%TAP_SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(markSkip), num2istr(TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
 			endfor
