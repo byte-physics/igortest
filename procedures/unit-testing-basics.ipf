@@ -3641,7 +3641,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				s.mdMode = TC_MODE_MMD
 			else
 				s.mdMode = TC_MODE_MD
-				dgenFuncName = StringFromList(0, testRunData[i][%DGENLIST])
+				dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
 				WAVE wGenerator = dgenWaves[%$dgenFuncName]
 				s.dgenSize = DimSize(wGenerator, UTF_ROW)
 			endif
