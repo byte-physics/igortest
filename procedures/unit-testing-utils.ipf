@@ -102,7 +102,7 @@ End
 static Function/WAVE GetFunctionTagWave(funcName)
 	string funcName
 
-	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue
+	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue, varName, allVarList
 	variable i, j, numUniqueTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
@@ -136,11 +136,19 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			tagValue = TrimString(tagValue)
 			if(FindDimLabel(tagValueWave, 0, tagName) != -2)
 				sprintf msg, "Test case %s has the tag %s at least twice.", funcName, tagValue
+				UTF_Basics#UTF_PrintStatusMessage(msg)
 				Abort msg
 			endif
 
 			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
-				tagName = UTF_FTAG_TD_GENERATOR + " " + StringFromList(0, tagvalue, ":")
+				varName = StringFromList(0, tagvalue, ":")
+				tagName = UTF_FTAG_TD_GENERATOR + " " + varName
+				allVarList = UTF_Basics#GetMMDAllVariablesList()
+				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
+					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue
+					UTF_Basics#UTF_PrintStatusMessage(msg)
+					Abort msg
+				endif
 				tagValue = StringFromList(1, tagvalue, ":")
 			endif
 

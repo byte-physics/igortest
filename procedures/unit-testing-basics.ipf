@@ -390,6 +390,35 @@ Function/S getUnusedFileName(fname)
 	return fn
 End
 
+/// Creates a global with the allowed variable names for mmd data tests and returns the value
+static Function/S GetMMDAllVariablesList()
+
+	variable i, j, numTemplates
+	string varName, varList
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr mmdAllVariablesList
+
+	if(SVAR_EXISTS(mmdAllVariablesList))
+		return mmdAllVariablesList
+	endif
+
+	varList = ""
+
+	WAVE/T templates = GetMMDVarTemplates()
+	numTemplates = DimSize(templates, UTF_ROW)
+	for(i = 0; i < numTemplates; i += 1)
+		for(j = 0; j < DGEN_NUM_VARS; j += 1)
+			varName = templates[i] + num2istr(j)
+			varList = AddListItem(varName, varList)
+		endfor
+	endfor
+
+	string/G dfr:mmdAllVariablesList = varList
+
+	return varList
+End
+
 /// Returns 1 if debug output is enabled and zero otherwise
 Function EnabledDebug()
 	dfref dfr = GetPackageFolder()
