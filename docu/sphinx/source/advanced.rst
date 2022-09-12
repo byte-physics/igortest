@@ -99,6 +99,9 @@ and history log of each test case and test suite.
 The format reference that the IUTF uses is described in the section
 :ref:`junit_reference`.
 
+If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+and counted for JUNIT as `skipped`.
+
 Test Anything Protocol Output
 -----------------------------
 
@@ -131,6 +134,9 @@ beginning of the directive message.
 
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
   keyword is not executed and reported always as 'ok'.
+
+If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+and evaluated for TAP the same as if ``// #TAPDirective: SKIP`` was set.
 
 Examples:
 ^^^^^^^^^
@@ -382,6 +388,94 @@ test execution is aborted.
      print "Reentered test case with argument ", var
      PASS()
    End
+
+Multi-Multi Data Test Cases
+---------------------------
+
+Multi-Multi-Data test cases are an extension of multi-data test cases. They allow to specify more than one variable with corresponding data generator.
+
+.. code-block:: igor
+
+   Function/WAVE GeneratorStr()
+
+	   Make/FREE/T/N=2 data = num2istr(p)
+	   SetDimlabel UTF_ROW, 0, ROW0, data
+	   SetDimlabel UTF_ROW, 1, ROW1, data
+
+	   return data
+   End
+
+   Function/WAVE GeneratorVar()
+
+	   Make/FREE/N=2 data = p
+	   SetDimlabel UTF_ROW, 0, ROW0, data
+	   SetDimlabel UTF_ROW, 1, ROW1, data
+
+	   return data
+   End
+
+   // UTF_TD_GENERATOR v0:GeneratorVar
+   // UTF_TD_GENERATOR s2:GeneratorStr
+   // UTF_TD_GENERATOR v1:GeneratorVar
+   // UTF_TD_GENERATOR v2:GeneratorVar
+   // UTF_TD_GENERATOR v3:GeneratorVar
+   static Function TC_MMD_Part1([md])
+	   STRUCT IUTF_mData &md
+
+      CHECK(md.v0 >= 0 && md.v0 < 2)
+      print md.v0, md.v1, md.v2, md.v3
+      print md.s2
+   End
+
+The basic functionality works the same as for the regular multi-data test cases.
+In Multi-Multi-Data test cases the changing variables are elements of the structure ``IUTF_mData``. Each variable can have a data generator function set with the
+``UTF_TD_GENERATOR`` directive. The tag syntax is ``varName:DataGeneratorName``. The test case is called for all permutations of setup data generators values of all variables.
+In the upper example these are 32 test case calls. The structure defines the following variables:
+
+.. code-block:: igor
+
+   Structure IUTF_mData
+	   variable v0
+	   variable v1
+	   variable v2
+	   variable v3
+	   variable v4
+	   string s0
+	   string s1
+	   string s2
+	   string s3
+	   string s4
+	   DFREF dfr0
+	   DFREF dfr1
+	   DFREF dfr2
+	   DFREF dfr3
+	   DFREF dfr4
+	   WAVE/WAVE w0
+	   WAVE/WAVE w1
+	   WAVE/WAVE w2
+	   WAVE/WAVE w3
+	   WAVE/WAVE w4
+	   variable/C c0
+	   variable/C c1
+	   variable/C c2
+	   variable/C c3
+	   variable/C c4
+	   int64 i0
+	   int64 i1
+	   int64 i2
+	   int64 i3
+	   int64 i4
+   EndStructure
+
+Note: The int64 variables are only available for Igor Pro 7+.
+
+Any combination of v, s, c, w, dfr and i variables can be set. Currently for each type the structure offers 5 different variables.
+Variables that are not set by a data generator have their respective default value, 0 or null.
+The test case name is suffixed by the current index of the data generator wave or if set by the current dimension label.
+The order of the suffixes equals the order of the variables in the structure ``IUTF_mData``.
+The indices are changed for all setup variables. The first variables changes fastest, that is in the upper example for ``v0``.
+If Multi-Multi-Data test cases are combined with functions with background activity the reentry function must have the same
+signature.
 
 Code Coverage Determination
 ---------------------------
