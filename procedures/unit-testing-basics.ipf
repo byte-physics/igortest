@@ -2348,6 +2348,8 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 			if(!skip)
 				TAP_TestCaseEnd()
 			endif
+			TAP_WriteCaseIfReq(tcIndex + 1, skip)
+
 			break
 		case TEST_SUITE_END_CONST:
 			TestSuiteEnd(name)
@@ -3719,8 +3721,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(shouldDoAbort())
 				break
 			endif
-
-			TAP_WriteCaseIfReq(s.i + 1, skip)
 
 			if(s.mdMode == TC_MODE_MD)
 				s.dgenIndex += 1
