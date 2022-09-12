@@ -3653,6 +3653,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(!reentry)
 
 				if(s.mdMode == TC_MODE_MD)
+					dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
+					WAVE wGenerator = dgenWaves[%$dgenFuncName]
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
 						s.tcSuffix = TC_SUFFIX_SEP + num2istr(s.dgenIndex)
