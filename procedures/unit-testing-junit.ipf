@@ -430,17 +430,23 @@ Function JU_TestCaseBegin(s, fullfuncName, procWin)
 End
 
 /// Evaluate status of previously run Test Case
-Function JU_TestCaseEnd(s, funcName, procWin)
+Function JU_TestCaseEnd(s, funcName, procWin, tcIndex)
 	STRUCT JU_Props &s
 	string funcName, procWin
+	variable tcIndex
 
-	dfref dfr = GetPackageFolder()
-	NVAR/SDFR=dfr error_count
-	SVAR/SDFR=dfr systemErr
+	variable skip
 
 	if(!s.enableJU)
 		return NaN
 	endif
+
+	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	skip = str2num(testRunData[tcIndex][%SKIP])
+
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr error_count
+	SVAR/SDFR=dfr systemErr
 
 	s.juTC.timeTaken = DateTime - s.juTC.timeStart
 	s.juTC.error_count = error_count - s.juTC.error_count
@@ -448,7 +454,7 @@ Function JU_TestCaseEnd(s, funcName, procWin)
 	if(shouldDoAbort())
 		s.juTC.testResult = 2
 		s.juTS.errors += 1
-	elseif(IsExpectedFailure())
+	elseif(IsExpectedFailure() || skip)
 		s.juTC.testResult = 3
 		s.juTS.skipped += 1
 	else

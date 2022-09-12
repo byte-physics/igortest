@@ -2019,6 +2019,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
+				markSkip = markSkip | UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
 				testRunData[tdIndex][%SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(markSkip), num2istr(TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
@@ -2247,20 +2248,25 @@ End
 /// @param juProps  state structure for JUnit output
 /// @param name     name of the test run/suite/case
 /// @param procWin  name of the procedure window
+/// @param tcIndex  current index of TestRunData
 /// @param param    parameter for the builtin hooks
 ///
 /// Catches runtime errors in the user hooks as well.
 /// Takes care of correct bracketing of user and builtin functions as well. For
 /// `begin` functions the order is builtin/user and for `end` functions user/builtin.
-static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
+static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [param])
 	variable hookType
 	Struct TestHooks& hooks
 	Struct JU_Props& juProps
 	string name, procWin
+	variable tcIndex
 	variable param
 
-	variable err
+	variable err, skip
 	string errorMessage, hookName
+
+	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	skip = str2num(testRunData[tcIndex][%SKIP])
 
 	try
 		ClearRTError()
@@ -2288,11 +2294,15 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
-				TAP_TestCaseBegin(name)
+				if(!skip)
+					TAP_TestCaseBegin(name)
+				endif
 				JU_TestCaseBegin(juProps, name, procWin)
-				TestCaseBegin(name)
-				userHook(name); AbortOnRTE
-				BeforeTestCase(name)
+				if(!skip)
+					TestCaseBegin(name)
+					userHook(name); AbortOnRTE
+					BeforeTestCase(name)
+				endif
 				break
 			case TEST_CASE_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
@@ -2331,9 +2341,13 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, [param])
 
 	switch(hookType)
 		case TEST_CASE_END_CONST:
-			TestCaseEnd(name, param)
-			JU_TestCaseEnd(juProps, name, procWin)
-			TAP_TestCaseEnd()
+			if(!skip)
+				TestCaseEnd(name, param)
+			endif
+			JU_TestCaseEnd(juProps, name, procWin, tcIndex)
+			if(!skip)
+				TAP_TestCaseEnd()
+			endif
 			break
 		case TEST_SUITE_END_CONST:
 			TestSuiteEnd(name)
@@ -3400,7 +3414,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS, tap_skipCase, tcCount
+	variable i, tcFuncCount, startNextTS, skip, tcCount
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
@@ -3550,7 +3564,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		getGlobalHooks(s.hooks)
 
 		// Reinitializes
-		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
+		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
 		if(s.enableTAP)
@@ -3559,7 +3573,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(TAP_AreAllFunctionsSkip())
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
+				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 				Abort
 			else
 				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
@@ -3595,7 +3609,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.procHooks = s.hooks
 					// 3.) get local user hooks which reside in the same Module as the requested procedure
 					getLocalHooks(s.procHooks, previousProcWin)
-					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, previousProcWin, previousProcWin)
+					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, previousProcWin, previousProcWin, s.i - 1)
 				endif
 
 				if(shouldDoAbort())
@@ -3609,12 +3623,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(startNextTS)
 				s.juProps.testCaseCount = GetTestCaseCount(procWin=procWin)
-				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, procWin, procWin)
+				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
 				s.juProps.testSuiteNumber += 1
 			endif
 
-			SetExpectedFailure(str2num(testRunData[i][%EXPECTFAIL]))
-			tap_skipCase = str2num(testRunData[i][%SKIP])
+			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
+			skip = str2num(testRunData[s.i][%SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix = ""
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
@@ -3645,9 +3659,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.tcSuffix = GetMMDTCSuffix(i)
 				endif
 
-				if(!tap_skipCase)
-					ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin)
-				endif
+				ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i)
 			else
 
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -3657,13 +3669,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				ClearReentrytoUTF()
 				// restore all loop counters and end loop locals
 				i = s.i
-				procWin = testRunData[i][%PROCWIN]
-				fullFuncName = testRunData[i][%FULLFUNCNAME]
-				tap_skipCase = str2num(testRunData[i][%SKIP])
+				procWin = testRunData[s.i][%PROCWIN]
+				fullFuncName = testRunData[s.i][%FULLFUNCNAME]
+				skip = str2num(testRunData[s.i][%SKIP])
 
 			endif
 
-			if(!tap_skipCase)
+			if(!skip)
 
 				try
 					ClearRTError()
@@ -3677,11 +3689,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 					if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, param = s.keepDataFolder)
+						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
-						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin)
+						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
 
-						ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
+						ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 						ClearReentrytoUTF()
 						QuitOnAutoRunFull()
@@ -3702,15 +3714,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return RUNTEST_RET_BCKG
 			endif
 
-			if(!tap_skipCase)
-				ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, param = s.keepDataFolder)
-			endif
+			ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
 			if(shouldDoAbort())
 				break
 			endif
 
-			TAP_WriteCaseIfReq(s.i + 1, tap_skipCase)
+			TAP_WriteCaseIfReq(s.i + 1, skip)
 
 			if(s.mdMode == TC_MODE_MD)
 				s.dgenIndex += 1
@@ -3726,8 +3736,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	endfor
 
-	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin)
-	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
+	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 	ClearReentrytoUTF()
 
