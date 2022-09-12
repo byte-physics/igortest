@@ -107,7 +107,7 @@ static Function/WAVE GetTestRunData()
 	SetDimLabel UTF_COLUMN, 1, TESTCASE, wv
 	SetDimLabel UTF_COLUMN, 2, FULLFUNCNAME, wv
 	SetDimLabel UTF_COLUMN, 3, DGENLIST, wv
-	SetDimLabel UTF_COLUMN, 4, TAP_SKIP, wv
+	SetDimLabel UTF_COLUMN, 4, SKIP, wv
 	SetDimLabel UTF_COLUMN, 5, EXPECTFAIL, wv
 
 	return wv
@@ -2019,7 +2019,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
-				testRunData[tdIndex][%TAP_SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(markSkip), num2istr(TAP_IsFunctionSkip(fullFuncName) | markSkip))
+				testRunData[tdIndex][%SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(markSkip), num2istr(TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
 			endfor
@@ -3614,7 +3614,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			SetExpectedFailure(str2num(testRunData[i][%EXPECTFAIL]))
-			tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
+			tap_skipCase = str2num(testRunData[i][%SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix = ""
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
@@ -3659,7 +3659,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				i = s.i
 				procWin = testRunData[i][%PROCWIN]
 				fullFuncName = testRunData[i][%FULLFUNCNAME]
-				tap_skipCase = str2num(testRunData[i][%TAP_SKIP])
+				tap_skipCase = str2num(testRunData[i][%SKIP])
 
 			endif
 
