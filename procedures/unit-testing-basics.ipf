@@ -1572,83 +1572,95 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	return 1
 End
 
-/// Checks functions signature of each test case candidate
-/// and its attributed data generator function
-static Function/S CheckFunctionSignaturesTC(testCaseList, procWin)
-	string testCaseList
+static Function/S GetDataGenFullFunctionName(procWin, fullTestCase)
+	string fullTestCase
 	string procWin
 
-	variable i, err, numTC, wType1, wType0, wRefSubType
-	string fullTestCase, testCase, dgen, reducedTCList, msg
+	variable err
+	string dgen, msg
 
-	reducedTCList = ""
-	numTC = ItemsInList(testCaseList)
-	for(i = 0; i < numTC; i += 1)
-		testCase = StringFromList(i, testCaseList)
-		fullTestCase = getFullFunctionName(err, testCase, procWin)
-		if(err)
-			sprintf msg, "Could not get full function name of function: %s", fullTestCase
-			UTF_PrintStatusMessage(msg)
-			continue
-		endif
+	dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
+	if(err)
+		sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	endif
 
-		// Simple Test Cases
-		FUNCREF TEST_CASE_PROTO fTC = $fullTestCase
-		if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
-			reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
-			continue
-		endif
-		// Multi Data Test Cases
-		if(!GetFunctionSignatureTCMD(fullTestCase, wType0, wType1, wRefSubType))
-			continue
-		endif
+	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
+	if(err)
+		sprintf msg, "Could not get full function name of data generator: %s", dgen
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	endif
 
-		dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
-		if(err)
-			sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
-			UTF_PrintStatusMessage(msg)
-			Abort msg
-		else
-			dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
-			if(err)
-				sprintf msg, "Could not get full function name of data generator: %s", dgen
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			endif
-			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
-			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-				sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			endif
-			WAVE/Z wGenerator = fDgen()
-			if(!WaveExists(wGenerator))
-				sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			elseif(DimSize(wGenerator, 1) > 0)
-				sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-				sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			elseif(!DimSize(wGenerator, 0))
-				sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullTestCase
-				UTF_PrintStatusMessage(msg)
-				continue
-			elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
-				sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullTestCase, wRefSubType, dgen
-				UTF_PrintStatusMessage(msg)
-				Abort msg
-			endif
+	return dgen
+End
 
-			reducedTCList = AddListItem(testCase, reducedTCList, ";", inf)
-		endif
-	endfor
+/// Checks functions signature of a test case candidate
+/// and its attributed data generator function
+/// Returns 1 on error, 0 on success
+static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList)
+	string procWin
+	string fullFuncName
+	string &dgenList
 
-	return reducedTCList
+	variable err, wType1, wType0, wRefSubType, dgenSize
+	string dgen, msg
+
+	dgenList = ""
+
+	// Simple Test Cases
+	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
+	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
+		return 0
+	endif
+	// Multi Data Test Cases
+	if(!GetFunctionSignatureTCMD(fullFuncName, wType0, wType1, wRefSubType))
+		return 1
+	endif
+
+	dgen = GetDataGenFullFunctionName(procWin, fullFuncName)
+
+	FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
+	if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
+		sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	endif
+	WAVE/Z wGenerator = fDgen()
+	if(!WaveExists(wGenerator))
+		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	elseif(DimSize(wGenerator, 1) > 0)
+		sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullFuncName
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
+		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	elseif(!DimSize(wGenerator, 0))
+		sprintf msg, "Data Generator function %s returns a wave with zero points. It is referenced by test case %s.", dgen, fullFuncName
+		UTF_PrintStatusMessage(msg)
+		return 1
+	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
+		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
+		UTF_PrintStatusMessage(msg)
+		Abort msg
+	endif
+
+	dgenList = AddListItem(dgen, dgenList, ";", Inf)
+
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	if(FindDimLabel(dgenWaves, UTF_ROW, dgen) == -2)
+		dgenSize = DimSize(dgenWaves, UTF_ROW)
+		Redimension/N=(dgenSize + 1) dgenWaves
+		dgenWaves[dgenSize] = wGenerator
+		SetDimLabel UTF_ROW, dgenSize, $dgen, dgenWaves
+	endif
+
+	return 0
 End
 
 /// Returns List of Test Functions in Procedure Window procWin
@@ -1732,10 +1744,10 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 	string procWin
 	string funcName
 	string funcList
-	string fullFuncName
+	string fullFuncName, dgenList
 	string testCase, testCaseMatch, testCaseList
 	variable numTC, numpWL, numFL, numMatches
-	variable i,j,k
+	variable i,j,k, tdIndex
 	string errMsg = ""
 
 	tcCount = 0
@@ -1748,6 +1760,8 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 	if(enableRegExp)
 		sprintf matchStr, "^(?i)%s$", matchStr
 	endif
+
+	WAVE/T testRunData = GetTestRunData()
 
 	testCaseList = ""
 	numTC = ItemsInList(matchStr)
@@ -1786,8 +1800,6 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 				testCaseMatch = testCase
 			endif
 
-			testCaseMatch = CheckFunctionSignaturesTC(testCaseMatch, procWin)
-
 			numFL = ItemsInList(testCaseMatch)
 			numMatches += numFL
 			for(k = 0; k < numFL; k += 1)
@@ -1797,8 +1809,22 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 					sprintf errMsg, "Could not get full function name: %s", fullFuncName
 					return errMsg
 				endif
+
+				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList))
+					continue
+				endif
+
 				testCaseList = AddListItem(fullFuncName, testCaseList, ";", inf)
 				tcCount += GetTestCaseCount(fullFuncName, procWin)
+
+				EnsureLargeEnoughWaveSimple(testRunData, tdIndex)
+				testRunData[tdIndex][%PROCWIN] = procWin
+				testRunData[tdIndex][%TESTCASE] = fullFuncName
+				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
+				testRunData[tdIndex][%DGENLIST] = dgenList
+				testRunData[tdIndex][%TAP_SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(0), num2istr(TAP_IsFunctionSkip(fullFuncName)))
+				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
+				tdIndex += 1
 			endfor
 		endfor
 
@@ -1807,6 +1833,7 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".", testCase, procWinList
 		endif
 	endfor
+	Redimension/N=(tdIndex, -1, -1, -1) testRunData
 
 	if(!ItemsInList(testCaseList))
 		err = err | TC_LIST_EMPTY
@@ -2694,6 +2721,13 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	CtrlNamedBackground $BACKGROUNDMONTASK, proc=UTFBackgroundMonitor, period=10, start
 End
 
+static Function ClearTestSetupWaves()
+
+	WAVE/T testRunData = GetTestRunData()
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	KillWaves testRunData, dgenWaves
+End
+
 /// @brief Main function to execute test suites with the unit testing framework.
 ///
 /// @verbatim embed:rst:leading-slashes
@@ -2917,6 +2951,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			TUFXOP_Init/N="IUTF_Testrun"
 #endif
 		endif
+
+		ClearTestSetupWaves()
 
 		// below here use only s. variables to keep local state in struct
 		ClearBaseFilename()
