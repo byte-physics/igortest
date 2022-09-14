@@ -1493,32 +1493,6 @@ static Function UTF_PrintStatusMessage(msg)
 #endif
 End
 
-/// returns the effektive number of test cases to run from a testCaseList / procedure window name
-/// This includes multiple test cases from multi data test cases
-static function GetTestCaseCount(testCaseList, procWin)
-	string testCaseList, procWin
-
-	variable i, err, numTC, tcCount, var
-	string testCase, dgenFuncName
-
-	numTC = ItemsInList(testCaseList)
-	for(i = 0; i < numTC; i += 1)
-		testCase = StringFromList(i, testCaseList)
-		FUNCREF TEST_CASE_PROTO TestCaseFunc = $testCase
-		if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
-			tcCount += 1
-		else
-			dgenFuncName = UTF_Utils#GetFunctionTagValue(testCase, UTF_FTAG_TD_GENERATOR, var)
-			dgenFuncName = GetDataGeneratorFunctionName(err, dgenFuncName, procWin)
-			FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $dgenFuncName
-			WAVE wGenerator = DataGenFunc()
-			tcCount += DimSize(wGenerator, 0)
-		endif
-	endfor
-
-	return tcCount
-End
-
 /// Checks functions signature of each multi data test case candidate
 /// returns 1 if ok, 0 otherwise
 /// when 1 is returned the wave type variable contain the format
@@ -1733,11 +1707,10 @@ End
 /// @param[out] err Numeric Error Code
 ///
 /// @returns fullname list of matching test cases
-static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount, err)
+static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, err)
 	string procWinList
 	string matchStr
 	variable enableRegExp
-	variable &tcCount
 	variable &err
 	err = TC_MATCH_OK
 
@@ -1750,7 +1723,6 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 	variable i,j,k, tdIndex
 	string errMsg = ""
 
-	tcCount = 0
 	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
 		err = TC_REGEX_INVALID
 		errMsg = "semicolon is not allowed in regex pattern"
@@ -1815,7 +1787,6 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 				endif
 
 				testCaseList = AddListItem(fullFuncName, testCaseList, ";", inf)
-				tcCount += GetTestCaseCount(fullFuncName, procWin)
 
 				EnsureLargeEnoughWaveSimple(testRunData, tdIndex)
 				testRunData[tdIndex][%PROCWIN] = procWin
@@ -1842,6 +1813,34 @@ static Function/S getTestCasesMatch(procWinList, matchStr, enableRegExp, tcCount
 	endif
 
 	return testCaseList
+End
+
+/// Function determines the total number of test cases
+/// Normal test cases are counted with 1
+/// MD test cases are counted by multiplying all data generator wave sizes
+/// Returns the total number of all test cases to be called
+static Function GetTestCaseCount()
+
+	variable i, j, size, dgenSize
+	variable tcCount, dgenCount
+	string dgenList, dgen
+
+	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	WAVE/T testRunData = GetTestRunData()
+	size = DimSize(testRunData, UTF_ROW)
+	for(i = 0; i < size; i += 1)
+		dgenCount = 1
+		dgenList = testRunData[i][%DGENLIST]
+		dgenSize = ItemsInList(dgenList)
+		for(j = 0; j < dgenSize; j += 1)
+			dgen = StringFromList(j, dgenList)
+			WAVE wv = dgenWaves[%$dgen]
+			dgenCount *= DimSize(wv, UTF_ROW)
+		endfor
+		tcCount += dgenCount
+	endfor
+
+	return tcCount
 End
 
 // Return the status of an `SetIgorOption` setting
@@ -2222,6 +2221,8 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SenableTAP = s.enableTAP
 	variable/G dfr:SenableRegExp = s.enableRegExp
 	variable/G dfr:SkeepDataFolder = s.keepDataFolder
+	variable/G dfr:StcCount = s.tcCount
+
 	string/G dfr:SprocWin = s.procWin
 	string/G dfr:StestCaseList = s.testCaseList
 	string/G dfr:SallTestCasesList = s.allTestCasesList
@@ -2302,6 +2303,8 @@ static Function RestoreState(dfr, s)
 	s.enableRegExp = var
 	NVAR var = dfr:SkeepDataFolder
 	s.keepDataFolder = var
+	NVAR var = dfr:StcCount
+	s.tcCount = var
 	SVAR str = dfr:SprocWin
 	s.procWin = str
 	SVAR str = dfr:StestCaseList
@@ -2586,6 +2589,7 @@ static Function InitStrRunTest(s)
 	s.fullFuncName = ""
 	s.tcSuffix = ""
 	s.dgenFuncName = ""
+	s.tcCount = 0
 
 	InitJUProp(s.juProps)
 	InitHooks(s.hooks)
@@ -2602,6 +2606,7 @@ static Structure strRunTest
 	variable enableRegExp
 	variable debugMode
 	variable keepDataFolder
+	variable tcCount
 
 	string procWin
 	string testCaseList
@@ -2837,7 +2842,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	//
 	variable reentry
 	// these use a very local scope where used
-	variable tcCount
 	// loop counter and loop end derived vars
 	variable i, j
 	variable numItemsPW, numItemsFFN
@@ -2969,7 +2973,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 
 		var = s.err
-		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, tcCount, var)
+		s.allTestCasesList = getTestCasesMatch(s.procWinList, s.testCase, s.enableRegExpTC, var)
+		s.tcCount = GetTestCaseCount()
+
 		s.err = var
 		if(s.err)
 			str = s.allTestCasesList
@@ -3002,7 +3008,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 				Abort
 			else
-				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
+				TAP_WriteOutputIfReq("1.." + num2str(s.tcCount))
 			endif
 		endif
 
@@ -3022,7 +3028,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			s.procWin = StringFromList(s.i, s.procWinList)
 
 			var = s.err
-			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, tcCount, var)
+			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, var)
 			s.err = var
 			if(s.err & TC_LIST_EMPTY)
 				continue
@@ -3032,7 +3038,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			// 3.) get local user hooks which reside in the same Module as the requested procedure
 			getLocalHooks(s.procHooks, s.procWin)
 
-			s.juProps.testCaseCount = tcCount
+			s.juProps.testCaseCount = s.tcCount
 			s.juProps.testSuiteNumber = s.i
 			ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
 
