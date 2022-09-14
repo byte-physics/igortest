@@ -1298,38 +1298,15 @@ static Function TestBegin(name, debugMode)
 	string name
 	variable debugMode
 
-	variable reEnableDebugOutput, runCountStored
 	string msg
-
-	// remember some state variables
-	if(DataFolderExists(PKG_FOLDER))
-		reEnableDebugOutput = EnabledDebug()
-
-		DFREF dfr = GetPackageFolder()
-		NVAR/SDFR=dfr/Z run_count
-
-		// existing experiments don't have run_count
-		if(NVAR_Exists(run_count))
-			runCountStored = run_count
-		endif
-	endif
-
-	KillDataFolder/Z $PKG_FOLDER
 
 	initGlobalError()
 	initRunCount()
 	InitAbortFlag()
 	initTestStatus()
 
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr run_count
-	run_count = runCountStored
-
-	if(reEnableDebugOutput)
-		EnableDebugOutput()
-	endif
-
 	InitIgorDebugVariables()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr igor_debug_state
 	if(!debugMode)
 		igor_debug_state = DisableIgorDebugger()
@@ -2461,12 +2438,15 @@ static Function ResetBckgRegistered()
 	variable/G dfr:BCKG_Registered = 0
 End
 
-static Function CallTestCase(s, reentry)
+static Function CallTestCase(s, tcIndex, reentry)
 	STRUCT strRunTest &s
+	variable tcIndex
 	variable reentry
 
 	variable wType0, wType1, wRefSubType, err
 	string func, msg
+
+	WAVE/T testRunData = GetTestRunData()
 
 	if(reentry)
 		DFREF dfr = GetPackageFolder()
@@ -2475,7 +2455,7 @@ static Function CallTestCase(s, reentry)
 		sprintf msg, "Entering reentry \"%s\"", func
 		UTF_PrintStatusMessage(msg)
 	else
-		func = s.fullFuncName
+		func = testRunData[tcIndex][%FULLFUNCNAME]
 	endif
 
 	FUNCREF TEST_CASE_PROTO TestCaseFunc = $func
@@ -2863,8 +2843,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, j
-	variable numItemsPW, numItemsFFN
+	variable i, tcFuncCount, startNextTS
+	string procWin, fullFuncName, previousProcWin
 	// used as temporal locals
 	variable var
 	string msg, str
@@ -2884,8 +2864,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			print "RunTest was called by user after background monitoring was registered. This is not supported."
 			Abort
 		endif
-
-		numItemsPW = 1
 
 	else
 
@@ -2985,8 +2963,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = AdaptProcWinList(s.procWinList, s.enableRegExpTS)
 		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
 
-		numItemsPW = ItemsInList(s.procWinList)
-		if(numItemsPW <= 0)
+		if(ItemsInList(s.procWinList) <= 0)
 			sprintf msg, "Error: The list of procedure windows is empty or invalid."
 			UTF_PrintStatusMessage(msg)
 			return NaN
@@ -3014,7 +2991,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		// 2.) get global user hooks which reside in ProcGlobal and replace the default ones
 		getGlobalHooks(s.hooks)
 
-		// Kills data folder and reinitializes
+		// Reinitializes
 		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param=s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
@@ -3031,8 +3008,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 		endif
 
-		s.tap_caseCount = 1
-
 	endif
 
 	SVAR/SDFR=dfr message
@@ -3040,147 +3015,149 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	NVAR/SDFR=dfr global_error_count
 
 	// The Test Run itself is split into Test Suites for each Procedure File
-	for(i = 0; i < numItemsPW; i += 1)
+	WAVE/T testRunData = GetTestRunData()
+	tcFuncCount = DimSize(testRunData, UTF_ROW)
+	for(i = 0; i < tcFuncCount; i += 1)
 		s.i = i
 
-		if(!reentry)
-			s.procWin = StringFromList(s.i, s.procWinList)
-
-			var = s.err
-			s.testCaseList = getTestCasesMatch(s.procWin, s.testCase, s.enableRegExpTC, var)
-			s.err = var
-			if(s.err & TC_LIST_EMPTY)
-				continue
-			endif
-
-			s.procHooks = s.hooks
-			// 3.) get local user hooks which reside in the same Module as the requested procedure
-			getLocalHooks(s.procHooks, s.procWin)
-
-			s.juProps.testCaseCount = s.tcCount
-			s.juProps.testSuiteNumber = s.i
-			ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
-
-			numItemsFFN = ItemsInList(s.testCaseList)
+		procWin = testRunData[i][%PROCWIN]
+		fullFuncName = testRunData[i][%FULLFUNCNAME]
+		if(s.i > 0)
+			previousProcWin = testRunData[s.i - 1][%PROCWIN]
 		else
-			numItemsFFN = 1
+			previousProcWin = ""
 		endif
+		startNextTS = !!CmpStr(previousProcWin, procWin)
 
-		for(j = 0; j < numItemsFFN; j += 1)
-			s.j = j
+		if(!reentry)
 
-			if(!reentry)
-				s.fullFuncName = StringFromList(s.j, s.testCaseList)
-
-				// get Description and Directive of current Function for TAP
-				s.tap_skipCase = 0
-				if(TAP_IsOutputEnabled())
-					s.tap_skipCase = TAP_IsFunctionSkip(s.fullFuncName)
-				endif
-				s.dgenIndex = 0
-				s.tcSuffix = ""
-			endif
-
-			do
-
-				if(!reentry)
-
-					FUNCREF TEST_CASE_PROTO TestCaseFunc = $s.fullFuncName
-					if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
-						s.mdMode = 0
-					else
-						s.mdMode = 1
-						s.dgenFuncName = UTF_Utils#GetFunctionTagValue(s.fullFuncName, UTF_FTAG_TD_GENERATOR, var)
-						s.dgenFuncName = GetDataGeneratorFunctionName(var, s.dgenFuncName, s.procWin)
-						FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
-						WAVE wGenerator = DataGenFunc()
-						s.dgenSize = DimSize(wGenerator, 0)
-						s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
-						if(strlen(s.tcSuffix) == 1)
-							s.tcSuffix = ":" + num2str(s.dgenIndex)
-						endif
-					endif
-					if(!s.tap_skipCase)
-						ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin)
-					endif
-				else
-
-					DFREF dfSave = $PKG_FOLDER_SAVE
-					RestoreState(dfSave, s)
-					// restore all loop counters and end loop locals
-					i = s.i
-					j = s.j
-					numItemsPW = ItemsInList(s.procWinList)
-					numItemsFFN = ItemsInList(s.testCaseList)
-					// restore state done
-					DFREF dfSave = $""
-					ClearReentrytoUTF()
-
-				endif
-
-				if(!s.tap_skipCase)
-
-					try
-						ClearRTError()
-						CallTestCase(s, reentry)
-					catch
-						message = GetRTErrMessage()
-						s.err = GetRTError(1)
-						// clear the abort code from abortNow()
-						V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
-						EvaluateRTE(s.err, message, V_AbortCode, s.fullFuncName, TEST_CASE_TYPE, s.procWin)
-
-						if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
-							// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-							ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
-
-							ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
-
-							ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
-
-							ClearReentrytoUTF()
-							QuitOnAutoRunFull()
-							return global_error_count
-						endif
-					endtry
-
-				endif
-
-				reentry = 0
-
-				if(IsBckgRegistered())
-					// save state
-					NewDataFolder $PKG_FOLDER_SAVE
-					DFREF dfSave = $PKG_FOLDER_SAVE
-					SaveState(dfSave, s)
-
-					return RUNTEST_RET_BCKG
-				endif
-
-				if(!s.tap_skipCase)
-					ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, s.fullFuncName + s.tcSuffix, s.procWin, param = s.keepDataFolder)
+			if(startNextTS)
+				if(i > 0)
+					s.procHooks = s.hooks
+					// 3.) get local user hooks which reside in the same Module as the requested procedure
+					getLocalHooks(s.procHooks, previousProcWin)
+					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, previousProcWin, previousProcWin)
 				endif
 
 				if(shouldDoAbort())
 					break
 				endif
-				
-				TAP_WriteCaseIfReq(s.tap_caseCount, s.tap_skipCase)
-				s.tap_caseCount += 1
+			endif
 
-				s.dgenIndex += 1
+			s.procHooks = s.hooks
+			// 3.) dito
+			getLocalHooks(s.procHooks, procWin)
 
-			while(s.mdMode && s.dgenIndex < s.dgenSize)
+			if(startNextTS)
+				// TODO need tcCount for procWin
+				s.juProps.testCaseCount = s.tcCount
+				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, procWin, procWin)
+				s.juProps.testSuiteNumber += 1
+			endif
 
-		endfor
+			// get Description and Directive of current Function for TAP
+			s.tap_skipCase = 0
+			if(TAP_IsOutputEnabled())
+				s.tap_skipCase = TAP_IsFunctionSkip(fullFuncName)
+			endif
+			s.dgenIndex = 0
+			s.tcSuffix = ""
+		endif
 
-		ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, s.procWin, s.procWin)
+		do
+
+			if(!reentry)
+
+				FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
+				if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
+					s.mdMode = 0
+				else
+					s.mdMode = 1
+					s.dgenFuncName = UTF_Utils#GetFunctionTagValue(fullFuncName, UTF_FTAG_TD_GENERATOR, var)
+					s.dgenFuncName = GetDataGeneratorFunctionName(var, s.dgenFuncName, procWin)
+					FUNCREF TEST_CASE_PROTO_DGEN DataGenFunc = $s.dgenFuncName
+					WAVE wGenerator = DataGenFunc()
+					s.dgenSize = DimSize(wGenerator, 0)
+					s.tcSuffix = ":" + GetDimLabel(wGenerator, 0, s.dgenIndex)
+					if(strlen(s.tcSuffix) == 1)
+						s.tcSuffix = ":" + num2str(s.dgenIndex)
+					endif
+				endif
+				if(!s.tap_skipCase)
+					ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin)
+				endif
+			else
+
+				DFREF dfSave = $PKG_FOLDER_SAVE
+				RestoreState(dfSave, s)
+				// restore all loop counters and end loop locals
+				i = s.i
+				// restore state done
+				DFREF dfSave = $""
+				ClearReentrytoUTF()
+
+			endif
+
+			if(!s.tap_skipCase)
+
+				try
+					ClearRTError()
+					CallTestCase(s, i, reentry)
+				catch
+					message = GetRTErrMessage()
+					s.err = GetRTError(1)
+					// clear the abort code from abortNow()
+					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
+					EvaluateRTE(s.err, message, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
+
+					if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
+						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
+						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, param = s.keepDataFolder)
+
+						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin)
+
+						ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
+
+						ClearReentrytoUTF()
+						QuitOnAutoRunFull()
+						return global_error_count
+					endif
+				endtry
+
+			endif
+
+			reentry = 0
+
+			if(IsBckgRegistered())
+				// save state
+				NewDataFolder $PKG_FOLDER_SAVE
+				DFREF dfSave = $PKG_FOLDER_SAVE
+				SaveState(dfSave, s)
+
+				return RUNTEST_RET_BCKG
+			endif
+
+			if(!s.tap_skipCase)
+				ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, param = s.keepDataFolder)
+			endif
+
+			if(shouldDoAbort())
+				break
+			endif
+
+			TAP_WriteCaseIfReq(s.i + 1, s.tap_skipCase)
+
+			s.dgenIndex += 1
+
+		while(s.mdMode && s.dgenIndex < s.dgenSize)
 
 		if(shouldDoAbort())
 			break
 		endif
+
 	endfor
 
+	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin)
 	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, param = s.debugMode)
 
 	ClearReentrytoUTF()
