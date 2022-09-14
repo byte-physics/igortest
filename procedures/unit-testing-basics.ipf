@@ -74,6 +74,65 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
+static Constant WAVECHUNK_SIZE = 1024
+
+/// @brief Returns a global wave that stores data about this testrun
+static Function/WAVE GetTestRunData()
+
+	string name = "TestRunData"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/T/N=(0, 6) dfr:$name/WAVE=wv
+
+	SetDimLabel UTF_COLUMN, 0, PROCWIN, wv
+	SetDimLabel UTF_COLUMN, 1, TESTCASE, wv
+	SetDimLabel UTF_COLUMN, 2, FULLFUNCNAME, wv
+	SetDimLabel UTF_COLUMN, 3, DGENLIST, wv
+	SetDimLabel UTF_COLUMN, 4, TAP_SKIP, wv
+	SetDimLabel UTF_COLUMN, 5, EXPECTFAIL, wv
+
+	return wv
+End
+
+/// @brief Returns a global wave that stores the results of the DataGenerators of this testrun
+static Function/WAVE GetDataGeneratorWaves()
+
+	string name = "DataGeneratorWaves"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/WAVE wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/WAVE/N=0 dfr:$name/WAVE=wv
+
+	return wv
+End
+
+/// @brief Simple function to automatically increase the wave size by a chunk in the rows dimension
+///        The actual (filled) wave size is not tracked, the caller has to do that.
+///        Returns 1 if the wave was resized, 0 if it was not resized
+static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
+
+	WAVE wv
+	variable indexShouldExist
+
+	variable size = DimSize(wv, UTF_ROW)
+
+	if(indexShouldExist < size)
+		return 0
+	endif
+
+	Redimension/N=(size + WAVECHUNK_SIZE, -1, -1, -1) wv
+
+	return 1
+End
 
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
