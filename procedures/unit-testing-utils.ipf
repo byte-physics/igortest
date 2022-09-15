@@ -156,7 +156,15 @@ End
 static Function HasFunctionTag(funcName, tagName)
 	string funcName, tagName
 
-	WAVE tagValues = GetFunctionTagWave(funcName)
+	variable funcPos
+
+	WAVE/WAVE ftagWaves = UTF_Basics#GetFunctionTagWaves()
+	funcPos = FindDimLabel(ftagWaves, UTF_ROW, funcName)
+	if(funcPos == -2)
+		return 0
+	endif
+
+	WAVE tagValues = ftagWaves[funcPos]
 
 	return (FindDimLabel(tagValues, UTF_ROW, tagName) != -2)
 End
@@ -168,16 +176,23 @@ End
 /// @param[in]  tagName  tag that is searched (see UTF_UTILS#FunctionTagStrings for possible tags)
 /// @param[out] err      error code (see constants UTF_UTILS#TAG*)
 /// @returns             value belonging to a certain tag in the comments above a function, error message if not found
-static Function/T GetFunctionTagValue(funcName, tagName, err)
+static Function/S GetFunctionTagValue(funcName, tagName, err)
 	string funcName, tagName
 	variable &err
 
-	variable tagPosition
+	variable tagPosition, funcPos
 	string tagValue, msg
 
 	err = UTF_TAG_ABORTED
-	WAVE/T tagValueWave = GetFunctionTagWave(funcName)
+	WAVE/WAVE ftagWaves = UTF_Basics#GetFunctionTagWaves()
+	funcPos = FindDimlabel(ftagWaves, UTF_ROW, funcName)
+	if(funcPos == -2)
+		err = UTF_TAG_NOT_FOUND
+		sprintf msg, "The tag %s was not found.", tagName
+		return msg
+	endif
 
+	WAVE/T tagValueWave = ftagWaves[funcPos]
 	tagPosition = FindDimLabel(tagValueWave, UTF_ROW, tagName)
 	if(tagPosition == -2)
 		err = UTF_TAG_NOT_FOUND
@@ -193,6 +208,7 @@ static Function/T GetFunctionTagValue(funcName, tagName, err)
 	endif
 
 	err = UTF_TAG_OK
+
 	return tagValue
 End
 

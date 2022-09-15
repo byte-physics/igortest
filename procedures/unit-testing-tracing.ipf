@@ -393,7 +393,8 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	WAVE macroLineStarts = FindMacroLocations(wMacroList)
 	Make/FREE/WAVE/N=(numMacros) macroTexts
 	macroTexts[] = ListToTextWave(ProcedureText(wMacroList[p], 0, procWin), "\r")
-	Make/FREE/D/N=(numMacros) macroExclusionFlag
+	Make/FREE/D/N=(numMacros) macroExclusionFlag, macroIndexHelper
+	macroIndexHelper[] = UTF_Basics#AddFunctionTagWave(wMacroList[p])
 	macroExclusionFlag[] = UTF_Utils#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
 	for(i = 0; i < numMacros; i += 1)
 		if(UTF_Utils#isEmpty(procedurePath))
@@ -415,6 +416,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 			printf "Is procedure file %s missing a #pragma ModuleName=<name> ?!?.\r", procWin
 			continue
 		endif
+		UTF_Basics#AddFunctionTagWave(fullFuncName)
 		funcExclusionFlag[i] = UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
 		if(UTF_Utils#isEmpty(procedurePath))
 			procedurePath = FunctionPath(fullFuncName)
