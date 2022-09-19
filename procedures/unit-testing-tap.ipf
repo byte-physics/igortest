@@ -111,7 +111,7 @@ Function TAP_AreAllFunctionsSkip()
 	variable dimPos
 
 	WAVE/T testRunData = UTF_Basics#GetTestRunData()
-	dimPos = FindDimLabel(testRunData, UTF_COLUMN, "TAP_SKIP")
+	dimPos = FindDimLabel(testRunData, UTF_COLUMN, "SKIP")
 	Duplicate/FREE/R=[][dimPos, dimPos] testRunData, skipCol
 
 	return DimSize(testRunData, UTF_ROW) == sum(skipCol)

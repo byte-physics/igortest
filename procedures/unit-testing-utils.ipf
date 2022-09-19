@@ -88,7 +88,7 @@ End
 /// @brief returns a wave consisting of function tags (see UTF_UTILS#FunctionTagStrings)
 static Function/WAVE GetTagConstants()
 
-	Make/T/FREE tagConstants = {UTF_FTAG_NOINSTRUMENTATION, UTF_FTAG_TD_GENERATOR, UTF_FTAG_EXPECTED_FAILURE, UTF_FTAG_TAP_DIRECTIVE, UTF_FTAG_TAP_DESCRIPTION}
+	Make/T/FREE tagConstants = {UTF_FTAG_NOINSTRUMENTATION, UTF_FTAG_TD_GENERATOR, UTF_FTAG_EXPECTED_FAILURE, UTF_FTAG_SKIP, UTF_FTAG_TAP_DIRECTIVE, UTF_FTAG_TAP_DESCRIPTION}
 
 	return tagConstants
 End
@@ -102,12 +102,12 @@ End
 static Function/WAVE GetFunctionTagWave(funcName)
 	string funcName
 
-	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue
-	variable i, j, numPossibleTags, numLines, numFound
+	string msg, expr, funcText, funcTextWithoutContext, funcTextWithContext, funcLine, tagName, tagValue, varName, allVarList
+	variable i, j, numUniqueTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
-	numPossibleTags = DimSize(tag_constants, 0)
-	Make/FREE/T/N=(numPossibleTags) tagValueWave
+	WAVE templates = UTF_Basics#GetMMDVarTemplates()
+	numUniqueTags = DimSize(tag_constants, UTF_ROW)
 
 	numFound = 0
 
@@ -116,13 +116,15 @@ static Function/WAVE GetFunctionTagWave(funcName)
 	funcText = ReplaceString(funcTextWithoutContext, funcTextWithContext, "")
 	numLines = ItemsInList(funcText, "\r")
 
+	Make/FREE/T/N=(numLines) tagValueWave
+
 	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1 )
 		funcLine = StringFromList(i, funcText, "\r")
 		if(IsEmpty(funcLine))
 			continue
 		endif
 
-		for(j = 0; j < numPossibleTags; j += 1 )
+		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
 			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(.*)$"
 
@@ -134,7 +136,20 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			tagValue = TrimString(tagValue)
 			if(FindDimLabel(tagValueWave, 0, tagName) != -2)
 				sprintf msg, "Test case %s has the tag %s at least twice.", funcName, tagValue
+				UTF_Basics#UTF_PrintStatusMessage(msg)
 				Abort msg
+			endif
+
+			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
+				varName = StringFromList(0, tagvalue, ":")
+				tagName = UTF_FTAG_TD_GENERATOR + " " + varName
+				allVarList = UTF_Basics#GetMMDAllVariablesList()
+				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
+					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue
+					UTF_Basics#UTF_PrintStatusMessage(msg)
+					Abort msg
+				endif
+				tagValue = StringFromList(1, tagvalue, ":")
 			endif
 
 			tagValueWave[numFound] = tagValue
