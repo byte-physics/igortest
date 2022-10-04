@@ -3439,6 +3439,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 
 	else
+		// no early return/abort above this point
+		ClearTestSetupWaves()
+		ClearBaseFilename()
+		CreateHistoryLog()
 
 		PathInfo home
 		if(!V_flag)
@@ -3527,11 +3531,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 #endif
 		endif
 
-		ClearTestSetupWaves()
-
 		// below here use only s. variables to keep local state in struct
-		ClearBaseFilename()
-		CreateHistoryLog()
 
 		s.procWinList = AdaptProcWinList(s.procWinList, s.enableRegExpTS)
 		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
