@@ -1629,9 +1629,16 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSk
 
 	variable err, wType1, wType0, wRefSubType
 	string dgen, msg
+	string funcInfo
 
 	dgenList = ""
 	markSkip = 0
+
+	// Require only optional parameter
+	funcInfo = FunctionInfo(fullFuncName)
+	if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+		return 1
+	endif
 
 	// Simple Test Cases
 	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
