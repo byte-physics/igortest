@@ -346,11 +346,9 @@ Function TC_MMD_bck_REENTRY([md])
 	PASS()
 End
 
-#if IgorVersion() >= 7
 static Function TEST_SUITE_END_OVERRIDE(name)
 	string name
 
 	NVAR/Z cc = root:dgenCallCount
 	KillVariables/Z cc
 End
-#endif
