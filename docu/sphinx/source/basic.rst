@@ -89,8 +89,8 @@ Test cases can be marked as expected failures, e.g. if the test case is written
 before the functions are fully implemented. The assertions are executed, but
 neither does the error counter increase nor is the test run aborted. To mark
 a test case as expected failure write the keyword in the comment above
-(maximum 4 lines above :code:`Function` are considered as tags, every tag in
-separate line):
+(all lines above :code:`Function` up to the previous :code:`Function` are
+considered as tags, every tag in separate line):
 
 .. code-block:: igor
 

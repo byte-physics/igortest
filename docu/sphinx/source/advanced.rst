@@ -118,8 +118,8 @@ generated name `tap_'time'.log`. This prevents accidental overwrites of
 previous test runs. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
 and directives for each Test Case can be added in the lines preceeding the
-function of a Test Case (maximum 4 lines above :code:`Function` are considered
-as tags, every tag in separate line):
+function of a Test Case (all lines above :code:`Function` up to the previous
+:code:`Function` are considered as tags, every tag in separate line):
 
 .. code-block:: igor
 
@@ -284,7 +284,8 @@ case is run. This sketches a simple multi data test case:
 
 To the test case `myTestCase` a data generator function name is attributed with the
 comment line above following the tag word `UTF_TD_GENERATOR`.
-A maximum of four lines above :code:`Function` are considered as tags with every tag in a separate line.
+All lines above :code:`Function` up to the previous :code:`Function` are considered
+as tags with every tag in separate line.
 If the data generator function is not found in the current procedure file it is searched
 in all procedure files of the current compilation unit as a non-static function. (ProcGlobal context)
 Also a static data generator function in another procedure file can be specified by
