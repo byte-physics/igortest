@@ -800,12 +800,11 @@ static Function AnalyzeTracingResult()
 
 	printf "Generating coverage output."
 
-	TUFXOP_GetStorage/N="IUTF_Testrun" wv
+	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	if(V_flag)
 		printf "No gathered tracing data found for code coverage analysis.\r"
 		Abort
 	endif
-	WAVE/WAVE wrefMain = wv
 	numThreads = NumberByKey("Index", note(wrefMain))
 
 	WAVE/T procNames = GetTracedProcedureNames()

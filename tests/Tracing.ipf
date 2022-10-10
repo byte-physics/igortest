@@ -43,8 +43,7 @@ static Function TracingTest2()
 
 	TestTracing2#TracingTest()
 
-	TUFXOP_GetStorage/N="IUTF_Testrun" wv
-	WAVE/WAVE wrefMain = wv
+	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	numThreads = NumberByKey("Index", note(wrefMain))
 
 	WAVE/T procNames = GetTracedProcedureNames()

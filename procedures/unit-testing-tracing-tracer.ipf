@@ -33,7 +33,7 @@ threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable
 	variable i, logLines, condition
 	variable result, numProcs
 
-	TUFXOP_GetStorage/Z/Q/N="IUTF_Testrun"/TS wv
+	TUFXOP_GetStorage/Z/Q/N="IUTF_Testrun"/TS wref
 	if(V_flag)
 		return c
 	endif
@@ -44,7 +44,6 @@ threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable
 		result = !!c
 	endif
 
-	WAVE/WAVE wref = wv
 	WAVE/D/Z logData = wref[0]
 	if(!WaveExists(logData))
 		WAVE/T wProcNames = GetTracedProcedureNames()
