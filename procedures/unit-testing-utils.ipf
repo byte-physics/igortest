@@ -329,21 +329,34 @@ static Function/S DetermineWaveDataDifference(wv1, wv2, tol)
 
 	string msg
 	variable isComplex1, isComplex2
-	string wvName1, wvName2
+	string wvId1, wvId2, wvName1, wvName2
 	string wvNamePrefix, tmpStr1, tmpStr2
 
 	// Generate names for reference
 	if(WaveExists(wv1))
-		wvName1 = GetWaveNameInDFStr(wv1)
+		wvId1 = GetWaveNameInDFStr(wv1)
+		wvName1 = NameOfWave(wv1)
 	else
+		wvId1 = "_null_"
 		wvName1 = "_null_"
 	endif
 	if(WaveExists(wv2))
-		wvName2 = GetWaveNameInDFStr(wv2)
+		wvId2 = GetWaveNameInDFStr(wv2)
+		wvName2 = NameOfWave(wv2)
 	else
+		wvId2 = "_null_"
 		wvName2 = "_null_"
 	endif
-	wvNamePrefix = "Wave1: " + wvName1 + "\rWave2: " + wvName2 + "\r"
+	if(strsearch(wvId1, " in ", 0) >= 0)
+		sprintf wvNamePrefix, "Wave1: %s\r", wvId1
+	else
+		sprintf wvNamePrefix, "Wave1: %s (%s)\r", wvName1, wvId1
+	endif
+	if(strsearch(wvId2, " in ", 0) >= 0)
+		sprintf wvNamePrefix, "%sWave2: %s\r", wvNamePrefix, wvId2
+	else
+		sprintf wvNamePrefix, "%sWave2: %s (%s)\r", wvNamePrefix, wvName2, wvId2
+	endif
 
 	// Size Check
 	Make/FREE/D wv1Dims = {DimSize(wv1, UTF_ROW), DimSize(wv1, UTF_COLUMN), DimSize(wv1, UTF_LAYER), DimSize(wv1, UTF_CHUNK)}
