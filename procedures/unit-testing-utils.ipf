@@ -357,21 +357,13 @@ static Function/S DetermineWaveDataDifference(wv1, wv2, tol)
 
 	string msg
 	variable isComplex1, isComplex2
-	string wvName1, wvName2
+	string wvId1, wvId2
 	string wvNamePrefix, tmpStr1, tmpStr2
 
 	// Generate names for reference
-	if(WaveExists(wv1))
-		wvName1 = GetWaveNameInDFStr(wv1)
-	else
-		wvName1 = "_null_"
-	endif
-	if(WaveExists(wv2))
-		wvName2 = GetWaveNameInDFStr(wv2)
-	else
-		wvName2 = "_null_"
-	endif
-	wvNamePrefix = "Wave1: " + wvName1 + "\rWave2: " + wvName2 + "\r"
+	wvId1 = GetWaveNameInDFStr(wv1)
+	wvId2 = GetWaveNameInDFStr(wv2)
+	sprintf wvNamePrefix, "Wave1: %s\rWave2: %s\r", wvId1, wvId2
 
 	// Size Check
 	Make/FREE/D wv1Dims = {DimSize(wv1, UTF_ROW), DimSize(wv1, UTF_COLUMN), DimSize(wv1, UTF_LAYER), DimSize(wv1, UTF_CHUNK)}
@@ -516,15 +508,19 @@ threadsafe static Function/S GetWavePointer(wv)
 End
 
 static Function/S GetWaveNameInDFStr(w)
-	WAVE w
+	WAVE/Z w
 
 	string str
+
+	if(!WaveExists(w))
+		return "_null_"
+	endif
 
 	str = NameOfWave(w)
 	if(WaveType(w, 2) != IUTF_WAVETYPE2_FREE)
 		str += " in " + GetWavesDataFolder(w, 1)
 	else
-		str = GetWavePointer(w)
+		str += " (" + GetWavePointer(w) + ")"
 	endif
 
 	return str
