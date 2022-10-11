@@ -14,6 +14,12 @@ static Constant UTF_MAXDIFFCOUNT = 10
 // with two %s and some other text.
 static Constant MAX_STRING_LENGTH = 250
 
+// The number of significant decimal digits a fp32 or fp64 can hold. This value depends on the
+// length of the mantisse (23 bits for fp32 and 53 bits for fp64) and are calculated using this
+// formula: mantisse * log(2). The values are rounded up to the next closest integer.
+static Constant UTF_DECIMAL_DIGITS_FP32 = 7
+static Constant UTF_DECIMAL_DIGITS_FP64 = 16
+
 /// @brief Returns 1 if var is a finite/normal number, 0 otherwise
 ///
 /// @hidecallgraph
@@ -575,10 +581,10 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 					wfprintf str, "(%d, %d)", wTmpCLS
 				endif
 #endif
+			elseif(minorType & IUTF_WAVETYPE0_FP64)
+				str = "("  + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble=1) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble=1) + ")"
 			else
-				Make/FREE/N=1/C/Y=(WaveType(w)) wTmp
-				wTmp[0] = w[row][col][layer][chunk]
-				wfprintf str, "(%f, %f)", wTmp
+				str = "("  + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble=0) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble=0) + ")"
 			endif
 		else
 			if(minorType & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32))
@@ -597,8 +603,10 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 					sprintf str, "%d", wLS[row][col][layer][chunk]
 				endif
 #endif
+			elseif(minorType & IUTF_WAVETYPE0_FP64)
+				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble=1)
 			else
-				sprintf str, "%f", w[row][col][layer][chunk]
+				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble=0)
 			endif
 		endif
 	elseif(majorType == IUTF_WAVETYPE1_TEXT)
@@ -817,6 +825,22 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 	table[2 * locCount + 1][%ELEMENT] = SPrintWaveElement(wv2, row, col, layer, chunk)
 
 	locCount += 1
+End
+
+// return the string representation of the number with no trailing zeros after the decimal point
+static Function/S GetNiceStringForNumber(n, [isDouble])
+	variable n, isDouble
+
+	variable precision
+	string str
+
+	isDouble = ParamIsDefault(isDouble) ? 0 : !!isDouble;
+
+	precision = isDouble ? UTF_DECIMAL_DIGITS_FP64 : UTF_DECIMAL_DIGITS_FP32
+
+	sprintf str, "%.*g", precision, n
+
+	return str
 End
 
 // This function assumes that v1 != v2 and not both are NaN
