@@ -383,6 +383,32 @@ static Function TestUTF()
 	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvDP, DATA_FULL_SCALE, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(!UTF_Checks#AreWavesEqual(wvSP, wvDP, DIMENSION_SIZES, DEFAULT_TOLERANCE, detailedMsg))
 
+	Make/FREE/N=0 wvSP
+	Make/FREE/N=0/T wvTEXT
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(!UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA_TYPE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_SCALING, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DATA_UNITS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_UNITS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_NOTE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_LOCK_STATE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DATA_FULL_SCALE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_SIZES, DEFAULT_TOLERANCE, detailedMsg))
+
+	Make/FREE/N=(4,3,2,1) wvSP
+	Make/FREE/N=(4,3,2,1)/T wvTEXT
+	Ensure(!UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(!UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA_TYPE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_SCALING, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DATA_UNITS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_UNITS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_NOTE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_LOCK_STATE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DATA_FULL_SCALE, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(UTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_SIZES, DEFAULT_TOLERANCE, detailedMsg))
+
 	SetScale d, 1, 2, "dataUnitSP", wvSP
 	SetScale d, 3, 4, "dataUnitDP", wvDP
 	Note/K wvSP, "waveNoteSP"
