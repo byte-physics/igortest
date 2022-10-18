@@ -320,6 +320,8 @@ static Function TestUTF()
 	UTF_Wrapper#EQUAL_WAVE_WRAPPER($"", $"", !OUTPUT_MESSAGE)
 	UTF_Wrapper#EQUAL_WAVE_WRAPPER(numData1, $"", !OUTPUT_MESSAGE)
 	UTF_Wrapper#EQUAL_WAVE_WRAPPER($"", numData2, !OUTPUT_MESSAGE)
+	// equal waves
+	UTF_Wrapper#EQUAL_WAVE_WRAPPER(numData1, numData1, !OUTPUT_MESSAGE)
 	// different type zero sized waves
 	Make/FREE/N=0/D wNumType1
 	Make/FREE/N=0/I wNumType2
