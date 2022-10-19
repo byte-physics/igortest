@@ -377,7 +377,7 @@ Function JU_TestSuiteBegin(s, name, procWin)
 	s.juTS.timestamp = JU_GetISO8601TimeStamp()
 	s.juTS.hostname = "localhost"
 	s.juTS.tests = s.testCaseCount
-	s.juTS.timeStart = DateTime
+	s.juTS.timeStart = JU_GetRelativeTime()
 	s.juTS.failures = 0
 	s.juTS.errors = 0
 	s.juTS.skipped = 0
@@ -419,7 +419,7 @@ Function JU_TestCaseBegin(s, fullfuncName, procWin)
 
 	s.juTC.name = fullfuncName + " in " + procWin + " (" + num2str(run_count) + ")"
 	s.juTC.className = fullfuncName
-	s.juTC.timeStart = DateTime
+	s.juTC.timeStart = JU_GetRelativeTime()
 	s.juTC.error_count = error_count
 	Notebook HistoryCarbonCopy, getData = 1
 	s.juTC.history = S_Value
@@ -448,7 +448,7 @@ Function JU_TestCaseEnd(s, funcName, procWin, tcIndex)
 	NVAR/SDFR=dfr error_count
 	SVAR/SDFR=dfr systemErr
 
-	s.juTC.timeTaken = DateTime - s.juTC.timeStart
+	s.juTC.timeTaken = JU_GetRelativeTime() - s.juTC.timeStart
 	s.juTC.error_count = error_count - s.juTC.error_count
 	// disabled code 4 is currently not implemented
 	if(shouldDoAbort())
@@ -477,6 +477,11 @@ Function JU_TestSuiteEnd(s)
 		return NaN
 	endif
 
-	s.juTS.timeTaken = DateTime - s.juTS.timeStart
+	s.juTS.timeTaken = JU_GetRelativeTime() - s.juTS.timeStart
 	s.testSuiteOut += JU_CaseListToSuiteOut(s.testCaseListOut, s.juTS, s.juTSProp)
+End
+
+/// Return a relative timestamp [s] with microsecond precision
+static Function JU_GetRelativeTime()
+	return stopMSTimer(-2) / 1e6
 End
