@@ -413,7 +413,7 @@ static Function IterateOverWaves(table, wv1, wv2, rows, cols, layers, chunks, to
 			for(k = 0; k < layers; k += 1)
 				for(j = 0; j < cols; j += 1)
 					for(i = 0; i < rows; i += 1)
-						AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, runTol, tol)
+						AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, 4, runTol, tol)
 						if(locCount == UTF_MAXDIFFCOUNT)
 							return NaN
 						endif
@@ -425,7 +425,7 @@ static Function IterateOverWaves(table, wv1, wv2, rows, cols, layers, chunks, to
 		for(k = 0; k < layers; k += 1)
 			for(j = 0; j < cols; j += 1)
 				for(i = 0; i < rows; i += 1)
-					AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, runTol, tol)
+					AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, 3, runTol, tol)
 					if(locCount == UTF_MAXDIFFCOUNT)
 						return NaN
 					endif
@@ -435,7 +435,7 @@ static Function IterateOverWaves(table, wv1, wv2, rows, cols, layers, chunks, to
 	elseif(cols)
 		for(j = 0; j < cols; j += 1)
 			for(i = 0; i < rows; i += 1)
-				AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, runTol, tol)
+				AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, 2, runTol, tol)
 				if(locCount == UTF_MAXDIFFCOUNT)
 					return NaN
 				endif
@@ -443,7 +443,7 @@ static Function IterateOverWaves(table, wv1, wv2, rows, cols, layers, chunks, to
 		endfor
 	else
 		for(i = 0; i < rows; i += 1)
-			AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, runTol, tol)
+			AddValueDiffImpl(table, wv1, wv2, locCount, i, j, k, l, 1, runTol, tol)
 			if(locCount == UTF_MAXDIFFCOUNT)
 				return NaN
 			endif
@@ -638,11 +638,11 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 	return str
 End
 
-static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chunk, runTol, tol)
+static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chunk, dimensions, runTol, tol)
 	WAVE/T table
 	WAVE wv1, wv2
 	variable &locCount
-	variable row, col, layer, chunk
+	variable row, col, layer, chunk, dimensions
 	variable &runTol
 	variable tol
 
@@ -778,7 +778,23 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 		endif
 	endif
 
-	sprintf str, "[%d][%d][%d][%d]", row, col, layer, chunk
+	switch(dimensions)
+		case 1:
+			sprintf str, "[%d]", row
+			break
+		case 2:
+			sprintf str, "[%d][%d]", row, col
+			break
+		case 3:
+			sprintf str, "[%d][%d][%d]", row, col, layer
+			break
+		case 4:
+			sprintf str, "[%d][%d][%d][%d]", row, col, layer, chunk
+			break
+		default:
+			Abort "Unsupported number of dimensions"
+			break
+	endswitch
 	table[2 * locCount][%DIMS] = str
 	Make/FREE/T wDL1 = {GetDimLabel(wv1, UTF_ROW, row), GetDimLabel(wv1, UTF_COLUMN, col), GetDimLabel(wv1, UTF_LAYER,layer), GetDimLabel(wv1, UTF_CHUNK, chunk)}
 	str = wDL1[0] + wDL1[1] + wDL1[2] + wDL1[3]
