@@ -346,6 +346,40 @@ Function TC_MMD_bck_REENTRY([md])
 	PASS()
 End
 
+Function TC_UTILS_GetNiceStringForNumber()
+	// no decimal point, short numbers
+	TC_UTILS_GNSFN_Check_IGNORE("2", "2", 2)
+
+	// small amount of digits behind decimal point
+	TC_UTILS_GNSFN_Check_IGNORE("3.14", "3.14", 3.14)
+
+	// medium amount of digits behind decimal point
+	TC_UTILS_GNSFN_Check_IGNORE("3.141593", "3.141593", 3.141593)
+
+	// big amount of digits behind decimal point
+	TC_UTILS_GNSFN_Check_IGNORE("3.141593", "3.141592653589793", 3.141592653589793)
+
+	// really large number
+	TC_UTILS_GNSFN_Check_IGNORE("1e+30", "1e+30", 1e30)
+	TC_UTILS_GNSFN_Check_IGNORE("3.141593e+07", "31415926.53589793", pi * 1e7)
+
+	// all checks passed
+	PASS()
+End
+
+Function TC_UTILS_GNSFN_Check_IGNORE(expect32, expect64, num)
+	string expect32, expect64
+	variable num
+
+	string str
+
+	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
+	REQUIRE_EQUAL_STR(expect32, str)
+
+	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
+	REQUIRE_EQUAL_STR(expect64, str)
+End
+
 static Function TEST_SUITE_END_OVERRIDE(name)
 	string name
 
