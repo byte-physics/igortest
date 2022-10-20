@@ -630,6 +630,7 @@ End
 /// Tests two waves for equality.
 /// If one wave has a zero size and the other one does not then properties like DIMENSION_UNITS are compared to unequal as a property for a
 /// non-existing dimension is always unequal to a property of an existing dimension.
+/// This function won't throw an assert if both waves have the same reference, because they are considered as equal.
 ///
 /// @param wv1    first wave
 /// @param wv2    second wave
@@ -658,13 +659,6 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 
 	result = WaveExists(wv2)
 	EvaluateResults(result, "Assumption that the second wave (wv2) exists", flags)
-
-	if(!result)
-		return NaN
-	endif
-
-	result = !WaveRefsEqual(wv1, wv2)
-	EvaluateResults(result, "Assumption that both waves are distinct", flags)
 
 	if(!result)
 		return NaN
