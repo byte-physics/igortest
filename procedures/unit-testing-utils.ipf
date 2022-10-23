@@ -20,6 +20,28 @@ static Constant MAX_STRING_LENGTH = 250
 static Constant UTF_DECIMAL_DIGITS_FP32 = 7
 static Constant UTF_DECIMAL_DIGITS_FP64 = 16
 
+// The range of printable ASCII characters.
+static Constant ASCII_PRINTABLE_START = 32
+static Constant ASCII_PRINTABLE_END = 126
+
+// The maximum amount of bytes that should be printed as context before the difference in
+// a string diff
+static Constant MAX_STRING_DIFF_CONTEXT = 10
+
+// The comparison mode to use for CmpStr. This is binary for Igor >= 7.05 and case sensitive
+// text comparison for older versions.
+#if IgorVersion() >= 7.05
+static Constant UTF_CMPSTR_MODE = 2
+#else
+static Constant UTF_CMPSTR_MODE = 1
+#endif
+
+// The result of a string diff
+Structure IUTF_StringDiffResult
+	string v1
+	string v2
+EndStructure
+
 /// @brief Returns 1 if var is a finite/normal number, 0 otherwise
 ///
 /// @hidecallgraph
@@ -597,8 +619,9 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 			endif
 		endif
 	elseif(majorType == IUTF_WAVETYPE1_TEXT)
+		// this should be done using DiffString
 		WAVE/T wtext = w
-		str = AutoExtendedStringOutput(wtext[row][col][layer][chunk])
+		str = EscapeString(wtext[row][col][layer][chunk])
 	elseif(majorType == IUTF_WAVETYPE1_DFR)
 		WAVE/DF wdfref = w
 		tmpStr = GetDataFolder(1, wdfref[row][col][layer][chunk])
@@ -652,6 +675,7 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 	variable curTol
 	variable/C c1, c2
 	string s1, s2, str
+	Struct IUTF_StringDiffResult strDiffResult
 #if IgorVersion() >= 7.0
 	INT64 cmpI64R
 #endif
@@ -808,8 +832,17 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 		sprintf str, "%s;%s;%s;%s;", wDL2[0], wDL2[1], wDL2[2], wDL2[3]
 		table[2 * locCount + 1][%DIMLABEL] = str
 	endif
-	table[2 * locCount][%ELEMENT] = SPrintWaveElement(wv1, row, col, layer, chunk)
-	table[2 * locCount + 1][%ELEMENT] = SPrintWaveElement(wv2, row, col, layer, chunk)
+
+	if (istext1)
+		WAVE/T wtext1 = wv1
+		WAVE/T wtext2 = wv2
+		DiffString(wtext1[row][col][layer][chunk], wtext2[row][col][layer][chunk], strDiffResult)
+		table[2 * locCount][%ELEMENT] = strDiffResult.v1
+		table[2 * locCount + 1][%ELEMENT] = strDiffResult.v2
+	else
+		table[2 * locCount][%ELEMENT] = SPrintWaveElement(wv1, row, col, layer, chunk)
+		table[2 * locCount + 1][%ELEMENT] = SPrintWaveElement(wv2, row, col, layer, chunk)
+	endif
 
 	locCount += 1
 End
@@ -933,68 +966,213 @@ static Function NumBytesInUTF8Character(str, byteOffset)
 	return 1
 End
 
-#if IgorVersion() >= 7.00
-static Function/S AutoExtendedStringOutput(str)
-	string str
+/// @brief Generate a diff of str1 and str2. This will only look for the first difference in both
+///        strings. The strings are expected to be different!
+///
+/// @param[in] str1 the first string
+/// @param[in] str2 the second string
+/// @param[out] result the diff of both strings
+static Function DiffString(str1, str2, result)
+	string str1, str2
+	Struct IUTF_StringDiffResult &result
 
-	variable bytePos, charNum, numBytes, code
-	variable extPrint, len
-	string format, hexOut
-	string extOut = ""
+	variable start, line, end1, end2, endmin, diffpos
+	variable str1len, str2len
+	string lineEnding1, lineEnding2, prefix
 
-	Make/FREE/I/U biDiChars = { \
-							char2num("\u200E"), char2num("\u200F"), char2num("\u061C"), char2num("\u202A"), \
-							char2num("\u202D"), char2num("\u202B"), char2num("\u202E"), char2num("\u202C"), \
-							char2num("\u2066"), char2num("\u2067"), char2num("\u2068"), char2num("\u2069")}
+	start = 0
+	line = 0
+	str1len = strlen(str1)
+	str2len = strlen(str2)
 
-	len = strlen(str)
-	if(len)
-		do
-			numBytes = NumBytesInUTF8Character(str, bytePos)
-			code = char2num(str[bytePos, bytePos + numBytes - 1])
-			if(code >= char2num("\u0000") && code <= char2num("\u001F"))
-				// C0 controls
-				extPrint = 1
-			elseif(code >= char2num("\u007F") && code <= char2num("\u009F"))
-				// C1 controls
-				extPrint = 1
-			else
-				// Bi Directional characters
-				FindValue/V=(code) biDiChars
-				if(V_Value >= 0)
-					extPrint = 1
-				endif
-			endif
-			format = "%0" + num2str(2 * numBytes) + "x"
-			sprintf hexOut, format, code
-			extOut += hexOut + " "
-			bytePos += numBytes
-		while(bytePos < len)
+	// The following cases can happen during the diff:
+	// 1. text is different until line end
+	// 2. one line is shorter than the other
+	// 3. the line endings are different
+	// 4. no differences in the current line
+	// 5. one string is larger than the other one
+	do
+		end1 = DetectEndOfLine(str1, start, lineEnding1)
+		end2 = DetectEndOfLine(str2, start, lineEnding2)
+		endmin = min(end1, end2)
+
+		diffpos = GetTextDiffPos(str1[start, endmin - 1], str2[start, endmin - 1])
+
+		// Case 1
+		if(diffpos >= 0)
+			sprintf prefix, "%d:%d:%d>", line, diffpos, start + diffpos
+			result.v1 = prefix + GetStringWithContext(str1, start, start + diffpos, end1 - 1)
+			result.v2 = prefix + GetStringWithContext(str2, start, start + diffpos, end2 - 1)
+			return NaN
+		endif
+
+		// Case 2
+		if(end1 != end2)
+			sprintf prefix, "%d:%d:%d>", line, endmin - start, endmin
+			result.v1 = prefix + GetStringWithContext(str1, start, endmin, end1)
+			result.v2 = prefix + GetStringWithContext(str2, start, endmin, end2)
+			return NaN
+		endif
+
+		// Case 3
+		if(CmpStr(lineEnding1, lineEnding2))
+			sprintf prefix, "%d:%d:%d>", line, endmin - start, endmin
+			result.v1 = prefix + GetStringWithContext(str1, start, endmin, endmin + strlen(lineEnding1) - 1)
+			result.v2 = prefix + GetStringWithContext(str2, start, endmin, endmin + strlen(lineEnding2) - 1)
+			return NaN
+		endif
+
+		// Case 4
+		start = endmin + strlen(lineEnding1)
+		line += 1
+
+	while(start < str1len && start < str2len)
+
+	// Case 5
+	if(str1len != str2len)
+		sprintf prefix, "%d:0:%d>", line, start
+		if(str1len <= start)
+			result.v1 = prefix
+		else
+			end1 = DetectEndOfLine(str1, start, lineEnding1)
+			result.v1 = prefix + EscapeString(str1[start, end1])
+		endif
+		if(str2len <= start)
+			result.v2 = prefix
+		else
+			end2 = DetectEndOfLine(str2, start, lineEnding2)
+			result.v2 = prefix + EscapeString(str2[start, end2])
+		endif
+		return NaN
 	endif
 
-	return SelectString(extPrint, str, ": " + extOut)
+	Abort "Bug: Cannot create diff of equal strings"
 End
-#else
-static Function/S AutoExtendedStringOutput(str)
+
+/// @brief Return a section of str which contains the character at diffpos and some context arround.
+///        The context will always be in the bounds of start and endpos.
+///
+/// @param[in] str the string for which a section has to generated
+/// @param[in] start the left-most bound to generate the context from
+/// @param[in] diffpos the position of interest. A context will be generated around this position respecting start and endpos.
+/// @param[in] endpos the right-most bound to generate the context from
+/// @returns the context at diffpos in str
+static Function/S GetStringWithContext(str, start, diffpos, endpos)
+	variable start, diffpos, endpos
 	string str
 
-	variable bytePos, code
-	variable extPrint, len
-	string format, hexOut
-	string extOut = ""
+	string strOut
 
-	len = strlen(str)
-	for(bytePos = 0; bytePos < len; bytePos += 1)
-		code = char2num(str[bytePos]) & 0x7F
-		if(code >= 0 && code <= 31)
-			extPrint = 1
-		elseif(code == 127)
-			extPrint = 1
+	strOut = EscapeString(str[max(start, diffpos - MAX_STRING_DIFF_CONTEXT), diffpos - 1])
+	strOut += EscapeString(str[diffpos, min(endpos, diffpos + MAX_STRING_DIFF_CONTEXT)])
+
+	return strOut
+End
+
+/// @brief Get the first position with a difference in str1 and str2.
+///        This will compare case-sensitive and since Igor 7.05 in byte mode.
+///
+/// @param[in] str1 the first string
+/// @param[in] str2 the second string
+/// @returns the position of the first difference. -1 if there is no difference.
+static Function GetTextDiffPos(str1, str2)
+	string str1, str2
+
+	variable i
+	variable length = strlen(str1)
+
+	for(i = 0; i < length; i += 1)
+		if(CmpStr(str1[i], str2[i], UTF_CMPSTR_MODE))
+			return i
 		endif
-		sprintf hexOut, "%02x", code
-		extOut += hexOut + " "
 	endfor
 
-	return SelectString(extPrint, str, ": " + extOut)
+	return -1
 End
-#endif
+
+/// @brief Detect the next end-of-line marker from the current start position.
+///        This function supports the common line endings for Windows, Unix and OSX.
+///        If there are no more line endings in str it will output the length of the string and an empty marker.
+///
+/// @param[in] str a multi-line string for which a line ending has to be searched.
+/// @param[in] start the start position inside str
+/// @param[out] lineEnding the detected line ending marker. This can be "\r\n", "\r", "\n" or "".
+/// returns the position where the line ending starts
+static Function DetectEndOfLine(str, start, lineEnding)
+	variable start
+	string str
+	string &lineEnding
+
+	variable i
+	variable length = strlen(str)
+
+	lineEnding = ""
+
+	for(i = start; i < length; i += 1)
+		if (!CmpStr(str[i], "\r"))
+			if (i + 1 < length && !CmpStr(str[i + 1], "\n"))
+				lineEnding = "\r\n"
+			else
+				lineEnding = "\r"
+			endif
+			return i
+		endif
+		if (!CmpStr(str[i], "\n"))
+			lineEnding = "\n"
+			return i
+		endif
+	endfor
+
+	// no line ending
+	return length
+End
+
+/// @brief Escaping a string by replacing any characters that are not printable in ASCII with a
+///        printable version. This has no support for other text encodings and is purely single
+///        byte aware.
+///
+/// @param[in] str the string to escape
+/// @returns the escaped string
+static Function/S EscapeString(str)
+	string str
+
+	variable i, charnum, length
+	string result, hex, char
+
+	result = ""
+	length = strlen(str)
+
+	for(i = 0; i < length; i += 1)
+		result += " "
+		char = str[i]
+		charnum = char2num(char)
+		if (charnum < 0)
+			charnum += 256
+		endif
+		if(charnum >= ASCII_PRINTABLE_START && charnum <= ASCII_PRINTABLE_END)
+			result += str[i]
+			continue
+		endif
+		// non printable characters in ASCII
+		strswitch(char)
+			case "\000":
+				result += "<NUL>"
+				break
+			case "\n":
+				result += "<LF>"
+				break
+			case "\r":
+				result += "<CR>"
+				break
+			case "\t":
+				result += "<TAB>"
+				break
+			default:
+				sprintf hex, "<0x%02X>", charnum
+				result += hex
+				break
+		endswitch
+	endfor
+
+	return result
+End

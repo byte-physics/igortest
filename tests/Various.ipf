@@ -380,6 +380,77 @@ Function TC_UTILS_GNSFN_Check_IGNORE(expect32, expect64, num)
 	REQUIRE_EQUAL_STR(expect64, str)
 End
 
+static Function TC_StringDiff()
+	STRUCT IUTF_StringDiffResult result
+	string str, res, expected
+
+	// DIFF CHECKING
+
+	// Case 1: text is different until line end
+	TC_StringDiff_Check("abcfg", "abcde", "0:3:3> a b c f g", "0:3:3> a b c d e")
+	TC_StringDiff_Check("foo\nabcfg\nbar", "foo\nabcde\nbar", "1:3:7> a b c f g", "1:3:7> a b c d e")
+
+	// Case 2: one line is shorter than the other
+	TC_StringDiff_Check("abc", "abcde", "0:3:3> a b c", "0:3:3> a b c d e")
+	TC_StringDiff_Check("foo\nabc\nbar", "foo\nabcde\nbar", "1:3:7> a b c <LF>", "1:3:7> a b c d e <LF>")
+
+	// Case 3: the line endings are different
+	TC_StringDiff_Check("abc\ndef", "abc\rdef", "0:3:3> a b c <LF>", "0:3:3> a b c <CR>")
+	TC_StringDiff_Check("abc\ndef", "abc\r\ndef", "0:3:3> a b c <LF>", "0:3:3> a b c <CR> <LF>")
+	TC_StringDiff_Check("abc\r\ndef", "abc\rdef", "0:3:3> a b c <CR> <LF>", "0:3:3> a b c <CR>")
+
+	// Case 4: one string is larger than the other one
+	TC_StringDiff_Check("text\n", "text\nabc", "1:0:5>", "1:0:5> a b c")
+	TC_StringDiff_Check("", "abc\ndef", "0:0:0>", "0:0:0> a b c <LF>")
+
+	// CORE CHECKING
+
+	// Case sensitivity
+	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A")
+
+	// Trim context
+	TC_StringDiff_Check("0123456789abcdef.0123456789abcdef", "0123456789abcdef:0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f . 0 1 2 3 4 5 6 7 8 9", "0:16:16> 6 7 8 9 a b c d e f : 0 1 2 3 4 5 6 7 8 9")
+	TC_StringDiff_Check(".0123456789abcdef", ":0123456789abcdef", "0:0:0> . 0 1 2 3 4 5 6 7 8 9", "0:0:0> : 0 1 2 3 4 5 6 7 8 9")
+	TC_StringDiff_Check("0123456789abcdef\n.0123456789abcdef", "0123456789abcdef\n:0123456789abcdef", "1:0:17> . 0 1 2 3 4 5 6 7 8 9", "1:0:17> : 0 1 2 3 4 5 6 7 8 9")
+	TC_StringDiff_Check("0123456789abcdef.", "0123456789abcdef:", "0:16:16> 6 7 8 9 a b c d e f .", "0:16:16> 6 7 8 9 a b c d e f :")
+	TC_StringDiff_Check("0123456789abcdef.\n0123456789abcdef", "0123456789abcdef:\n0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f .", "0:16:16> 6 7 8 9 a b c d e f :")
+
+	// Escaping
+	res = UTF_UTILS#EscapeString("a\000\n\r\t\007")
+	expected = " a <NUL> <LF> <CR> <TAB> <0x07>"
+	CHECK_EQUAL_STR(expected, res)
+End
+
+static Function TC_StringDiff_Check(str1, str2, out1, out2)
+	string str1, str2, out1, out2
+	Struct IUTF_StringDiffResult result
+
+	string str
+
+	// forward check
+	UTF_UTILS#DiffString(str1, str2, result)
+	str = result.v1
+	CHECK_EQUAL_STR(out1, str)
+	str = result.v2
+	CHECK_EQUAL_STR(out2, str)
+
+	// backward check (switched arguments)
+	UTF_UTILS#DiffString(str2, str1, result)
+	str = result.v1
+	CHECK_EQUAL_STR(out2, str)
+	str = result.v2
+	CHECK_EQUAL_STR(out1, str)
+End
+
+// UTF_EXPECTED_FAILURE
+static Function TC_BreaksHard()
+
+	Make/FREE/T wv1 = {"a"}
+	Make/FREE/T wv2 = {"A"}
+
+	CHECK_EQUAL_WAVES(wv1, wv2)
+End
+
 static Function TEST_SUITE_END_OVERRIDE(name)
 	string name
 
