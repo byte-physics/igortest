@@ -3346,6 +3346,7 @@ End
 ///                         It allows the combination of this framework with continuous integration
 ///                         servers like Atlassian Bamboo/GitLab/etc.
 ///                         Can not be combined with enableTAP.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
 ///                         A TAP compatible file is written at the end of the test run.
@@ -3354,6 +3355,7 @@ End
 ///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
 ///                         Can not be combined with enableJU.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
 ///                         The input for test suites (procWinList) and test cases (testCase) is
@@ -3399,6 +3401,7 @@ End
 ///                         A list of windows where execution gets traced. The unit testing framework saves a RTF document
 ///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   traceOptions   (optional) default ""
 ///                         A key:value pair list of additional tracing options. Currently supported is:
@@ -3431,7 +3434,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS, skip, tcCount
+	variable i, tcFuncCount, startNextTS, skip, tcCount, reqSave
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
@@ -3463,13 +3466,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		ClearBaseFilename()
 		CreateHistoryLog()
 
-		PathInfo home
-		if(!V_flag)
-			sprintf msg, "Error: Please Save experiment first."
-			UTF_PrintStatusMessage(msg)
-			return NaN
-		endif
-
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 
 		// transfer parameters to s. variables
@@ -3487,6 +3483,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			sprintf msg, "Error: enableTAP and enableJU can not be both true."
 			UTF_PrintStatusMessage(msg)
 			return NaN
+		endif
+
+		if(s.juProps.enableJU || s.enableTAP || s.tracingEnabled)
+			PathInfo home
+			if(!V_flag)
+				sprintf msg, "Error: Please Save experiment first."
+				UTF_PrintStatusMessage(msg)
+				return NaN
+			endif
 		endif
 
 		var = IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION
