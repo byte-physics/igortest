@@ -817,6 +817,12 @@ static Function AnalyzeTracingResult()
 		MultiThread logdata += logdataThread[p][q][r]
 	endfor
 
+	GetFileFolderInfo/P=home/Z/Q INSTRUDATA_FILENAME
+	if(V_flag || !V_IsFile)
+		printf "Error as the instrumentation data does not exist anymore.\r"
+		Abort
+	endif
+
 	LoadWave/P=home/J/K=1/O/Q/M/N=iutf_instrumented_data INSTRUDATA_FILENAME
 	if(V_flag != 1)
 		printf "Error when loading instrumentation data.\r"
