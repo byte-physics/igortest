@@ -451,6 +451,32 @@ static Function TC_BreaksHard()
 	CHECK_EQUAL_WAVES(wv1, wv2)
 End
 
+static Function TC_WaveName()
+	string dfr, str, expect
+
+	dfr = GetDataFolder(1)
+
+	str = UTF_Utils#GetWaveNameInDFStr($"")
+	expect = "_null_"
+	CHECK_EQUAL_STR(expect, str)
+
+	Make namedDFWave
+	str = UTF_Utils#GetWaveNameInDFStr(namedDFWave)
+	expect = "namedDFWave in " + dfr
+	CHECK_EQUAL_STR(expect, str)
+
+	Make/FREE unnamedFreeWave
+	str = UTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
+	CHECK(GrepString(str, "^_free_ \\(0x[0-9a-f]+\\)$"))
+
+#if IgorVersion() >= 9.0
+	Make/FREE=1 namedFreeWave
+	str = UTF_Utils#GetWaveNameInDFStr(namedFreeWave)
+	CHECK(GrepString(str, "^namedFreeWave \\(0x[0-9a-f]+\\)$"))
+#endif
+
+End
+
 static Function TEST_SUITE_END_OVERRIDE(name)
 	string name
 
