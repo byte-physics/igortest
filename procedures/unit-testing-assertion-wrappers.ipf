@@ -509,8 +509,8 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	variable majorType, minorType
 	variable flags
 
-	variable result
-	string str
+	variable result, type
+	string str, str1, str2
 
 	incrAssert()
 
@@ -519,12 +519,18 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	endif
 
 	result = UTF_Checks#HasWaveMajorType(wv, majorType)
-	sprintf str, "Assumption that the wave's main type is %d", majorType
+	type = UTF_Checks#GetWaveMajorType(wv)
+	str1 = UTF_Checks#GetWaveMajorTypeString(majorType)
+	str2 = UTF_Checks#GetWaveMajorTypeString(type)
+	sprintf str, "Expect wave's main type to be '%s' but got '%s'", str1, str2
 	EvaluateResults(result, str, flags)
 
 	if(!ParamIsDefault(minorType))
 		result = UTF_Checks#HasWaveMinorType(wv, minorType)
-		sprintf str, "Assumption that the wave's sub type is %d", minorType
+		type = UTF_Checks#GetWaveMinorType(wv)
+		str1 = UTF_Checks#GetWaveMinorTypeString(minorType)
+		str2 = UTF_Checks#GetWaveMinorTypeString(type)
+		sprintf str, "Expect wave's sub type to be '%s' but got '%s'", str1, str2
 		EvaluateResults(result, str, flags)
 	endif
 End

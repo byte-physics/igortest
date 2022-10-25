@@ -453,6 +453,84 @@ static Function TC_StringDiff_Check(str1, str2, out1, out2, [case_sensitive])
 	CHECK_EQUAL_STR(out1, str)
 End
 
+static Function TC_WaveMajorTypeString()
+	// just the constants
+	TC_WaveMajorTypeString_Check("NULL_WAVE", NULL_WAVE)
+	TC_WaveMajorTypeString_Check("NUMERIC_WAVE", NUMERIC_WAVE)
+	TC_WaveMajorTypeString_Check("TEXT_WAVE", TEXT_WAVE)
+	TC_WaveMajorTypeString_Check("DATAFOLDER_WAVE", DATAFOLDER_WAVE)
+	TC_WaveMajorTypeString_Check("WAVE_WAVE", WAVE_WAVE)
+	TC_WaveMajorTypeString_Check("NORMAL_WAVE", NORMAL_WAVE)
+	TC_WaveMajorTypeString_Check("FREE_WAVE", FREE_WAVE)
+
+	// normal waves
+	TC_WaveMajorTypeString_Check("NULL_WAVE", NORMAL_WAVE | NULL_WAVE)
+	TC_WaveMajorTypeString_Check("NORMAL_WAVE, NUMERIC_WAVE", NORMAL_WAVE | NUMERIC_WAVE)
+	TC_WaveMajorTypeString_Check("NORMAL_WAVE, TEXT_WAVE", NORMAL_WAVE | TEXT_WAVE)
+	TC_WaveMajorTypeString_Check("NORMAL_WAVE, DATAFOLDER_WAVE", NORMAL_WAVE | DATAFOLDER_WAVE)
+	TC_WaveMajorTypeString_Check("NORMAL_WAVE, WAVE_WAVE", NORMAL_WAVE | WAVE_WAVE)
+
+	// free waves
+	TC_WaveMajorTypeString_Check("NULL_WAVE", FREE_WAVE | NULL_WAVE)
+	TC_WaveMajorTypeString_Check("FREE_WAVE, NUMERIC_WAVE", FREE_WAVE | NUMERIC_WAVE)
+	TC_WaveMajorTypeString_Check("FREE_WAVE, TEXT_WAVE", FREE_WAVE | TEXT_WAVE)
+	TC_WaveMajorTypeString_Check("FREE_WAVE, DATAFOLDER_WAVE", FREE_WAVE | DATAFOLDER_WAVE)
+	TC_WaveMajorTypeString_Check("FREE_WAVE, WAVE_WAVE", FREE_WAVE | WAVE_WAVE)
+End
+
+static Function TC_WaveMajorTypeString_Check(expected, type)
+	string expected
+	variable type
+
+	string str
+
+	str = UTF_Checks#GetWaveMajorTypeString(type)
+	CHECK_EQUAL_STR(expected, str)
+End
+
+static Function TC_WaveMinorTypeString()
+	// just the constants
+	TC_WaveMinorTypeString_Check("NON_NUMERIC_WAVE", NON_NUMERIC_WAVE)
+	TC_WaveMinorTypeString_Check("COMPLEX_WAVE", COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("FLOAT_WAVE", FLOAT_WAVE)
+	TC_WaveMinorTypeString_Check("DOUBLE_WAVE", DOUBLE_WAVE)
+	TC_WaveMinorTypeString_Check("INT8_WAVE", INT8_WAVE)
+	TC_WaveMinorTypeString_Check("INT16_WAVE", INT16_WAVE)
+	TC_WaveMinorTypeString_Check("INT32_WAVE", INT32_WAVE)
+	TC_WaveMinorTypeString_Check("INT64_WAVE", INT64_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE", UNSIGNED_WAVE)
+
+	// unsigned waves
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT8_WAVE",  UNSIGNED_WAVE | INT8_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT16_WAVE", UNSIGNED_WAVE | INT16_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT32_WAVE", UNSIGNED_WAVE | INT32_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT64_WAVE", UNSIGNED_WAVE | INT64_WAVE)
+
+	// complex waves
+	TC_WaveMinorTypeString_Check("FLOAT_WAVE, COMPLEX_WAVE", FLOAT_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("DOUBLE_WAVE, COMPLEX_WAVE", DOUBLE_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("INT8_WAVE, COMPLEX_WAVE", INT8_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("INT16_WAVE, COMPLEX_WAVE", INT16_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("INT32_WAVE, COMPLEX_WAVE", INT32_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("INT64_WAVE, COMPLEX_WAVE", INT64_WAVE | COMPLEX_WAVE)
+
+	// unsigned complex waves
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT8_WAVE, COMPLEX_WAVE", UNSIGNED_WAVE | INT8_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT16_WAVE, COMPLEX_WAVE", UNSIGNED_WAVE | INT16_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT32_WAVE, COMPLEX_WAVE", UNSIGNED_WAVE | INT32_WAVE | COMPLEX_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT64_WAVE, COMPLEX_WAVE", UNSIGNED_WAVE | INT64_WAVE | COMPLEX_WAVE)
+End
+
+static Function TC_WaveMinorTypeString_Check(expected, type)
+	string expected
+	variable type
+
+	string str
+
+	str = UTF_Checks#GetWaveMinorTypeString(type)
+	CHECK_EQUAL_STR(expected, str)
+End
+
 // UTF_EXPECTED_FAILURE
 static Function TC_BreaksHard()
 
