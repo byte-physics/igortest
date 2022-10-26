@@ -216,8 +216,15 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	string dimLabelMsg = ""
 	variable result, err
 
-	if((!numpnts(wv1) || !numpnts(wv2)) && mode == WAVE_DATA)
-		result = !numpnts(wv1) && !numpnts(wv2)
+	if(mode == WAVE_DATA)
+		if(!numpnts(wv1) || !numpnts(wv2))
+			result = !numpnts(wv1) && !numpnts(wv2)
+		elseif(WaveType(wv1, 1) != WaveType(wv2, 1))
+			detailedMsg = "The base wave types are different, WAVE_DATA can not be compared."
+			return 0
+		else
+			result = EqualWaves(wv1, wv2, mode, tol) == 1
+		endif
 	else
 		result = EqualWaves(wv1, wv2, mode, tol) == 1
 	endif

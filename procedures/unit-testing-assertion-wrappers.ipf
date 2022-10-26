@@ -699,11 +699,6 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		return NaN
 	endif
 
-	if((WaveType(wv1, 1) != WaveType(wv2, 1)) && !(!numpnts(wv1) && !numpnts(wv2)))
-		EvaluateResults(0, "Compatible basic wave type for EQUAL_WAVE check.", flags)
-		return NaN
-	endif
-
 	for(i = 0; i < DimSize(modes, 0); i += 1)
 		mode = modes[i]
 		result = UTF_Checks#AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
