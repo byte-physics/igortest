@@ -195,7 +195,7 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	if(ParamIsDefault(case_sensitive))
-		case_sensitive = 0
+		case_sensitive = 1
 	endif
 
 	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
@@ -453,7 +453,7 @@ End
 ///
 /// @param str1           first string
 /// @param str2           second string
-/// @param case_sensitive (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
+/// @param case_sensitive (optional) should the comparison be done case sensitive (1) or case insensitive (1, the default)
 static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string &str1, &str2
 	variable case_sensitive
@@ -469,7 +469,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	if(ParamIsDefault(case_sensitive))
-		case_sensitive = 0
+		case_sensitive = 1
 	endif
 
 	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)

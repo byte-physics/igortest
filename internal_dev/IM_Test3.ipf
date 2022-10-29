@@ -28,8 +28,8 @@ static Function VerifyDefaultStringBehaviour()
 	string strLow      = "1234a"
 	string strUP       = "1234A"
 
-	// by default string comparison is done case insensitive
-	CHECK_EQUAL_STR(strLow,strUP)
+	// by default string comparison is done case sensitive
+	WARN_EQUAL_STR(strLow,strUP)
 	CHECK_EQUAL_STR(strLow,strUP,case_sensitive=0)
 	// the next test fails
 	WARN_EQUAL_STR(strLow,strUP,case_sensitive=1)
