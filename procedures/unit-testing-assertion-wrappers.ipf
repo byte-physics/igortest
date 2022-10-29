@@ -161,7 +161,7 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -170,7 +170,9 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = !UTF_Checks#AreVariablesEqual(var1, var2)
-	sprintf str, "%g != %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s != %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -226,7 +228,7 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	variable strong
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2, tmpStr3
 
 	incrAssert()
 
@@ -243,7 +245,10 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	endif
 
 	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong)
-	sprintf str, "%g ~ %g with %s check and tol %g", var1, var2, SelectString(strong, "weak", "strong"), tol
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	tmpStr3 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	sprintf str, "%s ~ %s with %s check and tol %s", tmpStr1, tmpStr2, SelectString(strong, "weak", "strong"), tmpStr3
 	EvaluateResults(result, str, flags)
 End
 
@@ -258,7 +263,7 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	variable strong
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2, tmpStr3, tmpStr4, tmpStr5
 
 	incrAssert()
 
@@ -275,7 +280,12 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	endif
 
 	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
-	sprintf str, "(%g, %g) ~ (%g, %g) with %s check and tol %g", real(var1), imag(var1), real(var2), imag(var2), SelectString(strong, "weak", "strong"), tol
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(real(var1), isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(imag(var1), isDouble = 1)
+	tmpStr3 = UTF_Utils#GetNiceStringForNumber(real(var2), isDouble = 1)
+	tmpStr4 = UTF_Utils#GetNiceStringForNumber(imag(var2), isDouble = 1)
+	tmpStr5 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	sprintf str, "(%s, %s) ~ (%s, %s) with %s check and tol %s", tmpStr1, tmpStr2, tmpStr3, tmpStr4, SelectString(strong, "weak", "strong"), tmpStr5
 	EvaluateResults(result, str, flags)
 End
 
@@ -348,7 +358,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable tol
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -361,7 +371,10 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	endif
 
 	result = UTF_Checks#IsVariableSmall(var, tol)
-	sprintf str, "%g ~ 0 with tol %g", var, tol
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+
+	sprintf str, "%s ~ 0 with tol %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -375,7 +388,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	variable tol
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2, tmpStr3
 
 	incrAssert()
 
@@ -388,7 +401,10 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	endif
 
 	result = UTF_Checks#IsVariableSmall(cabs(var), tol)
-	sprintf str, "(%g, %g) ~ 0 with tol %g", real(var), imag(var), tol
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(real(var), isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(imag(var), isDouble = 1)
+	tmpStr3 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	sprintf str, "(%s, %s) ~ 0 with tol %s", tmpStr1, tmpStr2, tmpStr3
 	EvaluateResults(result, str, flags)
 End
 
@@ -525,7 +541,7 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -534,7 +550,9 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = UTF_Checks#AreVariablesEqual(var1, var2)
-	sprintf str, "%g == %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s == %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -724,7 +742,7 @@ static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2, flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -733,7 +751,9 @@ static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = UTF_Checks#IsLessOrEqual(var1, var2)
-	sprintf str, "%g <= %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s <= %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -746,7 +766,7 @@ static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2, flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -755,7 +775,9 @@ static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = UTF_Checks#IsLess(var1, var2)
-	sprintf str, "%g < %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s < %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -768,7 +790,7 @@ static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2, flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -777,7 +799,9 @@ static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = UTF_Checks#IsLessOrEqual(var2, var1)
-	sprintf str, "%g >= %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s >= %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
 
@@ -790,7 +814,7 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable var1, var2, flags
 
 	variable result
-	string str
+	string str, tmpStr1, tmpStr2
 
 	incrAssert()
 
@@ -799,6 +823,8 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 	endif
 
 	result = UTF_Checks#IsLess(var2, var1)
-	sprintf str, "%g > %g", var1, var2
+	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	sprintf str, "%s > %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
