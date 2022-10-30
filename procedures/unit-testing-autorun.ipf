@@ -92,13 +92,13 @@ End
 
 /// resets a global filename template string for output
 Function ClearBaseFilename()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:baseFilename = ""
 End
 
 /// creates a new filename template, if template already present return current
 Function/S GetBaseFilename()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr baseFilename
 	SVAR/Z/SDFR=dfr baseFilenameOverwrite
 

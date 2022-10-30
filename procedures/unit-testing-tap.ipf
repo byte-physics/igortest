@@ -12,7 +12,7 @@ static StrConstant TAP_LINEEND_STR     = "\n"
 /// Creates the variable tap_output in PKG_FOLDER and initializes and empty TAP output file with a unique name
 Function TAP_EnableOutput()
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:tap_output
 	NVAR/SDFR=dfr tap_output
 
@@ -23,7 +23,7 @@ End
 Function TAP_CreateFile()
 
 	variable fnum
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:tap_filename
 	SVAR/SDFR=dfr tap_filename
 
@@ -47,7 +47,7 @@ End
 
 /// Checks if tap_output variable exists in PKG_FOLDER, which indicates that TAP Output is enabled
 Function TAP_IsOutputEnabled()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr tap_output
 
 	if(NVAR_Exists(tap_output))
@@ -97,7 +97,7 @@ End
 
 /// Resets TAP Directive/Description to empty strings
 static Function TAP_ClearNotes()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:tap_directive = ""
 	string/G dfr:tap_description = ""
 End
@@ -192,7 +192,7 @@ static Function TAP_WriteValidTag(str, isDirective)
 	string str
 	variable isDirective
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr tap_directive
 	SVAR/SDFR=dfr tap_description
 
@@ -227,7 +227,7 @@ End
 
 /// @brief if the current test case is marked as expected failure, TAP will treat it as TODO
 static Function TAP_treatExpectedFailureAsTodo()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr tap_directive
 
 	string buf = tap_directive
@@ -291,7 +291,7 @@ End
 static Function TAP_WriteCase(case_cnt, skipcase)
 	variable case_cnt, skipcase
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr tap_diagnostic
 	SVAR/SDFR=dfr tap_description
 	SVAR/SDFR=dfr tap_directive

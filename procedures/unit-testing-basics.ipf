@@ -355,7 +355,7 @@ Function/DF GetPackageFolder()
 		NewDataFolder/O root:Packages:UnitTesting
 	endif
 
-	dfref dfr = $PKG_FOLDER
+	DFREF dfr = $PKG_FOLDER
 	return dfr
 End
 
@@ -423,7 +423,7 @@ End
 
 /// Returns 1 if debug output is enabled and zero otherwise
 Function EnabledDebug()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr verbose
 
 	if(NVAR_EXISTS(verbose) && verbose == 1)
@@ -565,20 +565,20 @@ End
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initGlobalError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:global_error_count = 0
 End
 
 /// Creates the variable run_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initRunCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:run_count = 0
 End
 
 /// Increments the run_count in PKG_FOLDER and creates it if necessary
 static Function incrRunCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr run_count
 
 	if(!NVAR_Exists(run_count))
@@ -592,13 +592,13 @@ End
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:error_count = 0
 End
 
 /// Increments the error_count in PKG_FOLDER and creates it if necessary
 Function incrError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr error_count
 
 	if(!NVAR_Exists(error_count))
@@ -614,7 +614,7 @@ End
 /// Creates the variable assert_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initAssertCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:assert_count = 0
 End
 
@@ -645,7 +645,7 @@ End
 
 /// Increments the assert_count in PKG_FOLDER and creates it if necessary
 Function incrAssert()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr/Z assert_count
 
 	if(!NVAR_Exists(assert_count))
@@ -674,7 +674,7 @@ Function PrintFailInfo([prefix])
 
 	string str
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
@@ -706,7 +706,7 @@ End
 
 /// Sets the abort flag
 static Function setAbortFlag()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 1
 End
 
@@ -747,7 +747,7 @@ End
 
 /// Resets the abort flag
 static Function InitAbortFlag()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
 End
 
@@ -1266,13 +1266,13 @@ End
 
 /// Turns debug output on
 Function EnableDebugOutput()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:verbose = 1
 End
 
 /// Turns debug output off
 Function DisableDebugOutput()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:verbose = 0
 End
 
@@ -1288,7 +1288,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	string funcName
 	string procWin
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
 	string str, funcTypeString
@@ -1405,7 +1405,7 @@ static Function TestEnd(name, debugMode)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
 
 	if(global_error_count == 0)
@@ -1444,7 +1444,7 @@ static Function TestSuiteEnd(testSuite)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr error_count
 
 	if(error_count == 0)
@@ -1473,7 +1473,7 @@ static Function TestCaseBegin(testCase)
 	initMessageBuffer()
 
 	// create a new unique folder as working folder
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:lastFolder = GetDataFolder(1)
 	SetDataFolder root:
 	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
@@ -1494,7 +1494,7 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr lastFolder
 	SVAR/Z/SDFR=dfr workFolder
 
