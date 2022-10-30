@@ -3661,8 +3661,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(!skip)
 
+				if(GetRTError(0))
+					message = GetRTErrMessage()
+					err = GetRTError(1)
+					sprintf msg, "Internal runtime error in UTF %d:\"%s\" before executing test case \"%s\".", err, message, fullFuncName
+					ReportErrorAndAbort(msg, setFlagOnly = 1)
+				endif
+
 				try
-					ClearRTError()
 					CallTestCase(s, reentry)
 				catch
 					message = GetRTErrMessage()
