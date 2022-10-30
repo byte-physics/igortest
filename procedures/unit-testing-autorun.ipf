@@ -100,6 +100,7 @@ End
 Function/S GetBaseFilename()
 	dfref dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr baseFilename
+	SVAR/Z/SDFR=dfr baseFilenameOverwrite
 
 	if(!SVAR_Exists(baseFilename))
 		string/G dfr:baseFilename = ""
@@ -109,7 +110,13 @@ Function/S GetBaseFilename()
 	if(strlen(baseFilename))
 		return baseFilename
 	endif
-	sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")
+
+	if(SVAR_Exists(baseFilenameOverwrite) && strlen(baseFilenameOverwrite))
+		baseFilename = baseFilenameOverwrite
+	else
+		sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")
+	endif
+
 	return baseFilename
 End
 

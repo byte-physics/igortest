@@ -63,6 +63,8 @@ Constant IUTF_DEBUG_NVAR_SVAR_WAVE = 0x04
 Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
 /// @}
 
+static StrConstant FIXED_LOG_FILENAME = "IUTF_Test"
+
 StrConstant IUTF_TRACE_REENTRY_KEYWORD = " *** REENTRY ***"
 
 static Constant TEST_CASE_TYPE = 0x01
@@ -3404,12 +3406,18 @@ End
 ///                         HTMLCREATION:boolean When set to zero, no htm result files are created at the end of the run
 ///                         REGEXP:boolean When set, traceWinList is interpreted as regular expression
 ///
+/// @param   fixLogName     (optional) default 0 disabled, enabled when set to 1: @n
+///	                        If enabled the output files that will be generated after an autorun will have predictable names like
+///                         "IUTF_Test.log". If disabled the file names will always contain the name of the procedure file and a
+///                         timestamp.
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
 	string traceWinList, traceOptions
+	variable fixLogName
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -3429,6 +3437,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable var, err
 	string msg, errMsg
 
+	fixLogName = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
+
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
 	if(reentry)
@@ -3447,6 +3457,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	else
 		// no early return/abort above this point
+		DFREF dfr = GetPackageFolder()
+		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, FIXED_LOG_FILENAME, "")
 		ClearTestSetupWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
