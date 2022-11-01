@@ -5,4 +5,3 @@ if [ -z "$DOCKER_IMAGES" ]; then
 	exit 0;
 fi
 docker rmi $DOCKER_IMAGES
-
