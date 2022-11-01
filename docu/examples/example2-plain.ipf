@@ -23,8 +23,9 @@ static Function VerifyStringComparison()
 	string strLow      = "123abc"
 	string strUP       = "123ABC"
 
-	// by default string comparison is done case insensitive
-	CHECK_EQUAL_STR(strLow, strUP)
+	// by default string comparison is done case sensitive
+	// so the following would fail with CHECK/REQUIRE
+	WARN_EQUAL_STR(strLow, strUP)
 	// It can be specificylly enabled or disabled.
 	CHECK_EQUAL_STR(strLow, strUP, case_sensitive = 0)
 	// Now we use WARN because the two strings are not equal.
