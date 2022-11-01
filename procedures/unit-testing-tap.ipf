@@ -126,7 +126,7 @@ Function TAP_IsFunctionTodo(funcName)
 
 	variable err
 	string str
-	
+
 	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(!err)
 		return strsearch(str, "TODO", 0, 2) == 0
@@ -145,7 +145,7 @@ Function TAP_IsFunctionTodo_Fast()
 	variable result, err
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr tap_directive
-	
+
 	return strsearch(tap_directive, "# TODO", 0, 2) == 0
 End
 
@@ -213,7 +213,7 @@ Function TAP_SetDirectiveAndDescription(funcName)
 
 	variable err
 	string directive, description
-	
+
 	directive = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err == UTF_TAG_OK)
 		TAP_WriteValidTag(directive, 1)
