@@ -407,6 +407,8 @@ static Function TC_StringDiff()
 
 	// Case sensitivity
 	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A")
+	TC_StringDiff_Check("a\nb", "A\nc", "1:0:2> b", "1:0:2> c", case_sensitive=0)
+	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A", case_sensitive=1)
 
 	// Trim context
 	TC_StringDiff_Check("0123456789abcdef.0123456789abcdef", "0123456789abcdef:0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f . 0 1 2 3 4 5 6 7 8 9", "0:16:16> 6 7 8 9 a b c d e f : 0 1 2 3 4 5 6 7 8 9")
@@ -421,21 +423,30 @@ static Function TC_StringDiff()
 	CHECK_EQUAL_STR(expected, res)
 End
 
-static Function TC_StringDiff_Check(str1, str2, out1, out2)
+static Function TC_StringDiff_Check(str1, str2, out1, out2, [case_sensitive])
 	string str1, str2, out1, out2
-	Struct IUTF_StringDiffResult result
+	variable case_sensitive
 
+	Struct IUTF_StringDiffResult result
 	string str
 
 	// forward check
-	UTF_UTILS#DiffString(str1, str2, result)
+	if(ParamIsDefault(case_sensitive))
+		UTF_UTILS#DiffString(str1, str2, result)
+	else
+		UTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
+	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out1, str)
 	str = result.v2
 	CHECK_EQUAL_STR(out2, str)
 
 	// backward check (switched arguments)
-	UTF_UTILS#DiffString(str2, str1, result)
+	if(ParamIsDefault(case_sensitive))
+		UTF_UTILS#DiffString(str2, str1, result)
+	else
+		UTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
+	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out2, str)
 	str = result.v2

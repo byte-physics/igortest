@@ -461,6 +461,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	variable result
 	string str, tmpStr1, tmpStr2
+	Struct IUTF_StringDiffResult diffResult
 
 	incrAssert()
 
@@ -473,10 +474,11 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
-	tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
-	tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
-	sprintf str, "\"%s\" == \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
-	EvaluateResults(result, str, flags)
+	if(!result)
+		UTF_Utils#DiffString(str1, str2, diffResult, case_sensitive=case_sensitive)
+		sprintf str, "String mismatch (case %ssensitive):\rstr1: %s\rstr2: %s\r", SelectString(case_sensitive, "in", ""), diffResult.v1, diffResult.v2
+		EvaluateResults(result, str, flags)
+	endif
 End
 
 /// @class WAVE_DOCU

@@ -968,9 +968,11 @@ End
 /// @param[in] str1 the first string
 /// @param[in] str2 the second string
 /// @param[out] result the diff of both strings
-static Function DiffString(str1, str2, result)
+/// @param[in] case_sensitive (default: true) respecting the case during the diff
+static Function DiffString(str1, str2, result, [case_sensitive])
 	string str1, str2
 	Struct IUTF_StringDiffResult &result
+	variable case_sensitive
 
 	variable start, line, end1, end2, endmin, diffpos
 	variable str1len, str2len
@@ -980,6 +982,7 @@ static Function DiffString(str1, str2, result)
 	line = 0
 	str1len = strlen(str1)
 	str2len = strlen(str2)
+	case_sensitive = ParamIsDefault(case_sensitive) ? 1 : case_sensitive
 
 	// The following cases can happen during the diff:
 	// 1. text is different until line end
@@ -992,7 +995,7 @@ static Function DiffString(str1, str2, result)
 		end2 = DetectEndOfLine(str2, start, lineEnding2)
 		endmin = min(end1, end2)
 
-		diffpos = GetTextDiffPos(str1[start, endmin - 1], str2[start, endmin - 1])
+		diffpos = GetTextDiffPos(str1[start, endmin - 1], str2[start, endmin - 1], case_sensitive)
 
 		// Case 1
 		if(diffpos >= 0)
@@ -1045,7 +1048,7 @@ static Function DiffString(str1, str2, result)
 	Abort "Bug: Cannot create diff of equal strings"
 End
 
-/// @brief Return a section of str which contains the character at diffpos and some context arround.
+/// @brief Return a section of str which contains the character at diffpos and some context around.
 ///        The context will always be in the bounds of start and endpos.
 ///
 /// @param[in] str the string for which a section has to generated
@@ -1066,19 +1069,24 @@ static Function/S GetStringWithContext(str, start, diffpos, endpos)
 End
 
 /// @brief Get the first position with a difference in str1 and str2.
-///        This will compare case-sensitive and since Igor 7.05 in byte mode.
+///        Since Igor 7.05 the case-sensitive check will be performed in byte mode.
 ///
 /// @param[in] str1 the first string
 /// @param[in] str2 the second string
+/// @param[in] case_sensitive the mode for case check. If this is set to 0 this will enforce the
+///            case-insensitive check. All other values will use the default case-sensitive check
+///            and since Igor 7.05 in byte mode.
 /// @returns the position of the first difference. -1 if there is no difference.
-static Function GetTextDiffPos(str1, str2)
+static Function GetTextDiffPos(str1, str2, case_sensitive)
 	string str1, str2
+	variable case_sensitive
 
 	variable i
 	variable length = strlen(str1)
+	variable mode = case_sensitive ? UTF_CMPSTR_MODE : 0
 
 	for(i = 0; i < length; i += 1)
-		if(CmpStr(str1[i], str2[i], UTF_CMPSTR_MODE))
+		if(CmpStr(str1[i], str2[i], mode))
 			return i
 		endif
 	endfor
