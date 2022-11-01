@@ -518,6 +518,14 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		return NaN
 	endif
 
+	if(!(majorType & (NULL_WAVE | NUMERIC_WAVE | TEXT_WAVE | DATAFOLDER_WAVE | WAVE_WAVE | NORMAL_WAVE | FREE_WAVE)))
+		EvaluateResults(0, "Valid major type check", flags)
+		return NaN
+	elseif(!ParamIsDefault(minorType) && !(minorType & (NULL_WAVE | NON_NUMERIC_WAVE | COMPLEX_WAVE | FLOAT_WAVE | DOUBLE_WAVE | INT8_WAVE | INT16_WAVE | INT32_WAVE | INT64_WAVE | UNSIGNED_WAVE)))
+		EvaluateResults(0, "Valid minor type check", flags)
+		return NaN
+	endif
+
 	result = UTF_Checks#HasWaveMajorType(wv, majorType)
 	type = UTF_Checks#GetWaveMajorType(wv)
 	str1 = UTF_Checks#GetWaveMajorTypeString(majorType)
