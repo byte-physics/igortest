@@ -26,6 +26,6 @@ static Function CheckNumber_nan()
 End
 
 static Function CheckNumber_wrong_value()
-	
+
 	CheckNumber(5)
 End

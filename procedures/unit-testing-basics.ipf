@@ -458,7 +458,7 @@ End
 Function EvaluateResults(result, str, flags)
 	variable result, flags
 	string str
-	
+
 	DebugFailedAssertion(result)
 	ReportResults(result, str, flags)
 End
@@ -489,7 +489,7 @@ End
 ///						0x04: debug on NVAR SVAR WAVE reference error
 static Function SetIgorDebugger(state)
 	variable state
-	
+
 	variable prevState, enable, debugOnError, nvarSvarWave
 
 	prevState = GetCurrentDebuggerState()
@@ -499,7 +499,7 @@ static Function SetIgorDebugger(state)
 	nvarSvarWave = !!(state & IUTF_DEBUG_NVAR_SVAR_WAVE)
 
 	DebuggerOptions enable=enable, debugOnError=debugOnError, NVAR_SVAR_WAVE_Checking=nvarSvarWave
-	
+
 	return prevState
 End
 
@@ -819,7 +819,7 @@ End
 // 0 failed, 1 succeeded
 static Function/S getInfo(result)
 	variable result
-	
+
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
 	string caller, procedure, callStack, contents
@@ -1903,9 +1903,9 @@ static Function/S SortTestCaseList(procWin, testCaseList)
 
 	Make/FREE/N=(ItemsInList(testCaseList)) lineNumberWave
 	lineNumberWave[] = str2num(StringByKey("PROCLINE", FunctionInfo(testCaseWave[p], procWin)))
-	
+
 	Sort lineNumberWave, testCaseWave
-	
+
 	return UTF_Utils#TextWaveToList(testCaseWave, ";")
 End
 
