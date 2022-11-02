@@ -92,14 +92,15 @@ End
 
 /// resets a global filename template string for output
 Function ClearBaseFilename()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:baseFilename = ""
 End
 
 /// creates a new filename template, if template already present return current
 Function/S GetBaseFilename()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr baseFilename
+	SVAR/Z/SDFR=dfr baseFilenameOverwrite
 
 	if(!SVAR_Exists(baseFilename))
 		string/G dfr:baseFilename = ""
@@ -109,7 +110,13 @@ Function/S GetBaseFilename()
 	if(strlen(baseFilename))
 		return baseFilename
 	endif
-	sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")
+
+	if(SVAR_Exists(baseFilenameOverwrite) && strlen(baseFilenameOverwrite))
+		baseFilename = baseFilenameOverwrite
+	else
+		sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")
+	endif
+
 	return baseFilename
 End
 

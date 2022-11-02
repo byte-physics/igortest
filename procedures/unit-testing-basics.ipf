@@ -63,6 +63,8 @@ Constant IUTF_DEBUG_NVAR_SVAR_WAVE = 0x04
 Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
 /// @}
 
+static StrConstant FIXED_LOG_FILENAME = "IUTF_Test"
+
 StrConstant IUTF_TRACE_REENTRY_KEYWORD = " *** REENTRY ***"
 
 static Constant TEST_CASE_TYPE = 0x01
@@ -353,7 +355,7 @@ Function/DF GetPackageFolder()
 		NewDataFolder/O root:Packages:UnitTesting
 	endif
 
-	dfref dfr = $PKG_FOLDER
+	DFREF dfr = $PKG_FOLDER
 	return dfr
 End
 
@@ -421,7 +423,7 @@ End
 
 /// Returns 1 if debug output is enabled and zero otherwise
 Function EnabledDebug()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr verbose
 
 	if(NVAR_EXISTS(verbose) && verbose == 1)
@@ -563,20 +565,20 @@ End
 /// Creates the variable global_error_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initGlobalError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:global_error_count = 0
 End
 
 /// Creates the variable run_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initRunCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:run_count = 0
 End
 
 /// Increments the run_count in PKG_FOLDER and creates it if necessary
 static Function incrRunCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr run_count
 
 	if(!NVAR_Exists(run_count))
@@ -590,13 +592,13 @@ End
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:error_count = 0
 End
 
 /// Increments the error_count in PKG_FOLDER and creates it if necessary
 Function incrError()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/Z/SDFR=dfr error_count
 
 	if(!NVAR_Exists(error_count))
@@ -612,7 +614,7 @@ End
 /// Creates the variable assert_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initAssertCount()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:assert_count = 0
 End
 
@@ -643,7 +645,7 @@ End
 
 /// Increments the assert_count in PKG_FOLDER and creates it if necessary
 Function incrAssert()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr/Z assert_count
 
 	if(!NVAR_Exists(assert_count))
@@ -672,7 +674,7 @@ Function PrintFailInfo([prefix])
 
 	string str
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
@@ -704,7 +706,7 @@ End
 
 /// Sets the abort flag
 static Function setAbortFlag()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 1
 End
 
@@ -745,7 +747,7 @@ End
 
 /// Resets the abort flag
 static Function InitAbortFlag()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
 End
 
@@ -1264,13 +1266,13 @@ End
 
 /// Turns debug output on
 Function EnableDebugOutput()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:verbose = 1
 End
 
 /// Turns debug output off
 Function DisableDebugOutput()
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	variable/G dfr:verbose = 0
 End
 
@@ -1286,7 +1288,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	string funcName
 	string procWin
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
 	string str, funcTypeString
@@ -1403,7 +1405,7 @@ static Function TestEnd(name, debugMode)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
 
 	if(global_error_count == 0)
@@ -1442,7 +1444,7 @@ static Function TestSuiteEnd(testSuite)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr error_count
 
 	if(error_count == 0)
@@ -1471,7 +1473,7 @@ static Function TestCaseBegin(testCase)
 	initMessageBuffer()
 
 	// create a new unique folder as working folder
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	string/G dfr:lastFolder = GetDataFolder(1)
 	SetDataFolder root:
 	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
@@ -1492,7 +1494,7 @@ static Function TestCaseEnd(testCase, keepDataFolder)
 
 	string msg
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	SVAR/Z/SDFR=dfr lastFolder
 	SVAR/Z/SDFR=dfr workFolder
 
@@ -3344,6 +3346,7 @@ End
 ///                         It allows the combination of this framework with continuous integration
 ///                         servers like Atlassian Bamboo/GitLab/etc.
 ///                         Can not be combined with enableTAP.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
 ///                         A TAP compatible file is written at the end of the test run.
@@ -3352,6 +3355,7 @@ End
 ///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
 ///                         Can not be combined with enableJU.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
 ///                         The input for test suites (procWinList) and test cases (testCase) is
@@ -3397,6 +3401,7 @@ End
 ///                         A list of windows where execution gets traced. The unit testing framework saves a RTF document
 ///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
+///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   traceOptions   (optional) default ""
 ///                         A key:value pair list of additional tracing options. Currently supported is:
@@ -3404,12 +3409,18 @@ End
 ///                         HTMLCREATION:boolean When set to zero, no htm result files are created at the end of the run
 ///                         REGEXP:boolean When set, traceWinList is interpreted as regular expression
 ///
+/// @param   fixLogName     (optional) default 0 disabled, enabled when set to 1: @n
+///	                        If enabled the output files that will be generated after an autorun will have predictable names like
+///                         "IUTF_Test.log". If disabled the file names will always contain the name of the procedure file and a
+///                         timestamp.
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
 	string traceWinList, traceOptions
+	variable fixLogName
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -3423,11 +3434,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS, skip, tcCount
+	variable i, tcFuncCount, startNextTS, skip, tcCount, reqSave
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
 	string msg, errMsg
+
+	fixLogName = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -3447,16 +3460,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	else
 		// no early return/abort above this point
+		DFREF dfr = GetPackageFolder()
+		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, FIXED_LOG_FILENAME, "")
 		ClearTestSetupWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
-
-		PathInfo home
-		if(!V_flag)
-			sprintf msg, "Error: Please Save experiment first."
-			UTF_PrintStatusMessage(msg)
-			return NaN
-		endif
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 
@@ -3475,6 +3483,15 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			sprintf msg, "Error: enableTAP and enableJU can not be both true."
 			UTF_PrintStatusMessage(msg)
 			return NaN
+		endif
+
+		if(s.juProps.enableJU || s.enableTAP || s.tracingEnabled)
+			PathInfo home
+			if(!V_flag)
+				sprintf msg, "Error: Please Save experiment first."
+				UTF_PrintStatusMessage(msg)
+				return NaN
+			endif
 		endif
 
 		var = IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION
