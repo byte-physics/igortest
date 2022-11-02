@@ -30,12 +30,38 @@
 /// @return returns the value of c
 threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable l])
 
-	variable i, logLines, condition
+	variable i, logLines, condition, err
 	variable result, numProcs
+	string msg
 
 	TUFXOP_GetStorage/Z/Q/N="IUTF_Testrun"/TS wref
 	if(V_flag)
-		return c
+		err = V_flag
+		TUFXOP_Init/Z/Q/N="IUTF_Error"
+		if(V_flag)
+			printf "No gathered tracing data found for code coverage analysis.\r"
+			return c
+		endif
+		TUFXOP_GetStorage/Z/Q/N="IUTF_Error"/TS wvStorage
+		if(V_flag)
+			printf "No gathered tracing data found for code coverage analysis.\r"
+			return c
+		endif
+		if(!WaveExists(wvStorage[0]))
+			Make/FREE/T/N=1 data
+			wvStorage[0] = data
+		else
+			Wave/T data = wvStorage[0]
+		endif
+		sprintf msg, "Cannot store tracing data (Error: %d).", err
+		data[0] = msg
+		// recreate the storage to keep execution running
+		TUFXOP_Init/N="IUTF_Testrun"
+		TUFXOP_GetStorage/Z/Q/N="IUTF_Testrun"/TS wref
+		if(V_flag)
+			printf "No gathered tracing data found for code coverage analysis.\r"
+			return c
+		endif
 	endif
 
 	logLines = ParamIsDefault(l) ? 1 : l

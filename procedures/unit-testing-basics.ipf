@@ -3434,7 +3434,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable reentry
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, tcFuncCount, startNextTS, skip, tcCount, reqSave
+	variable i, j, tcFuncCount, startNextTS, skip, tcCount, reqSave
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
@@ -3542,6 +3542,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				SaveState(dfSave, s)
 				TUFXOP_Init/N="IUTF_Testrun"
+				TUFXOP_Clear/Q/Z/N="IUTF_Error"
 				UTF_Tracing#SetupTracing(traceWinList, traceOptions)
 				return NaN
 			endif
@@ -3728,6 +3729,23 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						return global_error_count
 					endif
 				endtry
+
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+				// check if Z_ has stored some errors
+				if(s.tracingEnabled)
+					TUFXOP_GetStorage/Z/Q/N="IUTF_Error" wvAllStorage
+					if(!V_flag)
+						variable numThreads = NumberByKey("Index", note(wvAllStorage))
+						for(j = 0; j < numThreads; ++j)
+							Wave/WAVE wvStorage = wvAllStorage[j]
+							Wave/T data = wvStorage[0]
+							UTF_PrintStatusMessage(data[0])
+							UTF_ToSystemErrorStream(data[0])
+							incrError()
+						endfor
+					endif
+				endif
+#endif
 
 			endif
 
