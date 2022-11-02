@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 source "${BASH_SOURCE[0]%/*}/docu-common-functions.sh"
 require doxygen gawk git
