@@ -509,8 +509,8 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	variable majorType, minorType
 	variable flags
 
-	variable result
-	string str
+	variable result, type
+	string str, str1, str2
 
 	incrAssert()
 
@@ -518,13 +518,27 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		return NaN
 	endif
 
+	if(!(majorType & (NULL_WAVE | NUMERIC_WAVE | TEXT_WAVE | DATAFOLDER_WAVE | WAVE_WAVE | NORMAL_WAVE | FREE_WAVE)))
+		EvaluateResults(0, "Valid major type check", flags)
+		return NaN
+	elseif(!ParamIsDefault(minorType) && !(minorType & (NULL_WAVE | NON_NUMERIC_WAVE | COMPLEX_WAVE | FLOAT_WAVE | DOUBLE_WAVE | INT8_WAVE | INT16_WAVE | INT32_WAVE | INT64_WAVE | UNSIGNED_WAVE)))
+		EvaluateResults(0, "Valid minor type check", flags)
+		return NaN
+	endif
+
 	result = UTF_Checks#HasWaveMajorType(wv, majorType)
-	sprintf str, "Assumption that the wave's main type is %d", majorType
+	type = UTF_Checks#GetWaveMajorType(wv)
+	str1 = UTF_Checks#GetWaveMajorTypeString(majorType)
+	str2 = UTF_Checks#GetWaveMajorTypeString(type)
+	sprintf str, "Expect wave's main type to be '%s' but got '%s'", str1, str2
 	EvaluateResults(result, str, flags)
 
 	if(!ParamIsDefault(minorType))
 		result = UTF_Checks#HasWaveMinorType(wv, minorType)
-		sprintf str, "Assumption that the wave's sub type is %d", minorType
+		type = UTF_Checks#GetWaveMinorType(wv)
+		str1 = UTF_Checks#GetWaveMinorTypeString(minorType)
+		str2 = UTF_Checks#GetWaveMinorTypeString(type)
+		sprintf str, "Expect wave's sub type to be '%s' but got '%s'", str1, str2
 		EvaluateResults(result, str, flags)
 	endif
 End

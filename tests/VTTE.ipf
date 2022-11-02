@@ -472,6 +472,7 @@ static Function TestUTF()
 	Ensure(UTF_Checks#HasWaveMinorType($"", NULL_WAVE))
 
 	Make/FREE/D wvDouble
+	Ensure(!UTF_Checks#HasWaveMinorType(wvDouble, NON_NUMERIC_WAVE))
 	Ensure(UTF_Checks#HasWaveMinorType(wvDouble,  DOUBLE_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvDouble, FLOAT_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE))
@@ -494,6 +495,7 @@ static Function TestUTF()
 	Ensure(!UTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W wvInt16
+	Ensure(!UTF_Checks#HasWaveMinorType(wvInt16, NON_NUMERIC_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvInt16,  DOUBLE_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvInt16, FLOAT_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE))
@@ -516,6 +518,7 @@ static Function TestUTF()
 	Ensure(!UTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W/U wvUInt16
+	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16, NON_NUMERIC_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16,  DOUBLE_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16, FLOAT_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE))
@@ -538,6 +541,7 @@ static Function TestUTF()
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W/U/C wvUInt16Complex
+	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16Complex, NON_NUMERIC_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16Complex, DOUBLE_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16Complex, FLOAT_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE))
@@ -562,6 +566,7 @@ static Function TestUTF()
 #if IgorVersion() >= 7.0
 
 	Make/FREE/L/U wvUint64
+	Ensure(!UTF_Checks#HasWaveMinorType(wvUint64, NON_NUMERIC_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUint64, DOUBLE_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUint64, FLOAT_WAVE))
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE))
@@ -584,6 +589,29 @@ static Function TestUTF()
 	Ensure(!UTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 #endif
+
+	Make/FREE/T wvText
+	Ensure(UTF_CHECKS#HasWaveMinorType(wvText, NON_NUMERIC_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, DOUBLE_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, FLOAT_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT8_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT16_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT32_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT64_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, DOUBLE_WAVE | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, FLOAT_WAVE  | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT64_WAVE  | COMPLEX_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT64_WAVE   | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!UTF_Checks#HasWaveMinorType(wvText, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 #if IgorVersion() >= 7.0
 

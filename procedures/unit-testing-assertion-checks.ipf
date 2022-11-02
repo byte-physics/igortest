@@ -272,14 +272,22 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	return result
 End
 
-static Function HasWaveMajorType(wv, majorType)
+static Function AddIfFlagSet(var, flag, flagString, str)
+	variable var, flag
+	string flagString
+	string &str
+
+	if((var & flag) == flag)
+		str = AddListItem(flagString, str, ", ")
+	endif
+End
+
+static Function GetWaveMajorType(wv)
 	WAVE/Z wv
-	variable majorType
 
-	variable type, type1, type2
-
-	type2 = WaveType(wv, 2)
-	type1 = WaveType(wv, 1)
+	variable type = 0
+	variable type2 = WaveType(wv, 2)
+	variable type1 = WaveType(wv, 1)
 
 	if(type1 > 0 && type1 <= 4)
 		type = type | 2^(type1 - 1)
@@ -293,18 +301,86 @@ static Function HasWaveMajorType(wv, majorType)
 		type = NULL_WAVE
 	endif
 
-	return (type & majorType) == majorType
+	return type
+End
+
+static Function HasWaveMajorType(wv, majorType)
+	WAVE/Z wv
+	variable majorType
+
+	return (GetWaveMajorType(wv) & majorType) == majorType
+End
+
+static Function/S GetWaveMajorTypeString(type)
+	variable type
+
+	string str = ""
+
+	if((type & NULL_WAVE) == NULL_WAVE)
+		return "NULL_WAVE"
+	endif
+	AddIfFlagSet(type, NUMERIC_WAVE,    "NUMERIC_WAVE",    str)
+	AddIfFlagSet(type, TEXT_WAVE,       "TEXT_WAVE",       str)
+	AddIfFlagSet(type, DATAFOLDER_WAVE, "DATAFOLDER_WAVE", str)
+	AddIfFlagSet(type, WAVE_WAVE,       "WAVE_WAVE",       str)
+	AddIfFlagSet(type, NORMAL_WAVE,     "NORMAL_WAVE",     str)
+	AddIfFlagSet(type, FREE_WAVE,       "FREE_WAVE",       str)
+
+	if(!CmpStr(str, ""))
+		return num2str(type)
+	endif
+
+	return RemoveEnding(str, ", ")
+End
+
+static Function GetWaveMinorType(wv)
+	WAVE/Z wv
+
+	variable type
+
+	if(!WaveExists(wv))
+		return NULL_WAVE
+	endif
+
+	type = WaveType(wv, 0)
+
+	if(type == 0)
+		type = NON_NUMERIC_WAVE
+	endif
+
+	return type
 End
 
 static Function HasWaveMinorType(wv, minorType)
 	WAVE/Z wv
 	variable minorType
 
+	return (GetWaveMinorType(wv) & minorType) == minorType
+End
+
+static Function/S GetWaveMinorTypeString(type)
 	variable type
 
-	type = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
+	string str = ""
 
-	return (type & minorType) == minorType
+	if((type & NULL_WAVE) == NULL_WAVE)
+		return "NULL_WAVE"
+	endif
+	AddIfFlagSet(type, NON_NUMERIC_WAVE, "NON_NUMERIC_WAVE", str)
+	AddIfFlagSet(type, COMPLEX_WAVE,     "COMPLEX_WAVE",     str)
+	AddIfFlagSet(type, FLOAT_WAVE,       "FLOAT_WAVE",       str)
+	AddIfFlagSet(type, DOUBLE_WAVE,      "DOUBLE_WAVE",      str)
+	AddIfFlagSet(type, INT8_WAVE,        "INT8_WAVE",        str)
+	AddIfFlagSet(type, INT16_WAVE,       "INT16_WAVE",       str)
+	AddIfFlagSet(type, INT32_WAVE,       "INT32_WAVE",       str)
+	AddIfFlagSet(type, INT64_WAVE,       "INT64_WAVE",       str)
+	AddIfFlagSet(type, UNSIGNED_WAVE,    "UNSIGNED_WAVE",    str)
+
+	if(!CmpStr(str, ""))
+		return num2str(type)
+	endif
+
+	return RemoveEnding(str, ", ")
 End
 
 /// @endcond // HIDDEN_SYMBOL
