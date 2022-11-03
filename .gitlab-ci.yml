@@ -1,6 +1,20 @@
 # This file is a template, and might need editing before it works on your project.
 # see https://docs.gitlab.com/ce/ci/yaml/README.html for all available options
 
+pre-commit:
+  tags:
+    - debian, docker
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
+  script:
+    - pre-commit run --all-files --show-diff-on-failure
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}
+
 documentation:
   tags:
     - debian, docker
@@ -168,4 +182,6 @@ deployment:
     - job: testing
       artifacts: false
     - job: testing_nightly
+      artifacts: false
+    - job: pre-commit
       artifacts: false
