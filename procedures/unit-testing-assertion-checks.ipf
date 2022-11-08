@@ -135,6 +135,10 @@ static Function AreVariablesClose(var1, var2, tol, strong)
 	variable tol
 	variable strong
 
+	if(var1 == 0 || var2 == 0)
+		return IsVariableSmall(var1 - var2, tol)
+	endif
+
 	strong = !!strong
 
 	variable diff = abs(var1 - var2)
