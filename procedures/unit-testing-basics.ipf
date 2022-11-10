@@ -726,6 +726,37 @@ static Function UTF_ToSystemErrorStream(message)
 	systemErr += message + "\r"
 End
 
+/// Make a test case fail. This method is intended to use outside the user code
+/// of the test case as such as it won't look in the stack trace which assertion
+/// triggered the error.
+///
+/// This method is a short version of
+/// 	ReportResults(0, msg, OUTPUT_MESSAGE | INCREASE_ERROR)
+/// without the stack trace detection and special handling of output.
+/// @param message  The message to output to the history
+/// @param summaryMsg (optional, default is message) The message to output in the summary at the
+///                 end of the test run. If this parameter is ommited it will use message for the
+///                 summary.
+static Function TestCaseFail(message, [summaryMsg])
+	string message
+	string summaryMsg
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr type
+
+	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
+
+	SetTestStatus(message)
+	type = "FAIL"
+	ReportError(message)
+	AddFailedSummaryInfo(summaryMsg)
+
+	if(TAP_IsOutputEnabled())
+		SVAR/SDFR=dfr tap_diagnostic
+		tap_diagnostic = tap_diagnostic + message
+	endif
+End
+
 /// Prints an informative message that the test failed
 /// @param prefix string to be added at the beginning
 Function PrintFailInfo(expectedFailure)
@@ -2294,8 +2325,10 @@ static Function AfterTestCase(name)
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
 
-	sprintf msg, "Test case \"%s\" contained at least one assertion", name
-	ReportResults(assert_count != GetSavedAssertionCounter(), msg, OUTPUT_MESSAGE | INCREASE_ERROR)
+	if(assert_count == GetSavedAssertionCounter())
+		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
+		TestCaseFail(msg)
+	endif
 End
 
 /// @brief Execute the builtin and user hooks
