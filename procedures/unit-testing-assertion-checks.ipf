@@ -98,7 +98,7 @@ static Function IsVariableSmall(var, tol)
 	variable var
 	variable tol
 
-	return (abs(var) < abs(tol))
+	return (abs(var) <= abs(tol))
 End
 
 #if IgorVersion() >= 7.0

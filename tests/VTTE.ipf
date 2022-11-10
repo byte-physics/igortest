@@ -248,6 +248,8 @@ static Function TestUTF()
 	Ensure(!UTF_Checks#IsVariableSmall(-(DEFAULT_TOLERANCE + 1e-15), DEFAULT_TOLERANCE))
 	Ensure(!UTF_Checks#IsVariableSmall(DEFAULT_TOLERANCE + 1e-15, DEFAULT_TOLERANCE))
 	Ensure(!UTF_Checks#IsVariableSmall(-(DEFAULT_TOLERANCE + 1e-15), DEFAULT_TOLERANCE))
+	Ensure(UTF_Checks#IsVariableSmall(0, 0))
+	Ensure(UTF_Checks#IsVariableSmall(1, 1))
 	// @}
 
 	CHECK_SMALL_VAR(DEFAULT_TOLERANCE - 1e-15)
