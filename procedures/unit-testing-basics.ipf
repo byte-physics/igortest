@@ -102,6 +102,10 @@ static StrConstant TC_ASSERTION_MLINE_INDICATOR = "->"
 static StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
 #endif
 
+static Constant WAVE_TRACKING_INACTIVE_MODE = 0
+static Constant WAVE_TRACKING_COUNT_MODE = 1
+static Constant WAVE_TRACKING_TRACKER_MODE = 2
+
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
 
@@ -2311,7 +2315,72 @@ End
 static Function BeforeTestCase(name)
 	string name
 
+#if IgorVersion() >= 9.0
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr/Z waveTrackingMode
+
+	if(NVAR_Exists(waveTrackingMode))
+		WaveTracking/LOCL stop
+		WaveTracking/FREE stop
+		if(!UTF_Utils#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
+			if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
+				WaveTracking/FREE counter
+			endif
+			if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
+				WaveTracking/LOCL counter
+			endif
+		endif
+	endif
+#endif
+
 	SaveAssertionCounter()
+End
+
+/// @brief Called after the test case and after the test case end user hook
+static Function AfterTestCaseUserHook(name)
+	string name
+
+	string msg
+
+#if IgorVersion() >= 9.0
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr waveTrackingMode
+
+	if(NVAR_Exists(waveTrackingMode))
+		if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
+			WaveTracking/LOCL count
+			if(V_Flag == WAVE_TRACKING_COUNT_MODE)
+				if(V_numWaves)
+					sprintf msg, "Local wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
+					TestCaseFail(msg)
+				endif
+				WaveTracking/LOCL stop
+			elseif(V_Flag != WAVE_TRACKING_INACTIVE_MODE)
+				// do nothing for WAVE_TRACKING_INACTIVE_MODE.
+				// Most likely the user has used a tag to opt out this test case for wave tracking.
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
+				TestCaseFail(msg)
+			endif
+		endif
+
+		if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
+			WaveTracking/FREE count
+			if(V_Flag == WAVE_TRACKING_COUNT_MODE)
+				if(V_numWaves)
+					sprintf msg, "Free wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
+					TestCaseFail(msg)
+				endif
+				WaveTracking/FREE stop
+			elseif(V_Flag != WAVE_TRACKING_INACTIVE_MODE)
+				// do nothing for WAVE_TRACKING_INACTIVE_MODE.
+				// Most likely the user has used a tag to opt out this test case for wave tracking.
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
+				TestCaseFail(msg)
+			endif
+		endif
+	endif
+#endif
+
 End
 
 /// @brief Called after the test case and before the test case end user hook
@@ -2399,6 +2468,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE
+				AfterTestCaseUserHook(name)
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -3477,13 +3547,21 @@ End
 ///                         "IUTF_Test.log". If disabled the file names will always contain the name of the procedure file and a
 ///                         timestamp.
 ///
+/// @param   waveTrackingMode (optional) default disabled, enabled when set to a value different than 0: @n
+///                         Monitors the number of free waves before and after a test case run. If for some reasons the number is not
+///                         the same as before this considered as an error. If you want to opt-out a single test case you have to tag
+///                         it with UTF_NO_WAVE_TRACKING.
+///                         This uses the flags UTF_WAVE_TRACKING_FREE, UTF_WAVE_TRACKING_LOCAL and UTF_WAVE_TRACKING_ALL.
+///                         This feature is only available since Igor Pro 9.
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
 	string traceWinList, traceOptions
 	variable fixLogName
+	variable waveTrackingMode
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -3504,6 +3582,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	string msg, errMsg
 
 	fixLogName = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
+	waveTrackingMode = ParamIsDefault(waveTrackingMode) ? UTF_WAVE_TRACKING_NONE : waveTrackingMode
 
 	reentry = IsBckgRegistered()
 	ResetBckgRegistered()
@@ -3568,6 +3647,20 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(s.debugMode == 0 && allowDebug > 0)
 			s.debugMode = GetCurrentDebuggerState()
 		endif
+
+#if IgorVersion() < 9.00
+		if(waveTrackingMode)
+			ReportErrorAndAbort("Error: wave tracking is only allowed to be used in Igor Pro 9 or higher.")
+		else
+			variable/G dfr:waveTrackingMode = UTF_WAVE_TRACKING_NONE
+		endif
+#else
+		if((waveTrackingMode & UTF_WAVE_TRACKING_ALL) != waveTrackingMode)
+			sprintf msg, "Error: Invalid wave tracking mode %d", waveTrackingMode
+			ReportErrorAndAbort(msg)
+		endif
+		variable/G dfr:waveTrackingMode = waveTrackingMode
+#endif
 
 		traceOptions = SelectString(ParamIsDefault(traceOptions), traceOptions, "")
 

@@ -120,6 +120,7 @@ StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
 StrConstant UTF_FTAG_SKIP  = "UTF_SKIP"
 StrConstant UTF_FTAG_TAP_DIRECTIVE     = "#TAPDirective:"
 StrConstant UTF_FTAG_TAP_DESCRIPTION   = "#TAPDescription:"
+StrConstant UTF_FTAG_NO_WAVE_TRACKING  = "UTF_NO_WAVE_TRACKING"
 /// @}
 
 /// @name Keys for traceOptions parameter
@@ -136,4 +137,14 @@ StrConstant UTF_KEY_REGEXP               = "REGEXP"
 /// @anchor TraceMaxProcLines
 /// @{
 Constant UTF_MAX_PROC_LINES = 10000
+/// @}
+
+/// @name Wave tracking modes. These are in a bit pattern, which can be combined.
+///
+/// @anchor WaveTrackingModes
+/// @{
+Constant UTF_WAVE_TRACKING_NONE = 0x00
+Constant UTF_WAVE_TRACKING_FREE = 0x01
+Constant UTF_WAVE_TRACKING_LOCAL = 0x02
+Constant UTF_WAVE_TRACKING_ALL = 0x03
 /// @}
