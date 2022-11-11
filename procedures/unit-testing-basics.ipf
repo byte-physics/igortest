@@ -91,6 +91,16 @@ static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
 static StrConstant TC_SUFFIX_SEP = ":"
+static StrConstant TC_SUMMARY_LENGTH_KEY = "NOTE_LENGTH"
+#if IgorVersion() >= 7.00
+// right arrow
+static StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
+// right filled triangle
+static StrConstant TC_ASSERTION_LIST_INDICATOR = "\342\226\266"
+#else
+static StrConstant TC_ASSERTION_MLINE_INDICATOR = "->"
+static StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
+#endif
 
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
@@ -178,7 +188,11 @@ static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
 		return 0
 	endif
 
-	Redimension/N=(size + WAVECHUNK_SIZE, -1, -1, -1) wv
+	if(size < WAVECHUNK_SIZE)
+		Redimension/N=(WAVECHUNK_SIZE, -1, -1, -1) wv
+	else
+		Redimension/N=(size * 2, -1, -1, -1) wv
+	endif
 
 	return 1
 End
@@ -595,6 +609,30 @@ static Function incrRunCount()
 	run_count +=1
 End
 
+/// Get or create the wave that contains the failed procedures
+static Function/WAVE GetFailedProcWave()
+	string name = "FailedProcWave"
+
+	dfref dfr = GetPackageFolder()
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/T/N=(WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	SetNumberInWaveNote(wv, TC_SUMMARY_LENGTH_KEY, 0)
+
+	return wv
+End
+
+static Function SetNumberInWaveNote(wv, key, value)
+	WAVE wv
+	string key
+	variable value
+
+	Note/K wv, ReplaceNumberByKey(key, note(wv), value)
+End
+
 /// Creates the variable error_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initError()
@@ -675,20 +713,29 @@ End
 
 /// Prints an informative message that the test failed
 /// @param prefix string to be added at the beginning
-Function PrintFailInfo([prefix])
-	String prefix
+Function PrintFailInfo(expectedFailure)
+	variable expectedFailure
 
-	string str
+	string prefix, str
+	variable index
+	WAVE/T wvFailed = GetFailedProcWave()
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
 
-	prefix = SelectString(ParamIsDefault(prefix), prefix, "")
+	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 
 	str = getInfo(0)
 	message = prefix + status + " " + str
+
+	if(!expectedFailure)
+		index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
+		EnsureLargeEnoughWaveSimple(wvFailed, index)
+		SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
+		wvFailed[index] = str
+	endif
 
 	type = "FAIL"
 	ReportError(message, incrErrorCounter = 0)
@@ -725,17 +772,18 @@ static Function ReportResults(result, str, flags)
 	variable result, flags
 	string str
 
+	variable expectedFailure
+
 	SetTestStatusAndDebug(str, result)
 
 	if(!result)
-		if(IsExpectedFailure())
-			if(flags & OUTPUT_MESSAGE)
-				printFailInfo(prefix = "Expected Failure: ")
-			endif
-		else
-			if(flags & OUTPUT_MESSAGE)
-				printFailInfo()
-			endif
+		expectedFailure = IsExpectedFailure()
+
+		if(flags & OUTPUT_MESSAGE)
+			PrintFailInfo(expectedFailure)
+		endif
+
+		if(!expectedFailure)
 			if(flags & INCREASE_ERROR)
 				incrError()
 			endif
@@ -826,7 +874,7 @@ static Function/S getInfo(result)
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
-	string caller, procedure, callStack, contents
+	string caller, func, procedure, callStack, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr
 	variable numCallers, i
 	variable callerIndex = NaN
@@ -834,6 +882,7 @@ static Function/S getInfo(result)
 
 	callStack = GetRTStackInfo(3)
 	numCallers = ItemsInList(callStack)
+	moduleName = ""
 
 	// traverse the callstack from bottom up,
 	// the first function not in one of the unit testing procedures is
@@ -868,15 +917,17 @@ static Function/S getInfo(result)
 	callerTestCase = StringFromList(testCaseIndex, callStack)
 
 	caller    = StringFromList(callerIndex, callStack)
+	func      = StringFromList(0, caller, ",")
 	procedure = StringFromList(1, caller, ",")
 	line      = StringFromList(2, caller, ",")
 
 	if(callerIndex != testcaseIndex)
-		line += " (" +  StringFromList(2, callerTestCase , ",") + ")"
+		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
+		line = StringFromList(2, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + line
 	endif
 
 	if(!IsProcGlobal())
-		procedure += " [" + GetIndependentModuleName() + "]"
+		moduleName = " [" + GetIndependentModuleName() + "]"
 	endif
 
 	contents = ProcedureText("", -1, procedure)
@@ -885,7 +936,7 @@ static Function/S getInfo(result)
 	cleanText = trimstring(text)
 
 	tmpStr = UTF_Utils#PrepareStringForOut(cleanText)
-	sprintf text, "Assertion \"%s\" %s in line %s, procedure \"%s\"", tmpStr,  SelectString(result, "failed", "succeeded"), line, procedure
+	sprintf text, "Assertion \"%s\" %s in %s%s (%s, line %s)", tmpStr, SelectString(result, "failed", "succeeded"), func, moduleName, procedure, line
 	return text
 End
 
@@ -1356,6 +1407,7 @@ static Function TestBegin(name, debugMode)
 	variable debugMode
 
 	string msg
+	WAVE/T wvFailed = GetFailedProcWave()
 
 	initGlobalError()
 	initRunCount()
@@ -1375,6 +1427,7 @@ static Function TestBegin(name, debugMode)
 	string/G dfr:message = ""
 	string/G dfr:type = "0"
 	string/G dfr:systemErr = ""
+	SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, 0)
 
 	ClearBaseFilename()
 
@@ -1389,6 +1442,8 @@ static Function TestEnd(name, debugMode)
 	variable debugMode
 
 	string msg
+	variable i, index
+	WAVE/T wvFailed = GetFailedProcWave()
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
@@ -1400,6 +1455,12 @@ static Function TestEnd(name, debugMode)
 	endif
 
 	UTF_PrintStatusMessage(msg)
+
+	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
+	for(i = 0; i < index; i += 1)
+		msg = "  " + TC_ASSERTION_LIST_INDICATOR + " " + wvFailed[i]
+		UTF_PrintStatusMessage(msg)
+	endfor
 
 	sprintf msg, "End of test \"%s\"", name
 	UTF_PrintStatusMessage(msg)
