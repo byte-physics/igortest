@@ -188,7 +188,11 @@ static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
 		return 0
 	endif
 
-	Redimension/N=(size + WAVECHUNK_SIZE, -1, -1, -1) wv
+	if(size < WAVECHUNK_SIZE)
+		Redimension/N=(WAVECHUNK_SIZE, -1, -1, -1) wv
+	else
+		Redimension/N=(size * 2, -1, -1, -1) wv
+	endif
 
 	return 1
 End
