@@ -625,6 +625,21 @@ static Function/WAVE GetFailedProcWave()
 	return wv
 End
 
+/// @brief Add msg to the failed summary. This list will be printed to the
+///        history area to reference errors briefly.
+/// @param msg  The message to add to list
+static Function AddFailedSummaryInfo(msg)
+	string msg
+
+	variable index
+	WAVE/T wvFailed = GetFailedProcWave()
+
+	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
+	EnsureLargeEnoughWaveSimple(wvFailed, index)
+	SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
+	wvFailed[index] = msg
+End
+
 static Function SetNumberInWaveNote(wv, key, value)
 	WAVE wv
 	string key
@@ -717,8 +732,6 @@ Function PrintFailInfo(expectedFailure)
 	variable expectedFailure
 
 	string prefix, str
-	variable index
-	WAVE/T wvFailed = GetFailedProcWave()
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
@@ -731,10 +744,7 @@ Function PrintFailInfo(expectedFailure)
 	message = prefix + status + " " + str
 
 	if(!expectedFailure)
-		index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
-		EnsureLargeEnoughWaveSimple(wvFailed, index)
-		SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
-		wvFailed[index] = str
+		AddFailedSummaryInfo(str)
 	endif
 
 	type = "FAIL"
