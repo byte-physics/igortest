@@ -739,20 +739,23 @@ End
 ///                 summary.
 /// @param hideInSummary (optional, default disabled) If set to non zero it will hide this message
 ///                 in the summary at the end of the test run.
-static Function TestCaseFail(message, [summaryMsg, hideInSummary])
+/// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
+///                 Increases the internal error counter.
+static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCounter])
 	string message
 	string summaryMsg
-	variable hideInSummary
+	variable hideInSummary, incrErrorCounter
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr type
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
 	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
+	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	SetTestStatus(message)
 	type = "FAIL"
-	ReportError(message)
+	ReportError(message, incrErrorCounter = incrErrorCounter)
 
 	if(!hideInSummary)
 		AddFailedSummaryInfo(summaryMsg)
@@ -779,7 +782,7 @@ Function PrintFailInfo(expectedFailure)
 	str = getInfo(0)
 	message = prefix + status + " " + str
 
-	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure)
+	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure, incrErrorCounter = 0)
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
