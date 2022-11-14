@@ -625,6 +625,21 @@ static Function/WAVE GetFailedProcWave()
 	return wv
 End
 
+/// @brief Add msg to the failed summary. This list will be printed to the
+///        history area to reference errors briefly.
+/// @param msg  The message to add to list
+static Function AddFailedSummaryInfo(msg)
+	string msg
+
+	variable index
+	WAVE/T wvFailed = GetFailedProcWave()
+
+	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
+	EnsureLargeEnoughWaveSimple(wvFailed, index)
+	SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
+	wvFailed[index] = msg
+End
+
 static Function SetNumberInWaveNote(wv, key, value)
 	WAVE wv
 	string key
@@ -711,39 +726,60 @@ static Function UTF_ToSystemErrorStream(message)
 	systemErr += message + "\r"
 End
 
-/// Prints an informative message that the test failed
-/// @param prefix string to be added at the beginning
-Function PrintFailInfo(expectedFailure)
-	variable expectedFailure
-
-	string prefix, str
-	variable index
-	WAVE/T wvFailed = GetFailedProcWave()
+/// Make a test case fail. This method is intended to use outside the user code
+/// of the test case as such as it won't look in the stack trace which assertion
+/// triggered the error.
+///
+/// This method is a short version of
+/// 	ReportResults(0, msg, OUTPUT_MESSAGE | INCREASE_ERROR)
+/// without the stack trace detection and special handling of output.
+/// @param message  The message to output to the history
+/// @param summaryMsg (optional, default is message) The message to output in the summary at the
+///                 end of the test run. If this parameter is ommited it will use message for the
+///                 summary.
+/// @param hideInSummary (optional, default disabled) If set to non zero it will hide this message
+///                 in the summary at the end of the test run.
+static Function TestCaseFail(message, [summaryMsg, hideInSummary])
+	string message
+	string summaryMsg
+	variable hideInSummary
 
 	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr status
 	SVAR/SDFR=dfr type
 
-	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
+	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
+	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
 
-	str = getInfo(0)
-	message = prefix + status + " " + str
-
-	if(!expectedFailure)
-		index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
-		EnsureLargeEnoughWaveSimple(wvFailed, index)
-		SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
-		wvFailed[index] = str
-	endif
-
+	SetTestStatus(message)
 	type = "FAIL"
-	ReportError(message, incrErrorCounter = 0)
+	ReportError(message)
+
+	if(!hideInSummary)
+		AddFailedSummaryInfo(summaryMsg)
+	endif
 
 	if(TAP_IsOutputEnabled())
 		SVAR/SDFR=dfr tap_diagnostic
 		tap_diagnostic = tap_diagnostic + message
 	endif
+End
+
+/// Prints an informative message that the test failed
+/// @param expectedFailure if set to non zero the error will be considered as expected
+Function PrintFailInfo(expectedFailure)
+	variable expectedFailure
+
+	string prefix, str
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr message
+	SVAR/SDFR=dfr status
+
+	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
+	str = getInfo(0)
+	message = prefix + status + " " + str
+
+	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure)
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -2284,8 +2320,10 @@ static Function AfterTestCase(name)
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
 
-	sprintf msg, "Test case \"%s\" contained at least one assertion", name
-	ReportResults(assert_count != GetSavedAssertionCounter(), msg, OUTPUT_MESSAGE | INCREASE_ERROR)
+	if(assert_count == GetSavedAssertionCounter())
+		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
+		TestCaseFail(msg)
+	endif
 End
 
 /// @brief Execute the builtin and user hooks
