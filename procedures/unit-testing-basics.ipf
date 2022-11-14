@@ -737,19 +737,26 @@ End
 /// @param summaryMsg (optional, default is message) The message to output in the summary at the
 ///                 end of the test run. If this parameter is ommited it will use message for the
 ///                 summary.
-static Function TestCaseFail(message, [summaryMsg])
+/// @param hideInSummary (optional, default disabled) If set to non zero it will hide this message
+///                 in the summary at the end of the test run.
+static Function TestCaseFail(message, [summaryMsg, hideInSummary])
 	string message
 	string summaryMsg
+	variable hideInSummary
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr type
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
+	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
 
 	SetTestStatus(message)
 	type = "FAIL"
 	ReportError(message)
-	AddFailedSummaryInfo(summaryMsg)
+
+	if(!hideInSummary)
+		AddFailedSummaryInfo(summaryMsg)
+	endif
 
 	if(TAP_IsOutputEnabled())
 		SVAR/SDFR=dfr tap_diagnostic
@@ -758,7 +765,7 @@ static Function TestCaseFail(message, [summaryMsg])
 End
 
 /// Prints an informative message that the test failed
-/// @param prefix string to be added at the beginning
+/// @param expectedFailure if set to non zero the error will be considered as expected
 Function PrintFailInfo(expectedFailure)
 	variable expectedFailure
 
@@ -767,24 +774,12 @@ Function PrintFailInfo(expectedFailure)
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
-	SVAR/SDFR=dfr type
 
 	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
-
 	str = getInfo(0)
 	message = prefix + status + " " + str
 
-	if(!expectedFailure)
-		AddFailedSummaryInfo(str)
-	endif
-
-	type = "FAIL"
-	ReportError(message, incrErrorCounter = 0)
-
-	if(TAP_IsOutputEnabled())
-		SVAR/SDFR=dfr tap_diagnostic
-		tap_diagnostic = tap_diagnostic + message
-	endif
+	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure)
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
