@@ -5,6 +5,19 @@
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
+/// @name UTF Analytic output modes
+/// @anchor AnalyticModes
+/// @{
+Constant UTF_ANALYTICS_FUNCTIONS = 0x00
+Constant UTF_ANALYTICS_LINES = 0x01
+/// @}
+
+/// @name UTF Analytics sorting modes
+/// @anchor AnalyticSorting
+/// @{
+Constant UTF_ANALYTICS_CALLS = 0x00
+Constant UTF_ANALYTICS_SUM = 0x01
+/// @}
 
 static Structure CollectionResult
 	WAVE/T functions
@@ -200,4 +213,106 @@ static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collec
 
 	return result
 End
+
+static Function/S GetWaveHeader(WAVE wv)
+	variable i
+	string header = ""
+	variable size = DimSize(wv, UTF_COLUMN)
+
+	for(i = size - 1; i >= 0; i--)
+		header = AddListItem(GetDimLabel(wv, UTF_COLUMN, i), header)
+	endfor
+
+	return header
+End
+
+static Function HasTracingData()
+	DFREF dfr = GetPackageFolder()
+
+	WAVE/Z/SDFR=dfr FuncLocations
+	WAVE/Z/SDFR=dfr ProcSizes
+	if(!WaveExists(FuncLocations) || !WaveExists(ProcSizes))
+		return 0
+	endif
+
+	TUFXOP_GetStorage/Z/N="IUTF_TestRun" storage
+	if(V_flag)
+		return 0
+	endif
+
+	return 1
+End
+
+/// @brief Show the top functions after a tracing run in the history area
+/// @param count   The maximum number of items that should be output.
+/// @param mode    (optional, default UTF_ANALYTICS_FUNCTIONS) defines the data selection.
+///                Can be UTF_ANALYTICS_FUNCTIONS or UTF_ANALYTICS_LINES.
+/// @param sorting (optional, default UTF_ANALYTICS_CALLS) defines the metric for sorting.
+///                Can be UTF_ANALYTICS_CALLS or UTF_ANALYTICS_SUM. UTF_ANALYTICS_SUM is only
+///                supported for the mode UTF_ANALYTICS_FUNCTIONS.
+Function ShowTopFunctions(variable count, [variable mode, variable sorting])
+	STRUCT CollectionResult collectionResult
+	string msg, header
+	WAVE/T procs = GetTracedProcedureNames()
+	DFREF dfr = GetPackageFolder()
+
+	mode = ParamIsDefault(mode) ? UTF_ANALYTICS_FUNCTIONS : mode
+	sorting = ParamIsDefault(sorting) ? UTF_ANALYTICS_CALLS : sorting
+
+	if(mode != UTF_ANALYTICS_FUNCTIONS && mode != UTF_ANALYTICS_LINES)
+		printf "Mode %d is an unsupported mode\r", mode
+		return NaN
+	endif
+	if(sorting != UTF_ANALYTICS_CALLS && sorting != UTF_ANALYTICS_SUM)
+		printf "Sorting %d is an unsupported sorting\r", sorting
+		return NaN
+	endif
+	if(sorting == UTF_ANALYTICS_SUM && mode != UTF_ANALYTICS_FUNCTIONS)
+		printf "Sum sorting is only available for the functions mode\r"
+		return NaN
+	endif
+	if(count < 0 || UTF_Utils#IsNaN(count))
+		printf "Invalid count: %d\r", count
+		return NaN
+	endif
+	if(!HasTracingData())
+		printf "No Tracing data exists. Try to run tracing first.\r"
+		return NaN
+	endif
+
+	WAVE totals = GetTotals()
+	if(!DimSize(totals, UTF_ROW))
+		// this can happen after stored Experiment is loaded to a fresh instance of Igor
+		printf "TUFXOP has no data. Try to rerun tracing to get new data.\r"
+		return NaN
+	endif
+
+	if(mode == UTF_ANALYTICS_FUNCTIONS)
+		CollectFunctions(totals, procs, collectionResult)
+	elseif(mode == UTF_ANALYTICS_LINES)
+		CollectLines(totals, procs, collectionResult)
+	else
+		printf "Bug: Unknown mode %d for collection\r", mode
+		return NaN
+	endif
+
+	if(count < collectionResult.count)
+		collectionResult.count = count
+	endif
+
+	if(mode == UTF_ANALYTICS_FUNCTIONS)
+		WAVE/T result = SearchHighestWithMeta(procs, collectionResult, sorting)
+	elseif(mode == UTF_ANALYTICS_LINES)
+		WAVE/T result = SearchHighest(procs, collectionResult, sorting)
+	else
+		printf "Bug: Unknown mode %d for sorting\r", mode
+	endif
+
+	Duplicate/O result, dfr:TracingAnalyticResult
+
+	header = GetWaveHeader(result)
+	msg = UTF_Utils#NicifyTableText(result, header)
+	printf "Result:\r%s\r", msg
+End
+
 #endif
