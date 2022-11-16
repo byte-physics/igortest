@@ -6,6 +6,22 @@
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
 
+static Structure CollectionResult
+	WAVE/T functions
+	WAVE lines
+	WAVE calls
+	WAVE sums
+	variable count
+EndStructure
+
+static Function GetMaxFuncCount()
+	WAVE/WAVE funcLocations = UTF_Tracing#GetFuncLocations()
+	variable size = DimSize(funcLocations, UTF_ROW)
+
+	Make/FREE=1/N=(size) helper = DimSize(funcLocations[p][%FUNCLIST], UTF_ROW)
+	return WaveMax(helper)
+End
+
 static Function/WAVE GetTotals()
 	variable i, numWaves
 
@@ -32,4 +48,36 @@ static Function/WAVE GetTotals()
 	return totals
 End
 
+static Function CollectFunctions(WAVE totals, WAVE/T procs, STRUCT CollectionResult &result)
+	variable i, j, startIndex, endIndex, funcCount
+	variable procCount = DimSize(procs, UTF_ROW)
+	variable maxFuncCount = GetMaxFuncCount()
+	DFREF dfr = GetPackageFolder()
+	WAVE/WAVE funcLocations = UTF_Tracing#GetFuncLocations()
+	variable lbFuncList = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
+	variable lbFuncStart = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
+
+	Make/FREE=1/N=(procCount, maxFuncCount)/T result.functions
+	Make/FREE=1/N=(procCount, maxFuncCount) result.lines, result.calls, result.sums
+
+	for(i = 0; i < procCount; i++)
+		WAVE/T procFuncNames = funcLocations[i][lbFuncList]
+		WAVE procFuncLines = funcLocations[i][lbFuncStart]
+		funcCount = DimSize(procFuncNames, UTF_ROW)
+		if(!funcCount)
+			continue
+		endif
+		result.count += funcCount
+
+		result.functions[i][0, funcCount - 1] = procFuncNames[q]
+		result.lines[i][0, funcCount - 1] = procFuncLines[q]
+		result.calls[i][0, funcCount - 1] = totals[procFuncLines[q]][0][i]
+		for(j = 0; j < funcCount; j++)
+			startIndex = procFuncLines[j]
+			endIndex = j + 1 < funcCount ? procFuncLines[j + 1] : DimSize(totals, UTF_ROW)
+			WaveStats/M=1/Q/RMD=[startIndex, endIndex - 1][0, 0][i, i] totals
+			result.sums[i][j] = V_sum
+		endfor
+	endfor
+End
 #endif
