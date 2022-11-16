@@ -126,4 +126,78 @@ static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult 
 		endfor
 	endfor
 End
+
+static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult &collectionResult, variable sorting)
+	variable i, searchIndex, metaIndex
+
+	Make/FREE=1/N=(collectionResult.count, 5)/T result
+	SetDimLabel UTF_COLUMN, 0, 'Function Calls', result
+	SetDimLabel UTF_COLUMN, 1, 'Sum of called Lines', result
+	SetDimLabel UTF_COLUMN, 2, Procedure, result
+	SetDimLabel UTF_COLUMN, 3, Function, result
+	SetDimLabel UTF_COLUMN, 4, Line, result
+
+	if(sorting == UTF_ANALYTICS_CALLS)
+		WAVE searchWave = collectionResult.calls
+		searchIndex = 0
+		WAVE metaWave = collectionResult.sums
+		metaIndex = 1
+	elseif(sorting == UTF_ANALYTICS_SUM)
+		WAVE searchWave = collectionResult.sums
+		searchIndex = 1
+		WAVE metaWave = collectionResult.calls
+		metaIndex = 0
+	else
+		printf "Bug: Sorting %d is not supported\r", sorting
+		return result
+	endif
+
+	for(i = 0; i < collectionResult.count; i++)
+		WaveStats/M=1/Q searchWave
+		if(V_max <= 0)
+			Redimension/N=(i, -1) result
+			return result
+		endif
+		result[i][searchIndex] = num2istr(V_max)
+		result[i][metaIndex] = num2istr(metaWave[V_maxRowLoc][V_maxColLoc])
+		result[i][2] = procs[V_maxRowLoc]
+		result[i][3] = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
+		result[i][4] = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
+		searchWave[V_maxRowLoc][V_maxColLoc] = NaN
+	endfor
+
+	return result
+End
+
+static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collectionResult, variable sorting)
+	variable i
+
+	Make/FREE=1/N=(collectionResult.count, 4)/T result
+	SetDimLabel UTF_COLUMN, 0, Calls, result
+	SetDimLabel UTF_COLUMN, 1, Procedure, result
+	SetDimLabel UTF_COLUMN, 2, Function, result
+	SetDimLabel UTF_COLUMN, 3, Line, result
+
+	if(sorting == UTF_ANALYTICS_CALLS)
+		WAVE searchWave = collectionResult.calls
+	else
+		printf "Bug: Sorting %d is not supported\r", sorting
+		return result
+	endif
+
+	for(i = 0; i < collectionResult.count; i++)
+		WaveStats/M=1/Q searchWave
+		if(V_max <= 0)
+			Redimension/N=(i, -1) result
+			return result
+		endif
+		result[i][0] = num2istr(V_max)
+		result[i][1] = procs[V_maxRowLoc]
+		result[i][2] = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
+		result[i][3] = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
+		searchWave[V_maxRowLoc][V_maxColLoc] = NaN
+	endfor
+
+	return result
+End
 #endif
