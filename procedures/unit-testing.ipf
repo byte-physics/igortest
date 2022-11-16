@@ -17,5 +17,6 @@
 #include "unit-testing-utils"
 #include "unit-testing-utils-strings"
 #include "unit-testing-tracing"
+#include "unit-testing-tracing-analytics"
 #include "unit-testing-tracing-auto"
 #include "unit-testing-tracing-tracer"
