@@ -514,7 +514,6 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
-This special comment can be in one of the fives lines before the function or macro starts.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
