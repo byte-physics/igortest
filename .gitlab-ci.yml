@@ -180,6 +180,13 @@ xml_verification:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
+  rules:
+    - changes:
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
   script:
     - cd tests
     - ./check-junit-xml-files.sh
@@ -195,6 +202,13 @@ deployment_staging:
   timeout: 10 minutes
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
+  rules:
+    - changes:
+        compare_to: main
+        paths:
+          - docu/**/*
+          - procedures/**/*
+      when: always
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
@@ -205,8 +219,20 @@ deployment:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
+      changes:
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
+      changes:
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
   tags:
     - debian, docker
   image:
