@@ -208,7 +208,6 @@ deployment_staging:
         paths:
           - docu/**/*
           - procedures/**/*
-      when: manual
   script:
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
