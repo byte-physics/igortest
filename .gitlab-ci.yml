@@ -32,8 +32,10 @@ documentation:
     name: ${CI_REGISTRY}/internal/docker-sphinx:latest
   rules:
     - changes:
-        - docu/**/*
-        - procedures/**/*
+        compare_to: main
+        paths:
+          - docu/**/*
+          - procedures/**/*
       when: always
   script:
     - cd docu/doxygen
@@ -78,17 +80,21 @@ testing:
         IGORTARGET: ""
         IGOREXTPATH: "Igor Extensions (64-bit)"
       changes:
-        - procedures/**/*
-        - tests/**/*
-        - xop/**/*
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
     - if: '$ARCHITECTURE == "x86"'
       variables:
         IGORTARGET: "--32bit"
         IGOREXTPATH: "Igor Extensions"
       changes:
-        - procedures/**/*
-        - tests/**/*
-        - xop/**/*
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:v${IGOR_VERSION}
   script:
@@ -132,17 +138,21 @@ testing_nightly:
         IGORTARGET: ""
         IGOREXTPATH: "Igor Extensions (64-bit)"
       changes:
-        - procedures/**/*
-        - tests/**/*
-        - xop/**/*
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
     - if: '$ARCHITECTURE == "x86"'
       variables:
         IGORTARGET: "--32bit"
         IGOREXTPATH: "Igor Extensions"
       changes:
-        - procedures/**/*
-        - tests/**/*
-        - xop/**/*
+        compare_to: main
+        paths:
+          - procedures/**/*
+          - tests/**/*
+          - xop/**/*
   image:
     name: ${CI_REGISTRY}/internal/docker-igorpro:nightly
   script:
