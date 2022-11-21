@@ -919,7 +919,7 @@ static Function/S getInfo(result)
 	NVAR/SDFR=dfr assert_count
 	string caller, func, procedure, callStack, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr
-	variable numCallers, i
+	variable numCallers, i, assertLine
 	variable callerIndex = NaN
 	variable testCaseIndex
 
@@ -959,10 +959,11 @@ static Function/S getInfo(result)
 
 	callerTestCase = StringFromList(testCaseIndex, callStack)
 
-	caller    = StringFromList(callerIndex, callStack)
-	func      = StringFromList(0, caller, ",")
-	procedure = StringFromList(1, caller, ",")
-	line      = StringFromList(2, caller, ",")
+	caller     = StringFromList(callerIndex, callStack)
+	func       = StringFromList(0, caller, ",")
+	procedure  = StringFromList(1, caller, ",")
+	line       = StringFromList(2, caller, ",")
+	assertLine = str2num(StringFromList(2, caller, ","))
 
 	if(callerIndex != testcaseIndex)
 		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
@@ -974,7 +975,7 @@ static Function/S getInfo(result)
 	endif
 
 	contents = ProcedureText("", -1, procedure)
-	text = StringFromList(str2num(line), contents, "\r")
+	text = StringFromList(assertLine, contents, "\r")
 
 	cleanText = trimstring(text)
 
