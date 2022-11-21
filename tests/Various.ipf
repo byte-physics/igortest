@@ -7,6 +7,18 @@
 
 static Constant MMD_COMBO_COUNT = 32
 
+// this is used for checking warnings in the history
+Function TriggerWarningToHistory()
+	DoWindow/K HistoryCarbonCopy
+	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+	WARN(0)
+End
+
+Function CheckForWarningInHistory()
+	Notebook HistoryCarbonCopy, findText={"Assertion \"WARN(0)\" failed in TriggerWarningToHistory", 19}
+	CHECK_EQUAL_VAR(1, V_flag)
+End
+
 Function DoesNotBugOutOnLongString()
 
 	string a = PadString("a", 10e4, 0x20)
