@@ -696,9 +696,13 @@ static Function AddMessageToBuffer()
 	variable size
 
 	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr type
-	WAVE/T/SDFR=dfr messageBuffer
+	SVAR/SDFR=dfr/Z message
+	SVAR/SDFR=dfr/Z type
+	WAVE/T/SDFR=dfr/Z messageBuffer
+
+	if(!SVAR_Exists(message) || !SVAR_Exists(type) || !WaveExists(messageBuffer))
+		return NaN
+	endif
 
 	size = DimSize(messageBuffer, UTF_ROW)
 	Redimension/N=(size + 1, -1) messageBuffer
@@ -725,9 +729,11 @@ static Function UTF_ToSystemErrorStream(message)
 	string message
 
 	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr systemErr
+	SVAR/SDFR=dfr/Z systemErr
 
-	systemErr += message + "\r"
+	if(SVAR_Exists(systemErr))
+		systemErr += message + "\r"
+	endif
 End
 
 /// Make a test case fail. This method is intended to use outside the user code
