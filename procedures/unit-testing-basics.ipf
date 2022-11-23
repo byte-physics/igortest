@@ -698,7 +698,12 @@ static Function AddMessageToBuffer()
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
-	WAVE/T/SDFR=dfr messageBuffer
+	WAVE/T/SDFR=dfr/Z messageBuffer
+
+	if(!WaveExists(messageBuffer))
+		initMessageBuffer()
+		WAVE/T/SDFR=dfr messageBuffer
+	endif
 
 	size = DimSize(messageBuffer, UTF_ROW)
 	Redimension/N=(size + 1, -1) messageBuffer
@@ -3570,6 +3575,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	InitStrRunTest(s)
 
 	DFREF dfr = GetPackageFolder()
+
+	// init global vars
+	string/G dfr:message = ""
+	string/G dfr:type = "0"
+	string/G dfr:systemErr = ""
 
 	// do not save these for reentry
 	//
