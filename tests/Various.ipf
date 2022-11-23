@@ -11,11 +11,15 @@ static Constant MMD_COMBO_COUNT = 32
 Function TriggerWarningToHistory()
 	DoWindow/K HistoryCarbonCopy
 	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+	INFO("This warning is intended to fail. The next testcase will search for it.")
 	WARN(0)
 End
 
 Function CheckForWarningInHistory()
 	Notebook HistoryCarbonCopy, findText={"Assertion \"WARN(0)\" failed in TriggerWarningToHistory", 19}
+	CHECK_EQUAL_VAR(1, V_flag)
+
+	Notebook HistoryCarbonCopy, findText={"This warning is intended to fail. The next testcase will search for it.", 2}
 	CHECK_EQUAL_VAR(1, V_flag)
 End
 
