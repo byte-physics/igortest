@@ -1019,24 +1019,24 @@ static Function abortWithInvalidHooks(hooks)
 	variable i, numEntries
 	string msg
 
-	Make/T/N=6/FREE info
+	Make/T/N=6/FREE wvInfo
 
-	info[0] = FunctionInfo(hooks.testBegin)
-	info[1] = FunctionInfo(hooks.testEnd)
-	info[2] = FunctionInfo(hooks.testSuiteBegin)
-	info[3] = FunctionInfo(hooks.testSuiteEnd)
-	info[4] = FunctionInfo(hooks.testCaseBegin)
-	info[5] = FunctionInfo(hooks.testCaseEnd)
+	wvInfo[0] = FunctionInfo(hooks.testBegin)
+	wvInfo[1] = FunctionInfo(hooks.testEnd)
+	wvInfo[2] = FunctionInfo(hooks.testSuiteBegin)
+	wvInfo[3] = FunctionInfo(hooks.testSuiteEnd)
+	wvInfo[4] = FunctionInfo(hooks.testCaseBegin)
+	wvInfo[5] = FunctionInfo(hooks.testCaseEnd)
 
-	numEntries = DimSize(info, 0)
+	numEntries = DimSize(wvInfo, 0)
 	for(i = 0; i < numEntries; i += 1)
-		if(NumberByKey("N_PARAMS", info[i]) != 1 || NumberByKey("N_OPT_PARAMS", info[i]) != 0 || NumberByKey("PARAM_0_TYPE", info[i]) != 0x2000)
-			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", info[i])
+		if(NumberByKey("N_PARAMS", wvInfo[i]) != 1 || NumberByKey("N_OPT_PARAMS", wvInfo[i]) != 0 || NumberByKey("PARAM_0_TYPE", wvInfo[i]) != 0x2000)
+			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", wvInfo[i])
 			ReportErrorAndAbort(msg)
 		endif
 
-		if(NumberByKey("RETURNTYPE", info[i]) != 0x4)
-			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", info[i])
+		if(NumberByKey("RETURNTYPE", wvInfo[i]) != 0x4)
+			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", wvInfo[i])
 			ReportErrorAndAbort(msg)
 		endif
 	endfor
