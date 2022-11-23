@@ -710,6 +710,63 @@ static Function TestUTF()
 
 	// @}
 
+	// UserPrintF
+	// @{
+
+	Make/FREE/N=0/T emptyText
+	Make/FREE/N=0 emptyVars
+	Ensure(CheckUserPrintF("", "", emptyText, emptyVars))
+	Ensure(CheckUserPrintF("abc", "abc", emptyText, emptyVars))
+	Ensure(CheckUserPrintF("a%f", "a%%f", emptyText, emptyVars))
+	Ensure(!CheckUserPrintF("", "%s", emptyText, emptyVars, onlyErr=1))
+	Ensure(!CheckUserPrintF("", "%d", emptyText, emptyVars, onlyErr=1))
+
+	Ensure(CheckUserPrintF("a foo b", "a %s b", { "foo" }, emptyVars))
+	Ensure(CheckUserPrintF("a foo bbarc", "a %s b%sc", { "foo", "bar" }, emptyVars))
+	Ensure(CheckUserPrintF("a {foo, bar} b", "a @%s b", { "foo", "bar" }, emptyVars))
+	Ensure(CheckUserPrintF("a @{foo} b", "a @@%s b", { "foo" }, emptyVars))
+	Ensure(CheckUserPrintF("a @@ foo b", "a @@ %s b", { "foo" }, emptyVars))
+	Ensure(!CheckUserPrintF("", "%s %s", { "foo" }, emptyVars, onlyErr=1))
+
+	Ensure(CheckUserPrintF("a 1 b", "a %d b", emptyText, { 1 }))
+	Ensure(CheckUserPrintF("a 1 b2c", "a %d b%dc", emptyText, { 1, 2 }))
+	Ensure(CheckUserPrintF("a {1, 2} b", "a @%d b", emptyText, { 1, 2 }))
+	Ensure(CheckUserPrintF("a @{1} b", "a @@%d b", emptyText, { 1 }))
+	Ensure(CheckUserPrintF("a @@ 1 b", "a @@ %d b", emptyText, { 1 }))
+	Ensure(!CheckUserPrintF("", "%d %d", emptyText, { 1 }, onlyErr=1))
+
+	Ensure(CheckUserPrintF("foo 2", "%s %d", { "foo" }, { 2 }))
+	Ensure(CheckUserPrintF("2 foo", "%d %s", { "foo" }, { 2 }))
+	Ensure(CheckUserPrintF("foo bar 2", "%s %s %d", { "foo", "bar" }, { 2 }))
+	Ensure(CheckUserPrintF("foo 2 bar", "%s %d %s", { "foo", "bar" }, { 2 }))
+	Ensure(CheckUserPrintF("2 foo bar", "%d %s %s", { "foo", "bar" }, { 2 }))
+	Ensure(CheckUserPrintF("2 3 foo", "%d %d %s", { "foo" }, { 2, 3 }))
+	Ensure(CheckUserPrintF("2 foo 3", "%d %s %d", { "foo" }, { 2, 3 }))
+	Ensure(CheckUserPrintF("foo 2 3", "%s %d %d", { "foo" }, { 2, 3 }))
+
+	Ensure(CheckUserPrintF("foo {2}", "%s @%d", { "foo" }, { 2 }))
+	Ensure(CheckUserPrintF("{foo} 2", "@%s %d", { "foo" }, { 2 }))
+	Ensure(CheckUserPrintF("{foo} {2}", "@%s @%d", { "foo" }, { 2 }))
+
+	Ensure(CheckUserPrintF("1.235", "%.3f", emptyText, { 1.23456789 }))
+	Ensure(CheckUserPrintF("1.234568", "%.6f", emptyText, { 1.23456789 }))
+	Ensure(CheckUserPrintF("1.0MHz", "%.1W0PHz", emptyText, { 1e6 }))
+
+#if IgorVersion() > 8.00
+	Ensure(!CheckUserPrintF("", "%~d", emptyText, { 1 }, onlyErr=1))
+	Ensure(!CheckUserPrintF("", "%~", emptyText, emptyVars, onlyErr=1))
+#else
+	Ensure(CheckUserPrintF("~lld", "%~d", emptyText, { 1 }))
+#endif
+	Ensure(!CheckUserPrintF("", "@%%d", emptyText, { 1 }, onlyErr=1))
+
+	WAVE/Z nullWave = $""
+	variable val = nullWave[0]
+	Ensure(!CheckUserPrintF("", "", emptyText, emptyVars, onlyErr=1))
+	err = GetRTError(1)
+
+	// @}
+
 End
 
 static Function TestIUTFSetup()
@@ -732,6 +789,25 @@ static Function TestIUTFSetup()
 	// @}
 
 	PASS()
+End
+
+static Function CheckUserPrintF(expected, format, strings, numbers, [onlyErr])
+	string expected, format
+	WAVE/T strings
+	WAVE numbers
+	variable onlyErr
+
+	string result
+	variable err
+
+	onlyErr = ParamIsDefault(onlyErr) ? 0 : !!onlyErr
+
+	result = UTF_Utils_Strings#UserPrintF(format, strings, numbers, err)
+	if(onlyErr)
+		return !err
+	else
+		return !err && !CmpStr(expected, result)
+	endif
 End
 
 static Function TestCaseNameTest1()
