@@ -472,3 +472,25 @@ case is called for each element of that wave.
    Definition for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`CHECK`
+
+Example14
+---------
+
+This example shows how to attach information to the next called assertion. If
+this assertion fails the information is printed to the output to provide more
+context to the assertion.
+
+.. literalinclude:: ../../examples/example14-info.ipf
+   :caption: example14-info.ipf
+   :tab-width: 4
+
+.. code-block:: igor
+   :caption: command
+
+   RunTest("example14-info.ipf")
+
+.. note::
+
+   Defintion for the :doc:`assertions` in this test suite:
+
+   * :cpp:func:`INFO`

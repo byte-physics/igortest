@@ -94,12 +94,15 @@ static StrConstant TC_SUFFIX_SEP = ":"
 static StrConstant TC_SUMMARY_LENGTH_KEY = "NOTE_LENGTH"
 #if IgorVersion() >= 7.00
 // right arrow
-static StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
+StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
 // right filled triangle
-static StrConstant TC_ASSERTION_LIST_INDICATOR = "\342\226\266"
+StrConstant TC_ASSERTION_LIST_INDICATOR = "\342\226\266"
+// info icon
+StrConstant TC_ASSERTION_INFO_INDICATOR = "\xE2\x93\x98"
 #else
-static StrConstant TC_ASSERTION_MLINE_INDICATOR = "->"
-static StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
+StrConstant TC_ASSERTION_MLINE_INDICATOR = "->"
+StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
+StrConstant TC_ASSERTION_INFO_INDICATOR = "(i)"
 #endif
 
 static Constant WAVE_TRACKING_INACTIVE_MODE = 0
@@ -481,12 +484,18 @@ End
 /// @param str             The message to report.
 /// @param flags           A combination flags that are used by ReportResults() to determine what to do if result
 ///                        is in an error state.
-Function EvaluateResults(result, str, flags)
+/// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
+///               any assertion info message at the end of this function.
+///               Cleanup is enforced if flags contains the ABORT_FUNCTION flag.
+Function EvaluateResults(result, str, flags, [cleanupInfo])
 	variable result, flags
 	string str
+	variable cleanupInfo
+
+	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
 	DebugFailedAssertion(result)
-	ReportResults(result, str, flags)
+	ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
 End
 
 /// Opens the Debugger if the assertion failed and the debugMode option is set
@@ -757,6 +766,7 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr type
+	SVAR/SDFR=dfr/Z AssertionInfo
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
 	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
@@ -765,6 +775,9 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 	SetTestStatus(message)
 	type = "FAIL"
 	ReportError(message, incrErrorCounter = incrErrorCounter)
+	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
+		ReportError(AssertionInfo, incrErrorCounter = 0)
+	endif
 
 	if(!hideInSummary)
 		AddFailedSummaryInfo(summaryMsg)
@@ -810,17 +823,32 @@ static Function setAbortFlag()
 	variable/G dfr:abortFlag = 1
 End
 
+static Function CleanupInfoMsg()
+	DFREF dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr AssertionInfo
+
+	if(SVAR_Exists(AssertionInfo))
+		AssertionInfo = ""
+	endif
+End
+
 /// @brief Wrapper function result reporting. This functions should only be called for
 ///        assertions in user test cases. For internal errors use ReportError* functions.
 ///
 /// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
 /// @param str    Message string
 /// @param flags  Wrapper function `flags` argument
-static Function ReportResults(result, str, flags)
+/// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
+///               any assertion info message at the end of this function.
+///               Cleanup is enforced if flags contains the ABORT_FUNCTION flag.
+static Function ReportResults(result, str, flags, [cleanupInfo])
 	variable result, flags
 	string str
+	variable cleanupInfo
 
 	variable expectedFailure
+
+	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
 	SetTestStatusAndDebug(str, result)
 
@@ -836,10 +864,15 @@ static Function ReportResults(result, str, flags)
 				incrError()
 			endif
 			if(flags & ABORT_FUNCTION)
+				CleanupInfoMsg()
 				setAbortFlag()
 				Abort
 			endif
 		endif
+	endif
+
+	if(cleanupInfo)
+		CleanupInfoMsg()
 	endif
 End
 
@@ -1019,24 +1052,24 @@ static Function abortWithInvalidHooks(hooks)
 	variable i, numEntries
 	string msg
 
-	Make/T/N=6/FREE info
+	Make/T/N=6/FREE wvInfo
 
-	info[0] = FunctionInfo(hooks.testBegin)
-	info[1] = FunctionInfo(hooks.testEnd)
-	info[2] = FunctionInfo(hooks.testSuiteBegin)
-	info[3] = FunctionInfo(hooks.testSuiteEnd)
-	info[4] = FunctionInfo(hooks.testCaseBegin)
-	info[5] = FunctionInfo(hooks.testCaseEnd)
+	wvInfo[0] = FunctionInfo(hooks.testBegin)
+	wvInfo[1] = FunctionInfo(hooks.testEnd)
+	wvInfo[2] = FunctionInfo(hooks.testSuiteBegin)
+	wvInfo[3] = FunctionInfo(hooks.testSuiteEnd)
+	wvInfo[4] = FunctionInfo(hooks.testCaseBegin)
+	wvInfo[5] = FunctionInfo(hooks.testCaseEnd)
 
-	numEntries = DimSize(info, 0)
+	numEntries = DimSize(wvInfo, 0)
 	for(i = 0; i < numEntries; i += 1)
-		if(NumberByKey("N_PARAMS", info[i]) != 1 || NumberByKey("N_OPT_PARAMS", info[i]) != 0 || NumberByKey("PARAM_0_TYPE", info[i]) != 0x2000)
-			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", info[i])
+		if(NumberByKey("N_PARAMS", wvInfo[i]) != 1 || NumberByKey("N_OPT_PARAMS", wvInfo[i]) != 0 || NumberByKey("PARAM_0_TYPE", wvInfo[i]) != 0x2000)
+			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", wvInfo[i])
 			ReportErrorAndAbort(msg)
 		endif
 
-		if(NumberByKey("RETURNTYPE", info[i]) != 0x4)
-			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", info[i])
+		if(NumberByKey("RETURNTYPE", wvInfo[i]) != 0x4)
+			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", wvInfo[i])
 			ReportErrorAndAbort(msg)
 		endif
 	endfor
@@ -2397,6 +2430,8 @@ static Function AfterTestCase(name)
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
+
+	CleanupInfoMsg()
 
 	if(assert_count == GetSavedAssertionCounter())
 		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name

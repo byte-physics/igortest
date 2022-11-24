@@ -30,6 +30,76 @@ Function FAIL()
 	UTF_Wrapper#TRUE_WRAPPER(0, REQUIRE_MODE)
 End
 
+/// Append information to the next assertion to print if failed
+Function INFO(format, [s, n, s0, s1, s2, s3, s4, n0, n1, n2, n3, n4])
+	string format
+	WAVE/T s
+	WAVE n
+	string s0, s1, s2, s3, s4
+	variable n0, n1, n2, n3, n4
+
+	variable stringLength = 0
+	variable numberLength = 0
+
+	if(ParamIsDefault(s))
+		Make/FREE/T/N=5 wv
+		WAVE/T s = wv
+		if(!ParamIsDefault(s0))
+			s[stringLength] = s0
+			stringLength += 1
+		endif
+		if(!ParamIsDefault(s1))
+			s[stringLength] = s1
+			stringLength += 1
+		endif
+		if(!ParamIsDefault(s2))
+			s[stringLength] = s2
+			stringLength += 1
+		endif
+		if(!ParamIsDefault(s3))
+			s[stringLength] = s3
+			stringLength += 1
+		endif
+		if(!ParamIsDefault(s4))
+			s[stringLength] = s4
+			stringLength += 1
+		endif
+		Redimension/N=(stringLength) s
+	elseif(!ParamIsDefault(s0) || !ParamIsDefault(s1) || !ParamIsDefault(s2) || !ParamIsDefault(s3) || !ParamIsDefault(s4))
+		EvaluateResults(0, "Cannot mix single string with wave parameter", REQUIRE_MODE)
+	endif
+
+	if(ParamIsDefault(n))
+		Make/FREE/N=5 numbers
+		WAVE n = numbers
+		if(!ParamIsDefault(n0))
+			numbers[numberLength] = n0
+			numberLength += 1
+		endif
+		if(!ParamIsDefault(n1))
+			numbers[numberLength] = n1
+			numberLength += 1
+		endif
+		if(!ParamIsDefault(n2))
+			numbers[numberLength] = n2
+			numberLength += 1
+		endif
+		if(!ParamIsDefault(n3))
+			numbers[numberLength] = n3
+			numberLength += 1
+		endif
+		if(!ParamIsDefault(n4))
+			numbers[numberLength] = n4
+			numberLength += 1
+		endif
+		Redimension/N=(numberLength) numbers
+	elseif(!ParamIsDefault(n0) || !ParamIsDefault(n1) || !ParamIsDefault(n2) || !ParamIsDefault(n3) || !ParamIsDefault(n4))
+		EvaluateResults(0, "Cannot mix single number with wave parameter", REQUIRE_MODE)
+	endif
+
+	UTF_WRAPPER#INFO_WRAPPER(format, s, n, CHECK_MODE)
+End
+
 /// @copydoc TRUE_DOCU
 Function WARN(var)
 	variable var

@@ -6,6 +6,37 @@
 
 // Licensed under 3-Clause BSD, see License.txt
 
+/// @class INFO_DOCU
+/// Append information to the next assertion to print if failed
+static Function INFO_WRAPPER(format, strings, numbers, flags)
+	string format
+	WAVE/T strings
+	WAVE numbers
+	variable flags
+
+	variable err
+	string msg
+	DFREF dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr AssertionInfo
+
+	if(!SVAR_Exists(AssertionInfo))
+		string/G dfr:AssertionInfo = ""
+		SVAR/SDFR=dfr AssertionInfo
+	endif
+
+	msg = UTF_Utils_Strings#UserPrintF(format, strings, numbers, err)
+	if(err)
+		sprintf msg, "PrintF error \"%s\"", msg
+		EvaluateResults(0, msg, flags, cleanupInfo = 0)
+		return NaN
+	endif
+
+	if(strlen(AssertionInfo))
+		AssertionInfo += "\r  "
+	endif
+	AssertionInfo += "  " + TC_ASSERTION_INFO_INDICATOR + " " + msg
+End
+
 /// @class CDF_EMPTY_DOCU
 /// Tests if the current data folder is empty
 ///
@@ -531,7 +562,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	str1 = UTF_Checks#GetWaveMajorTypeString(majorType)
 	str2 = UTF_Checks#GetWaveMajorTypeString(type)
 	sprintf str, "Expect wave's main type to be '%s' but got '%s'", str1, str2
-	EvaluateResults(result, str, flags)
+	EvaluateResults(result, str, flags, cleanupInfo = 0)
 
 	if(!ParamIsDefault(minorType))
 		result = UTF_Checks#HasWaveMinorType(wv, minorType)
@@ -539,8 +570,10 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		str1 = UTF_Checks#GetWaveMinorTypeString(minorType)
 		str2 = UTF_Checks#GetWaveMinorTypeString(type)
 		sprintf str, "Expect wave's sub type to be '%s' but got '%s'", str1, str2
-		EvaluateResults(result, str, flags)
+		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endif
+
+	UTF_Basics#CleanupInfoMsg()
 End
 
 /// @class EQUAL_VAR_DOCU
@@ -745,8 +778,10 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 			str += "; detailed: " + detailedMsg
 		endif
 
-		EvaluateResults(result, str, flags)
+		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endfor
+
+	UTF_Basics#CleanupInfoMsg()
 End
 
 /// @class LESS_EQUAL_VAR_DOCU
