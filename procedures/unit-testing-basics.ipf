@@ -1434,6 +1434,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	message = ""
 	if(err)
 		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\" (%s)", err, errmessage, funcTypeString, funcName, procWin
+		AddFailedSummaryInfo(str)
 		message = str
 		type = "RUNTIME ERROR"
 	endif
@@ -1445,12 +1446,15 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		switch(abortCode)
 			case -1:
 				sprintf str, "User aborted Test Run manually in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+				AddFailedSummaryInfo(str)
 				break
 			case -2:
 				sprintf str, "Stack Overflow in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+				AddFailedSummaryInfo(str)
 				break
 			case -3:
 				sprintf str, "Encountered \"Abort\" in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+				AddFailedSummaryInfo(str)
 				break
 			default:
 				break
@@ -1458,6 +1462,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		message += str
 		if(abortCode > 0)
 			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
+			AddFailedSummaryInfo(str)
 			message += str
 		endif
 	endif
