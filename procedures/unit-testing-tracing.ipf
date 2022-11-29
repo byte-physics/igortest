@@ -163,12 +163,12 @@ static Function/S PreCheckProcedures(string procWinList)
 		infoStr = FunctionInfo(GetTaggedFunctionName(procWin), procWin)
 		if(!UTF_Utils#IsEmpty(infoStr))
 			sprintf msg, "Tag function for procedure file %s is already present. (Is the procedure already instrumented?)", procWin
-			UTF_Basics#ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		WAVE/T wProcText = ListToTextWave(ProcedureText("", NaN, procWin), "\r")
 		if(DimSize(wProcText, UTF_ROW) >= UTF_MAX_PROC_LINES)
 			sprintf msg, "Procedure file %s has too many lines. (Current limit %d)", procWin, UTF_MAX_PROC_LINES
-			UTF_Basics#ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		if(CmpStr(procWin, reservedProcWin))
 			outList = AddListItem(procWin, outList, ";", Inf)
@@ -208,7 +208,7 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			Open/R/Z fNum as funcPath
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath
-				UTF_Basics#ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FStatus fNum
 			input = PadString("", V_logEOF, 0x20)
@@ -218,7 +218,7 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			Open/Z fNum as (funcPath + PROC_BACKUP_ENDING)
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath + PROC_BACKUP_ENDING
-				UTF_Basics#ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FBinWrite fnum, input
 			Close fNum
@@ -233,7 +233,7 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			Open/Z fNum as funcPath
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath
-				UTF_Basics#ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FBinWrite fNum, output
 			Close fNum
@@ -258,7 +258,7 @@ static Function WriteProcList(string procWinList)
 
 	fullFuncName = UTF_Basics#getFullFunctionName(err, TRACING_AUTOGEN_FUNCTION, TRACING_AUTOGEN_PROCEDURE)
 	if(err)
-		UTF_Basics#ReportErrorAndAbort("Unable to retrieve full function name.")
+		UTF_Reporting#ReportErrorAndAbort("Unable to retrieve full function name.")
 	endif
 	funcPath = FunctionPath(fullFuncName)
 
@@ -266,7 +266,7 @@ static Function WriteProcList(string procWinList)
 	WAVE/T wProcText = ListToTextWave(fullProcText, "\r")
 	FindValue/TEXT=AUTOGEN_END/TXOP=4 wProcText
 	if(V_Value < 0)
-		UTF_Basics#ReportErrorAndAbort("Autogen end marker not found.")
+		UTF_Reporting#ReportErrorAndAbort("Autogen end marker not found.")
 	endif
 	Duplicate/FREE/RMD=[V_Value, Inf] wProcText, fullTrailText
 	FindValue/TEXT=AUTODEL_START/TXOP=4 fullTrailText
@@ -274,7 +274,7 @@ static Function WriteProcList(string procWinList)
 
 	FindValue/TEXT=AUTOGEN_START/TXOP=4 wProcText
 	if(V_Value < 0)
-		UTF_Basics#ReportErrorAndAbort("Autogen start marker not found.")
+		UTF_Reporting#ReportErrorAndAbort("Autogen start marker not found.")
 	endif
 	Duplicate/FREE/RMD=[0, V_Value] wProcText, headText
 
@@ -292,7 +292,7 @@ static Function WriteProcList(string procWinList)
 	Open/Z fNum as funcPath
 	if(V_flag)
 		sprintf msg, "Open failed for file %s.", funcPath
-		UTF_Basics#ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	wfprintf fNum, "%s\r", headText
 	wfprintf fNum, "%s\r", wNewCode
@@ -312,12 +312,12 @@ static Function/WAVE GetFunctionDeclarationList(string line)
 	b1 = strsearch(line, "(", 0)
 	if(b1 < 0)
 		sprintf msg, "Error parsing function declaration: %s.", line
-		UTF_Basics#ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	b2 = strsearch(line, ")", b1 + 1)
 	if(b2 < 0)
 		sprintf msg, "Error parsing function declaration: %s.", line
-		UTF_Basics#ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	decPart = line[b1 + 1, b2 - 1]
 	if(UTF_Utils#IsEmpty(decPart))
@@ -475,7 +475,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 	if(UTF_Utils#isEmpty(procedurePath))
 		sprintf msg, "Unable to retrieve path of procedure file %s as no macro or function could be resolved.", procWin
-		UTF_Basics#ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	Concatenate/FREE/NP/T {wMacroList}, wFuncList
@@ -650,7 +650,7 @@ Function/T ReplaceWithZ(string &origLines, variable currLineNum, variable &lineC
 	b1 = strsearch(tmpLine, "(", 0)
 	b2 = strsearch(tmpLine, ")", Inf, 1)
 	if(b1 == -1 || b2 == -1)
-		UTF_Basics#ReportErrorAndAbort("Failed to parse condition; " + origLines)
+		UTF_Reporting#ReportErrorAndAbort("Failed to parse condition; " + origLines)
 	endif
 
 	cmd = tmpLine[0, b1 - 1]
@@ -817,7 +817,7 @@ static Function/S GetLineEnding(string line[, string defEndL])
 		if(!ParamIsDefault(defEndL))
 			return defEndl
 		endif
-		UTF_Basics#ReportErrorAndAbort("Can not determine line ending.")
+		UTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
 	endif
 
 	len = strlen(line)
@@ -837,7 +837,7 @@ static Function/S GetLineEnding(string line[, string defEndL])
 		if(!ParamIsDefault(defEndL))
 			return defEndl
 		endif
-		UTF_Basics#ReportErrorAndAbort("Can not determine line ending.")
+		UTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
 	endif
 
 	return endL
@@ -856,7 +856,7 @@ static Function AnalyzeTracingResult()
 
 	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	if(V_flag)
-		UTF_Basics#ReportErrorAndAbort("No gathered tracing data found for code coverage analysis.")
+		UTF_Reporting#ReportErrorAndAbort("No gathered tracing data found for code coverage analysis.")
 	endif
 	numThreads = NumberByKey("Index", note(wrefMain))
 
@@ -872,17 +872,17 @@ static Function AnalyzeTracingResult()
 
 	GetFileFolderInfo/P=home/Z/Q INSTRUDATA_FILENAME
 	if(V_flag || !V_IsFile)
-		UTF_Basics#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
+		UTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
 	endif
 
 	LoadWave/P=home/J/K=1/O/Q/M/N=iutf_instrumented_data INSTRUDATA_FILENAME
 	if(V_flag != 1)
-		UTF_Basics#ReportErrorAndAbort("Error when loading instrumentation data.")
+		UTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
 	endif
 	wName = StringFromList(0, S_waveNames)
 	WAVE instrData = $wName
 	if(DimSize(instrData, UTF_ROW) != UTF_MAX_PROC_LINES || DimSize(instrData, UTF_COLUMN) != numProcs)
-		UTF_Basics#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
+		UTF_Reporting#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
 	endif
 
 	tabReplace = ""
@@ -902,7 +902,7 @@ static Function AnalyzeTracingResult()
 		endif
 		fullFuncName = UTF_Basics#getFullFunctionName(err, StringFromList(0, funcList), procWin)
 		if(err)
-			UTF_Basics#ReportErrorAndAbort("Unable to retrieve full function name.")
+			UTF_Reporting#ReportErrorAndAbort("Unable to retrieve full function name.")
 		endif
 		funcPath = FunctionPath(fullFuncName) + PROC_BACKUP_ENDING
 
@@ -910,7 +910,7 @@ static Function AnalyzeTracingResult()
 		Open/R/Z fNum as funcPath
 		if(V_flag)
 			sprintf msg, "Open failed for file %s.", funcPath
-			UTF_Basics#ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 		do

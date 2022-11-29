@@ -164,7 +164,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			tagValue = TrimString(tagValue)
 			if(FindDimLabel(tagValueWave, 0, tagName) != -2)
 				sprintf msg, "Test case %s has the tag %s at least twice.", funcName, tagValue
-				UTF_Basics#ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 
 			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
@@ -173,7 +173,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 				allVarList = UTF_Basics#GetMMDAllVariablesList()
 				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
 					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue
-					UTF_Basics#ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				tagValue = StringFromList(1, tagvalue, ":")
 			endif
@@ -810,7 +810,7 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 			sprintf str, "[%d][%d][%d][%d]", row, col, layer, chunk
 			break
 		default:
-			UTF_Basics#ReportErrorAndAbort("Unsupported number of dimensions")
+			UTF_Reporting#ReportErrorAndAbort("Unsupported number of dimensions")
 			break
 	endswitch
 	table[2 * locCount][%DIMS] = str
@@ -988,7 +988,7 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 	// handle null strings
 	if(IsNull(str1))
 		if(IsNull(str2))
-			UTF_Basics#ReportErrorAndAbort("Bug: Cannot create diff if both strings are null")
+			UTF_Reporting#ReportErrorAndAbort("Bug: Cannot create diff if both strings are null")
 		endif
 
 		result.v1 = "-:-:-> <NULL STRING>"
@@ -1063,7 +1063,7 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 		return NaN
 	endif
 
-	UTF_Basics#ReportErrorAndAbort("Bug: Cannot create diff of equal strings")
+	UTF_Reporting#ReportErrorAndAbort("Bug: Cannot create diff of equal strings")
 End
 
 /// @brief Return a section of str which contains the character at diffpos and some context around.

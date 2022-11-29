@@ -14,6 +14,7 @@
 #include "unit-testing-hooks"
 #include "unit-testing-junit"
 #include "unit-testing-tap"
+#include "unit-testing-reporting"
 #include "unit-testing-utils"
 #include "unit-testing-utils-strings"
 #include "unit-testing-tracing"

@@ -75,7 +75,6 @@ static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
 static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
-static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 
 static StrConstant DGEN_VAR_TEMPLATE = "v"
 static StrConstant DGEN_STR_TEMPLATE = "s"
@@ -90,7 +89,7 @@ static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
 static StrConstant TC_SUFFIX_SEP = ":"
-static StrConstant TC_SUMMARY_LENGTH_KEY = "NOTE_LENGTH"
+StrConstant TC_SUMMARY_LENGTH_KEY = "NOTE_LENGTH"
 #if IgorVersion() >= 7.00
 // right arrow
 StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
@@ -498,7 +497,7 @@ static Function DebugOutput(str, booleanValue)
 
 	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 	if(EnabledDebug())
-		ReportError(str, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(str, incrErrorCounter = 0)
 	endif
 End
 
@@ -530,7 +529,7 @@ Function EvaluateResults(result, str, flags, [cleanupInfo])
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
 	DebugFailedAssertion(result)
-	ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
+	UTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
 End
 
 /// Opens the Debugger if the assertion failed and the debugMode option is set
@@ -657,37 +656,6 @@ static Function incrRunCount()
 	run_count +=1
 End
 
-/// Get or create the wave that contains the failed procedures
-static Function/WAVE GetFailedProcWave()
-	string name = "FailedProcWave"
-
-	dfref dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
-	if(WaveExists(wv))
-		return wv
-	endif
-
-	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
-	SetNumberInWaveNote(wv, TC_SUMMARY_LENGTH_KEY, 0)
-
-	return wv
-End
-
-/// @brief Add msg to the failed summary. This list will be printed to the
-///        history area to reference errors briefly.
-/// @param msg  The message to add to list
-static Function AddFailedSummaryInfo(msg)
-	string msg
-
-	variable index
-	WAVE/T wvFailed = GetFailedProcWave()
-
-	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
-	EnsureLargeEnoughWaveSimple(wvFailed, index)
-	SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
-	wvFailed[index] = msg
-End
-
 static Function SetNumberInWaveNote(wv, key, value)
 	WAVE wv
 	string key
@@ -769,79 +737,6 @@ Function incrAssert()
 	assert_count +=1
 End
 
-/// Adds a string to the system error log, it is reset at each test case begin
-static Function UTF_ToSystemErrorStream(message)
-	string message
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr systemErr
-
-	systemErr += message + "\r"
-End
-
-/// Make a test case fail. This method is intended to use outside the user code
-/// of the test case as such as it won't look in the stack trace which assertion
-/// triggered the error.
-///
-/// This method is a short version of
-/// 	ReportResults(0, msg, OUTPUT_MESSAGE | INCREASE_ERROR)
-/// without the stack trace detection and special handling of output.
-/// @param message  The message to output to the history
-/// @param summaryMsg (optional, default is message) The message to output in the summary at the
-///                 end of the test run. If this parameter is ommited it will use message for the
-///                 summary.
-/// @param hideInSummary (optional, default disabled) If set to non zero it will hide this message
-///                 in the summary at the end of the test run.
-/// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                 Increases the internal error counter.
-static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCounter])
-	string message
-	string summaryMsg
-	variable hideInSummary, incrErrorCounter
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr type
-	SVAR/SDFR=dfr/Z AssertionInfo
-
-	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
-	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
-	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
-
-	SetTestStatus(message)
-	type = "FAIL"
-	ReportError(message, incrErrorCounter = incrErrorCounter)
-	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		ReportError(AssertionInfo, incrErrorCounter = 0)
-	endif
-
-	if(!hideInSummary)
-		AddFailedSummaryInfo(summaryMsg)
-	endif
-
-	if(TAP_IsOutputEnabled())
-		SVAR/SDFR=dfr tap_diagnostic
-		tap_diagnostic = tap_diagnostic + message
-	endif
-End
-
-/// Prints an informative message that the test failed
-/// @param expectedFailure if set to non zero the error will be considered as expected
-Function PrintFailInfo(expectedFailure)
-	variable expectedFailure
-
-	string prefix, str
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr status
-
-	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
-	str = getInfo(0)
-	message = prefix + status + " " + str
-
-	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure, incrErrorCounter = 0)
-End
-
 /// Returns 1 if the abortFlag is set and zero otherwise
 Function shouldDoAbort()
 	NVAR/Z/SDFR=GetPackageFolder() abortFlag
@@ -864,50 +759,6 @@ static Function CleanupInfoMsg()
 
 	if(SVAR_Exists(AssertionInfo))
 		AssertionInfo = ""
-	endif
-End
-
-/// @brief Wrapper function result reporting. This functions should only be called for
-///        assertions in user test cases. For internal errors use ReportError* functions.
-///
-/// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
-/// @param str    Message string
-/// @param flags  Wrapper function `flags` argument
-/// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
-///               any assertion info message at the end of this function.
-///               Cleanup is enforced if flags contains the ABORT_FUNCTION flag.
-static Function ReportResults(result, str, flags, [cleanupInfo])
-	variable result, flags
-	string str
-	variable cleanupInfo
-
-	variable expectedFailure
-
-	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
-
-	SetTestStatusAndDebug(str, result)
-
-	if(!result)
-		expectedFailure = IsExpectedFailure()
-
-		if(flags & OUTPUT_MESSAGE)
-			PrintFailInfo(expectedFailure)
-		endif
-
-		if(!expectedFailure)
-			if(flags & INCREASE_ERROR)
-				incrError()
-			endif
-			if(flags & ABORT_FUNCTION)
-				CleanupInfoMsg()
-				setAbortFlag()
-				Abort
-			endif
-		endif
-	endif
-
-	if(cleanupInfo)
-		CleanupInfoMsg()
 	endif
 End
 
@@ -1100,12 +951,12 @@ static Function abortWithInvalidHooks(hooks)
 	for(i = 0; i < numEntries; i += 1)
 		if(NumberByKey("N_PARAMS", wvInfo[i]) != 1 || NumberByKey("N_OPT_PARAMS", wvInfo[i]) != 0 || NumberByKey("PARAM_0_TYPE", wvInfo[i]) != 0x2000)
 			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", wvInfo[i])
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 		if(NumberByKey("RETURNTYPE", wvInfo[i]) != 0x4)
 			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", wvInfo[i])
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 	endfor
 End
@@ -1276,7 +1127,7 @@ Function TEST_CASE_PROTO()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototypes for multi data test cases
@@ -1286,7 +1137,7 @@ Function TEST_CASE_PROTO_MD_VAR([var])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_STR([str])
@@ -1295,7 +1146,7 @@ Function TEST_CASE_PROTO_MD_STR([str])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WV([wv])
@@ -1304,7 +1155,7 @@ Function TEST_CASE_PROTO_MD_WV([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVTEXT([wv])
@@ -1313,7 +1164,7 @@ Function TEST_CASE_PROTO_MD_WVTEXT([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVDFREF([wv])
@@ -1322,7 +1173,7 @@ Function TEST_CASE_PROTO_MD_WVDFREF([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
@@ -1331,7 +1182,7 @@ Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_DFR([dfr])
@@ -1340,7 +1191,7 @@ Function TEST_CASE_PROTO_MD_DFR([dfr])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_CMPL([cmpl])
@@ -1349,7 +1200,7 @@ Function TEST_CASE_PROTO_MD_CMPL([cmpl])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #if (IgorVersion() >= 7.0)
@@ -1360,7 +1211,7 @@ Function TEST_CASE_PROTO_MD_INT([int])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #else
@@ -1371,7 +1222,7 @@ Function TEST_CASE_PROTO_MD_INT([int])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #endif
@@ -1382,7 +1233,7 @@ Function/WAVE TEST_CASE_PROTO_DGEN()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for run functions in autorun mode
@@ -1391,7 +1242,7 @@ Function AUTORUN_MODE_PROTO()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for hook functions
@@ -1401,7 +1252,7 @@ Function USER_HOOK_PROTO(str)
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for multi multi data test case functions
@@ -1411,7 +1262,7 @@ Function TEST_CASE_PROTO_MD([md])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	ReportErrorAndAbort(msg)
+	UTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 ///@endcond // HIDDEN_SYMBOL
@@ -1453,7 +1304,6 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		return NaN
 	endif
 
-
 	switch(funcType)
 		case TEST_CASE_TYPE:
 			funcTypeString = "test case"
@@ -1462,7 +1312,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 			funcTypeString = "user hook"
 			break
 		default:
-			ReportErrorAndAbort("Unknown func type in EvaluateRTE")
+			UTF_Reporting#ReportErrorAndAbort("Unknown func type in EvaluateRTE")
 			break
 	endswitch
 
@@ -1470,7 +1320,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	message = ""
 	if(err)
 		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\" (%s)", err, errmessage, funcTypeString, funcName, procWin
-		AddFailedSummaryInfo(str)
+		UTF_Reporting#AddFailedSummaryInfo(str)
 		message = str
 		type = "RUNTIME ERROR"
 	endif
@@ -1482,15 +1332,15 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		switch(abortCode)
 			case -1:
 				sprintf str, "User aborted Test Run manually in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				AddFailedSummaryInfo(str)
+				UTF_Reporting#AddFailedSummaryInfo(str)
 				break
 			case -2:
 				sprintf str, "Stack Overflow in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				AddFailedSummaryInfo(str)
+				UTF_Reporting#AddFailedSummaryInfo(str)
 				break
 			case -3:
 				sprintf str, "Encountered \"Abort\" in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				AddFailedSummaryInfo(str)
+				UTF_Reporting#AddFailedSummaryInfo(str)
 				break
 			default:
 				break
@@ -1498,14 +1348,14 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		message += str
 		if(abortCode > 0)
 			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
-			AddFailedSummaryInfo(str)
+			UTF_Reporting#AddFailedSummaryInfo(str)
 			message += str
 		endif
 	endif
 
-	ReportError(message)
+	UTF_Reporting#ReportError(message)
 	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		ReportError(AssertionInfo, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(AssertionInfo, incrErrorCounter = 0)
 	endif
 
 	CheckAbortCondition(abortCode)
@@ -1533,7 +1383,7 @@ static Function TestBegin(name, debugMode)
 	variable debugMode
 
 	string msg
-	WAVE/T wvFailed = GetFailedProcWave()
+	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
 
 	initGlobalError()
 	initRunCount()
@@ -1558,7 +1408,7 @@ static Function TestBegin(name, debugMode)
 	ClearBaseFilename()
 
 	sprintf msg, "Start of test \"%s\"", name
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Testrun
@@ -1569,7 +1419,7 @@ static Function TestEnd(name, debugMode)
 
 	string msg
 	variable i, index
-	WAVE/T wvFailed = GetFailedProcWave()
+	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr global_error_count
@@ -1580,16 +1430,16 @@ static Function TestEnd(name, debugMode)
 		sprintf msg, "Test finished with %d errors", global_error_count
 	endif
 
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
 	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
 	for(i = 0; i < index; i += 1)
 		msg = "  " + TC_ASSERTION_LIST_INDICATOR + " " + wvFailed[i]
-		UTF_PrintStatusMessage(msg)
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	endfor
 
 	sprintf msg, "End of test \"%s\"", name
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
 	NVAR/SDFR=dfr igor_debug_state
 	RestoreIgorDebugger(igor_debug_state)
@@ -1606,7 +1456,7 @@ static Function TestSuiteBegin(testSuite)
 	incrRunCount()
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Suite
@@ -1625,13 +1475,13 @@ static Function TestSuiteEnd(testSuite)
 		sprintf msg, "Failed with %d errors", error_count
 	endif
 
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
 	NVAR/SDFR=dfr global_error_count
 	global_error_count += error_count
 
 	sprintf msg, "Leaving test suite \"%s\"", testSuite
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Setup for Test Case
@@ -1655,7 +1505,7 @@ static Function TestCaseBegin(testCase)
 	string/G dfr:systemErr = ""
 
 	sprintf msg, "Entering test case \"%s\"", testCase
-	UTF_PrintStatusMessage(msg)
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Case
@@ -1666,39 +1516,7 @@ static Function TestCaseEnd(testCase)
 	string msg
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
-	UTF_PrintStatusMessage(msg)
-End
-
-/// @brief Print the given message to the Igor history area and to stdout (IP8 only)
-///
-/// Always use this function if you want to inform the user about something.
-///
-/// @param msg message to be outputted, without trailing end-of-line
-static Function UTF_PrintStatusMessage(msg)
-	string msg
-
-	string tmpStr
-
-	if(strlen(msg) == 0)
-		return NaN
-	endif
-
-#if (IgorVersion() >= 9.0)
-	printf "%s\r", msg
-#elif  (IgorVersion() >= 8.0)
-	print/LEN=2500 msg
-#elif  (IgorVersion() >= 7.0)
-	print/LEN=1000 msg
-#elif  (IgorVersion() >= 6.0)
-	print/LEN=400 msg
-#endif
-
-#if	(IgorVersion() >= 9.0)
-	fprintf -1, "%s\r\n", msg
-#elif (IgorVersion() >= 8.0)
-	tmpStr = UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
-	fprintf -1, "%s\r\n", tmpStr
-#endif
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Checks functions signature of each multi data test case candidate
@@ -1764,13 +1582,13 @@ static Function/S GetDataGenFullFunctionName(procWin, fullTestCase)
 	dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
 	if(err)
 		sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
 	if(err)
 		sprintf msg, "Could not get full function name of data generator: %s", dgen
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	return dgen
@@ -1867,7 +1685,7 @@ static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 
 	if(UTF_Utils#IsEmpty(dgenList))
 		sprintf msg, "No data generator functions specified for test case %s in test suite %s.", fullFuncName, procWin
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	return dgenList
@@ -1892,7 +1710,7 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
 	if(err)
 		sprintf msg, "Could not get full function name of data generator: %s", dgen
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	EvaluateDgenTagResult(err, fullFuncName, varName)
@@ -1914,7 +1732,7 @@ static Function CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 
 	if(!DimSize(wGenerator, UTF_ROW))
 		sprintf msg, "Note: In test case %s data generator function (%s) returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
-		ReportError(msg, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(msg, incrErrorCounter = 0)
 		return 1
 	endif
 
@@ -1972,11 +1790,11 @@ static Function EvaluateDgenTagResult(err, fullFuncName, varName)
 
 	if(err == UTF_TAG_EMPTY)
 		sprintf msg, "No data generator function specified for function %s data generator variable %s.", fullFuncName, varName
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	if(err != UTF_TAG_OK)
 		sprintf msg, "Problem determining data generator function specified for function %s data generator variable %s.", fullFuncName, varName
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 End
 
@@ -1992,7 +1810,7 @@ static Function/WAVE GetGeneratorWave(dgen, fullFuncName)
 		FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
 		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
 			sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		WAVE/Z wGenerator = fDgen()
 	else
@@ -2011,16 +1829,16 @@ static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1
 	WAVE/Z wGenerator = GetGeneratorWave(dgen, fullFuncName)
 	if(!WaveExists(wGenerator))
 		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	elseif(DimSize(wGenerator, UTF_COLUMN) > 0)
 		sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullFuncName
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
 		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
 		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	return wGenerator
@@ -2274,7 +2092,6 @@ static Function/S AdaptProcWinList(procWinList, enableRegExp)
 	string str
 	string list = ""
 
-
 	if(IsProcGlobal())
 		return procWinList
 	endif
@@ -2300,7 +2117,7 @@ static Function/S GetProcedureList()
 	if(!IsProcGlobal())
 		if(!QueryIgorOption("IndependentModuleDev"))
 			sprintf msg, "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.", GetIndependentModuleName()
-			ReportError(msg)
+			UTF_Reporting#ReportError(msg)
 			return ""
 		endif
 		return WinList("* [" + GetIndependentModuleName() + "]", ";", "WIN:128,INDEPENDENTMODULE:1")
@@ -2352,7 +2169,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 						errMsg = GetErrMessage(err)
 				endswitch
 				sprintf msg, "Error executing GrepList: %s", errMsg
-				ReportError(msg)
+				UTF_Reporting#ReportError(msg)
 			endtry
 		else
 			procWinMatch = StringFromList(WhichListItem(procWin, allProcWindows, ";", 0, 0), allProcWindows)
@@ -2361,7 +2178,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		numMatches = ItemsInList(procWinMatch)
 		if(numMatches <= 0)
 			sprintf msg, "Error: A procedure window matching the pattern \"%s\" could not be found.", procWin
-			ReportError(msg)
+			UTF_Reporting#ReportError(msg)
 			return ""
 		endif
 
@@ -2371,7 +2188,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 				procWinListOut = AddListItem(procWin, procWinListOut, ";", INF)
 			else
 				sprintf msg, "Error: The procedure window named \"%s\" is a duplicate entry in the input list of procedures.", procWin
-				ReportError(msg)
+				UTF_Reporting#ReportError(msg)
 				return ""
 			endif
 		endfor
@@ -2435,14 +2252,14 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			if(V_Flag == WAVE_TRACKING_COUNT_MODE)
 				if(V_numWaves)
 					sprintf msg, "Local wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					TestCaseFail(msg)
+					UTF_Reporting#TestCaseFail(msg)
 				endif
 				WaveTracking/LOCL stop
 			elseif(V_Flag != WAVE_TRACKING_INACTIVE_MODE)
 				// do nothing for WAVE_TRACKING_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
 				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
-				TestCaseFail(msg)
+				UTF_Reporting#TestCaseFail(msg)
 			endif
 		endif
 
@@ -2451,14 +2268,14 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			if(V_Flag == WAVE_TRACKING_COUNT_MODE)
 				if(V_numWaves)
 					sprintf msg, "Free wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					TestCaseFail(msg)
+					UTF_Reporting#TestCaseFail(msg)
 				endif
 				WaveTracking/FREE stop
 			elseif(V_Flag != WAVE_TRACKING_INACTIVE_MODE)
 				// do nothing for WAVE_TRACKING_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
 				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
-				TestCaseFail(msg)
+				UTF_Reporting#TestCaseFail(msg)
 			endif
 		endif
 	endif
@@ -2479,7 +2296,7 @@ static Function AfterTestCase(name)
 
 	if(assert_count == GetSavedAssertionCounter())
 		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
-		TestCaseFail(msg)
+		UTF_Reporting#TestCaseFail(msg)
 	endif
 End
 
@@ -2570,7 +2387,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 				userHook(name); AbortOnRTE
 				break
 			default:
-				ReportErrorAndAbort("Unknown hookType")
+				UTF_Reporting#ReportErrorAndAbort("Unknown hookType")
 				break
 		endswitch
 	catch
@@ -2623,7 +2440,7 @@ Function UTFBackgroundMonitor(s)
 	NVAR/Z failOnTimeout = df:BCKG_failOnTimeout
 
 	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout) || !NVAR_Exists(failOnTimeout))
-		ReportErrorAndAbort("UTFBackgroundMonitor can not find monitoring data in package DF, aborting monitoring.", setFlagOnly = 1)
+		UTF_Reporting#ReportErrorAndAbort("UTFBackgroundMonitor can not find monitoring data in package DF, aborting monitoring.", setFlagOnly = 1)
 		ClearReentrytoUTF()
 		QuitOnAutoRunFull()
 		return 2
@@ -2634,14 +2451,14 @@ Function UTFBackgroundMonitor(s)
 	elseif(mode == BACKGROUNDMONMODE_AND)
 		result = 1
 	else
-		ReportErrorAndAbort("Unknown mode set for background monitor", setFlagOnly = 1)
+		UTF_Reporting#ReportErrorAndAbort("Unknown mode set for background monitor", setFlagOnly = 1)
 		ClearReentrytoUTF()
 		QuitOnAutoRunFull()
 		return 2
 	endif
 
 	if(timeout && datetime > timeout)
-		ReportError("UTF background monitor has reached the timeout for reentry", incrErrorCounter = failOnTimeout)
+		UTF_Reporting#ReportError("UTF background monitor has reached the timeout for reentry", incrErrorCounter = failOnTimeout)
 
 		RunTest(BACKGROUNDINFOSTR)
 		return 0
@@ -2916,43 +2733,6 @@ static Function ResetBckgRegistered()
 	variable/G dfr:BCKG_Registered = 0
 End
 
-/// @brief Reports an internal error.
-/// The execution of the current testcase will NOT be aborted!
-/// @param	message		The message to output to the history.
-/// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                     Increases the internal error counter.
-static Function ReportError(message, [incrErrorCounter])
-	string message
-	variable incrErrorCounter
-
-	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
-
-	UTF_PrintStatusMessage(message)
-	UTF_ToSystemErrorStream(message)
-	if(incrErrorCounter)
-		incrError()
-	endif
-End
-
-/// @brief Reports an internal error that prevents further execution of the current test case.
-/// The current testcase is always aborted afterwards.
-/// @param	message		The message to output to the history.
-/// @param  setFlagOnly (optiona, default: 0) If set to zero it will call abort at the end of
-///                     the execution. If set to something different to zero it will only set
-///                     the abort flag.
-static Function ReportErrorAndAbort(message, [setFlagOnly])
-	string message
-	variable setFlagOnly
-
-	setFlagOnly = ParamIsDefault(setFlagOnly) ? 0 : !!setFlagOnly
-
-	ReportError("Fatal: " + message, incrErrorCounter = 1)
-	setAbortFlag()
-	if(!setFlagOnly)
-		Abort
-	endif
-End
-
 static Function CallTestCase(s, reentry)
 	STRUCT strRunTest &s
 	variable reentry
@@ -2970,7 +2750,7 @@ static Function CallTestCase(s, reentry)
 		SVAR reentryFuncName = dfr:BCKG_ReentryFunc
 		func = reentryFuncName
 		sprintf msg, "Entering reentry \"%s\"", func
-		UTF_PrintStatusMessage(msg)
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	else
 		func = testRunData[tcIndex][%FULLFUNCNAME]
 	endif
@@ -2988,7 +2768,7 @@ static Function CallTestCase(s, reentry)
 				FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
 					sprintf msg, "Reentry function %s does not meet required format for Complex argument.", func
-					ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
 
@@ -2997,7 +2777,7 @@ static Function CallTestCase(s, reentry)
 				FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
 					sprintf msg, "Reentry function %s does not meet required format for INT64 argument.", func
-					ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				fTCMD_INT(int=wGenerator[s.dgenIndex]); AbortOnRTE
 
@@ -3006,7 +2786,7 @@ static Function CallTestCase(s, reentry)
 				FUNCREF TEST_CASE_PROTO_MD_VAR fTCMD_VAR = $func
 				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_VAR)))
 					sprintf msg, "Reentry function %s does not meet required format for numeric argument.", func
-					ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
 
@@ -3017,7 +2797,7 @@ static Function CallTestCase(s, reentry)
 			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
 				sprintf msg, "Reentry function %s does not meet required format for string argument.", func
-				ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
 
@@ -3027,7 +2807,7 @@ static Function CallTestCase(s, reentry)
 			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
 			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
 				sprintf msg, "Reentry function %s does not meet required format for data folder reference argument.", func
-				ReportErrorAndAbort(msg)
+				UTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
 
@@ -3062,11 +2842,11 @@ static Function CallTestCase(s, reentry)
 					endif
 				else
 					sprintf msg, "Got wave reference wave from Data Generator %s with waves of unsupported type for reentry of test case %s.", dgenFuncName, func
-					ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				if(err)
 					sprintf msg, "Reentry function %s does not meet required format for wave reference argument from data generator %s.", func, dgenFuncName
-					ReportErrorAndAbort(msg)
+					UTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 			endif
 
@@ -3077,7 +2857,7 @@ static Function CallTestCase(s, reentry)
 		FUNCREF TEST_CASE_PROTO_MD fTCMD = $func
 		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD)))
 			sprintf msg, "Reentry function %s does not meet required format for multi-multi-data test case.", func
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		else
 			fTCMD(md=mData); AbortOnRTE
 		endif
@@ -3086,7 +2866,7 @@ static Function CallTestCase(s, reentry)
 		TestCaseFunc(); AbortOnRTE
 	else
 		sprintf msg, "Unknown test case mode for function %s.", func
-		ReportErrorAndAbort(msg)
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 End
 
@@ -3165,7 +2945,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.v4 = val
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -3190,7 +2970,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.s4 = str
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -3215,7 +2995,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.dfr4 = dfr
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -3240,7 +3020,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							WAVE mData.w4 = wv
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -3265,7 +3045,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.c4 = cplx
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -3291,19 +3071,18 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.i4 = i64
 							break
 						default:
-							ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
 #endif
 				default:
-					ReportErrorAndAbort("Encountered invalid type for mmd tc")
+					UTF_Reporting#ReportErrorAndAbort("Encountered invalid type for mmd tc")
 					break
 			endswitch
 		endfor
 	endfor
 End
-
 
 /// @brief Structure for multi data function using multiple data generators
 #if (IgorVersion() >= 7.0)
@@ -3461,25 +3240,25 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	failOnTimeout = ParamIsDefault(failOnTimeout) ? 0 : !!failOnTimeout
 
 	if(UTF_Utils#IsEmpty(tasklist))
-		ReportErrorAndAbort("Tasklist is empty.")
+		UTF_Reporting#ReportErrorAndAbort("Tasklist is empty.")
 	endif
 
 	if(!(mode == BACKGROUNDMONMODE_OR || mode == BACKGROUNDMONMODE_AND))
-		ReportErrorAndAbort("Unknown mode set")
+		UTF_Reporting#ReportErrorAndAbort("Unknown mode set")
 	endif
 
 	if(FindListItem(BACKGROUNDMONTASK, taskList) != -1)
-		ReportErrorAndAbort("Igor Unit Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ").")
+		UTF_Reporting#ReportErrorAndAbort("Igor Unit Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ").")
 	endif
 
 	// check valid reentry function
 	if(GrepString(reentryFunc, PROCNAME_NOT_REENTRY))
-		ReportErrorAndAbort("Name of Reentry function must end with _REENTRY")
+		UTF_Reporting#ReportErrorAndAbort("Name of Reentry function must end with _REENTRY")
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentryFunc
 	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
-		ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
+		UTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
 	endif
 
 	string/G dfr:BCKG_TaskList = taskList
@@ -3680,12 +3459,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		// check also if a saved state is existing
 		if(!DataFolderExists(PKG_FOLDER_SAVE))
-			ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterUTFMonitor in an End Hook?)")
+			UTF_Reporting#ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterUTFMonitor in an End Hook?)")
 		endif
 	  // check if the reentry call originates from our own background monitor
 		if(CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
 			ClearReentrytoUTF()
-			ReportErrorAndAbort("RunTest was called by user after background monitoring was registered. This is not supported.")
+			UTF_Reporting#ReportErrorAndAbort("RunTest was called by user after background monitoring was registered. This is not supported.")
 		endif
 
 	else
@@ -3710,14 +3489,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !UTF_Utils#IsEmpty(traceWinList)
 
 		if(s.enableTAP && s.juProps.enableJU)
-			ReportError("Error: enableTAP and enableJU can not be both true.")
+			UTF_Reporting#ReportError("Error: enableTAP and enableJU can not be both true.")
 			return NaN
 		endif
 
 		if(s.juProps.enableJU || s.enableTAP || s.tracingEnabled)
 			PathInfo home
 			if(!V_flag)
-				ReportError("Error: Please Save experiment first.")
+				UTF_Reporting#ReportError("Error: Please Save experiment first.")
 				return NaN
 			endif
 		endif
@@ -3728,7 +3507,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			msg = msg + "Use the constants IUTF_DEBUG_ENABLE, IUTF_DEBUG_ON_ERROR,\r"
 			msg = msg + "IUTF_DEBUG_NVAR_SVAR_WAVE and IUTF_DEBUG_FAILED_ASSERTION for debugMode.\r\r"
 			msg = msg + "Example: debugMode = IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE"
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 		if(s.debugMode > 0 && allowDebug > 0)
@@ -3740,14 +3519,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 #if IgorVersion() < 9.00
 		if(waveTrackingMode)
-			ReportErrorAndAbort("Error: wave tracking is only allowed to be used in Igor Pro 9 or higher.")
+			UTF_Reporting#ReportErrorAndAbort("Error: wave tracking is only allowed to be used in Igor Pro 9 or higher.")
 		else
 			variable/G dfr:waveTrackingMode = UTF_WAVE_TRACKING_NONE
 		endif
 #else
 		if((waveTrackingMode & UTF_WAVE_TRACKING_ALL) != waveTrackingMode)
 			sprintf msg, "Error: Invalid wave tracking mode %d", waveTrackingMode
-			ReportErrorAndAbort(msg)
+			UTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		variable/G dfr:waveTrackingMode = waveTrackingMode
 #endif
@@ -3789,7 +3568,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return NaN
 			endif
 #else
-			ReportErrorAndAbort("Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.")
+			UTF_Reporting#ReportErrorAndAbort("Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.")
 #endif
 		else
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
@@ -3803,7 +3582,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = FindProcedures(s.procWinList, s.enableRegExpTS)
 
 		if(ItemsInList(s.procWinList) <= 0)
-			ReportError("Error: The list of procedure windows is empty or invalid.")
+			UTF_Reporting#ReportError("Error: The list of procedure windows is empty or invalid.")
 			return NaN
 		endif
 
@@ -3815,13 +3594,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				errMsg = s.procWinList
 				errMsg = UTF_Utils#PrepareStringForOut(errMsg)
 				sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, errMsg
-				ReportError(msg)
+				UTF_Reporting#ReportError(msg)
 				return NaN
 			endif
 
 			errMsg = UTF_Utils#PrepareStringForOut(errMsg)
 			sprintf msg, "Error %d in CreateTestRunSetup: %s", err, errMsg
-			ReportError(msg)
+			UTF_Reporting#ReportError(msg)
 			return NaN
 		endif
 
@@ -3950,7 +3729,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					message = GetRTErrMessage()
 					err = GetRTError(1)
 					sprintf msg, "Internal runtime error in UTF %d:\"%s\" before executing test case \"%s\".", err, message, fullFuncName
-					ReportErrorAndAbort(msg, setFlagOnly = 1)
+					UTF_Reporting#ReportErrorAndAbort(msg, setFlagOnly = 1)
 				endif
 
 				try
@@ -3985,7 +3764,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						for(j = 0; j < numThreads; ++j)
 							Wave/WAVE wvStorage = wvAllStorage[j]
 							Wave/T data = wvStorage[0]
-							ReportError(data[0])
+							UTF_Reporting#ReportError(data[0])
 						endfor
 					endif
 				endif
