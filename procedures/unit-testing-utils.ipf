@@ -911,7 +911,7 @@ static Function/S NicifyTableText(table, titleList)
 			strSizeCol[] = strSizes[p][i]
 			WaveStats/Q/M=1 strSizeCol
 #endif
-			table[j][i] = PadString(table[j][i], V_Max, padVal)
+			table[j][i] = num2char(padVal) + PadString(table[j][i], V_Max, padVal) + num2char(padVal)
 		endfor
 	endfor
 

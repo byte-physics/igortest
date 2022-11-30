@@ -514,7 +514,6 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
-This special comment can be in one of the fives lines before the function or macro starts.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
@@ -535,6 +534,21 @@ At the end of a run with code coverage determination Igor Pro outputs the global
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
 ``(?:^Coverage: )(\d+.\d+)(?:%$)``.
 
+Statistics
+^^^^^^^^^^
+
+After running the code coverage the user can print a table with the most called functions to the history using
+``ShowTopFunctions``. This function accepts as the first parameter the maximum number of entries that should be
+printed. If all entries should be printed this parameter should be set to to a large number or ``Inf``.
+
+The optional parameter ``mode`` can be set to ``UTF_ANALYTICS_LINES`` to print the statistics for each line instead of
+each function (``UTF_ANALYTICS_FUNCTIONS``). The optional parameter ``sorting`` defines the column that should be
+sorted for. Currently supported are ``UTF_ANALYTICS_CALLS`` (default) to sort for all direct calls and
+``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` can not
+combined with the mode ``UTF_ANALYTICS_LINES``.
+
+The data is also available as a global wave in ``root:Packages:UnitTesting:TracingAnalyticResult``.
+
 Limitations
 ^^^^^^^^^^^
 
@@ -543,6 +557,9 @@ It is not allowed to have another RunTest call in between. The unit testing fram
 
 If the full autorun feature is enabled through ``DO_AUTORUN.TXT`` the RunTest call with instrumentation must be the only call in the experiment.
 Specifically, if a RunTest call without tracing is placed before then the RunTest call with tracing will not execute tests.
+
+The output of the statistics can currently not be automated as such as the automation requires the return to the Igor
+Pro command line.
 
 Examples
 ^^^^^^^^

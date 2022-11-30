@@ -75,6 +75,56 @@ static Function/S GetTaggedFunctionName(string procWin)
 	return FUNCTION_TAG_PREFIX + Hash(procWin, 1) + "_IGNORE"
 End
 
+static Function InitFuncLocations(variable numProcs)
+	DFREF dfr = GetPackageFolder()
+	WAVE/WAVE wv = GetFuncLocations()
+
+	Redimension/N=(numProcs, -1) wv
+
+	Make/FREE/T/N=0 emptyText
+	Make/FREE/N=0 emptyVar
+
+	wv[][%FUNCLIST] = emptyText
+	wv[][%FUNCSTART] = emptyVar
+End
+
+static Function/WAVE GetFuncLocations()
+	string name = "FuncLocations"
+	DFREF dfr = GetPackageFolder()
+	WAVE/WAVE/Z wv = dfr:$name
+
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/WAVE/N=(0, 2) dfr:$name/WAVE=wv
+	SetDimLabel UTF_COLUMN, 0, FUNCLIST, wv
+	SetDimLabel UTF_COLUMN, 1, FUNCSTART, wv
+
+	return wv
+End
+
+static Function InitProcSizes(variable numProcs)
+	DFREF dfr = GetPackageFolder()
+	WAVE wv = GetProcSizes()
+
+	Redimension/N=(numProcs) wv
+End
+
+static Function/WAVE GetProcSizes()
+	string name = "ProcSizes"
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z wv = dfr:$name
+
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/N=0 dfr:$name/WAVE=wv
+
+	return wv
+End
+
 static Function AllCompiled()
 
 	variable i, numProcs
@@ -144,7 +194,8 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	numProcs = ItemsInList(procWinList)
 
 	Make/FREE/D/N=(UTF_MAX_PROC_LINES, numProcs) markLinesProc
-
+	InitFuncLocations(numProcs)
+	InitProcSizes(numProcs)
 	WAVE/Z/T procText
 	WAVE/Z markLines
 	for(i = 0; i < numProcs; i += 1)
@@ -431,11 +482,17 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	Concatenate/FREE/NP/WAVE {macroTexts}, funcTexts
 	Concatenate/FREE/NP {macroLineStarts}, funcLineStart
 
+	WAVE/WAVE funcLocations = GetFuncLocations()
+	funcLocations[procNum][%FUNCLIST] = wFuncList
+	funcLocations[procNum][%FUNCSTART] = funcLineStart
+
 	numFunc = DimSize(wFuncList, UTF_ROW)
 	Sort funcLineStart, funcLineStart, wFuncList, funcExclusionFlag, funcTexts
 
 	WAVE/T wProcText = ListToTextWave(ProcedureText("", NaN, procWin), "\r")
 	numProcLines = DimSize(wProcText, UTF_ROW)
+	WAVE procSizes = GetProcSizes()
+	procSizes[procNum] = numProcLines
 
 	// Mark code lines
 	Make/FREE/N=(numProcLines) betweenLineHelper
