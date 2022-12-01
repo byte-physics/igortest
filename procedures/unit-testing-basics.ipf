@@ -89,7 +89,6 @@ static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
 static StrConstant TC_SUFFIX_SEP = ":"
-StrConstant TC_SUMMARY_LENGTH_KEY = "NOTE_LENGTH"
 #if IgorVersion() >= 7.00
 // right arrow
 StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
@@ -177,65 +176,6 @@ static Function/WAVE GetFunctionTagWaves()
 	Make/WAVE/N=0 dfr:$name/WAVE=wv
 
 	return wv
-End
-
-/// @brief Automatically increase the wave row size if required to fit the specified index.
-///        The actual (filled) wave size is not tracked, the caller has to do that.
-///        Returns 1 if the wave was resized, 0 if it was not resized
-///
-/// Known Limitations: Igor 32 bit has a limit of 2 GB and 64bit a limit of 200 GB a wave can be.
-static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
-
-	WAVE wv
-	variable indexShouldExist
-
-	variable size = DimSize(wv, UTF_ROW)
-	variable targetSize
-
-	if(indexShouldExist < size)
-		return 0
-	endif
-
-	// the wave is smaller than any usable chunk
-	if(size < IUTF_WAVECHUNK_SIZE && indexShouldExist < IUTF_WAVECHUNK_SIZE)
-		targetSize = IUTF_WAVECHUNK_SIZE
-	// exponential sizing for smaller waves as this behave asymptotic better
-	elseif(indexShouldExist < IUTF_BIGWAVECHUNK_SIZE)
-		// Calculate the target size. This is a shortcut because we need most times to increase the
-		// size only for a small amount and a single multiplication is faster then the complex
-		// operation below.
-		targetSize = size * 2
-		if(targetSize <= indexShouldExist)
-			// target size: n
-			// indexShouldExist: m
-			// chunk size: c
-			// exponent: e
-			//
-			// n = c * 2 ^ e >= m + 1
-			// => 2 ^ e >= (m + 1)/c
-			// => e >= log_2((m + 1) / c)
-			// => e = ceil(log_2((m + 1) / c))
-			// => n = c * 2 ^ ceil(log_2((m + 1) / c)) = c * 2 ^ ceil(ln((m + 1) / c) / ln(2))
-			targetSize = IUTF_WAVECHUNK_SIZE * 2 ^ ceil(ln((indexShouldExist + 1) / IUTF_WAVECHUNK_SIZE) / ln(2))
-		endif
-	// linear sizing for really large waves with high system memory impact. This is to reduce system
-	// memory stress.
-	else
-		// target size: n
-		// indexShouldExist: m
-		// big chunk size: c
-		// multiplicator: a
-		//
-		// n = c * a >= m + 1
-		// => a >= (m + 1) / c
-		// => a = ceil((m + 1) / c)
-		// => n = c * ceil((m + 1) / c)
-		targetSize = IUTF_BIGWAVECHUNK_SIZE * ceil((indexShouldExist + 1) / IUTF_BIGWAVECHUNK_SIZE)
-	endif
-
-	Redimension/N=(targetSize, -1, -1, -1) wv
-
-	return 1
 End
 
 /// @brief Helper function for try/catch with AbortOnRTE
@@ -654,14 +594,6 @@ static Function incrRunCount()
 	endif
 
 	run_count +=1
-End
-
-static Function SetNumberInWaveNote(wv, key, value)
-	WAVE wv
-	string key
-	variable value
-
-	Note/K wv, ReplaceNumberByKey(key, note(wv), value)
 End
 
 /// Creates the variable error_count in PKG_FOLDER
@@ -1403,7 +1335,7 @@ static Function TestBegin(name, debugMode)
 	string/G dfr:message = ""
 	string/G dfr:type = "0"
 	string/G dfr:systemErr = ""
-	SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, 0)
+	UTF_Utils_Vector#SetLength(wvFailed, 0)
 
 	ClearBaseFilename()
 
@@ -1432,7 +1364,7 @@ static Function TestEnd(name, debugMode)
 
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
+	index = UTF_Utils_Vector#GetLength(wvFailed)
 	for(i = 0; i < index; i += 1)
 		msg = "  " + TC_ASSERTION_LIST_INDICATOR + " " + wvFailed[i]
 		UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -1991,7 +1923,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 					continue
 				endif
 
-				EnsureLargeEnoughWaveSimple(testRunData, tdIndex)
+				UTF_Utils_Vector#EnsureCapacity(testRunData, tdIndex)
 				testRunData[tdIndex][%PROCWIN] = procWin
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName

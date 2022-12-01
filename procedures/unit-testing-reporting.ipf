@@ -17,7 +17,7 @@ static Function/WAVE GetFailedProcWave()
 	endif
 
 	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
-	UTF_Basics#SetNumberInWaveNote(wv, TC_SUMMARY_LENGTH_KEY, 0)
+	UTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -32,9 +32,9 @@ static Function AddFailedSummaryInfo(msg)
 	variable index
 	WAVE/T wvFailed = GetFailedProcWave()
 
-	index = NumberByKey(TC_SUMMARY_LENGTH_KEY, note(wvFailed))
-	UTF_Basics#EnsureLargeEnoughWaveSimple(wvFailed, index)
-	UTF_Basics#SetNumberInWaveNote(wvFailed, TC_SUMMARY_LENGTH_KEY, index + 1)
+	index = UTF_Utils_Vector#GetLength(wvFailed)
+	UTF_Utils_Vector#EnsureCapacity(wvFailed, index)
+	UTF_Utils_Vector#SetLength(wvFailed, index + 1)
 	wvFailed[index] = msg
 End
 

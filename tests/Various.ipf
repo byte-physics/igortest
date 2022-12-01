@@ -608,24 +608,24 @@ static Function TC_WaveName()
 
 End
 
-static Function TC_WaveCapacity()
+static Function TC_VectorCapacity()
 	variable size
 
 	INFO("test small waves")
 	Make/FREE/N=50 wv
-	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, 100)
+	UTF_Utils_Vector#EnsureCapacity(wv, 100)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE, size)
 
 	INFO("test small increment")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE * 2) wv
-	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_WAVECHUNK_SIZE * 2)
+	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 2)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 4, size)
 
 	INFO("test big jump")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE) wv
-	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
+	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 16, size)
 
@@ -633,7 +633,7 @@ static Function TC_WaveCapacity()
 	// I am sorry for breaking your test setup
 	INFO("test heavy load")
 	MAKE/FREE/N=(IUTF_BIGWAVECHUNK_SIZE) wv
-	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
+	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_BIGWAVECHUNK_SIZE * 3, size)
 #endif // IGOR64
