@@ -204,6 +204,42 @@ static Function ClearTestResultWaves()
 	KillWaves wvTestRun, wvTestSuite, wvTestCase, wvAssertion, wvInfo
 End
 
+/// @brief Add a failed assertion to the current test case.
+/// @param message      The message to add to this assertion.
+/// @param type         The type of failed assertion
+/// @param updateStatus [optional, default enabled] If set different to zero it will update the
+///                     resulting status of the current testcase to the specified type. This will
+///                     also increment the current assertion error counter of the test case.
+static Function AddError(message, type, [updateStatus])
+	string message, type
+	variable updateStatus
+
+	WAVE/T wvAssertion = GetTestAssertionWave()
+	DFREF dfr = GetPackageFolder()
+	SVAR/SDFR=dfr/Z AssertionInfo
+
+	updateStatus = ParamIsDefault(updateStatus) ? 1 : !!updateStatus
+
+	UTF_Utils_Vector#AddRow(wvAssertion)
+	wvAssertion[%CURRENT][%MESSAGE] = message
+	wvAssertion[%CURRENT][%TYPE] = type
+
+	WAVE/T wvTestCase = GetTestCaseWave()
+	UpdateChildRange(wvTestCase, wvAssertion)
+	if(updateStatus)
+		wvTestCase[%CURRENT][%STATUS] = type
+	endif
+
+	WAVE/T wvInfo = GetTestInfoWave()
+	UpdateChildRange(wvAssertion, wvInfo, init = 1)
+
+	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
+		UTF_Utils_Vector#AddRow(wvInfo)
+		UpdateChildRange(wvAssertion, wvInfo)
+		wvInfo[%CURRENT][%MESSAGE] = AssertionInfo
+	endif
+End
+
 /// Get or create the wave that contains the failed procedures
 static Function/WAVE GetFailedProcWave()
 	string name = "FailedProcWave"
@@ -276,8 +312,7 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	if(incrErrorCounter)
-		WAVE/T wvTestCase = GetTestCaseWave()
-		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_ERROR
+		AddError(message, IUTF_STATUS_ERROR)
 	endif
 
 	UTF_Basics#SetTestStatus(message)
@@ -309,9 +344,18 @@ static Function PrintFailInfo(expectedFailure)
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr status
 
+	if(!expectedFailure)
+		AddError("", IUTF_STATUS_FAIL, updateStatus = 0)
+	endif
+
 	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 	str = UTF_Basics#getInfo(0)
 	message = prefix + status + " " + str
+
+	if(!expectedFailure)
+		WAVE/T wvAssertion = GetTestAssertionWave()
+		wvAssertion[%CURRENT][%MESSAGE] = message
+	endif
 
 	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure, incrErrorCounter = 0)
 End
