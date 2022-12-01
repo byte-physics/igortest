@@ -349,7 +349,7 @@ static Function PrintFailInfo(expectedFailure)
 	endif
 
 	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
-	str = UTF_Basics#getInfo(0)
+	str = UTF_Basics#getInfo(0, expectedFailure)
 	message = prefix + status + " " + str
 
 	if(!expectedFailure)

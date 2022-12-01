@@ -771,13 +771,13 @@ End
 
 /// Prints an informative message about the test's success or failure
 // 0 failed, 1 succeeded
-static Function/S getInfo(result)
-	variable result
+static Function/S getInfo(result, expectedFailure)
+	variable result, expectedFailure
 
 	DFREF dfr = GetPackageFolder()
 	NVAR/SDFR=dfr assert_count
 	string caller, func, procedure, callStack, contents, moduleName
-	string text, cleanText, line, callerTestCase, tmpStr
+	string text, cleanText, line, callerTestCase, tmpStr, partialStack
 	variable numCallers, i, assertLine
 	variable callerIndex = NaN
 	variable testCaseIndex
@@ -827,6 +827,15 @@ static Function/S getInfo(result)
 	if(callerIndex != testcaseIndex)
 		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
 		line = StringFromList(2, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + line
+	endif
+
+	if(!expectedFailure)
+		partialStack = ""
+		for(i = testcaseIndex; i <= callerIndex; i += 1)
+			partialStack = AddListItem(StringFromList(i, callStack), partialStack, ";", Inf)
+		endfor
+		WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
+		wvAssertion[%CURRENT][%STACKTRACE] = partialStack
 	endif
 
 	if(!IsProcGlobal())
