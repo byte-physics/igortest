@@ -328,11 +328,6 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 	if(!hideInSummary)
 		AddFailedSummaryInfo(summaryMsg)
 	endif
-
-	if(TAP_IsOutputEnabled())
-		SVAR/SDFR=dfr tap_diagnostic
-		tap_diagnostic = tap_diagnostic + message
-	endif
 End
 
 /// Prints an informative message that the test failed

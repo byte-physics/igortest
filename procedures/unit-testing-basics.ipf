@@ -1308,10 +1308,6 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	endif
 
 	CheckAbortCondition(abortCode)
-	if(TAP_IsOutputEnabled())
-		SVAR/SDFR=dfr tap_diagnostic
-		tap_diagnostic += message + "\r"
-	endif
 End
 
 /// Check if the User manually pressed Abort and set Abort flag
@@ -1936,11 +1932,12 @@ End
 /// @param[out] errMsg error message in case of error
 ///
 /// @returns Numeric Error Code
-static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
+static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP)
 	string procWinList
 	string matchStr
 	variable enableRegExp
 	string &errMsg
+	variable enableTAP
 
 	string procWin
 	string funcName
@@ -2020,7 +2017,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg)
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
 				markSkip = markSkip | UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
-				testRunData[tdIndex][%SKIP] = SelectString(TAP_IsOutputEnabled(), num2istr(markSkip), num2istr(TAP_IsFunctionSkip(fullFuncName) | markSkip))
+				testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(UTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
 			endfor
@@ -2355,6 +2352,7 @@ End
 ///
 /// @param hookType One of @ref HookTypes
 /// @param hooks    hooks structure
+/// @param enableTAP set this to a value other than 0 to enable TAP output
 /// @param enableJU set this to a value other than 0 to enable JUnit output
 /// @param name     name of the test run/suite/case
 /// @param procWin  name of the procedure window
@@ -2364,10 +2362,10 @@ End
 /// Catches runtime errors in the user hooks as well.
 /// Takes care of correct bracketing of user and builtin functions as well. For
 /// `begin` functions the order is builtin/user and for `end` functions user/builtin.
-static Function ExecuteHooks(hookType, hooks, enableJU, name, procWin, tcIndex, [param])
+static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin, tcIndex, [param])
 	variable hookType
 	Struct TestHooks& hooks
-	variable enableJU
+	variable enableTAP, enableJU
 	string name, procWin
 	variable tcIndex
 	variable param
@@ -2402,9 +2400,6 @@ static Function ExecuteHooks(hookType, hooks, enableJU, name, procWin, tcIndex, 
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
-				if(!skip)
-					TAP_TestCaseBegin(name)
-				endif
 				TestCaseBegin(name, skip)
 				if(!skip)
 					userHook(name); AbortOnRTE
@@ -2452,11 +2447,6 @@ static Function ExecuteHooks(hookType, hooks, enableJU, name, procWin, tcIndex, 
 			if(!skip)
 				TestCaseEnd(name)
 			endif
-			if(!skip)
-				TAP_TestCaseEnd()
-			endif
-			TAP_WriteCaseIfReq(tcIndex + 1, skip)
-
 			break
 		case TEST_SUITE_END_CONST:
 			TestSuiteEnd(name)
@@ -2465,6 +2455,9 @@ static Function ExecuteHooks(hookType, hooks, enableJU, name, procWin, tcIndex, 
 			TestEnd(name, param)
 			if(enableJU)
 				UTF_JUnit#JU_WriteOutput()
+			endif
+			if(enableTAP)
+				UTF_TAP#TAP_Write()
 			endif
 			break
 		default:
@@ -3524,7 +3517,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg)
+		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP)
 		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)
@@ -3548,19 +3541,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		getGlobalHooks(s.hooks)
 
 		// Reinitializes
-		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
 		if(s.enableTAP)
-			TAP_EnableOutput()
-			TAP_CreateFile()
-
-			if(TAP_AreAllFunctionsSkip())
-				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-				ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+			if(UTF_TAP#TAP_AreAllFunctionsSkip())
+				ExecuteHooks(TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 				return 0
-			else
-				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
 			endif
 		endif
 
@@ -3593,7 +3580,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.procHooks = s.hooks
 					// 3.) get local user hooks which reside in the same Module as the requested procedure
 					getLocalHooks(s.procHooks, previousProcWin)
-					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, previousProcWin, previousProcWin, s.i - 1)
+					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, previousProcWin, previousProcWin, s.i - 1)
 				endif
 
 				if(shouldDoAbort())
@@ -3606,7 +3593,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			getLocalHooks(s.procHooks, procWin)
 
 			if(startNextTS)
-				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
+				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
@@ -3643,7 +3630,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.tcSuffix = GetMMDTCSuffix(i)
 				endif
 
-				ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i)
+				ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i)
 			else
 
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -3677,13 +3664,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
 					EvaluateRTE(s.err, message, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
 
-					if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
+					if(shouldDoAbort() && !(s.enableTAP && UTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
-						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
+						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
 
-						ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
+						ExecuteHooks(TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 						ClearReentrytoUTF()
 						QuitOnAutoRunFull()
@@ -3719,7 +3706,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return RUNTEST_RET_BCKG
 			endif
 
-			ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+			ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
 			if(shouldDoAbort())
 				break
@@ -3739,8 +3726,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	endfor
 
-	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
-	ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
+	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 	ClearReentrytoUTF()
 
