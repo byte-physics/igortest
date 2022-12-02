@@ -2355,7 +2355,7 @@ End
 ///
 /// @param hookType One of @ref HookTypes
 /// @param hooks    hooks structure
-/// @param juProps  state structure for JUnit output
+/// @param enableJU set this to a value other than 0 to enable JUnit output
 /// @param name     name of the test run/suite/case
 /// @param procWin  name of the procedure window
 /// @param tcIndex  current index of TestRunData
@@ -2364,10 +2364,10 @@ End
 /// Catches runtime errors in the user hooks as well.
 /// Takes care of correct bracketing of user and builtin functions as well. For
 /// `begin` functions the order is builtin/user and for `end` functions user/builtin.
-static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [param])
+static Function ExecuteHooks(hookType, hooks, enableJU, name, procWin, tcIndex, [param])
 	variable hookType
 	Struct TestHooks& hooks
-	Struct JU_Props& juProps
+	variable enableJU
 	string name, procWin
 	variable tcIndex
 	variable param
@@ -2386,7 +2386,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
 
-				JU_TestBegin(juProps)
 				TestBegin(name, param)
 				userHook(name); AbortOnRTE
 				break
@@ -2395,7 +2394,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
 
-				JU_TestSuiteBegin(juProps, name, procWin)
 				TestSuiteBegin(name)
 				userHook(name); AbortOnRTE
 				break
@@ -2407,7 +2405,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 				if(!skip)
 					TAP_TestCaseBegin(name)
 				endif
-				JU_TestCaseBegin(juProps, name, procWin)
 				TestCaseBegin(name, skip)
 				if(!skip)
 					userHook(name); AbortOnRTE
@@ -2455,7 +2452,6 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 			if(!skip)
 				TestCaseEnd(name)
 			endif
-			JU_TestCaseEnd(juProps, name, procWin, tcIndex)
 			if(!skip)
 				TAP_TestCaseEnd()
 			endif
@@ -2464,11 +2460,12 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 			break
 		case TEST_SUITE_END_CONST:
 			TestSuiteEnd(name)
-			JU_TestSuiteEnd(juProps)
 			break
 		case TEST_END_CONST:
 			TestEnd(name, param)
-			JU_WriteOutput(juProps)
+			if(enableJU)
+				UTF_JUnit#JU_WriteOutput()
+			endif
 			break
 		default:
 			// do nothing
@@ -2604,44 +2601,6 @@ static Function SaveState(dfr, s)
 	variable/G dfr:Serr = s.err
 	StoreHooks(dfr, s.hooks, "TH")
 	StoreHooks(dfr, s.procHooks, "PH")
-
-	variable/G dfr:SJUPenableJU = s.juProps.enableJU
-
-	string/G dfr:SJUPSPpropNameList = s.juProps.juTSProp.propNameList
-	string/G dfr:SJUPSPpropValueList = s.juProps.juTSProp.propValueList
-
-	string/G dfr:SJUPTCname = s.juProps.juTC.name
-	string/G dfr:SJUPTCclassName = s.juProps.juTC.className
-	variable/G dfr:SJUPTCtimeTaken = s.juProps.juTC.timeTaken
-	variable/G dfr:SJUPTCassertions = s.juProps.juTC.assertions
-	string/G dfr:SJUPTCstatus = s.juProps.juTC.status
-	string/G dfr:SJUPTCmessage = s.juProps.juTC.message
-	string/G dfr:SJUPTCtype = s.juProps.juTC.type
-	string/G dfr:SJUPTCsystemErr = s.juProps.juTC.systemErr
-	string/G dfr:SJUPTCsystemOut = s.juProps.juTC.systemOut
-	variable/G dfr:SJUPTCtimeStart = s.juProps.juTC.timeStart
-	variable/G dfr:SJUPTCerror_count = s.juProps.juTC.error_count
-	string/G dfr:SJUPTChistory = s.juProps.juTC.history
-	variable/G dfr:SJUPTCtestResult = s.juProps.juTC.testResult
-
-	string/G dfr:SJUPTSpackage = s.juProps.juTS.package
-	variable/G dfr:SJUPTSid = s.juProps.juTS.id
-	string/G dfr:SJUPTSname = s.juProps.juTS.name
-	string/G dfr:SJUPTStimestamp = s.juProps.juTS.timestamp
-	string/G dfr:SJUPTShostname = s.juProps.juTS.hostname
-	variable/G dfr:SJUPTStests = s.juProps.juTS.tests
-	variable/G dfr:SJUPTSfailures = s.juProps.juTS.failures
-	variable/G dfr:SJUPTSerrors = s.juProps.juTS.errors
-	variable/G dfr:SJUPTSskipped = s.juProps.juTS.skipped
-	variable/G dfr:SJUPTStimeTaken = s.juProps.juTS.timeTaken
-	string/G dfr:SJUPTSsystemErr = s.juProps.juTS.systemErr
-	string/G dfr:SJUPTSsystemOut = s.juProps.juTS.systemOut
-	variable/G dfr:SJUPTStimeStart = s.juProps.juTS.timeStart
-
-	variable/G dfr:SJUPtestCaseCount = s.juProps.testCaseCount
-	variable/G dfr:SJUPtestSuiteNumber = s.juProps.testSuiteNumber
-	string/G dfr:SJUPtestSuiteOut = s.juProps.testSuiteOut
-	string/G dfr:SJUPtestCaseListOut = s.juProps.testCaseListOut
 End
 
 /// @brief Restores the variable state of RunTest from dfr to a strRunTest structure
@@ -2688,77 +2647,6 @@ static Function RestoreState(dfr, s)
 
 	RestoreHooks(dfr, s.hooks, "TH")
 	RestoreHooks(dfr, s.procHooks, "PH")
-
-	NVAR var = dfr:SJUPenableJU
-	s.juProps.enableJU = var
-
-	SVAR str = dfr:SJUPSPpropNameList
-	s.juProps.juTSProp.propNameList = str
-	SVAR str = dfr:SJUPSPpropValueList
-	s.juProps.juTSProp.propValueList = str
-
-	SVAR str = dfr:SJUPTCname
-	s.juProps.juTC.name = str
-	SVAR str = dfr:SJUPTCclassName
-	s.juProps.juTC.className = str
-	NVAR var = dfr:SJUPTCtimeTaken
-	s.juProps.juTC.timeTaken = var
-	NVAR var = dfr:SJUPTCassertions
-	s.juProps.juTC.assertions = var
-	SVAR str = dfr:SJUPTCstatus
-	s.juProps.juTC.status = str
-	SVAR str = dfr:SJUPTCmessage
-	s.juProps.juTC.message = str
-	SVAR str = dfr:SJUPTCtype
-	s.juProps.juTC.type = str
-	SVAR str = dfr:SJUPTCsystemErr
-	s.juProps.juTC.systemErr = str
-	SVAR str = dfr:SJUPTCsystemOut
-	s.juProps.juTC.systemOut = str
-	NVAR var = dfr:SJUPTCtimeStart
-	s.juProps.juTC.timeStart = var
-	NVAR var = dfr:SJUPTCerror_count
-	s.juProps.juTC.error_count = var
-	SVAR str = dfr:SJUPTChistory
-	s.juProps.juTC.history = str
-	NVAR var = dfr:SJUPTCtestResult
-	s.juProps.juTC.testResult = var
-
-	SVAR str = dfr:SJUPTSpackage
-	s.juProps.juTS.package = str
-	NVAR var = dfr:SJUPTSid
-	s.juProps.juTS.id = var
-	SVAR str = dfr:SJUPTSname
-	s.juProps.juTS.name = str
-	SVAR str = dfr:SJUPTStimestamp
-	s.juProps.juTS.timestamp = str
-	SVAR str = dfr:SJUPTShostname
-	s.juProps.juTS.hostname = str
-	NVAR var = dfr:SJUPTStests
-	s.juProps.juTS.tests = var
-	NVAR var = dfr:SJUPTSfailures
-	s.juProps.juTS.failures = var
-	NVAR var = dfr:SJUPTSerrors
-	s.juProps.juTS.errors = var
-	NVAR var = dfr:SJUPTSskipped
-	s.juProps.juTS.skipped = var
-	NVAR var = dfr:SJUPTStimeTaken
-	s.juProps.juTS.timeTaken = var
-	SVAR str = dfr:SJUPTSsystemErr
-	s.juProps.juTS.systemErr = str
-	SVAR str = dfr:SJUPTSsystemOut
-	s.juProps.juTS.systemOut = str
-	NVAR var = dfr:SJUPTStimeStart
-	s.juProps.juTS.timeStart = var
-
-	NVAR var = dfr:SJUPtestCaseCount
-	s.juProps.testCaseCount = var
-	NVAR var = dfr:SJUPtestSuiteNumber
-	s.juProps.testSuiteNumber = var
-	SVAR str = dfr:SJUPtestSuiteOut
-	s.juProps.testSuiteOut = str
-	SVAR str = dfr:SJUPtestCaseListOut
-	s.juProps.testCaseListOut = str
 End
 
 /// @brief initialize all strings in TestHook structure to be non <null>
@@ -3209,7 +3097,6 @@ static Function InitStrRunTest(s)
 
 	s.tcSuffix = ""
 
-	InitJUProp(s.juProps)
 	InitHooks(s.hooks)
 	InitHooks(s.procHooks)
 End
@@ -3232,7 +3119,6 @@ static Structure strRunTest
 	variable tracingEnabled
 	variable htmlCreation
 	string tcSuffix
-	STRUCT JU_Props juProps
 	STRUCT TestHooks hooks
 	STRUCT TestHooks procHooks
 	variable i
@@ -3533,19 +3419,19 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.enableRegExp = enableRegExp
 		s.enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 		s.enableRegExpTS = s.enableRegExpTC
-		s.juProps.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
+		s.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
 		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
 		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !UTF_Utils#IsEmpty(traceWinList)
 
-		if(s.enableTAP && s.juProps.enableJU)
+		if(s.enableTAP && s.enableJU)
 			UTF_Reporting#ReportError("Error: enableTAP and enableJU can not be both true.")
 			return NaN
 		endif
 
-		if(s.juProps.enableJU || s.enableTAP || s.tracingEnabled)
+		if(s.enableJU || s.enableTAP || s.tracingEnabled)
 			PathInfo home
 			if(!V_flag)
 				UTF_Reporting#ReportError("Error: Please Save experiment first.")
@@ -3662,7 +3548,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		getGlobalHooks(s.hooks)
 
 		// Reinitializes
-		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+		ExecuteHooks(TEST_BEGIN_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
 		if(s.enableTAP)
@@ -3671,7 +3557,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(TAP_AreAllFunctionsSkip())
 				TAP_WriteOutputIfReq("1..0 All test cases marked SKIP")
-				ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+				ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
 				return 0
 			else
 				TAP_WriteOutputIfReq("1.." + num2str(tcCount))
@@ -3707,7 +3593,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.procHooks = s.hooks
 					// 3.) get local user hooks which reside in the same Module as the requested procedure
 					getLocalHooks(s.procHooks, previousProcWin)
-					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, previousProcWin, previousProcWin, s.i - 1)
+					ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, previousProcWin, previousProcWin, s.i - 1)
 				endif
 
 				if(shouldDoAbort())
@@ -3720,9 +3606,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			getLocalHooks(s.procHooks, procWin)
 
 			if(startNextTS)
-				s.juProps.testCaseCount = GetTestCaseCount(procWin=procWin)
-				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
-				s.juProps.testSuiteNumber += 1
+				ExecuteHooks(TEST_SUITE_BEGIN_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
@@ -3759,7 +3643,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.tcSuffix = GetMMDTCSuffix(i)
 				endif
 
-				ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i)
+				ExecuteHooks(TEST_CASE_BEGIN_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i)
 			else
 
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -3795,11 +3679,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 					if(shouldDoAbort() && !(TAP_IsOutputEnabled() && TAP_IsFunctionTodo_Fast()))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
-						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+						ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
-						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
+						ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
 
-						ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
+						ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 						ClearReentrytoUTF()
 						QuitOnAutoRunFull()
@@ -3835,7 +3719,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return RUNTEST_RET_BCKG
 			endif
 
-			ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.juProps, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+			ExecuteHooks(TEST_CASE_END_CONST, s.procHooks, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
 			if(shouldDoAbort())
 				break
@@ -3855,8 +3739,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	endfor
 
-	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.juProps, procWin, procWin, s.i)
-	ExecuteHooks(TEST_END_CONST, s.hooks, s.juProps, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
+	ExecuteHooks(TEST_SUITE_END_CONST, s.procHooks, s.enableJU, procWin, procWin, s.i)
+	ExecuteHooks(TEST_END_CONST, s.hooks, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 	ClearReentrytoUTF()
 
