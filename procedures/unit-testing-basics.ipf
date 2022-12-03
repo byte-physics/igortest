@@ -3272,7 +3272,6 @@ End
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
 ///                         It allows the combination of this framework with continuous integration
 ///                         servers like Atlassian Bamboo/GitLab/etc.
-///                         Can not be combined with enableTAP.
 ///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableTAP      (optional) default disabled, enabled when set to 1: @n
@@ -3281,7 +3280,6 @@ End
 ///                             `Test Anything Protocol (TAP) <https://testanything.org>`__
 ///                             `standard 13 <https://testanything.org/tap-version-13-specification.html>`__
 ///                         @endverbatim
-///                         Can not be combined with enableJU.
 ///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
@@ -3418,11 +3416,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !UTF_Utils#IsEmpty(traceWinList)
-
-		if(s.enableTAP && s.enableJU)
-			UTF_Reporting#ReportError("Error: enableTAP and enableJU can not be both true.")
-			return NaN
-		endif
 
 		if(s.enableJU || s.enableTAP || s.tracingEnabled)
 			PathInfo home
