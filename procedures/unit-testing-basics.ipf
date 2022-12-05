@@ -3652,7 +3652,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	else
 		// no early return/abort above this point
 		DFREF dfr = GetPackageFolder()
-		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, FIXED_LOG_FILENAME, "")
+		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, "", FIXED_LOG_FILENAME)
 		ClearTestSetupWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
