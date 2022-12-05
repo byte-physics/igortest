@@ -534,26 +534,6 @@ static Function InitIgorDebugVariables()
 	Variable/G dfr:igor_debug_assertion = 0
 End
 
-/// Creates the variable run_count in PKG_FOLDER
-/// and initializes it to zero
-static Function initRunCount()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:run_count = 0
-End
-
-/// Increments the run_count in PKG_FOLDER and creates it if necessary
-static Function incrRunCount()
-	DFREF dfr = GetPackageFolder()
-	NVAR/Z/SDFR=dfr run_count
-
-	if(!NVAR_Exists(run_count))
-		initRunCount()
-		NVAR/SDFR=dfr run_count
-	endif
-
-	run_count +=1
-End
-
 /// Returns 1 if the abortFlag is set and zero otherwise
 Function shouldDoAbort()
 	NVAR/Z/SDFR=GetPackageFolder() abortFlag
@@ -1174,7 +1154,6 @@ static Function TestBegin(name, debugMode)
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%STARTTIME] = UTF_Reporting#GetTimeString()
 
-	initRunCount()
 	InitAbortFlag()
 
 	InitIgorDebugVariables()
@@ -1255,8 +1234,6 @@ static Function TestSuiteBegin(testSuite)
 
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	UTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
-
-	incrRunCount()
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
