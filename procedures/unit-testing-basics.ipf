@@ -618,13 +618,6 @@ Function incrError()
 	error_count +=1
 End
 
-/// Creates the variable assert_count in PKG_FOLDER
-/// and initializes it to zero
-static Function initAssertCount()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:assert_count = 0
-End
-
 /// Creates the failure message buffer wave
 static Function initMessageBuffer()
 	DFREF dfr = GetPackageFolder()
@@ -655,22 +648,6 @@ static Function AddMessageToBuffer()
 	messageBuffer[size][%TYPE] = type
 End
 
-/// Increments the assert_count in PKG_FOLDER and creates it if necessary
-Function incrAssert()
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr/Z assert_count
-
-	if(!NVAR_Exists(assert_count))
-		initAssertCount()
-		NVAR/SDFR=dfr assert_count
-		assert_count = 0
-	endif
-
-	assert_count +=1
-
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	wvTestCase[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) + 1)
-End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
 Function shouldDoAbort()
@@ -737,45 +714,11 @@ static Function IsProcGlobal()
 	return !cmpstr("ProcGlobal", GetIndependentModuleName())
 End
 
-/// @brief Saves the current assertion counter in global saveAssertCount
-static Function SaveAssertionCounter()
-
-	DFREF dfr = GetPackageFolder()
-
-	NVAR/SDFR=dfr/Z assert_count
-	if(!NVAR_Exists(assert_count))
-		initAssertCount()
-		NVAR/SDFR=dfr assert_count
-	endif
-
-	NVAR/SDFR=dfr/Z saveAssertCount
-	if(!NVAR_Exists(saveAssertCount))
-		variable/G dfr:saveAssertCount = assert_count
-	else
-		saveAssertCount = assert_count
-	endif
-End
-
-/// @brief Retrieves the saved assertion counter from global saveAssertCount
-static Function GetSavedAssertionCounter()
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr/Z saveAssertCount
-
-	if(!NVAR_Exists(saveAssertCount))
-		return NaN
-	endif
-
-	return saveAssertCount
-End
-
 /// Prints an informative message about the test's success or failure
 // 0 failed, 1 succeeded
 static Function/S getInfo(result, expectedFailure)
 	variable result, expectedFailure
 
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr assert_count
 	string caller, func, procedure, callStack, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr, partialStack
 	variable numCallers, i, assertLine
@@ -807,7 +750,8 @@ static Function/S getInfo(result, expectedFailure)
 	endfor
 
 	if(UTF_Utils#IsNaN(callerIndex))
-		if(assert_count - GetSavedAssertionCounter() == 0)
+		WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
 			// We have no external caller, assuming the internal call was the check in AfterTestCase()
 			return "The test case did not make any assertions!"
 		else
@@ -1498,7 +1442,6 @@ static Function TestCaseBegin(testCase, skip)
 		wvTestCase[%CURRENT][%STDOUT] = S_Value
 	endif
 
-	initAssertCount()
 	initMessageBuffer()
 
 	// create a new unique folder as working folder
@@ -2241,8 +2184,6 @@ static Function BeforeTestCase(name)
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 	wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
-
-	SaveAssertionCounter()
 End
 
 /// @brief Called after the test case and after the test case end user hook
@@ -2337,12 +2278,11 @@ static Function AfterTestCase(name, skip)
 
 	string msg
 
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr assert_count
-
 	CleanupInfoMsg()
 
-	if(assert_count == GetSavedAssertionCounter() && !skip)
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+
+	if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0 && !skip)
 		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
 		UTF_Reporting#TestCaseFail(msg)
 	endif

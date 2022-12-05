@@ -46,7 +46,7 @@ static Function CDF_EMPTY_WRAPPER(flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -66,7 +66,7 @@ static Function TRUE_WRAPPER(var, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -87,7 +87,7 @@ static Function NULL_STR_WRAPPER(str, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -108,7 +108,7 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -129,7 +129,7 @@ static Function NON_NULL_STR_WRAPPER(str, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -150,7 +150,7 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -172,7 +172,7 @@ static Function PROPER_STR_WRAPPER(str, flags)
 
 	variable result
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -194,7 +194,7 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -221,7 +221,7 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -261,7 +261,7 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -296,7 +296,7 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3, tmpStr4, tmpStr5
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -334,7 +334,7 @@ static Function CLOSE_INT64_WRAPPER(int64 var1, int64 var2, variable flags, [int
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -359,7 +359,7 @@ static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -391,7 +391,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -421,7 +421,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -452,7 +452,7 @@ static Function SMALL_INT64_WRAPPER(int64 var, variable flags, [int64 tol])
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -476,7 +476,7 @@ static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -510,7 +510,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string str, tmpStr1, tmpStr2
 	Struct IUTF_StringDiffResult diffResult
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -547,7 +547,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	variable result, type
 	string str, str1, str2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -596,7 +596,7 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -622,7 +622,7 @@ static Function EQUAL_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -642,7 +642,7 @@ static Function EQUAL_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -662,7 +662,7 @@ static Function NEQ_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -682,7 +682,7 @@ static Function NEQ_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
 	string str
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -720,7 +720,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable i, result
 	string str, detailedMsg, name1, name2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -804,7 +804,7 @@ static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -828,7 +828,7 @@ static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -852,7 +852,7 @@ static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -876,7 +876,7 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	incrAssert()
+	UTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN

@@ -243,6 +243,12 @@ static Function AddError(message, type, [updateStatus])
 	endif
 End
 
+/// Increments the assertion counter for the current test case
+static Function incrAssert()
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	wvTestCase[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) + 1)
+End
+
 /// Get or create the wave that contains the failed procedures
 static Function/WAVE GetFailedProcWave()
 	string name = "FailedProcWave"
