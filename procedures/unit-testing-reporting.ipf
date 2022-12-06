@@ -205,20 +205,22 @@ static Function ClearTestResultWaves()
 End
 
 /// @brief Add a failed assertion to the current test case.
-/// @param message      The message to add to this assertion.
-/// @param type         The type of failed assertion
-/// @param updateStatus [optional, default enabled] If set different to zero it will update the
-///                     resulting status of the current testcase to the specified type. This will
-///                     also increment the current assertion error counter of the test case.
-static Function AddError(message, type, [updateStatus])
+/// @param message          The message to add to this assertion.
+/// @param type             The type of failed assertion
+/// @param updateStatus     [optional, default enabled] If set different to zero it will update the
+///                         resulting status of the current testcase to the specified type.
+/// @param incrErrorCounter [optional, default enabled] If set different to zero it  will increment
+///                         the current assertion error counter of the current test case.
+static Function AddError(message, type, [updateStatus, incrErrorCounter])
 	string message, type
-	variable updateStatus
+	variable updateStatus, incrErrorCounter
 
 	WAVE/T wvAssertion = GetTestAssertionWave()
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr/Z AssertionInfo
 
 	updateStatus = ParamIsDefault(updateStatus) ? 1 : !!updateStatus
+	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	UTF_Utils_Vector#AddRow(wvAssertion)
 	wvAssertion[%CURRENT][%MESSAGE] = message
@@ -228,6 +230,8 @@ static Function AddError(message, type, [updateStatus])
 	UpdateChildRange(wvTestCase, wvAssertion)
 	if(updateStatus)
 		wvTestCase[%CURRENT][%STATUS] = type
+	endif
+	if(incrErrorCounter)
 		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
 	if(strlen(message))
@@ -299,65 +303,158 @@ End
 ///
 /// @param message  The message to output to the history
 /// @param summaryMsg (optional, default is message) The message to output in the summary at the
-///                 end of the test run. If this parameter is ommited it will use message for the
+///                 end of the test run. If this parameter is omitted it will use message for the
 ///                 summary.
-/// @param hideInSummary (optional, default disabled) If set to non zero it will hide this message
-///                 in the summary at the end of the test run.
-/// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                 Increases the internal error counter.
-static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCounter])
+/// @param isFailure (optional, default disabled) If set to non zero this will be handled as a
+///                 FAILURE instead an ERROR. This changes the following:
+///                 - the test case status is set to IUTF_STATUS_FAIL
+///                 - updateStatus is set to 0 in AddError
+/// @param logError (optional, default enabled) Enabled if set to non zero it will add this message
+///                 to the test results.
+/// @param incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
+///                 Increases the assertion error counter for the current test case. This flag is
+///                 ignored if logError is disabled.
+static Function TestCaseFail(message, [summaryMsg, isFailure, logError, incrErrorCounter])
 	string message
 	string summaryMsg
-	variable hideInSummary, incrErrorCounter
+	variable isFailure, logError, incrErrorCounter
 
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr/Z AssertionInfo
+	variable length
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
-	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
+	isFailure = ParamIsDefault(isFailure) ? 0 : !!isFailure
+	logError = ParamIsDefault(logError) ? 1 : !!logError
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
-	if(incrErrorCounter)
-		AddError(message, IUTF_STATUS_ERROR)
+	if(logError)
+		AddError(message, SelectString(isFailure, IUTF_STATUS_ERROR, IUTF_STATUS_FAIL), updateStatus = logError, incrErrorCounter = incrErrorCounter)
 	endif
 
-	ReportError(message, incrErrorCounter = incrErrorCounter)
+	// We are increasing the local error counter so there is no need to increase the global error
+	// counter.
+	ReportError(message, incrGlobalErrorCounter = 0)
 	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		ReportError(AssertionInfo, incrErrorCounter = 0)
+		ReportError(AssertionInfo, incrGlobalErrorCounter = 0)
 	endif
 
-	if(!hideInSummary)
+	if(logError)
 		AddFailedSummaryInfo(summaryMsg)
 	endif
 End
 
-/// Prints an informative message that the test failed
+/// Prints an informative message that the test case failed
 ///
-/// @param message         the fail message to print to the output
-/// @param expectedFailure if set to non zero the error will be considered as expected
-static Function PrintFailInfo(message, expectedFailure)
+/// @param message          the fail message to print to the output
+/// @param expectedFailure  if set to non zero the error will be considered as expected
+/// @param incrErrorCounter if set to non zero the assertion error counter for the current test case
+///                         will be updated. This setting is ignored if expectedFailure is set to
+///                         non zero
+static Function PrintFailInfo(message, expectedFailure, incrErrorCounter)
 	string message
-	variable expectedFailure
+	variable expectedFailure, incrErrorCounter
 
-	string str
+	string str, partialStack
 	string prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 
-	if(!expectedFailure)
-		AddError("", IUTF_STATUS_FAIL, updateStatus = 0)
+	str = getInfo(0, partialStack)
+	message = prefix + message + " " + str
+
+	if(expectedFailure)
+		incrErrorCounter = 0
 	endif
 
-	str = UTF_Basics#getInfo(0, expectedFailure)
-	message = prefix + message + " " + str
+	TestCaseFail(message, summaryMsg = str, isFailure = 1, logError = !expectedFailure, incrErrorCounter = incrErrorCounter)
 
 	if(!expectedFailure)
 		WAVE/T wvAssertion = GetTestAssertionWave()
-		WAVE/T wvTestCase = GetTestCaseWave()
+		wvAssertion[%CURRENT][%STACKTRACE] = partialStack
+	endif
+End
 
-		wvAssertion[%CURRENT][%MESSAGE] = message
-		wvTestCase[%CURRENT][%STDERR] = AddListItem(message, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
+/// @brief returns the informative message about the assertions state and location.
+///
+/// @param result            Assertion states: 0 failed, 1 succeeded
+/// @param[out] partialStack The partial stacktrace between the entry of the test case and the call
+///                          of the assertion.
+///
+/// @returns The informative message
+static Function/S getInfo(result, partialStack)
+	variable result
+	string &partialStack
+
+	string caller, func, procedure, callStack, contents, moduleName
+	string text, cleanText, line, callerTestCase, tmpStr
+	variable numCallers, i, assertLine
+	variable callerIndex = NaN
+	variable testCaseIndex
+
+	callStack = GetRTStackInfo(3)
+	numCallers = ItemsInList(callStack)
+	moduleName = ""
+	partialStack = ""
+
+	// traverse the callstack from bottom up,
+	// the first function not in one of the unit testing procedures is
+	// the one we want to report. Except if helper functions are involved.
+	for(i = numCallers - 1; i >= 0; i -= 1)
+		caller    = StringFromList(i, callStack)
+		procedure = StringFromList(1, caller, ",")
+
+		if(StringMatch(procedure, "unit-testing*"))
+			if(UTF_Utils#IsNaN(callerIndex))
+				continue
+			endif
+			testCaseIndex = i + 1
+			break
+		else
+			if(UTF_Utils#IsNaN(callerIndex))
+				callerIndex = i
+			endif
+		endif
+	endfor
+
+	if(UTF_Utils#IsNaN(callerIndex))
+		WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
+			// We have no external caller, assuming the internal call was the check in AfterTestCase()
+			return "The test case did not make any assertions!"
+		else
+			// We have no external caller, but a test case assertion - should never happen
+			return "Assertion failed in unknown location"
+		endif
 	endif
 
-	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure, incrErrorCounter = 0)
+	callerTestCase = StringFromList(testCaseIndex, callStack)
+
+	caller     = StringFromList(callerIndex, callStack)
+	func       = StringFromList(0, caller, ",")
+	procedure  = StringFromList(1, caller, ",")
+	line       = StringFromList(2, caller, ",")
+	assertLine = str2num(StringFromList(2, caller, ","))
+
+	if(callerIndex != testcaseIndex)
+		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
+		line = StringFromList(2, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + line
+	endif
+
+	for(i = testcaseIndex; i <= callerIndex; i += 1)
+		partialStack = AddListItem(StringFromList(i, callStack), partialStack, ";", Inf)
+	endfor
+
+	if(!UTF_Basics#IsProcGlobal())
+		moduleName = " [" + GetIndependentModuleName() + "]"
+	endif
+
+	contents = ProcedureText("", -1, procedure)
+	text = StringFromList(assertLine, contents, "\r")
+
+	cleanText = trimstring(text)
+
+	tmpStr = UTF_Utils#PrepareStringForOut(cleanText)
+	sprintf text, "Assertion \"%s\" %s in %s%s (%s, line %s)", tmpStr, SelectString(result, "failed", "succeeded"), func, moduleName, procedure, line
+	return text
 End
 
 /// @brief Wrapper function result reporting. This functions should only be called for
@@ -384,20 +481,13 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)
-			PrintFailInfo(str, expectedFailure)
+			PrintFailInfo(str, expectedFailure, flags & INCREASE_ERROR)
 		endif
 
-		if(!expectedFailure)
-			if(flags & INCREASE_ERROR)
-				WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-				wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_FAIL
-				wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
-			endif
-			if(flags & ABORT_FUNCTION)
-				UTF_Basics#CleanupInfoMsg()
-				UTF_Basics#setAbortFlag()
-				Abort
-			endif
+		if(!expectedFailure && (flags & ABORT_FUNCTION))
+			UTF_Basics#CleanupInfoMsg()
+			UTF_Basics#setAbortFlag()
+			Abort
 		endif
 	endif
 
@@ -442,15 +532,15 @@ End
 /// The execution of the current testcase will NOT be aborted!
 ///
 /// @param	message		The message to output to the history.
-/// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                     Increases the global error counter.
-static Function ReportError(message, [incrErrorCounter])
+/// @param  incrGlobalErrorCounter (optional, default enabled) Enabled if set to a value different
+///                     to 0. Increases the global error counter.
+static Function ReportError(message, [incrGlobalErrorCounter])
 	string message
-	variable incrErrorCounter
+	variable incrGlobalErrorCounter
 
 	variable currentIndex
 
-	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
+	incrGlobalErrorCounter = ParamIsDefault(incrGlobalErrorCounter) ? 1 : !!incrGlobalErrorCounter
 
 	UTF_PrintStatusMessage(message)
 
@@ -460,7 +550,7 @@ static Function ReportError(message, [incrErrorCounter])
 		wvTestCase[currentIndex][%STDERR] += message + "\r"
 	endif
 
-	if(incrErrorCounter)
+	if(incrGlobalErrorCounter)
 		incrGlobalError()
 	endif
 End
@@ -478,7 +568,7 @@ static Function ReportErrorAndAbort(message, [setFlagOnly])
 
 	setFlagOnly = ParamIsDefault(setFlagOnly) ? 0 : !!setFlagOnly
 
-	ReportError("Fatal: " + message, incrErrorCounter = 1)
+	ReportError("Fatal: " + message, incrGlobalErrorCounter = 1)
 	UTF_Basics#setAbortFlag()
 	if(!setFlagOnly)
 		Abort

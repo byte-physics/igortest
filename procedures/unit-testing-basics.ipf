@@ -437,7 +437,7 @@ static Function DebugOutput(str, booleanValue)
 
 	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 	if(EnabledDebug())
-		UTF_Reporting#ReportError(str, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
 	endif
 End
 
@@ -597,88 +597,6 @@ End
 static Function IsProcGlobal()
 
 	return !cmpstr("ProcGlobal", GetIndependentModuleName())
-End
-
-/// Prints an informative message about the test's success or failure
-// 0 failed, 1 succeeded
-static Function/S getInfo(result, expectedFailure)
-	variable result, expectedFailure
-
-	string caller, func, procedure, callStack, contents, moduleName
-	string text, cleanText, line, callerTestCase, tmpStr, partialStack
-	variable numCallers, i, assertLine
-	variable callerIndex = NaN
-	variable testCaseIndex
-
-	callStack = GetRTStackInfo(3)
-	numCallers = ItemsInList(callStack)
-	moduleName = ""
-
-	// traverse the callstack from bottom up,
-	// the first function not in one of the unit testing procedures is
-	// the one we want to report. Except if helper functions are involved.
-	for(i = numCallers - 1; i >= 0; i -= 1)
-		caller    = StringFromList(i, callStack)
-		procedure = StringFromList(1, caller, ",")
-
-		if(StringMatch(procedure, "unit-testing*"))
-			if(UTF_Utils#IsNaN(callerIndex))
-				continue
-			endif
-			testCaseIndex = i + 1
-			break
-		else
-			if(UTF_Utils#IsNaN(callerIndex))
-				callerIndex = i
-			endif
-		endif
-	endfor
-
-	if(UTF_Utils#IsNaN(callerIndex))
-		WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
-			// We have no external caller, assuming the internal call was the check in AfterTestCase()
-			return "The test case did not make any assertions!"
-		else
-			// We have no external caller, but a test case assertion - should never happen
-			return "Assertion failed in unknown location"
-		endif
-	endif
-
-	callerTestCase = StringFromList(testCaseIndex, callStack)
-
-	caller     = StringFromList(callerIndex, callStack)
-	func       = StringFromList(0, caller, ",")
-	procedure  = StringFromList(1, caller, ",")
-	line       = StringFromList(2, caller, ",")
-	assertLine = str2num(StringFromList(2, caller, ","))
-
-	if(callerIndex != testcaseIndex)
-		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
-		line = StringFromList(2, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + line
-	endif
-
-	if(!expectedFailure)
-		partialStack = ""
-		for(i = testcaseIndex; i <= callerIndex; i += 1)
-			partialStack = AddListItem(StringFromList(i, callStack), partialStack, ";", Inf)
-		endfor
-		WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
-		wvAssertion[%CURRENT][%STACKTRACE] = partialStack
-	endif
-
-	if(!IsProcGlobal())
-		moduleName = " [" + GetIndependentModuleName() + "]"
-	endif
-
-	contents = ProcedureText("", -1, procedure)
-	text = StringFromList(assertLine, contents, "\r")
-
-	cleanText = trimstring(text)
-
-	tmpStr = UTF_Utils#PrepareStringForOut(cleanText)
-	sprintf text, "Assertion \"%s\" %s in %s%s (%s, line %s)", tmpStr, SelectString(result, "failed", "succeeded"), func, moduleName, procedure, line
-	return text
 End
 
 /// Groups all hooks which are executed at test case/suite begin/end
@@ -1060,17 +978,20 @@ End
 ///@cond HIDDEN_SYMBOL
 
 /// Evaluates an RTE and puts a composite error message into message/type
-static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
+static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin, [logTestCase])
 	variable err
 	string errmessage
 	variable abortCode, funcType
 	string funcName
 	string procWin
+	variable logTestCase
 
 	DFREF dfr = GetPackageFolder()
 	string message = ""
 	SVAR/SDFR=dfr/Z AssertionInfo
 	string str, funcTypeString
+
+	logTestCase = ParamIsDefault(logTestCase) ? 0 : !!logTestCase
 
 	if(!err && !abortCode)
 		return NaN
@@ -1091,7 +1012,9 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	if(err)
 		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\" (%s)", err, errmessage, funcTypeString, funcName, procWin
 		UTF_Reporting#AddFailedSummaryInfo(str)
-		UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+		if(logTestCase)
+			UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+		endif
 		message = str
 	endif
 	if(abortCode != -4)
@@ -1100,17 +1023,23 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 			case -1:
 				sprintf str, "User aborted Test Run manually in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				if(logTestCase)
+					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				endif
 				break
 			case -2:
 				sprintf str, "Stack Overflow in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				if(logTestCase)
+					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				endif
 				break
 			case -3:
 				sprintf str, "Encountered \"Abort\" in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				if(logTestCase)
+					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				endif
 				break
 			default:
 				break
@@ -1119,14 +1048,16 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		if(abortCode > 0)
 			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
 			UTF_Reporting#AddFailedSummaryInfo(str)
-			UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+			if(logTestCase)
+				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+			endif
 			message += str
 		endif
 	endif
 
-	UTF_Reporting#ReportError(message)
+	UTF_Reporting#ReportError(message, incrGlobalErrorCounter = !logTestCase)
 	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		UTF_Reporting#ReportError(AssertionInfo, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(AssertionInfo, incrGlobalErrorCounter = 0)
 	endif
 
 	CheckAbortCondition(abortCode)
@@ -1553,7 +1484,7 @@ static Function CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 
 	if(!DimSize(wGenerator, UTF_ROW))
 		sprintf msg, "Note: In test case %s data generator function (%s) returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
-		UTF_Reporting#ReportError(msg, incrErrorCounter = 0)
+		UTF_Reporting#ReportError(msg, incrGlobalErrorCounter = 0)
 		return 1
 	endif
 
@@ -2298,7 +2229,7 @@ Function UTFBackgroundMonitor(s)
 	endif
 
 	if(timeout && datetime > timeout)
-		UTF_Reporting#ReportError("UTF background monitor has reached the timeout for reentry", incrErrorCounter = failOnTimeout)
+		UTF_Reporting#ReportError("UTF background monitor has reached the timeout for reentry", incrGlobalErrorCounter = failOnTimeout)
 
 		RunTest(BACKGROUNDINFOSTR)
 		return 0
@@ -3445,7 +3376,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.err = GetRTError(1)
 					// clear the abort code from setAbortFlag()
 					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
-					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
+					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin, logTestCase = 1)
 
 					if(shouldDoAbort() && !(s.enableTAP && UTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
