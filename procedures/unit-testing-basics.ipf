@@ -550,15 +550,6 @@ static Function setAbortFlag()
 	variable/G dfr:abortFlag = 1
 End
 
-static Function CleanupInfoMsg()
-	DFREF dfr = GetPackageFolder()
-	SVAR/Z/SDFR=dfr AssertionInfo
-
-	if(SVAR_Exists(AssertionInfo))
-		AssertionInfo = ""
-	endif
-End
-
 /// Resets the abort flag
 static Function InitAbortFlag()
 	DFREF dfr = GetPackageFolder()
@@ -988,8 +979,8 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 
 	DFREF dfr = GetPackageFolder()
 	string message = ""
-	SVAR/SDFR=dfr/Z AssertionInfo
 	string str, funcTypeString
+	variable i, length
 
 	logTestCase = ParamIsDefault(logTestCase) ? 0 : !!logTestCase
 
@@ -1056,9 +1047,11 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	endif
 
 	UTF_Reporting#ReportError(message, incrGlobalErrorCounter = !logTestCase)
-	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		UTF_Reporting#ReportError(AssertionInfo, incrGlobalErrorCounter = 0)
-	endif
+	WAVE/T wvInfoMsg = UTF_Reporting#GetInfoMsg()
+	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
+	for(i = 0; i < length; i += 1)
+		UTF_Reporting#ReportError(wvInfoMsg[i], incrGlobalErrorCounter = 0)
+	endfor
 
 	CheckAbortCondition(abortCode)
 End
@@ -2068,7 +2061,7 @@ static Function AfterTestCase(name, skip)
 
 	string msg
 
-	CleanupInfoMsg()
+	UTF_Reporting#CleanupInfoMsg()
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 

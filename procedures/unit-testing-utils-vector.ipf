@@ -100,14 +100,32 @@ End
 static Function AddRow(wv)
 	WAVE wv
 
-	variable oldLength
+	return AddRows(wv, 1)
+End
+
+/// @brief Add count new rows at the end of the vector and ensures if the wave has enough capacity
+/// for it. This also updates the dimension label "CURRENT" to the last added row.
+/// @param wv    The wave for which new rows should be added.
+/// @param count The number of new rows to add. If this parameter is less or equal than 0 the wave
+///              remains unchanged.
+/// @returns The row index of the last added row or -1 if the list is kept unchanged.
+static Function AddRows(wv, count)
+	WAVE wv
+	variable count
+
+	variable oldLength, newLength
+
+	if(count <= 0)
+		return -1
+	endif
 
 	oldLength = GetLength(wv)
-	EnsureCapacity(wv, oldLength)
-	SetLength(wv, oldLength + 1)
+	newLength = oldLength + count
+	EnsureCapacity(wv, newLength - 1)
+	SetLength(wv, newLength)
 
 	UTF_Utils_Waves#RemoveDimLabel(wv, UTF_ROW, "CURRENT")
-	SetDimLabel UTF_ROW, oldLength, CURRENT, wv
+	SetDimLabel UTF_ROW, newLength - 1, CURRENT, wv
 
-	return oldLength
+	return newLength - 1
 End

@@ -14,15 +14,9 @@ static Function INFO_WRAPPER(format, strings, numbers, flags)
 	WAVE numbers
 	variable flags
 
-	variable err
+	variable err, index
 	string msg
-	DFREF dfr = GetPackageFolder()
-	SVAR/Z/SDFR=dfr AssertionInfo
-
-	if(!SVAR_Exists(AssertionInfo))
-		string/G dfr:AssertionInfo = ""
-		SVAR/SDFR=dfr AssertionInfo
-	endif
+	WAVE/T wvInfoMsg = UTF_Reporting#GetInfoMsg()
 
 	msg = UTF_Utils_Strings#UserPrintF(format, strings, numbers, err)
 	if(err)
@@ -31,10 +25,8 @@ static Function INFO_WRAPPER(format, strings, numbers, flags)
 		return NaN
 	endif
 
-	if(strlen(AssertionInfo))
-		AssertionInfo += "\r  "
-	endif
-	AssertionInfo += "  " + TC_ASSERTION_INFO_INDICATOR + " " + msg
+	index = UTF_Utils_Vector#AddRow(wvInfoMsg)
+	wvInfoMsg[index] = msg
 End
 
 /// @class CDF_EMPTY_DOCU
@@ -577,7 +569,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endif
 
-	UTF_Basics#CleanupInfoMsg()
+	UTF_Reporting#CleanupInfoMsg()
 End
 
 /// @class EQUAL_VAR_DOCU
@@ -790,7 +782,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endfor
 
-	UTF_Basics#CleanupInfoMsg()
+	UTF_Reporting#CleanupInfoMsg()
 End
 
 /// @class LESS_EQUAL_VAR_DOCU

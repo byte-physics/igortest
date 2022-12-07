@@ -215,13 +215,12 @@ static Function AddError(message, type, [updateStatus, incrErrorCounter])
 	string message, type
 	variable updateStatus, incrErrorCounter
 
-	WAVE/T wvAssertion = GetTestAssertionWave()
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr/Z AssertionInfo
+	variable length, startIndex
 
 	updateStatus = ParamIsDefault(updateStatus) ? 1 : !!updateStatus
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
+	WAVE/T wvAssertion = GetTestAssertionWave()
 	UTF_Utils_Vector#AddRow(wvAssertion)
 	wvAssertion[%CURRENT][%MESSAGE] = message
 	wvAssertion[%CURRENT][%TYPE] = type
@@ -241,10 +240,13 @@ static Function AddError(message, type, [updateStatus, incrErrorCounter])
 	WAVE/T wvInfo = GetTestInfoWave()
 	UpdateChildRange(wvAssertion, wvInfo, init = 1)
 
-	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		UTF_Utils_Vector#AddRow(wvInfo)
+	WAVE/T wvInfoMsg = GetInfoMsg()
+	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
+	if(length > 0)
+		startIndex = UTF_Utils_Vector#GetLength(wvInfo)
+		UTF_Utils_Vector#AddRows(wvInfo, length)
 		UpdateChildRange(wvAssertion, wvInfo)
-		wvInfo[%CURRENT][%MESSAGE] = AssertionInfo
+		wvInfo[startIndex, startIndex + length - 1][%MESSAGE] = wvInfoMsg[p - startIndex]
 	endif
 End
 
@@ -259,6 +261,33 @@ End
 static Function incrGlobalError()
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
+End
+
+/// Get the wave that can store information for the next assertion. These wave is cleared
+/// automatically at the end of the test case or assertion. This wave is considered as a list. Use
+/// UTF_Utils_Waves#GetListLength to retrieve its length.
+static Function/WAVE GetInfoMsg()
+	DFREF dfr = GetPackageFolder()
+	string name = "InfoMsg"
+	WAVE/T/Z wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	MAKE/FREE/T/N=(IUTF_WAVECHUNK_SIZE) wv
+	UTF_Utils_Vector#SetLength(wv, 0)
+	MoveWave wv, dfr:$name
+
+	return wv
+End
+
+/// Clears all stored information for the next assertion. This will only update the length of the
+/// list and not its contents.
+static Function CleanupInfoMsg()
+	WAVE/T wv = GetInfoMsg()
+
+	UTF_Utils_Vector#SetLength(wv, 0)
+	wv[] = ""
 End
 
 /// Get or create the wave that contains the failed procedures
@@ -319,9 +348,7 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, logError, incrErro
 	string summaryMsg
 	variable isFailure, logError, incrErrorCounter
 
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr/Z AssertionInfo
-	variable length
+	variable i, length
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
 	isFailure = ParamIsDefault(isFailure) ? 0 : !!isFailure
@@ -335,9 +362,11 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, logError, incrErro
 	// We are increasing the local error counter so there is no need to increase the global error
 	// counter.
 	ReportError(message, incrGlobalErrorCounter = 0)
-	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
-		ReportError(AssertionInfo, incrGlobalErrorCounter = 0)
-	endif
+	WAVE/T wvInfoMsg = GetInfoMsg()
+	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
+	for(i = 0; i < length; i += 1)
+		ReportError("  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i], incrGlobalErrorCounter = 0)
+	endfor
 
 	if(logError)
 		AddFailedSummaryInfo(summaryMsg)
@@ -485,14 +514,14 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 		endif
 
 		if(!expectedFailure && (flags & ABORT_FUNCTION))
-			UTF_Basics#CleanupInfoMsg()
+			UTF_Reporting#CleanupInfoMsg()
 			UTF_Basics#setAbortFlag()
 			Abort
 		endif
 	endif
 
 	if(cleanupInfo)
-		UTF_Basics#CleanupInfoMsg()
+		UTF_Reporting#CleanupInfoMsg()
 	endif
 End
 
