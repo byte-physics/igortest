@@ -65,6 +65,7 @@ testing:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
           - IMTest.pxp
+          - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_IGOR_PRO}"
@@ -84,18 +85,18 @@ testing:
     - test ${IGOR_VERSION} = "9" && ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}" || true
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
-    - touch tests/DO_AUTORUN.TXT
+    - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
-    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
-      junit: tests/JU_*.xml
+      junit: tests/**/JU_*.xml
     paths:
-      - tests/*.htm
-      - tests/*.log
-      - tests/JU_*.xml
-      - screenshot/*.png
+      - tests/**/*.htm
+      - tests/**/*.log
+      - tests/**/JU_*.xml
+      - screenshot/**/*.png
 
 testing_nightly:
   tags:
@@ -112,6 +113,7 @@ testing_nightly:
           - Various.pxp
           - Tracing.pxp
           - IMTest.pxp
+          - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_IGOR_PRO}"
@@ -131,18 +133,18 @@ testing_nightly:
     - ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}"
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
-    - touch tests/DO_AUTORUN.TXT
+    - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
-    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+    - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
-      junit: tests/JU_*.xml
+      junit: tests/**/JU_*.xml
     paths:
-      - tests/*.htm
-      - tests/*.log
-      - tests/JU_*.xml
-      - screenshot/*.png
+      - tests/**/*.htm
+      - tests/**/*.log
+      - tests/**/JU_*.xml
+      - screenshot/**/*.png
 
 xml_verification:
   tags:
