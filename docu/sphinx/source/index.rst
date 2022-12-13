@@ -25,4 +25,5 @@ Reference
    advanced
    examples
    code
+   developer
    changelog
