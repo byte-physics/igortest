@@ -415,7 +415,7 @@ static Function/S getInfo(result, partialStack)
 
 	string caller, func, procedure, callStack, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr
-	variable numCallers, i, assertLine
+	variable numCallers, i, assertLine, err
 	variable callerIndex = NaN
 	variable testCaseIndex
 
@@ -463,8 +463,19 @@ static Function/S getInfo(result, partialStack)
 	line       = StringFromList(2, caller, ",")
 	assertLine = str2num(StringFromList(2, caller, ","))
 
+	text = UTF_Basics#getFullFunctionName(err, func, procedure)
+	if(!err)
+		func = text
+	endif
+
 	if(callerIndex != testcaseIndex)
-		func = StringFromList(0, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + func
+		tmpStr = StringFromList(0, callerTestCase, ",")
+		text = UTF_Basics#getFullFunctionName(err, tmpStr, StringFromList(1, callerTestCase, ","))
+		if(!err)
+			tmpStr = text
+		endif
+
+		func = tmpStr + TC_ASSERTION_MLINE_INDICATOR + func
 		line = StringFromList(2, callerTestCase, ",") + TC_ASSERTION_MLINE_INDICATOR + line
 	endif
 
