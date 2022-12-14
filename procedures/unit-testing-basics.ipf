@@ -1621,24 +1621,10 @@ End
 
 /// Internal Cleanup for Test Case
 /// @param testCase name of the test case
-static Function TestCaseEnd(testCase, keepDataFolder)
+static Function TestCaseEnd(testCase)
 	string testCase
-	variable keepDataFolder
 
 	string msg
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/Z/SDFR=dfr lastFolder
-	SVAR/Z/SDFR=dfr workFolder
-
-	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
-		SetDataFolder $lastFolder
-	endif
-	if (!keepDataFolder)
-		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
-			KillDataFolder/Z $workFolder
-		endif
-	endif
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_PrintStatusMessage(msg)
@@ -2381,10 +2367,24 @@ static Function BeforeTestCase(name)
 End
 
 /// @brief Called after the test case and after the test case end user hook
-static Function AfterTestCaseUserHook(name)
+static Function AfterTestCaseUserHook(name, keepDataFolder)
 	string name
+	variable keepDataFolder
 
 	string msg
+
+	DFREF dfr = GetPackageFolder()
+	SVAR/Z/SDFR=dfr lastFolder
+	SVAR/Z/SDFR=dfr workFolder
+
+	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
+		SetDataFolder $lastFolder
+	endif
+	if (!keepDataFolder)
+		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
+			KillDataFolder/Z $workFolder
+		endif
+	endif
 
 #if IgorVersion() >= 9.0
 	DFREF dfr = GetPackageFolder()
@@ -2514,7 +2514,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE
-				AfterTestCaseUserHook(name)
+				AfterTestCaseUserHook(name, param)
 				break
 			case TEST_SUITE_END_CONST:
 				AbortOnValue !ParamIsDefault(param), 1
@@ -2546,7 +2546,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 	switch(hookType)
 		case TEST_CASE_END_CONST:
 			if(!skip)
-				TestCaseEnd(name, param)
+				TestCaseEnd(name)
 			endif
 			JU_TestCaseEnd(juProps, name, procWin, tcIndex)
 			if(!skip)
