@@ -62,7 +62,10 @@ End
 static Function/S TAP_GetValidDirective(str)
 	string str
 
-	str = "# " + ReplaceString("#", str, "_")
+	str = ReplaceString("#", str, "_")
+	if(!UTF_Utils#IsEmpty(str))
+		str = " # " + str
+	endif
 
 	return str
 End
@@ -71,16 +74,11 @@ End
 static Function/S TAP_GetValidDescription(str)
 	string str
 
-	string notAllowedStart = "0123456789"
-	variable i
-
 	str = ReplaceString("#", str, "_")
+	if(!UTF_Utils#IsEmpty(str))
+		str = " - " + str
+	endif
 
-	for(i = 0; i < strlen(notAllowedStart); i += 1)
-		if(strsearch(str, notAllowedStart[i], 0) == 0)
-			return ("_" + str)
-		endif
-	endfor
 	return str
 end
 
@@ -111,7 +109,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	variable testCaseIndex
 	variable caseCount
 
-	string name, out, ok, diagnostics, description, directive, caseCountStr
+	string name, out, ok, diagnostics, description, directive, caseCountStr, prefix
 	variable err
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
@@ -128,6 +126,9 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 
 	directive = TAP_GetValidDirective(directive)
 	description = TAP_GetValidDescription(description)
+
+	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	sprintf prefix, "%s (%s)", ReplaceString("#", name, ":"), wvTestSuite[%CURRENT][%PROCEDURENAME]
 
 	strswitch(wvTestCase[testCaseIndex][%STATUS])
 		case IUTF_STATUS_SKIP:
@@ -149,7 +150,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	endswitch
 
 	sprintf caseCountStr, "%d", caseCount
-	out = ok + " " + caseCountStr + " " + description + " " + directive + TAP_LINEEND_STR
+	out = ok + " " + caseCountStr + " - " + prefix + description + directive + TAP_LINEEND_STR
 	out += diagnostics
 
 	return out
