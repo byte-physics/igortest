@@ -129,6 +129,7 @@ End
 
 static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult &collectionResult, variable sorting)
 	variable i, searchIndex, metaIndex
+	string msg
 
 	Make/FREE=1/N=(collectionResult.count, 5)/T result
 	SetDimLabel UTF_COLUMN, 0, 'Function Calls', result
@@ -148,7 +149,8 @@ static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult
 		WAVE metaWave = collectionResult.calls
 		metaIndex = 0
 	else
-		printf "Bug: Sorting %d is not supported\r", sorting
+		sprintf msg, "Bug: Sorting %d is not supported", sorting
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -171,6 +173,7 @@ End
 
 static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collectionResult, variable sorting)
 	variable i
+	string msg
 
 	Make/FREE=1/N=(collectionResult.count, 4)/T result
 	SetDimLabel UTF_COLUMN, 0, Calls, result
@@ -181,7 +184,8 @@ static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collec
 	if(sorting == UTF_ANALYTICS_CALLS)
 		WAVE searchWave = collectionResult.calls
 	else
-		printf "Bug: Sorting %d is not supported\r", sorting
+		sprintf msg, "Bug: Sorting %d is not supported", sorting
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -247,30 +251,33 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	sorting = ParamIsDefault(sorting) ? UTF_ANALYTICS_CALLS : sorting
 
 	if(mode != UTF_ANALYTICS_FUNCTIONS && mode != UTF_ANALYTICS_LINES)
-		printf "Mode %d is an unsupported mode\r", mode
+		sprintf msg, "Mode %d is an unsupported mode", mode
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting != UTF_ANALYTICS_CALLS && sorting != UTF_ANALYTICS_SUM)
-		printf "Sorting %d is an unsupported sorting\r", sorting
+		sprintf msg, "Sorting %d is an unsupported sorting", sorting
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting == UTF_ANALYTICS_SUM && mode != UTF_ANALYTICS_FUNCTIONS)
-		printf "Sum sorting is only available for the functions mode\r"
+		UTF_Reporting#UTF_PrintStatusMessage("Sum sorting is only available for the functions mode")
 		return NaN
 	endif
 	if(count < 0 || UTF_Utils#IsNaN(count))
-		printf "Invalid count: %d\r", count
+		sprintf msg, "Invalid count: %d", count
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(!HasTracingData())
-		printf "No Tracing data exists. Try to run tracing first.\r"
+		UTF_Reporting#UTF_PrintStatusMessage("No Tracing data exists. Try to run tracing first.")
 		return NaN
 	endif
 
 	WAVE totals = GetTotals()
 	if(!DimSize(totals, UTF_ROW))
 		// this can happen after stored Experiment is loaded to a fresh instance of Igor
-		printf "TUFXOP has no data. Try to rerun tracing to get new data.\r"
+		UTF_Reporting#UTF_PrintStatusMessage("TUFXOP has no data. Try to rerun tracing to get new data.")
 		return NaN
 	endif
 
@@ -279,7 +286,8 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	elseif(mode == UTF_ANALYTICS_LINES)
 		CollectLines(totals, procs, collectionResult)
 	else
-		printf "Bug: Unknown mode %d for collection\r", mode
+		sprintf msg, "Bug: Unknown mode %d for collection", mode
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
@@ -292,14 +300,15 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	elseif(mode == UTF_ANALYTICS_LINES)
 		WAVE/T result = SearchHighest(procs, collectionResult, sorting)
 	else
-		printf "Bug: Unknown mode %d for sorting\r", mode
+		sprintf msg, "Bug: Unknown mode %d for sorting", mode
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	endif
 
 	Duplicate/O result, dfr:TracingAnalyticResult
 
 	header = GetWaveHeader(result)
 	msg = UTF_Utils#NicifyTableText(result, header)
-	printf "Result:\r%s\r", msg
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 #endif

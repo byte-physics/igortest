@@ -240,7 +240,7 @@ End
 /// Writes JUNIT XML output to derived file name
 static Function JU_WriteOutput()
 	variable fnum, i, childStart, childEnd
-	string out, juFileName
+	string out, juFileName, msg
 
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	childStart = str2num(wvTestRun[%CURRENT][%CHILD_START])
@@ -259,7 +259,8 @@ static Function JU_WriteOutput()
 	PathInfo home
 	juFileName = getUnusedFileName(S_path + "JU_" + GetBaseFilename() + ".xml")
 	if(UTF_Utils#IsEmpty(juFileName))
-		printf "Error: Unable to determine unused file name for JUNIT output in path %s !\r", S_path
+		sprintf msg, "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
@@ -269,7 +270,8 @@ static Function JU_WriteOutput()
 		close fnum
 	else
 		PathInfo home
-		printf "Error: Could not create JUNIT output file at %s\r", S_path + juFileName
+		sprintf msg, "Error: Could not create JUNIT output file at %s", S_path + juFileName
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	endif
 End
 

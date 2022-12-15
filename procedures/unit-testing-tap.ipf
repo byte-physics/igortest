@@ -109,7 +109,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	variable testCaseIndex
 	variable caseCount
 
-	string name, out, ok, diagnostics, description, directive, caseCountStr, prefix
+	string name, out, ok, diagnostics, description, directive, caseCountStr, msg, prefix
 	variable err
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
@@ -145,7 +145,8 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 			diagnostics = TAP_ValidDiagnostic(diagnostics)
 			break
 		default:
-			printf "Error: Unknown test status %s for test case %s (%d)\r", wvTestCase[testCaseIndex][%STATUS], name, testCaseIndex
+			sprintf msg, "Error: Unknown test status %s for test case %s (%d)", wvTestCase[testCaseIndex][%STATUS], name, testCaseIndex
+			UTF_Reporting#UTF_PrintStatusMessage(msg)
 			return ""
 	endswitch
 
@@ -185,21 +186,23 @@ End
 static Function TAP_Write()
 
 	variable fnum, i, childStart, childEnd
-	string filename, s
+	string filename, s, msg
 	variable caseCount = 1
 
 	filename = "tap_" + GetBaseFilename() + ".log"
 	PathInfo home
 	filename = getUnusedFileName(S_path + filename)
 	if(!strlen(filename))
-		printf "Error: Unable to determine unused file name for TAP output in path %s !", S_path
+		sprintf msg, "Error: Unable to determine unused file name for TAP output in path %s !", S_path
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
 	open/Z/P=home fnum as filename
 	if(V_flag)
 		PathInfo home
-		printf "Error: Could not create TAP output file at %s\r", S_path + filename
+		sprintf msg, "Error: Could not create TAP output file at %s", S_path + filename
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 

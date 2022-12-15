@@ -462,8 +462,10 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	for(i = 0; i < numFunc; i += 1)
 		fullFuncName = UTF_Basics#getFullFunctionName(err, wFuncList[i], procWin)
 		if(err)
-			printf "Unable to retrieve full function name for %s in procedure %s.\r", wFuncList[i], procWin
-			printf "Is procedure file %s missing a #pragma ModuleName=<name> ?!?.\r", procWin
+			sprintf msg, "Unable to retrieve full function name for %s in procedure %s.", wFuncList[i], procWin
+			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			sprintf msg, "Is procedure file %s missing a #pragma ModuleName=<name> ?!?.", procWin
+			UTF_Reporting#UTF_PrintStatusMessage(msg)
 			continue
 		endif
 		UTF_Basics#AddFunctionTagWave(fullFuncName)
@@ -852,7 +854,7 @@ static Function AnalyzeTracingResult()
 	variable colR, colG, colB
 	string msg
 
-	printf "Generating coverage output."
+	UTF_Reporting#UTF_PrintStatusMessage("Generating coverage output.")
 
 	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	if(V_flag)
@@ -981,10 +983,9 @@ static Function AnalyzeTracingResult()
 	MatrixOP/FREE statLines = sum(col(statistics, STAT_LINES))
 	MatrixOP/FREE statCovered = sum(col(statistics, STAT_COVERED))
 	sprintf statOut, "Code lines: %d\rLines covered : %d\rCoverage: %.1f%%\r", statLines[0], statCovered[0], statCovered[0] * 100 / statLines[0]
-	fprintf -1, "%s", statOut
 
-	printf "Done.\r"
-	printf "%s", statOut
+	UTF_Reporting#UTF_PrintStatusMessage("Done.")
+	UTF_Reporting#UTF_PrintStatusMessage(statOut)
 End
 
 #endif

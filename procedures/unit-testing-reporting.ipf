@@ -541,7 +541,7 @@ End
 /// Always use this function if you want to inform the user about something.
 ///
 /// @param msg message to be outputted, without trailing end-of-line
-static Function UTF_PrintStatusMessage(msg)
+threadsafe static Function UTF_PrintStatusMessage(msg)
 	string msg
 
 	string tmpStr
