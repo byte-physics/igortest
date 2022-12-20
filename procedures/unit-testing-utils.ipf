@@ -477,9 +477,9 @@ threadsafe static Function/S GetWavePointer_Impl(wv)
 	WAVE ref = refWave
 
 #if IgorVersion() >= 7.0
-	sprintf str, "0x08%x", ref[0]; err = GetRTError(1)
+	sprintf str, "%#08X", ref[0]; err = GetRTError(1)
 #else
-	sprintf str, "0x08%x", ref[0]
+	sprintf str, "%#08X", ref[0]
 #endif
 
 	return str
