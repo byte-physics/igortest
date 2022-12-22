@@ -35,6 +35,10 @@ Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUN
 ///@}
 
 Constant IUTF_WAVECHUNK_SIZE = 1024
+// The size when a wave is considered as really big. After this point the sizes of chunks are
+// handled differently because of the large impact to system memory.
+// This number is 512 * 1024 * 1024 (= 512 MiB)
+Constant IUTF_BIGWAVECHUNK_SIZE = 536870912
 
 ///@endcond // HIDDEN_SYMBOL
 
