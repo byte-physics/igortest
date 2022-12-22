@@ -76,7 +76,6 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
-static Constant WAVECHUNK_SIZE = 1024
 
 static StrConstant DGEN_VAR_TEMPLATE = "v"
 static StrConstant DGEN_STR_TEMPLATE = "s"
@@ -632,7 +631,7 @@ static Function/WAVE GetFailedProcWave()
 		return wv
 	endif
 
-	Make/T/N=(WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
 	SetNumberInWaveNote(wv, TC_SUMMARY_LENGTH_KEY, 0)
 
 	return wv

@@ -34,6 +34,8 @@ Constant CHECK_MODE     = 0x03 // == OUTPUT_MESSAGE | INCREASE_ERROR
 Constant REQUIRE_MODE   = 0x07 // == OUTPUT_MESSAGE | INCREASE_ERROR | ABORT_FUNCTION
 ///@}
 
+Constant IUTF_WAVECHUNK_SIZE = 1024
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @addtogroup AssertionFlags
