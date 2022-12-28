@@ -25,3 +25,4 @@ Reference
    advanced
    examples
    code
+   changelog
