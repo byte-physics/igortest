@@ -473,6 +473,8 @@ case is called for each element of that wave.
 
    * :cpp:func:`CHECK`
 
+.. _example14:
+
 Example14
 ---------
 
