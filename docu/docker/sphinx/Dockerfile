@@ -16,9 +16,6 @@ RUN DEBIAN_FRONTEND=noninteractive \
 		python-setuptools \
 		python-wheel \
 		rsync \
-		texlive-fonts-recommended \
-		texlive-latex-extra \
-		texlive-latex-recommended && \
 	apt-get clean
 RUN pip install \
 	'breathe==4.12.0' \

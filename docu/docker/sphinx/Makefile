@@ -28,8 +28,7 @@ requirements: build-docker
 	@docker run -t --rm ${LATEST} /bin/bash -c '\
 		echo -n "doxygen version: " && doxygen --version && \
 		gawk --version | head -n 1 && \
-		git --version && \
-		tex --version | head -n 1'
+		git --version'
 
 sphinx: requirements
 	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash /var/igor-unit-testing-framework/docu/scripts/docu-sphinx.sh
@@ -39,6 +38,5 @@ sphinx-debug: requirements
 		'make -C "${DOCKER_TOP_LEVEL}/docu/sphinx" debug'
 links:
 	@stat "${LOCAL_TOP_LEVEL}/docu/sphinx/build/html/index.html"
-	@stat "${LOCAL_TOP_LEVEL}/docu/manual.pdf"
 	@echo "\e]8;;file://${LOCAL_TOP_LEVEL}/docu/manual.pdf\a→open sphinx pdf documentation\e]8;;\a"
 	@echo "\e]8;;file://${LOCAL_TOP_LEVEL}/docu/sphinx/build/html/index.html\a→open sphinx html documentation\e]8;;\a"

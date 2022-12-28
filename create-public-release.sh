@@ -31,7 +31,6 @@ mkdir -p $folder
 cp -r procedures docu/examples Readme.md License.txt helper $folder
 
 # copy and rename manual
-cp docu/manual.pdf $folder/Manual-$basename.pdf
 cp -r docu/sphinx/build/html $folder/Manual-$basename.html
 
 # copy autorun scripts into example6 folder
