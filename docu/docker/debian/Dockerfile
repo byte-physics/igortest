@@ -1,8 +1,15 @@
-FROM debian:stretch
+FROM debian:bullseye
 MAINTAINER Thomas Braun thomas.braun@byte-physics.de
 
-# add local repository
-#RUN echo "deb http://abakus/debian stretch main contrib non-free" > /etc/apt/sources.list
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update &&                                                     \
+  apt-get install --assume-yes --no-install-recommends ca-certificates && \
+  apt-get clean
+
+RUN echo "deb https://mirror.byte-physics.de/debian bullseye main contrib non-free" > /etc/apt/sources.list &&                                  \
+  echo "deb https://mirror.byte-physics.de/debian-security/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
+  echo "deb-src https://mirror.byte-physics.de/debian bullseye main contrib non-free" >> /etc/apt/sources.list
 
 # activate color terminal
 ENV TERM xterm-256color

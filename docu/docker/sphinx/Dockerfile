@@ -1,27 +1,30 @@
 FROM byte-physics/igor-utf-docu-doxygen
-MAINTAINER Matthias J. Kastner matthias.kastner@byte-physics.de
+MAINTAINER Thomas Braun thomas.braun@byte-physics.de
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 USER root
-RUN DEBIAN_FRONTEND=noninteractive \
-	apt-get update && \
-	apt-get upgrade --assume-yes && \
+RUN apt-get update &&                                  \
+	apt-get upgrade --assume-yes &&                      \
 	apt-get install --assume-yes --no-install-recommends \
-		doxygen=1.8.13* \
-		gawk \
-		git \
-		latexmk \
-		make \
-		python \
-		python-pip \
-		python-setuptools \
-		python-wheel \
-		rsync \
-	apt-get clean
-RUN pip install \
-	'breathe==4.12.0' \
-	'sphinx==1.8.5' \
-	sphinx-autobuild \
-	sphinxcontrib-fulltoc
+  make                                                 \
+  python3                                              \
+  python3-pip                                          \
+  python-is-python3                                    \
+  rsync &&                                             \
+  apt-get clean
+
+RUN pip3 install \
+  wheel          \
+  setuptools
+
+RUN pip3 install                 \
+  'breathe==4.34.0'              \
+  'sphinx==4.5.0'                \
+  'docutils==0.17'               \
+  'sphinxcontrib-fulltoc==1.2.0' \
+  'sphinxcontrib-images==0.9.4'  \
+  'sphinx-copybutton==0.5.0'
 
 USER user
 WORKDIR /var/igor-unit-testing-framework/docu

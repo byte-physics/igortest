@@ -1,5 +1,5 @@
 FROM byte-physics/debian:latest
-MAINTAINER Matthias J. Kastner matthias.kastner@byte-physics.de
+MAINTAINER Thomas Braun thomas.braun@byte-physics.de
 
 USER root
 RUN DEBIAN_FRONTEND=noninteractive \
