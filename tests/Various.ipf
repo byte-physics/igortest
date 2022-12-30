@@ -572,14 +572,45 @@ static Function TC_WaveName()
 
 	Make/FREE unnamedFreeWave
 	str = UTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
-	CHECK(GrepString(str, "^_free_ \\(0x[0-9a-f]+\\)$"))
+	INFO("name: \"%s\"", s1 = str)
+	CHECK(GrepString(str, "^_free_ \\(0[xX][0-9a-fA-F]+\\)$"))
 
 #if IgorVersion() >= 9.0
 	Make/FREE=1 namedFreeWave
 	str = UTF_Utils#GetWaveNameInDFStr(namedFreeWave)
-	CHECK(GrepString(str, "^namedFreeWave \\(0x[0-9a-f]+\\)$"))
+	INFO("name: \"%s\"", s1 = str)
+	CHECK(GrepString(str, "^namedFreeWave \\(0[xX][0-9a-fA-F]+\\)$"))
 #endif
 
+End
+
+static Function TC_WaveCapacity()
+	variable size
+
+	INFO("test small waves")
+	Make/FREE/N=50 wv
+	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, 100)
+	size = DimSize(wv, UTF_ROW)
+	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE, size)
+
+	INFO("test small increment")
+	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE * 2) wv
+	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_WAVECHUNK_SIZE * 2)
+	size = DimSize(wv, UTF_ROW)
+	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 4, size)
+
+	INFO("test big jump")
+	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE) wv
+	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
+	size = DimSize(wv, UTF_ROW)
+	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 16, size)
+
+	// I am sorry for breaking your test setup
+	INFO("test heavy load")
+	MAKE/FREE/N=(IUTF_BIGWAVECHUNK_SIZE) wv
+	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
+	size = DimSize(wv, UTF_ROW)
+	CHECK_EQUAL_VAR(IUTF_BIGWAVECHUNK_SIZE * 3, size)
 End
 
 static Function TEST_SUITE_END_OVERRIDE(name)

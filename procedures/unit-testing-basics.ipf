@@ -76,7 +76,6 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
-static Constant WAVECHUNK_SIZE = 1024
 
 static StrConstant DGEN_VAR_TEMPLATE = "v"
 static StrConstant DGEN_STR_TEMPLATE = "s"
@@ -181,7 +180,7 @@ static Function/WAVE GetFunctionTagWaves()
 	return wv
 End
 
-/// @brief Simple function to automatically increase the wave size by a chunk in the rows dimension
+/// @brief Automatically increase the wave row size if required to fit the specified index.
 ///        The actual (filled) wave size is not tracked, the caller has to do that.
 ///        Returns 1 if the wave was resized, 0 if it was not resized
 static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
@@ -190,16 +189,50 @@ static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
 	variable indexShouldExist
 
 	variable size = DimSize(wv, UTF_ROW)
+	variable targetSize
 
 	if(indexShouldExist < size)
 		return 0
 	endif
 
-	if(size < WAVECHUNK_SIZE)
-		Redimension/N=(WAVECHUNK_SIZE, -1, -1, -1) wv
+	// the wave is smaller than any usable chunk
+	if(size < IUTF_WAVECHUNK_SIZE && indexShouldExist < IUTF_WAVECHUNK_SIZE)
+		targetSize = IUTF_WAVECHUNK_SIZE
+	// exponential sizing for smaller waves as this behave asymptotic better
+	elseif(indexShouldExist < IUTF_BIGWAVECHUNK_SIZE)
+		// Calculate the target size. This is a shortcut because we need most times to increase the
+		// size only for a small amount and a single multiplication is faster then the complex
+		// operation below.
+		targetSize = size * 2
+		if(targetSize <= indexShouldExist)
+			// target size: n
+			// indexShouldExist: m
+			// chunk size: c
+			// exponent: e
+			//
+			// n = c * 2 ^ e >= m + 1
+			// => 2 ^ e >= (m + 1)/c
+			// => e >= log_2((m + 1) / c)
+			// => e = ceil(log_2((m + 1) / c))
+			// => n = c * 2 ^ ceil(log_2((m + 1) / c)) = c * 2 ^ ceil(ln((m + 1) / c) / ln(2))
+			targetSize = IUTF_WAVECHUNK_SIZE * 2 ^ ceil(ln((indexShouldExist + 1) / IUTF_WAVECHUNK_SIZE) / ln(2))
+		endif
+	// linear sizing for really large waves with high system memory impact. This is to reduce system
+	// memory stress.
 	else
-		Redimension/N=(size * 2, -1, -1, -1) wv
+		// target size: n
+		// indexShouldExist: m
+		// big chunk size: c
+		// multiplicator: a
+		//
+		// n = c * a >= m + 1
+		// => a >= (m + 1) / c
+		// => a = ceil((m + 1) / c)
+		// => n = c * ceil((m + 1) / c)
+		targetSize = IUTF_BIGWAVECHUNK_SIZE * ceil((indexShouldExist + 1) / IUTF_BIGWAVECHUNK_SIZE)
 	endif
+
+	Redimension/N=(targetSize, -1, -1, -1) wv
 
 	return 1
 End
@@ -632,7 +665,7 @@ static Function/WAVE GetFailedProcWave()
 		return wv
 	endif
 
-	Make/T/N=(WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
 	SetNumberInWaveNote(wv, TC_SUMMARY_LENGTH_KEY, 0)
 
 	return wv
