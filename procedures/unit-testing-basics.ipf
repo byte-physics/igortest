@@ -183,6 +183,8 @@ End
 /// @brief Automatically increase the wave row size if required to fit the specified index.
 ///        The actual (filled) wave size is not tracked, the caller has to do that.
 ///        Returns 1 if the wave was resized, 0 if it was not resized
+///
+/// Known Limitations: Igor 32 bit has a limit of 2 GB and 64bit a limit of 200 GB a wave can be.
 static Function EnsureLargeEnoughWaveSimple(wv, indexShouldExist)
 
 	WAVE wv
