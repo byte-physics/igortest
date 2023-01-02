@@ -579,13 +579,13 @@ static Function TC_WaveName()
 	Make/FREE unnamedFreeWave
 	str = UTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
-	CHECK(GrepString(str, "^_free_ \\(0[xX][0-9a-fA-F]+\\)$"))
+	CHECK(GrepString(str, "^_free_ \\(0x[0-9a-f]+\\)$"))
 
 #if IgorVersion() >= 9.0
 	Make/FREE=1 namedFreeWave
 	str = UTF_Utils#GetWaveNameInDFStr(namedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
-	CHECK(GrepString(str, "^namedFreeWave \\(0[xX][0-9a-fA-F]+\\)$"))
+	CHECK(GrepString(str, "^namedFreeWave \\(0x[0-9a-f]+\\)$"))
 #endif
 
 End
