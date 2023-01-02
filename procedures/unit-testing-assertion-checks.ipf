@@ -282,7 +282,7 @@ static Function AddIfFlagSet(var, flag, flagString, str)
 	string &str
 
 	if((var & flag) == flag)
-		str = AddListItem(flagString, str, ", ")
+		str = flagString + ", " + str
 	endif
 End
 
