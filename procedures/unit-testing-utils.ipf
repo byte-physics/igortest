@@ -830,7 +830,9 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 	if (istext1)
 		WAVE/T wtext1 = wv1
 		WAVE/T wtext2 = wv2
-		DiffString(wtext1[row][col][layer][chunk], wtext2[row][col][layer][chunk], strDiffResult)
+		string text1 = wtext1[row][col][layer][chunk]
+		string text2 = wtext2[row][col][layer][chunk]
+		DiffString(text1, text2, strDiffResult)
 		table[2 * locCount][%ELEMENT] = strDiffResult.v1
 		table[2 * locCount + 1][%ELEMENT] = strDiffResult.v2
 	else
@@ -968,7 +970,8 @@ End
 /// @param[out] result the diff of both strings
 /// @param[in] case_sensitive (default: true) respecting the case during the diff
 static Function DiffString(str1, str2, result, [case_sensitive])
-	string str1, str2
+	string &str1
+	string &str2
 	Struct IUTF_StringDiffResult &result
 	variable case_sensitive
 
@@ -981,6 +984,23 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 	str1len = strlen(str1)
 	str2len = strlen(str2)
 	case_sensitive = ParamIsDefault(case_sensitive) ? 1 : case_sensitive
+
+	// handle null strings
+	if(IsNull(str1))
+		if(IsNull(str2))
+			UTF_Basics#ReportErrorAndAbort("Bug: Cannot create diff if both strings are null")
+		endif
+
+		result.v1 = "-:-:-> <NULL STRING>"
+		end2 = DetectEndOfLine(str2, 0, lineEnding2)
+		result.v2 = "0:0:0>" + GetStringWithContext(str2, 0, 0, end2 - 1)
+		return NaN
+	elseif(IsNull(str2))
+		end1 = DetectEndOfLine(str1, 0, lineEnding2)
+		result.v1 = "0:0:0>" + GetStringWithContext(str1, 0, 0, end1 - 1)
+		result.v2 = "-:-:-> <NULL STRING>"
+		return NaN
+	endif
 
 	// The following cases can happen during the diff:
 	// 1. text is different until line end

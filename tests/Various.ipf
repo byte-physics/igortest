@@ -399,6 +399,7 @@ End
 static Function TC_StringDiff()
 	STRUCT IUTF_StringDiffResult result
 	string str, res, expected
+	string null, foo = "foo\n"
 
 	// DIFF CHECKING
 
@@ -433,6 +434,9 @@ static Function TC_StringDiff()
 	TC_StringDiff_Check("0123456789abcdef.", "0123456789abcdef:", "0:16:16> 6 7 8 9 a b c d e f .", "0:16:16> 6 7 8 9 a b c d e f :")
 	TC_StringDiff_Check("0123456789abcdef.\n0123456789abcdef", "0123456789abcdef:\n0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f .", "0:16:16> 6 7 8 9 a b c d e f :")
 
+	// NULL CHECKING
+	TC_StringDiff_CheckRef(null, foo, "-:-:-> <NULL STRING>", "0:0:0> f o o")
+
 	// Escaping
 #if (IgorVersion() >= 7.00)
 	res = UTF_UTILS#EscapeString("a\000\n\r\t\007")
@@ -447,6 +451,19 @@ End
 
 static Function TC_StringDiff_Check(str1, str2, out1, out2, [case_sensitive])
 	string str1, str2, out1, out2
+	variable case_sensitive
+
+	if(ParamIsDefault(case_sensitive))
+		TC_StringDiff_CheckRef(str1, str2, out1, out2)
+	else
+		TC_StringDiff_CheckRef(str1, str2, out1, out2, case_sensitive=case_sensitive)
+	endif
+End
+
+static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
+	string &str1
+	string &str2
+	string out1, out2
 	variable case_sensitive
 
 	Struct IUTF_StringDiffResult result
