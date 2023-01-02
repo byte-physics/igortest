@@ -605,12 +605,15 @@ static Function TC_WaveCapacity()
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 16, size)
 
+#ifdef IGOR64
 	// I am sorry for breaking your test setup
 	INFO("test heavy load")
 	MAKE/FREE/N=(IUTF_BIGWAVECHUNK_SIZE) wv
 	UTF_Basics#EnsureLargeEnoughWaveSimple(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_BIGWAVECHUNK_SIZE * 3, size)
+#endif // IGOR64
+
 End
 
 static Function TEST_SUITE_END_OVERRIDE(name)
