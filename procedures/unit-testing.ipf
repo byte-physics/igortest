@@ -17,6 +17,7 @@
 #include "unit-testing-reporting"
 #include "unit-testing-utils"
 #include "unit-testing-utils-strings"
+#include "unit-testing-utils-textgrid"
 #include "unit-testing-utils-vector"
 #include "unit-testing-utils-waves"
 #include "unit-testing-tracing"
