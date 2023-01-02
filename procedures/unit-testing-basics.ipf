@@ -1316,6 +1316,8 @@ static Function TestBegin(name, debugMode)
 
 	string msg
 	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%STARTTIME] = UTF_Reporting#GetTimeString()
 
 	initGlobalError()
 	initRunCount()
@@ -1373,6 +1375,9 @@ static Function TestEnd(name, debugMode)
 	sprintf msg, "End of test \"%s\"", name
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+
 	NVAR/SDFR=dfr igor_debug_state
 	RestoreIgorDebugger(igor_debug_state)
 End
@@ -1383,6 +1388,24 @@ static Function TestSuiteBegin(testSuite)
 	string testSuite
 
 	string msg
+	variable id
+
+	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
+	id = UTF_Utils_Vector#AddRow(wvSuite)
+
+	wvSuite[id][%PROCEDURENAME] = testSuite
+	wvSuite[id][%STARTTIME] = UTF_Reporting#GetTimeString()
+	wvSuite[id][%NUM_ERROR] = "0"
+	wvSuite[id][%NUM_SKIPPED] = "0"
+	wvSuite[id][%NUM_TESTS] = "0"
+	wvSuite[id][%NUM_ASSERT] = "0"
+	wvSuite[id][%NUM_ASSERT_ERROR] = "0"
+
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase, init = 1)
+
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	UTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
 
 	initError()
 	incrRunCount()
@@ -1412,6 +1435,15 @@ static Function TestSuiteEnd(testSuite)
 	NVAR/SDFR=dfr global_error_count
 	global_error_count += error_count
 
+	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	wvTestSuite[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]))
+	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]))
+	wvTestRun[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ERROR]))
+	wvTestRun[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_SKIPPED]) + str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]))
+
 	sprintf msg, "Leaving test suite \"%s\"", testSuite
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 End
@@ -1422,6 +1454,21 @@ static Function TestCaseBegin(testCase)
 	string testCase
 
 	string msg
+	variable testId
+
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	testId = UTF_Utils_Vector#AddRow(wvTestCase)
+
+	wvTestCase[testId][%NAME] = testCase
+	wvTestCase[testId][%STARTTIME] = UTF_Reporting#GetTimeString()
+	wvTestCase[testId][%NUM_ASSERT] = "0"
+	wvTestCase[testId][%NUM_ASSERT_ERROR] = "0"
+
+	WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
+	UTF_Reporting#UpdateChildRange(wvTestCase, wvAssertion, init = 1)
+
+	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
+	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase)
 
 	initAssertCount()
 	initMessageBuffer()
@@ -1446,6 +1493,9 @@ static Function TestCaseEnd(testCase)
 	string testCase
 
 	string msg
+
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	wvTestCase[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -3404,6 +3454,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		DFREF dfr = GetPackageFolder()
 		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, "", FIXED_LOG_FILENAME)
 		ClearTestSetupWaves()
+		UTF_Reporting#ClearTestResultWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
 

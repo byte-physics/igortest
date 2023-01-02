@@ -6,11 +6,209 @@
 
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 
+/// @brief Get the current time in seconds since the start of the computer. This conversion is
+/// required as the time has to be stored in a TextGrid later.
+static Function/S GetTimeString()
+	string msg
+
+	sprintf msg, "%.6f", StopMSTimer(-2) * IUTF_MICRO_TO_ONE
+	return msg
+End
+
+/// @brief Set parentWave[%CURRENT][%CHILD_END] to the length of the child wave. This is recommended
+/// to do after a row is added to the child wave or a new entry in the parent wave is created.
+///
+/// @param parentWave   the parent wave to update
+/// @param childWave    the child wave to get the length
+/// @param init         [optional, default 0] if set to non zero this will also set
+///                     parentWave[%CURRENT][%CHILD_START] to the length of the child wave.
+static Function UpdateChildRange(parentWave, childWave, [init])
+	WAVE/T parentWave, childWave
+	variable init
+
+	variable length = UTF_Utils_Vector#GetLength(childWave)
+
+	init = ParamIsDefault(init) ? 0 : !!init
+
+	if(init)
+		parentWave[%CURRENT][%CHILD_START] = num2istr(length)
+	endif
+	parentWave[%CURRENT][%CHILD_END] = num2istr(length)
+End
+
+/// @brief Get the results wave for the whole test run. This wave contains the following column
+/// dimension labels:
+///   - HOSTNAME: the name of the computer
+///   - USERNAME: the username for which Igor is run
+///   - STARTTIME: time in seconds (since since computer start) when this test run was started
+///   - ENDTIME: time in seconds (since since computer start) when this test run was finished. Empty
+///     if still running.
+///   - NUM_ERROR: number of failed test cases
+///   - NUM_SKIPPED: number of skipped test cases
+///   - NUM_TESTS: number of test cases
+///   - NUM_ASSERT: number of called assertions in all test cases
+///   - NUM_ASSERT_ERROR: number of failed or errored assertions in all test cases
+///   - SYSTEMINFO: information of the current system
+///   - IGORINFO: information of the current igor instance
+///   - VERSION: version number of the used UTF
+///   - EXPERIMENT: name of the experiment file
+///   - CHILD_START: the start index (inclusive) for all test suites that belong to this test run
+///   - CHILD_END: the end index (exclusive) for all test suites that belong to this test run
+static Function/WAVE GetTestRunWave()
+	DFREF dfr = GetPackageFolder()
+	string name = "TestRunResult"
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	WAVE/T wv = UTF_Utils_TextGrid#Create("HOSTNAME;USERNAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;SYSTEMINFO;IGORINFO;VERSION;EXPERIMENT;CHILD_START;CHILD_END;")
+	MoveWave wv, dfr:$name
+
+	wv[0][%HOSTNAME] = "localhost"
+#if (IgorVersion() >= 7.00)
+	strswitch(IgorInfo(2))
+		case "Windows":
+			wv[0][%HOSTNAME] = GetEnvironmentVariable("COMPUTERNAME")
+			break
+		case "Macintosh":
+			wv[0][%HOSTNAME] = GetEnvironmentVariable("HOSTNAME")
+			break
+		default:
+			break
+	endswitch
+	wv[0][%USERNAME] = IgorInfo(7)
+#endif
+	wv[0][%NUM_ERROR] = "0"
+	wv[0][%NUM_SKIPPED] = "0"
+	wv[0][%NUM_TESTS] = "0"
+	wv[0][%NUM_ASSERT] = "0"
+	wv[0][%NUM_ASSERT_ERROR] = "0"
+	wv[0][%SYSTEMINFO] = IgorInfo(3)
+	wv[0][%IGORINFO] = IgorInfo(0)
+	wv[0][%VERSION] = UTF_Basics#GetVersion()
+	wv[0][%EXPERIMENT] = IgorInfo(1)
+	wv[0][%CHILD_START] = "0"
+	wv[0][%CHILD_END] = "0"
+
+	SetDimLabel UTF_ROW, 0, CURRENT, wv
+
+	return wv
+End
+
+/// @brief Get the results wave for the test suites. This wave contains the following column
+/// dimension labels:
+///   - PROCEDURENAME: the name of the procedure file
+///   - STARTTIME: time in seconds (since since computer start) when this test suite was started
+///   - ENDTIME: time in seconds (since since computer start) when this test suite was finished.
+///     Empty if still running.
+///   - NUM_ERROR: number of failed test cases
+///   - NUM_SKIPPED: number of skipped test cases
+///   - NUM_TESTS: number of test cases
+///   - NUM_ASSERT: number of called assertions in all test cases
+///   - NUM_ASSERT_ERROR: number of failed or errored assertions in all test cases
+///   - STDOUT: the copy of the output that was printed to the history during execution of this test
+///     suite
+///   - STDERR: the error messages that are collected during execution of this test suite
+///   - CHILD_START: the start index (inclusive) for all test cases that belong to this test suite
+///   - CHILD_END: the end index (exclusive) for all test cases that belong to this test suite
+static Function/WAVE GetTestSuiteWave()
+	DFREF dfr = GetPackageFolder()
+	string name = "TestSuiteResult"
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	WAVE/T wv = UTF_Utils_TextGrid#Create("PROCEDURENAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
+	MoveWave wv, dfr:$name
+
+	return wv
+End
+
+/// @brief Get the results wave for the test cases. This wave contains the following column
+/// dimension labels:
+///   - NAME: the full name of the testcase
+///   - STARTTIME: time in seconds (since since computer start) when this test case was started
+///   - ENDTIME: time in seconds (since since computer start) when this test case was finished.
+///     Empty if still running.
+///   - STATUS: The resulting status of this test case. Its one of IUTF_STATUS_UNKNOWN,
+///     IUTF_STATUS_ERROR, IUTF_STATUS_FAIL, IUTF_STATUS_SKIP or IUTF_STATUS_SUCCESS.
+///   - NUM_ASSERT: number of called assertions in this test case
+///   - NUM_ASSERT_ERROR: number of failed or errored assertions in this test case
+///   - STDOUT: the copy of the output that was printed to the history during execution of this test
+///     case
+///   - STDERR: the error messages that are collected during execution of this test case
+///   - CHILD_START: the start index (inclusive) for all assertion that belong to this test case
+///   - CHILD_END: the end index (exclusive) for all assertion that belong to this test case
+static Function/WAVE GetTestCaseWave()
+	DFREF dfr = GetPackageFolder()
+	string name = "TestCaseResult"
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	WAVE/T wv = UTF_Utils_TextGrid#Create("NAME;STARTTIME;ENDTIME;STATUS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
+	MoveWave wv, dfr:$name
+
+	return wv
+End
+
+/// @brief Get the results wave for the test assertions. This wave contains the following column
+/// dimension labels:
+///   - MESSAGE: the full message of this assertion
+///   - TYPE: the type of this assertion. Currently used are IUTF_STATUS_ERROR and IUTF_STATUS_FAIL.
+///   - STACKTRACE: the partial stack trace between the entry of the test case and the call of the
+///     assertion
+///   - CHILD_START: the start index (inclusive) for all information that belong to this assertion
+///   - CHILD_END: the end index (exclusive) for all information that belong to this assertion
+static Function/WAVE GetTestAssertionWave()
+	DFREF dfr = GetPackageFolder()
+	string name = "TestAssertionResult"
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	WAVE/T wv = UTF_Utils_TextGrid#Create("MESSAGE;TYPE;STACKTRACE;CHILD_START;CHILD_END;")
+	MoveWave wv, dfr:$name
+
+	return wv
+End
+
+/// @brief Get the results wave for the test information. This wave contains the following column
+/// dimension labels:
+///   - MESSAGE: the full information text for the parent assertion
+static Function/WAVE GetTestInfoWave()
+	DFREF dfr = GetPackageFolder()
+	string name = "TestInfoResult"
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	WAVE/T wv = UTF_Utils_TextGrid#Create("MESSAGE;")
+	MoveWave wv, dfr:$name
+
+	return wv
+End
+
+static Function ClearTestResultWaves()
+	WAVE/T wvTestRun = GetTestRunWave()
+	WAVE/T wvTestSuite = GetTestSuiteWave()
+	WAVE/T wvTestCase = GetTestCaseWave()
+	WAVE/T wvAssertion = GetTestAssertionWave()
+	WAVE/T wvInfo = GetTestInfoWave()
+
+	KillWaves wvTestRun, wvTestSuite, wvTestCase, wvAssertion, wvInfo
+End
+
 /// Get or create the wave that contains the failed procedures
 static Function/WAVE GetFailedProcWave()
 	string name = "FailedProcWave"
 
-	dfref dfr = GetPackageFolder()
+	DFREF dfr = GetPackageFolder()
 	WAVE/Z/T wv = dfr:$name
 	if(WaveExists(wv))
 		return wv

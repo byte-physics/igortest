@@ -40,6 +40,8 @@ Constant IUTF_WAVECHUNK_SIZE = 1024
 // This number is 512 * 1024 * 1024 (= 512 MiB)
 Constant IUTF_BIGWAVECHUNK_SIZE = 536870912
 
+Constant IUTF_MICRO_TO_ONE = 1e-06
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @addtogroup AssertionFlags
