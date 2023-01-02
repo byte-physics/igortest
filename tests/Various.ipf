@@ -434,8 +434,14 @@ static Function TC_StringDiff()
 	TC_StringDiff_Check("0123456789abcdef.\n0123456789abcdef", "0123456789abcdef:\n0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f .", "0:16:16> 6 7 8 9 a b c d e f :")
 
 	// Escaping
+#if (IgorVersion() >= 7.00)
 	res = UTF_UTILS#EscapeString("a\000\n\r\t\007")
 	expected = " a <NUL> <LF> <CR> <TAB> <0x07>"
+#else
+	// Igor 6 is handling \000 as string termination
+	res = UTF_UTILS#EscapeString("a\n\r\t\007")
+	expected = " a <LF> <CR> <TAB> <0x07>"
+#endif
 	CHECK_EQUAL_STR(expected, res)
 End
 
