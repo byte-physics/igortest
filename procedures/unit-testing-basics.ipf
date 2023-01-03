@@ -667,6 +667,9 @@ Function incrAssert()
 	endif
 
 	assert_count +=1
+
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	wvTestCase[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) + 1)
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -1450,8 +1453,9 @@ End
 
 /// Internal Setup for Test Case
 /// @param testCase name of the test case
-static Function TestCaseBegin(testCase)
+static Function TestCaseBegin(testCase, skip)
 	string testCase
+	variable skip
 
 	string msg
 	variable testId
@@ -1469,6 +1473,17 @@ static Function TestCaseBegin(testCase)
 
 	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
 	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase)
+	wvSuite[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvSuite[%CURRENT][%NUM_TESTS]) + 1)
+
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_TESTS]) + 1)
+
+	if(skip)
+		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SKIP
+		wvTestCase[%CURRENT][%ENDTIME] = "0"
+		wvTestCase[%CURRENT][%STARTTIME] = "0"
+		return NaN
+	endif
 
 	initAssertCount()
 	initMessageBuffer()
@@ -1499,6 +1514,10 @@ static Function TestCaseEnd(testCase)
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
+
+	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	wvTestSuite[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))
+	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]))
 End
 
 /// Checks functions signature of each multi data test case candidate
@@ -2201,6 +2220,9 @@ static Function BeforeTestCase(name)
 	endif
 #endif
 
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
+
 	SaveAssertionCounter()
 End
 
@@ -2263,11 +2285,36 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 	endif
 #endif
 
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_UNKNOWN))
+		sprintf msg, "Bug: Test case \"%s\" has an unknown state after it was running.", name
+		UTF_Reporting#TestCaseFail(msg)
+	endif
+	strswitch(wvTestCase[%CURRENT][%STATUS])
+		case IUTF_STATUS_RUNNING:
+			wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SUCCESS
+			break
+		case IUTF_STATUS_ERROR:
+		case IUTF_STATUS_FAIL:
+			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+			wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) + 1)
+			break
+		case IUTF_STATUS_SKIP:
+			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+			wvTestSuite[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]) + 1)
+			break
+		default:
+			sprintf msg, "test status \"%s\" is not supported for test case \"%s\".", wvTestCase[%CURRENT][%STATUS], name
+			UTF_Reporting#ReportError(msg)
+			break
+	endswitch
+
 End
 
 /// @brief Called after the test case and before the test case end user hook
-static Function AfterTestCase(name)
+static Function AfterTestCase(name, skip)
 	string name
+	variable skip
 
 	string msg
 
@@ -2276,7 +2323,7 @@ static Function AfterTestCase(name)
 
 	CleanupInfoMsg()
 
-	if(assert_count == GetSavedAssertionCounter())
+	if(assert_count == GetSavedAssertionCounter() && !skip)
 		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
 		UTF_Reporting#TestCaseFail(msg)
 	endif
@@ -2339,8 +2386,8 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 					TAP_TestCaseBegin(name)
 				endif
 				JU_TestCaseBegin(juProps, name, procWin)
+				TestCaseBegin(name, skip)
 				if(!skip)
-					TestCaseBegin(name)
 					userHook(name); AbortOnRTE
 					BeforeTestCase(name)
 				endif
@@ -2348,7 +2395,7 @@ static Function ExecuteHooks(hookType, hooks, juProps, name, procWin, tcIndex, [
 			case TEST_CASE_END_CONST:
 				AbortOnValue ParamIsDefault(param), 1
 
-				AfterTestCase(name)
+				AfterTestCase(name, skip)
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
 				userHook(name); AbortOnRTE

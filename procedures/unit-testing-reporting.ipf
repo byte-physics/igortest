@@ -275,6 +275,11 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 	hideInSummary = ParamIsDefault(hideInSummary) ? 0 : !!hideInSummary
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
+	if(incrErrorCounter)
+		WAVE/T wvTestCase = GetTestCaseWave()
+		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_ERROR
+	endif
+
 	UTF_Basics#SetTestStatus(message)
 	type = "FAIL"
 	ReportError(message, incrErrorCounter = incrErrorCounter)
@@ -341,6 +346,9 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 		if(!expectedFailure)
 			if(flags & INCREASE_ERROR)
 				incrError()
+
+				WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+				wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_FAIL
 			endif
 			if(flags & ABORT_FUNCTION)
 				UTF_Basics#CleanupInfoMsg()
