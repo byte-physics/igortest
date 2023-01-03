@@ -480,7 +480,7 @@ End
 /// The current testcase is always aborted afterwards.
 ///
 /// @param	message		The message to output to the history.
-/// @param  setFlagOnly (optiona, default: 0) If set to zero it will call abort at the end of
+/// @param  setFlagOnly (optional, default: 0) If set to zero it will call abort at the end of
 ///                     the execution. If set to something different to zero it will only set
 ///                     the abort flag.
 static Function ReportErrorAndAbort(message, [setFlagOnly])
