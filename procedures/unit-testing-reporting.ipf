@@ -229,6 +229,9 @@ static Function AddError(message, type, [updateStatus])
 	if(updateStatus)
 		wvTestCase[%CURRENT][%STATUS] = type
 	endif
+	if(strlen(message))
+		wvTestCase[%CURRENT][%STDERR] = AddListItem(message, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
+	endif
 
 	WAVE/T wvInfo = GetTestInfoWave()
 	UpdateChildRange(wvAssertion, wvInfo, init = 1)
@@ -354,7 +357,10 @@ static Function PrintFailInfo(expectedFailure)
 
 	if(!expectedFailure)
 		WAVE/T wvAssertion = GetTestAssertionWave()
+		WAVE/T wvTestCase = GetTestCaseWave()
+
 		wvAssertion[%CURRENT][%MESSAGE] = message
+		wvTestCase[%CURRENT][%STDERR] = AddListItem(message, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
 	endif
 
 	TestCaseFail(message, summaryMsg = str, hideInSummary = !!expectedFailure, incrErrorCounter = 0)

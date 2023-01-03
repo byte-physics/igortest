@@ -1497,6 +1497,9 @@ static Function TestCaseBegin(testCase, skip)
 		wvTestCase[%CURRENT][%ENDTIME] = "0"
 		wvTestCase[%CURRENT][%STARTTIME] = "0"
 		return NaN
+	else
+		Notebook HistoryCarbonCopy, getData = 1
+		wvTestCase[%CURRENT][%STDOUT] = S_Value
 	endif
 
 	initAssertCount()
@@ -1529,7 +1532,12 @@ static Function TestCaseEnd(testCase)
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
+	Notebook HistoryCarbonCopy, getData = 1
+	wvTestCase[%CURRENT][%STDOUT] = S_Value[strlen(wvTestCase[%CURRENT][%STDOUT]), Inf]
+
 	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	wvTestSuite[%CURRENT][%STDOUT] += wvTestCase[%CURRENT][%STDOUT]
+	wvTestSuite[%CURRENT][%STDERR] += wvTestCase[%CURRENT][%STDERR]
 	wvTestSuite[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))
 	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]))
 End
