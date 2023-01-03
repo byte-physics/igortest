@@ -38,7 +38,7 @@ def getDocRoot():
 # -- Project information -----------------------------------------------------
 
 project = u'Igor Unit Testing Framework'
-copyright = u'2012-2022 All Contributors'
+copyright = u'2012-2023 All Contributors'
 author = u'All Contributors'
 
 version = getVersion()
