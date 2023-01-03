@@ -718,16 +718,16 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	result = WaveExists(wv1)
-	EvaluateResults(result, "Assumption that the first wave (wv1) exists", flags)
 
 	if(!result)
+		EvaluateResults(0, "Assumption that the first wave (wv1) exists", flags)
 		return NaN
 	endif
 
 	result = WaveExists(wv2)
-	EvaluateResults(result, "Assumption that the second wave (wv2) exists", flags)
 
 	if(!result)
+		EvaluateResults(0, "Assumption that the second wave (wv2) exists", flags)
 		return NaN
 	endif
 
