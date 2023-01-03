@@ -228,6 +228,7 @@ static Function AddError(message, type, [updateStatus])
 	UpdateChildRange(wvTestCase, wvAssertion)
 	if(updateStatus)
 		wvTestCase[%CURRENT][%STATUS] = type
+		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
 	if(strlen(message))
 		wvTestCase[%CURRENT][%STDERR] = AddListItem(message, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
@@ -247,6 +248,13 @@ End
 static Function incrAssert()
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 	wvTestCase[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) + 1)
+End
+
+/// Increments the global error counter for the complete test run. This wont change the error
+/// counter for test cases. Use AddError for these cases.
+static Function incrGlobalError()
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 End
 
 /// Get or create the wave that contains the failed procedures
@@ -396,10 +404,11 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 
 		if(!expectedFailure)
 			if(flags & INCREASE_ERROR)
-				incrError()
+				UTF_Basics#AddMessageToBuffer()
 
 				WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 				wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_FAIL
+				wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 			endif
 			if(flags & ABORT_FUNCTION)
 				UTF_Basics#CleanupInfoMsg()
@@ -451,7 +460,7 @@ End
 ///
 /// @param	message		The message to output to the history.
 /// @param  incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                     Increases the internal error counter.
+///                     Increases the global error counter.
 static Function ReportError(message, [incrErrorCounter])
 	string message
 	variable incrErrorCounter
@@ -461,7 +470,9 @@ static Function ReportError(message, [incrErrorCounter])
 	UTF_PrintStatusMessage(message)
 	UTF_ToSystemErrorStream(message)
 	if(incrErrorCounter)
-		incrError()
+		UTF_Basics#AddMessageToBuffer()
+
+		incrGlobalError()
 	endif
 End
 

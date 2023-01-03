@@ -569,13 +569,6 @@ static Function SetTestStatus(setValue)
 	status = setValue
 End
 
-/// Creates the variable global_error_count in PKG_FOLDER
-/// and initializes it to zero
-static Function initGlobalError()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:global_error_count = 0
-End
-
 /// Creates the variable run_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initRunCount()
@@ -594,28 +587,6 @@ static Function incrRunCount()
 	endif
 
 	run_count +=1
-End
-
-/// Creates the variable error_count in PKG_FOLDER
-/// and initializes it to zero
-static Function initError()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:error_count = 0
-End
-
-/// Increments the error_count in PKG_FOLDER and creates it if necessary
-Function incrError()
-	DFREF dfr = GetPackageFolder()
-	NVAR/Z/SDFR=dfr error_count
-
-	if(!NVAR_Exists(error_count))
-		initError()
-		NVAR/SDFR=dfr error_count
-	endif
-
-	AddMessageToBuffer()
-
-	error_count +=1
 End
 
 /// Creates the failure message buffer wave
@@ -1276,7 +1247,6 @@ static Function TestBegin(name, debugMode)
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%STARTTIME] = UTF_Reporting#GetTimeString()
 
-	initGlobalError()
 	initRunCount()
 	InitAbortFlag()
 	initTestStatus()
@@ -1310,15 +1280,14 @@ static Function TestEnd(name, debugMode)
 
 	string msg
 	variable i, index
-	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
-
 	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr global_error_count
+	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 
-	if(global_error_count == 0)
+	if(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
 		sprintf msg, "Test finished with no errors"
 	else
-		sprintf msg, "Test finished with %d errors", global_error_count
+		sprintf msg, "Test finished with %s errors", wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -1364,7 +1333,6 @@ static Function TestSuiteBegin(testSuite)
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
 	UTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
 
-	initError()
 	incrRunCount()
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
@@ -1378,21 +1346,16 @@ static Function TestSuiteEnd(testSuite)
 
 	string msg
 
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr error_count
+	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
 
-	if(error_count == 0)
+	if(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
 		sprintf msg, "Finished with no errors"
 	else
-		sprintf msg, "Failed with %d errors", error_count
+		sprintf msg, "Failed with %s errors", wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	NVAR/SDFR=dfr global_error_count
-	global_error_count += error_count
-
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
 	wvTestSuite[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
 
 	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
@@ -3488,7 +3451,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
-	NVAR/SDFR=dfr global_error_count
 
 	// The Test Run itself is split into Test Suites for each Procedure File
 	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
@@ -3607,7 +3569,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						ClearReentrytoUTF()
 						QuitOnAutoRunFull()
-						return global_error_count
+
+						WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+						return str2num(wvTestRun[%CURRENT][%NUM_ERROR])
 					endif
 				endtry
 
@@ -3672,5 +3636,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	QuitOnAutoRunFull()
 
-	return global_error_count
+	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	return str2num(wvTestRun[%CURRENT][%NUM_ERROR])
 End
