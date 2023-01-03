@@ -441,17 +441,6 @@ static Function DebugOutput(str, booleanValue)
 	endif
 End
 
-/// Set the status and output debug information
-/// @param str            debug string
-/// @param booleanValue   assertion state
-Function SetTestStatusAndDebug(str, booleanValue)
-	string str
-	variable booleanValue
-
-	DebugOutput(str, booleanValue)
-	SetTestStatus(str)
-End
-
 /// Evaluate the result of an assertion that was used in a testcase. For evaluating internal errors use
 /// ReportError* functions.
 /// @param result          Set to 0 to signal an error. Any value different to 0 will be considered as success.
@@ -545,30 +534,6 @@ static Function InitIgorDebugVariables()
 	Variable/G dfr:igor_debug_assertion = 0
 End
 
-/// Creates the variable status in PKG_FOLDER
-static Function InitTestStatus()
-	DFREF dfr = GetPackageFolder()
-	string/G dfr:status = "test status initialized"
-End
-
-/// Set the status variable for debug output
-/// and failed assertions. Creates the variable
-/// if not present.
-/// @param setValue   test status as string with trailing \r
-static Function SetTestStatus(setValue)
-	string setValue
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/Z/SDFR=dfr status
-
-	if(!SVAR_EXISTS(status))
-		InitTestStatus()
-		SVAR/SDFR=dfr status
-	endif
-
-	status = setValue
-End
-
 /// Creates the variable run_count in PKG_FOLDER
 /// and initializes it to zero
 static Function initRunCount()
@@ -588,37 +553,6 @@ static Function incrRunCount()
 
 	run_count +=1
 End
-
-/// Creates the failure message buffer wave
-static Function initMessageBuffer()
-	DFREF dfr = GetPackageFolder()
-	Make/O/T/N=(0, 2) dfr:messageBuffer
-	WAVE/T messageBuffer = dfr:messageBuffer
-	SetDimLabel UTF_COLUMN, 0, MESSAGE, messageBuffer
-	SetDimLabel UTF_COLUMN, 1, TYPE, messageBuffer
-End
-
-/// Adds current Message to buffer
-static Function AddMessageToBuffer()
-
-	variable size
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr type
-	WAVE/T/SDFR=dfr/Z messageBuffer
-
-	if(!WaveExists(messageBuffer))
-		initMessageBuffer()
-		WAVE/T/SDFR=dfr messageBuffer
-	endif
-
-	size = DimSize(messageBuffer, UTF_ROW)
-	Redimension/N=(size + 1, -1) messageBuffer
-	messageBuffer[size][%MESSAGE] = message
-	messageBuffer[size][%TYPE] = type
-End
-
 
 /// Returns 1 if the abortFlag is set and zero otherwise
 Function shouldDoAbort()
@@ -1154,8 +1088,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	string procWin
 
 	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr type
+	string message = ""
 	SVAR/SDFR=dfr/Z AssertionInfo
 	string str, funcTypeString
 
@@ -1175,19 +1108,13 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 			break
 	endswitch
 
-	type = ""
-	message = ""
 	if(err)
 		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\" (%s)", err, errmessage, funcTypeString, funcName, procWin
 		UTF_Reporting#AddFailedSummaryInfo(str)
 		UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 		message = str
-		type = "RUNTIME ERROR"
 	endif
 	if(abortCode != -4)
-		if(!strlen(type))
-			type = "ABORT"
-		endif
 		str = ""
 		switch(abortCode)
 			case -1:
@@ -1249,7 +1176,6 @@ static Function TestBegin(name, debugMode)
 
 	initRunCount()
 	InitAbortFlag()
-	initTestStatus()
 
 	InitIgorDebugVariables()
 	DFREF dfr = GetPackageFolder()
@@ -1261,9 +1187,6 @@ static Function TestBegin(name, debugMode)
 		igor_debug_state = EnableIgorDebugger(debugMode)
 	endif
 
-	string/G dfr:message = ""
-	string/G dfr:type = "0"
-	string/G dfr:systemErr = ""
 	UTF_Utils_Vector#SetLength(wvFailed, 0)
 
 	ClearBaseFilename()
@@ -1405,8 +1328,6 @@ static Function TestCaseBegin(testCase, skip)
 		wvTestCase[%CURRENT][%STDOUT] = S_Value
 	endif
 
-	initMessageBuffer()
-
 	// create a new unique folder as working folder
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:lastFolder = GetDataFolder(1)
@@ -1414,8 +1335,6 @@ static Function TestCaseBegin(testCase, skip)
 	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
 	SVAR/SDFR=dfr workFolder
 	NewDataFolder/O/S $workFolder
-
-	string/G dfr:systemErr = ""
 
 	sprintf msg, "Entering test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -3265,11 +3184,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	DFREF dfr = GetPackageFolder()
 
-	// init global vars
-	string/G dfr:message = ""
-	string/G dfr:type = "0"
-	string/G dfr:systemErr = ""
-
 	// do not save these for reentry
 	//
 	variable reentry
@@ -3449,9 +3363,6 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	endif
 
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr type
-
 	// The Test Run itself is split into Test Suites for each Procedure File
 	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
 	WAVE/T testRunData = GetTestRunData()
@@ -3544,20 +3455,20 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(!skip)
 
 				if(GetRTError(0))
-					message = GetRTErrMessage()
+					msg = GetRTErrMessage()
 					err = GetRTError(1)
-					sprintf msg, "Internal runtime error in UTF %d:\"%s\" before executing test case \"%s\".", err, message, fullFuncName
+					sprintf msg, "Internal runtime error in UTF %d:\"%s\" before executing test case \"%s\".", err, msg, fullFuncName
 					UTF_Reporting#ReportErrorAndAbort(msg, setFlagOnly = 1)
 				endif
 
 				try
 					CallTestCase(s, reentry)
 				catch
-					message = GetRTErrMessage()
+					msg = GetRTErrMessage()
 					s.err = GetRTError(1)
 					// clear the abort code from setAbortFlag()
 					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
-					EvaluateRTE(s.err, message, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
+					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && UTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here

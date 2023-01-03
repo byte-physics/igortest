@@ -289,16 +289,6 @@ static Function AddFailedSummaryInfo(msg)
 	wvFailed[index] = msg
 End
 
-/// Adds a string to the system error log, it is reset at each test case begin
-static Function UTF_ToSystemErrorStream(message)
-	string message
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr systemErr
-
-	systemErr += message + "\r"
-End
-
 /// Make a test case fail. This method is intended to use outside the user code
 /// of the test case as such as it won't look in the stack trace which assertion
 /// triggered the error.
@@ -321,7 +311,6 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 	variable hideInSummary, incrErrorCounter
 
 	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr type
 	SVAR/SDFR=dfr/Z AssertionInfo
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
@@ -332,8 +321,6 @@ static Function TestCaseFail(message, [summaryMsg, hideInSummary, incrErrorCount
 		AddError(message, IUTF_STATUS_ERROR)
 	endif
 
-	UTF_Basics#SetTestStatus(message)
-	type = "FAIL"
 	ReportError(message, incrErrorCounter = incrErrorCounter)
 	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
 		ReportError(AssertionInfo, incrErrorCounter = 0)
@@ -346,23 +333,21 @@ End
 
 /// Prints an informative message that the test failed
 ///
+/// @param message         the fail message to print to the output
 /// @param expectedFailure if set to non zero the error will be considered as expected
-static Function PrintFailInfo(expectedFailure)
+static Function PrintFailInfo(message, expectedFailure)
+	string message
 	variable expectedFailure
 
-	string prefix, str
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/SDFR=dfr message
-	SVAR/SDFR=dfr status
+	string str
+	string prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 
 	if(!expectedFailure)
 		AddError("", IUTF_STATUS_FAIL, updateStatus = 0)
 	endif
 
-	prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 	str = UTF_Basics#getInfo(0, expectedFailure)
-	message = prefix + status + " " + str
+	message = prefix + message + " " + str
 
 	if(!expectedFailure)
 		WAVE/T wvAssertion = GetTestAssertionWave()
@@ -393,19 +378,17 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	SetTestStatusAndDebug(str, result)
+	UTF_Basics#DebugOutput(str, result)
 
 	if(!result)
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)
-			PrintFailInfo(expectedFailure)
+			PrintFailInfo(str, expectedFailure)
 		endif
 
 		if(!expectedFailure)
 			if(flags & INCREASE_ERROR)
-				UTF_Basics#AddMessageToBuffer()
-
 				WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 				wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_FAIL
 				wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
@@ -465,13 +448,19 @@ static Function ReportError(message, [incrErrorCounter])
 	string message
 	variable incrErrorCounter
 
+	variable currentIndex
+
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	UTF_PrintStatusMessage(message)
-	UTF_ToSystemErrorStream(message)
-	if(incrErrorCounter)
-		UTF_Basics#AddMessageToBuffer()
 
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	currentIndex = FindDimLabel(wvTestCase, UTF_COLUMN, "CURRENT")
+	if(currentIndex >= 0)
+		wvTestCase[currentIndex][%STDERR] += message + "\r"
+	endif
+
+	if(incrErrorCounter)
 		incrGlobalError()
 	endif
 End
