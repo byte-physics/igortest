@@ -1446,6 +1446,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	DFREF dfr = GetPackageFolder()
 	SVAR/SDFR=dfr message
 	SVAR/SDFR=dfr type
+	SVAR/SDFR=dfr/Z AssertionInfo
 	string str, funcTypeString
 
 	if(!err && !abortCode)
@@ -1503,6 +1504,9 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	endif
 
 	ReportError(message)
+	if(SVAR_Exists(AssertionInfo) && strlen(AssertionInfo))
+		ReportError(AssertionInfo, incrErrorCounter = 0)
+	endif
 
 	CheckAbortCondition(abortCode)
 	if(TAP_IsOutputEnabled())
