@@ -7,6 +7,90 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+1.09 (01/04/2023)
+-----------------
+
+General
+~~~~~~~
+
+   - Add Code Coverage determination, see :ref:`here <code_coverage>` (IP9 Build 38812 or higher)
+   - Allow analytics of code coverage tracing data, see :ref:`here <coverage_statistics>`
+   - Add support for :ref:`multi data <multi_data_test_cases>` and :ref:`multi-multi data
+     <multi_multi_data_test_cases>` test cases
+   - Add :cpp:func:`INFO` function to output more information on failed test assertions, see :ref:`here <example14>`
+   - Add support for test code running in background functions, see also :ref:`here <tests_with_background_activity>`.
+   - Add support for checking for free/local wave leaks (IP9 Build 39622 or higher)
+   - Add ``UTF_SKIP`` tag
+   - Mark test cases with zero sized data generator waves as skipped
+   - Call data generator only once for MD/MMD test cases
+   - Enforce that we have at least one assertion in each test case
+   - Fix hitting the sprintf limit (IP 8 or lower)
+   - Abort flag does no longer cover runtime errors
+   - Execute the test cases from top to bottom in each test suite
+   - Test the basic parts of our testing framework using the very tiny test environment ``VTTE``
+   - Add generic function to report wrapper results
+   - Reorganize code and split it into more files
+   - TestCaseEnd: Silently ignore non-killable working folder
+   - Output state messages to stdout (IP 8 or higher)
+   - Enhance output on failed test assertion in test cases
+   - Tighten the check for test case signatures
+   - AfterFileOpenHook: Make it more robust
+   - Execute the builtin hooks also for failing user test hooks
+   - Always clear runtime errors before ``AbortOnRTE``
+   - .gitlab.ci.yml: Add CI
+   - Moved ``NULL_WAVE`` flag to major flags for wave comparison in documentation
+   - Output failure summary at the end
+   - Allow unsaved experiments in some cases
+   - Allow fixed log file naming
+   - New option ``debugMode`` for more fine-grained debug control
+
+Test assertions
+~~~~~~~~~~~~~~~
+
+   - :cpp:func:`*_CLOSE_VAR <CHECK_CLOSE_VAR>`: Prevent singularity
+   - :cpp:func:`*_SMALL_VAR <CHECK_SMALL_VAR>`: Change tolerance so that ``0`` is considered small with zero tolerance
+   - Add assertions <, <=, >, >= for double arguments, see :cpp:func:`*_LT_VAR <CHECK_LT_VAR>`,
+     :cpp:func:`*_LE_VAR <CHECK_LE_VAR>`, :cpp:func:`*_GT_VAR <CHECK_GT_VAR>`, and :cpp:func:`*_GE_VAR <CHECK_GE_VAR>`
+   - :cpp:func:`*_EQUAL_STR <CHECK_EQUAL_STR>`: Make case sensitive comparison the default
+   - Added assertions for Int64 and UInt64 variables, see :cpp:func:`*_EQUAL_INT64 <CHECK_EQUAL_INT64>` and
+     :cpp:func:`*_EQUAL_UINT64 <CHECK_EQUAL_UINT64>`
+
+:cpp:func:`*_WAVE <CHECK_WAVE>`
+"""""""""""""""""""""""""""""""
+
+   - Require valid types as arguments
+   - Make the output more human readable
+
+:cpp:func:`*_EQUAL_WAVES <CHECK_EQUAL_WAVES>` and :cpp:func:`*_EQUAL_TEXTWAVES <CHECK_EQUAL_TEXTWAVES>`
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+   - Allow to check matching sizes of waves of different types
+   - Allow identical wave references
+   - Compare zero sized waves properly with set mode
+   - Make error reporting for custom mode patterns better
+   - Output descriptive error messages in ``WAVE_DATA`` mode
+   - Handle invalid mode correctly
+   - Work around EqualWaves dimension labels bug with certain IP versions
+   - Complain for unknown modes
+   - Make modes wave signed thus allowing -1 to be passed in to check all modes
+
+JUNIT output
+~~~~~~~~~~~~
+
+   - Improve accuracy of test case/suite durations
+   - Remove optional TestSuite attribute ``disabled``
+   - Add a ``<failure>`` tag for each failed assertion
+   - Handle expected failure test cases as skipped
+   - Add JUNIT reference and updated JUNIT section in documentation
+   - Drop timezone information as required by the "standard"
+   - Nicify properties output
+
+TAP output
+~~~~~~~~~~
+
+   - Handle ``TODO`` gracefully
+   - Now also holds skipped testcases
+
 1.08 (02/15/2019)
 -----------------
 

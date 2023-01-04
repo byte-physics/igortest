@@ -1,6 +1,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
+#pragma version=1.09
 #pragma ModuleName=UTF_TestTracing
 
 // Licensed under 3-Clause BSD, see License.txt
@@ -61,7 +62,7 @@ static Function TracingTest2()
 	Make/FREE/D/N=(max_proc_lines) logSimple, logRef
 	logSimple = logData[p][0][0] != 0
 
-	Make/FREE/D logRefGen = {11, 13, 15, 16, 18, 51, 20, 21, 23, 25, 27, 28, 30, 32, 33, 34, 36 ,37, 38, 39, 41, 44, 45, 46, 48, 49, 50}
+	Make/FREE/D logRefGen = {12, 14, 16, 17, 19, 52, 21, 22, 24, 26, 28, 29, 31, 33, 34, 35, 37 ,38, 39, 40, 42, 45, 46, 47, 49, 50, 51}
 	numRefLines = DimSize(logRefGen, UTF_ROW)
 	for(i = 0; i < numrefLines; i += 1)
 		logRef[logRefGen[i]] = 1

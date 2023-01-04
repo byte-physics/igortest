@@ -215,6 +215,8 @@ Abort button.
    terminate only the current test case and continue with the next queued test
    case.
 
+.. _tests_with_background_activity:
+
 Test Cases with Background Activity
 -----------------------------------
 
@@ -259,6 +261,8 @@ Test Cases with background activity are supported from multi data test cases, se
  See also :ref:`example11`.
 
  See also :ref:`example12`.
+
+.. _multi_data_test_cases:
 
 Multi Data Test Cases
 ---------------------
@@ -390,6 +394,8 @@ test execution is aborted.
      PASS()
    End
 
+.. _multi_multi_data_test_cases:
+
 Multi-Multi Data Test Cases
 ---------------------------
 
@@ -478,6 +484,8 @@ The indices are changed for all setup variables. The first variables changes fas
 If Multi-Multi-Data test cases are combined with functions with background activity the reentry function must have the same
 signature.
 
+.. _code_coverage:
+
 Code Coverage Determination
 ---------------------------
 
@@ -533,6 +541,8 @@ procedure file changes to disk before running a test with code coverage logging.
 At the end of a run with code coverage determination Igor Pro outputs the global coverage to stdout in the form ``Coverage: 12.3%``.
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
 ``(?:^Coverage: )(\d+.\d+)(?:%$)``.
+
+.. _coverage_statistics:
 
 Statistics
 ^^^^^^^^^^

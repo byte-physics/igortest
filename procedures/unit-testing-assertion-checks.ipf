@@ -1,6 +1,6 @@
 #pragma rtGlobals=3
 #pragma rtFunctionErrors=1
-#pragma version=1.08
+#pragma version=1.09
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_Checks
 
