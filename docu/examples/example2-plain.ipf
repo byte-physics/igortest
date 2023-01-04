@@ -1,5 +1,6 @@
 #pragma rtGlobals=3
 #pragma TextEncoding="UTF-8"
+#pragma version=1.09
 #pragma ModuleName=Example2
 
 #include "unit-testing"

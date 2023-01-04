@@ -1,5 +1,6 @@
 #pragma rtGlobals=3
 #pragma ModuleName=TAPExample1a
+#pragma version=1.09
 
 #include "unit-testing"
 

@@ -1,6 +1,6 @@
 #pragma rtGlobals=3
 #pragma rtFunctionErrors=1
-#pragma version=1.08
+#pragma version=1.09
 #pragma TextEncoding="UTF-8"
 
 // Licensed under 3-Clause BSD, see License.txt
@@ -8,7 +8,7 @@
 ///@cond HIDDEN_SYMBOL
 
 // Package Version
-Constant PKG_VERSION = 1.08
+Constant PKG_VERSION = 1.09
 
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
