@@ -2,7 +2,7 @@
 
 set -e
 
-newVersion=1.08
+newVersion=1.09
 revision=UnitTestingFramework-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
