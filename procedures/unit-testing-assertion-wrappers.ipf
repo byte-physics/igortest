@@ -534,7 +534,11 @@ End
 /// @param wv         wave reference
 /// @param majorType  major wave type
 /// @param minorType  (optional) minor wave type
-/// @see testWaveFlags
+///
+/// @verbatim embed:rst:leading-slashes
+/// See also :ref:`flags_testwave`.
+/// @endverbatim
+///
 static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	Wave/Z wv
 	variable majorType, minorType
@@ -701,8 +705,13 @@ End
 ///
 /// @param wv1    first wave
 /// @param wv2    second wave
-/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref EqualWaveFlags
+/// @param mode   (optional) features of the waves to compare, defaults to all modes
 /// @param tol    (optional) tolerance for comparison, by default 0.0 which does byte-by-byte comparison (relevant only for mode=WAVE_DATA)
+///
+/// @verbatim embed:rst:leading-slashes
+/// See also :ref:`flags_equalwave`.
+/// @endverbatim
+///
 static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	Wave/Z wv1, wv2
 	variable flags
