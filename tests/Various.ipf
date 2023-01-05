@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_Various
 
-// Licensed under 3-Clause BSD, see License.txt
 
 static Constant MMD_COMBO_COUNT = 32
 

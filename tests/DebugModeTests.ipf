@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_DebugMode
 
-// Licensed under 3-Clause BSD, see License.txt
 
 static Function FAILVerification()
 	FAIL() // Helper TC -> Previous TestCase had wrong restored Debugger Settings

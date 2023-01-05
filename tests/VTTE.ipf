@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_Tests
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// VTTE is short for "Very Tiny Test Environment" and is a testing framework
 /// for our testing framework. It has only one assertion, and aborts if the

@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_JUnit
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// XML properties
 /// New Line is \n

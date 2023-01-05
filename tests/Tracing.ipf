@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_TestTracing
 
-// Licensed under 3-Clause BSD, see License.txt
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 static Function/S TracingTestLoadFile(string fName)

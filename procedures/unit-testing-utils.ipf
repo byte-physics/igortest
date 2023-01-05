@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_Utils
 
-// Licensed under 3-Clause BSD, see License.txt
 
 static Constant UTF_MAXDIFFCOUNT = 10
 

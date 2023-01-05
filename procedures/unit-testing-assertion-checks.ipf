@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_Checks
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// @cond HIDDEN_SYMBOL
 

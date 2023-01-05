@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_Utils_Strings
 
-// Licensed under 3-Clause BSD, see License.txt
 
 // This pattern is used to find all placeholder in the string. This pattern consists of multiple parts:
 // #1: ^#2#(?:3#5)?$
