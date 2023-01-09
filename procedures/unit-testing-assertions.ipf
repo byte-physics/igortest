@@ -921,7 +921,12 @@ End
 ///
 /// @param wv1    first text wave, can be invalid for Igor Pro 7 or later
 /// @param wv2    second text wave, can be invalid for Igor Pro 7 or later
-/// @param mode   (optional) features of the waves to compare, defaults to all modes, defined at @ref EqualWaveFlags
+/// @param mode   (optional) features of the waves to compare, defaults to all modes
+///
+/// @verbatim embed:rst:leading-slashes
+/// See also :ref:`flags_testwave`.
+/// @endverbatim
+///
 
 /// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
