@@ -30,42 +30,7 @@ static Constant TEST_CASE_BEGIN_CONST  = 0x10
 static Constant TEST_CASE_END_CONST    = 0x20
 /// @}
 
-/// @name Constants for WaveTypes
-/// @anchor WaveTypes
-/// @{
-Constant IUTF_WAVETYPE0_CMPL = 0x01
-Constant IUTF_WAVETYPE0_FP32 = 0x02
-Constant IUTF_WAVETYPE0_FP64 = 0x04
-Constant IUTF_WAVETYPE0_INT8 = 0x08
-Constant IUTF_WAVETYPE0_INT16 = 0x10
-Constant IUTF_WAVETYPE0_INT32 = 0x20
-Constant IUTF_WAVETYPE0_INT64 = 0x80
-Constant IUTF_WAVETYPE0_USGN = 0x40
-
-Constant IUTF_WAVETYPE1_NULL = 0x00
-Constant IUTF_WAVETYPE1_NUM = 0x01
-Constant IUTF_WAVETYPE1_TEXT = 0x02
-Constant IUTF_WAVETYPE1_DFR = 0x03
-Constant IUTF_WAVETYPE1_WREF = 0x04
-
-Constant IUTF_WAVETYPE2_NULL = 0x00
-Constant IUTF_WAVETYPE2_GLOBAL = 0x01
-Constant IUTF_WAVETYPE2_FREE = 0x02
-/// @}
-
-/// @name Constants for Debugger mode
-/// @anchor DebugConstants
-/// @{
-Constant IUTF_DEBUG_DISABLE = 0x00
-Constant IUTF_DEBUG_ENABLE = 0x01
-Constant IUTF_DEBUG_ON_ERROR = 0x02
-Constant IUTF_DEBUG_NVAR_SVAR_WAVE = 0x04
-Constant IUTF_DEBUG_FAILED_ASSERTION = 0x08
-/// @}
-
 static StrConstant FIXED_LOG_FILENAME = "IUTF_Test"
-
-StrConstant IUTF_TRACE_REENTRY_KEYWORD = " *** REENTRY ***"
 
 static Constant TEST_CASE_TYPE = 0x01
 static Constant USER_HOOK_TYPE = 0x02
@@ -89,18 +54,6 @@ static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
 static StrConstant TC_SUFFIX_SEP = ":"
-#if IgorVersion() >= 7.00
-// right arrow
-StrConstant TC_ASSERTION_MLINE_INDICATOR = "\342\236\224"
-// right filled triangle
-StrConstant TC_ASSERTION_LIST_INDICATOR = "\342\226\266"
-// info icon
-StrConstant TC_ASSERTION_INFO_INDICATOR = "\xE2\x93\x98"
-#else
-StrConstant TC_ASSERTION_MLINE_INDICATOR = "->"
-StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
-StrConstant TC_ASSERTION_INFO_INDICATOR = "(i)"
-#endif
 
 static Constant WAVE_TRACKING_INACTIVE_MODE = 0
 static Constant WAVE_TRACKING_COUNT_MODE = 1
