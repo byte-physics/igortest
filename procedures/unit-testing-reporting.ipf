@@ -366,11 +366,7 @@ static Function PrintFailInfo(message, expectedFailure, incrErrorCounter)
 	str = getInfo(0, partialStack)
 	message = prefix + message + " " + str
 
-	if(expectedFailure)
-		incrErrorCounter = 0
-	endif
-
-	TestCaseFail(message, summaryMsg = str, isFailure = 1, logError = !expectedFailure, incrErrorCounter = incrErrorCounter)
+	TestCaseFail(message, summaryMsg = str, isFailure = 1, incrErrorCounter = incrErrorCounter)
 
 	if(!expectedFailure)
 		WAVE/T wvAssertion = GetTestAssertionWave()

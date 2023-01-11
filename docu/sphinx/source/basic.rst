@@ -85,40 +85,23 @@ parameter :code:`testCase` of :cpp:func:`RunTest`. When executing multiple test
 suites and a test case is found in more than one test suite, it is executed in
 every matching test suite.
 
-Test cases can be marked as expected failures, e.g. if the test case is written
-before the functions are fully implemented. The assertions are executed, but
-neither does the error counter increase nor is the test run aborted. To mark
-a test case as expected failure write the keyword in the comment above
-(all lines above :code:`Function` up to the previous :code:`Function` are
-considered as tags, every tag in separate line):
+Test cases can be marked to expect failures. The assertions are executed as
+normal and the error counter is reset to zero if one or more assertions failed
+during the execution of this test case. Only if the test case finished without
+any failed assertion the test case itself is considered as failed. To mark a
+test case as expected failure write the keyword in the comment above (all lines
+above :code:`Function` up to the previous :code:`Function` are considered as
+tags, every tag in separate line):
 
 .. code-block:: igor
 
    // UTF_EXPECTED_FAILURE
    Function TestCase_NotWorkingYet()
 
-Only assertions in a test case are marked as expected failures. If the test case
-ends due to an :code:`Abort` or :code:`AbortOnRTE` then the error counter is increased
-and the test case fails regularly. If such abort condition should be covered as
-expected failure use the following code construct:
-
-.. code-block:: igor
-
-   // UTF_EXPECTED_FAILURE
-   Function TestCase_NotWorkingYet()
-
-       PASS()
-       try
-           CodeThatAborts()
-       catch
-           FAIL()
-       endtry
-  End
-
-If the test case actually passed the :code:`PASS()` prevents an fail due to zero
-assertions in the test case. In case the test case should be evaluated as fail
-if it passes then remove the :code:`PASS()`. The fail due to zero assertions encountered
-is a regular fail and not evaluated as expected failure.
+All assertions in a test case are marked as expected failures. If the test case
+ends due to an :code:`Abort`, :code:`AbortOnRTE` or pending RTE this is also
+considered as expected failure and neighter the error counter is increased or
+test case failed.
 
 
 Example:

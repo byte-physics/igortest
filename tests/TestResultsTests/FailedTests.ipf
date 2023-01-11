@@ -103,3 +103,38 @@ static Function MultipleAssertions_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+// UTF_EXPECTED_FAILURE
+static Function EmptyExpected()
+	PASS()
+End
+
+static Function EmptyExpected_Verify()
+	string expect, result, stdErr
+	variable childStart, childEnd
+
+	WAVE/T/Z tc = Utils#LastTestCase()
+	INFO("Bug: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_FAIL)
+
+	childStart = str2num(tc[0][%CHILD_START])
+	childEnd = str2num(tc[0][%CHILD_END])
+	INFO("Check if exactly one assertion was thrown")
+	CHECK_EQUAL_VAR(1, childEnd - childStart)
+
+	stdErr = tc[0][%STDERR]
+	INFO("Check if stderr is not empty")
+	CHECK_NON_EMPTY_STR(stdErr)
+
+	INFO("Check if one assertion errors is set")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the assertion counter is correct")
+	expect = "1" // the failed check after the test case doesn't count as assertion
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End
