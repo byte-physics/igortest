@@ -2,7 +2,6 @@
 
 set -e
 
-for i in $(ls *.xml)
-do
-  xmllint --noout --schema ../docu/sphinx/source/junit.xsd $i
+for file in **/*.xml; do
+  xmllint --noout --schema ../docu/sphinx/source/junit.xsd "$file"
 done

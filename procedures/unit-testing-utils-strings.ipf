@@ -21,6 +21,25 @@
 //     At this position is no % sign allowed and do not consume this char. This is used to prevent %% matching.
 static StrConstant USER_PRINT_PATTERN = "^(.*?)(?:(@?(?<!%)%[^a-zA-Z%]*(?:[feEgGdousxXbc]|W\\dP))(.*))?$"
 
+#if (IgorVersion() >= 7.0)
+#else
+/// trimstring function for Igor 6
+Function/S trimstring(str)
+	string str
+
+	variable s, e
+	s = -1
+	do
+		s += 1
+	while(!cmpstr(" ", str[s]) || !cmpstr("\t", str[s]) || !cmpstr("\r", str[s]) || !cmpstr("\n", str[s]))
+	e = strlen(str)
+	do
+		e -= 1
+	while(!cmpstr(" ", str[e]) || !cmpstr("\t", str[e]) || !cmpstr("\r", str[e]) || !cmpstr("\n", str[e]))
+	return (str[s, e])
+End
+#endif
+
 /// @brief Formats the provided string with the arguments using printf. This allows a higher flexibility
 /// as such as it supports are flexible number of arguments and custom extensions. @n
 /// It is required to use all provided arguments in the format string. @n

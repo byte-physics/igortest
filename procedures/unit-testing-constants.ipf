@@ -40,6 +40,24 @@ Constant IUTF_WAVECHUNK_SIZE = 1024
 // This number is 512 * 1024 * 1024 (= 512 MiB)
 Constant IUTF_BIGWAVECHUNK_SIZE = 536870912
 
+/// Text case status flags
+///@{
+// test case was never run
+StrConstant IUTF_STATUS_UNKNOWN = ""
+// test case is running
+StrConstant IUTF_STATUS_RUNNING = "RUNNING"
+// An errored test had an unanticipated problem. Like an RTE or no assertions at all.
+StrConstant IUTF_STATUS_ERROR = "ERROR"
+// A failed assertion
+StrConstant IUTF_STATUS_FAIL = "FAIL"
+// Test is skipped
+StrConstant IUTF_STATUS_SKIP = "SKIP"
+// Test is finished without any problem
+StrConstant IUTF_STATUS_SUCCESS = "SUCCESS"
+///@}
+
+Constant IUTF_MICRO_TO_ONE = 1e-06
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @addtogroup AssertionFlags
