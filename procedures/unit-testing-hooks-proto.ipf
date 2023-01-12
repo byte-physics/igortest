@@ -2,6 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
+#pragma ModuleName = UTF_Hooks_Proto
 
 // Licensed under 3-Clause BSD, see License.txt
 
