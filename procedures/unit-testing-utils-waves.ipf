@@ -20,3 +20,28 @@ static Function RemoveDimLabel(wv, dimension, label)
 		SetDimLabel dimension, index, $"", wv
 	endif
 End
+
+/// @brief Moves the specified dimension label to the new index and removes it from the old
+/// position. If the same dimension label is used on more than one place it will only remove the
+/// first one.
+///
+/// @param wv         The wave where the dimension label should be moved
+/// @param dimension  The dimension to search in
+/// @param label      The label to move
+/// @param newIndex   The new index to move the label to
+///
+/// @return The old index of the dimension label. This return -2 if the dimension label was not
+/// found and -1 if the whole column had the dimension label.
+static Function MoveDimLabel(wv, dimension, label, newIndex)
+	WAVE wv
+	variable dimension, newIndex
+	string label
+
+	variable oldIndex = FindDimLabel(wv, dimension, label)
+	if(oldIndex != -2)
+		SetDimLabel dimension, oldIndex, $"", wv
+	endif
+	SetDimLabel dimension, newIndex, $label, wv
+
+	return oldIndex
+End

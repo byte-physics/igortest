@@ -132,11 +132,16 @@ static Function TestCaseBegin(testCase, skip)
 End
 
 /// @brief End the current test case
-static Function TestCaseEnd()
+///
+/// @param endTime  The end time when this test case finished. Use UTF_Reporting#GetTimeString() to
+///                 get the value for this parameter.
+static Function TestCaseEnd(endTime)
+	string endTime
+
 	string name, msg
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	wvTestCase[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+	wvTestCase[%CURRENT][%ENDTIME] = endTime
 
 	if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_UNKNOWN))
 		name = wvTestCase[%CURRENT][%NAME]

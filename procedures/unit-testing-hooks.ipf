@@ -6,6 +6,13 @@
 
 ///@cond HIDDEN_SYMBOL
 
+/// @name Hook execution level
+/// @{
+static Constant HOOK_LEVEL_TEST_RUN = 0
+static Constant HOOK_LEVEL_TEST_SUITE = 1
+static Constant HOOK_LEVEL_TEST_CASE = 2
+/// @}
+
 /// Groups all hooks which are executed at test case/suite begin/end
 Structure IUTF_TestHooks
 	string testBegin
@@ -28,19 +35,45 @@ static Function InitHooks(s)
 	s.testCaseEnd = ""
 End
 
-/// @brief Execute the provided user hook and catches all runtime errors.
+/// @brief Execute the provided user hook and catches all runtime errors. If the name of the hook
+/// function doesn't end in "_OVERRIDE" this hook will be considered as prototype and won't be
+/// executed. The return is still 0 as if no error happened.
 ///
 /// @param name      name of the test run/suite/case
 /// @param userHook  the function reference to the user hook
 /// @param procWIn   name of the procedure window
 ///
 /// @returns 0 if user hook succeed without an error
-static Function ExecuteUserHook(name, userHook, procWin)
+static Function ExecuteUserHook(name, userHook, procWin, level)
 	FUNCREF USER_HOOK_PROTO userHook
 	string name, procWin
+	variable level
 
 	variable err
-	string errorMessage
+	string errorMessage, endTime
+	variable result = 0
+	string hookName = StringByKey("Name", FuncRefInfo(userHook))
+
+	if(!StringMatch(hookName, "*_OVERRIDE"))
+		return 0
+	endif
+
+	switch(level)
+		case HOOK_LEVEL_TEST_RUN:
+			UTF_Reporting_Control#TestSuiteBegin("@HOOK_SUITE")
+			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			break;
+		case HOOK_LEVEL_TEST_SUITE:
+			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			break;
+		case HOOK_LEVEL_TEST_CASE:
+			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			break;
+		default:
+			sprintf errorMessage, "Unknown hook level: %d", level
+			UTF_Reporting#ReportErrorAndAbort(errorMessage)
+			return 2
+	endswitch
 
 	try
 		UTF_Basics#ClearRTError()
@@ -48,15 +81,33 @@ static Function ExecuteUserHook(name, userHook, procWin)
 	catch
 		errorMessage = GetRTErrMessage()
 		err = GetRTError(1)
-		name = StringByKey("Name", FuncRefInfo(userHook))
-		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, name, IUTF_USER_HOOK_TYPE, procWin)
+		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin, logTestCase = 1)
 
 		UTF_Basics#setAbortFlag()
 
-		return 1
+		result = 1
 	endtry
 
-	return 0
+	endTime = UTF_Reporting#GetTimeString()
+
+	switch(level)
+		case HOOK_LEVEL_TEST_RUN:
+			UTF_Reporting_Control#TestCaseEnd(endTime)
+			UTF_Reporting_Control#TestSuiteEnd()
+			break
+		case HOOK_LEVEL_TEST_SUITE:
+			UTF_Reporting_Control#TestCaseEnd(endTime)
+			break
+		case HOOK_LEVEL_TEST_CASE:
+			UTF_Reporting_Control#TestCaseEnd(endTime)
+			break
+		default:
+			sprintf errorMessage, "Unknown hook level: %d", level
+			UTF_Reporting#ReportErrorAndAbort(errorMessage)
+			return 2
+	endswitch
+
+	return result
 End
 
 /// @brief Execute the builtin and user hooks
@@ -81,8 +132,8 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 	variable tcIndex
 	variable param
 
-	variable err, skip
-	string errorMessage, hookName
+	variable err, skip, tcOutIndex
+	string errorMessage, hookName, endTime
 
 	WAVE/T testRunData = UTF_Basics#GetTestRunData()
 	skip = str2num(testRunData[tcIndex][%SKIP])
@@ -94,7 +145,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
 
 			TestBegin(name, param)
-			ExecuteUserHook(name, userHook, procWin)
+			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_RUN)
 			break
 		case IUTF_TEST_SUITE_BEGIN_CONST:
 			AbortOnValue !ParamIsDefault(param), 1
@@ -102,31 +153,39 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
 
 			TestSuiteBegin(name)
-			ExecuteUserHook(name, userHook, procWin)
+			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_SUITE)
 			break
 		case IUTF_TEST_CASE_BEGIN_CONST:
 			AbortOnValue !ParamIsDefault(param), 1
 
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
 
-			TestCaseBegin(name, skip)
 			if(!skip)
-				ExecuteUserHook(name, userHook, procWin)
-				BeforeTestCase(name)
+				TestCaseBegin(name)
+				ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
 			endif
+			BeforeTestCase(name, skip)
 			break
 		case IUTF_TEST_CASE_END_CONST:
 			AbortOnValue ParamIsDefault(param), 1
 
+			// get the end time of the test case as fast as possible
+			endTime = UTF_Reporting#GetTimeString()
+			// cache the current index in the results wave as a hook can change it
+			WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+			tcOutIndex = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
+
 			AfterTestCase(name, skip)
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
-			if(!ExecuteUserHook(name, userHook, procWin))
+			if(!ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE))
 				AfterTestCaseUserHook(name, param)
 			endif
 
 			if(!skip)
-				TestCaseEnd(name)
+				// finalize the normal test case at tcOutIndex and reset the test case index to the
+				// one after the hook
+				TestCaseEnd(name, tcOutIndex, endTime)
 			endif
 			break
 		case IUTF_TEST_SUITE_END_CONST:
@@ -134,7 +193,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
 
-			ExecuteUserHook(name, userHook, procWin)
+			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_SUITE)
 			TestSuiteEnd(name)
 			break
 		case IUTF_TEST_END_CONST:
@@ -142,7 +201,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
 
-			ExecuteUserHook(name, userHook, procWin)
+			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_RUN)
 			TestEnd(name, param)
 			if(enableJU)
 				UTF_JUnit#JU_WriteOutput()
@@ -260,17 +319,10 @@ End
 
 /// Internal Setup for Test Case
 /// @param testCase name of the test case
-static Function TestCaseBegin(testCase, skip)
+static Function TestCaseBegin(testCase)
 	string testCase
-	variable skip
 
 	string msg
-
-	UTF_Reporting_Control#TestCaseBegin(testCase, skip)
-
-	if(skip)
-		return NaN
-	endif
 
 	// create a new unique folder as working folder
 	DFREF dfr = GetPackageFolder()
@@ -285,26 +337,31 @@ static Function TestCaseBegin(testCase, skip)
 End
 
 /// @brief Called after the test case begin user hook and before the test case function
-static Function BeforeTestCase(name)
+static Function BeforeTestCase(name, skip)
 	string name
+	variable skip
 
 #if IgorVersion() >= 9.0
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr/Z waveTrackingMode
+	if(!skip)
+		DFREF dfr = GetPackageFolder()
+		NVAR/SDFR=dfr/Z waveTrackingMode
 
-	if(NVAR_Exists(waveTrackingMode))
-		WaveTracking/LOCL stop
-		WaveTracking/FREE stop
-		if(!UTF_Utils#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
-			if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
-				WaveTracking/FREE counter
-			endif
-			if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
-				WaveTracking/LOCL counter
+		if(NVAR_Exists(waveTrackingMode))
+			WaveTracking/LOCL stop
+			WaveTracking/FREE stop
+			if(!UTF_Utils#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
+				if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
+					WaveTracking/FREE counter
+				endif
+				if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
+					WaveTracking/LOCL counter
+				endif
 			endif
 		endif
 	endif
 #endif
+
+	UTF_Reporting_Control#TestCaseBegin(name, skip)
 
 End
 
@@ -371,12 +428,19 @@ End
 
 /// Internal Cleanup for Test Case
 /// @param testCase name of the test case
-static Function TestCaseEnd(testCase)
-	string testCase
+static Function TestCaseEnd(testCase, tcIndex, endTime)
+	string testCase, endTime
+	variable tcIndex
 
 	string msg
+	variable oldIndex
 
-	UTF_Reporting_Control#TestCaseEnd()
+	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	oldIndex = UTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", tcIndex)
+
+	UTF_Reporting_Control#TestCaseEnd(endTime)
+
+	UTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", oldIndex)
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
