@@ -54,6 +54,10 @@ End
 ///   - EXPERIMENT: name of the experiment file
 ///   - CHILD_START: the start index (inclusive) for all test suites that belong to this test run
 ///   - CHILD_END: the end index (exclusive) for all test suites that belong to this test run
+///
+/// Warning: You have to initialize the TestRunWave with UTF_Reporting_Control#SetupTestRun()
+/// before its first usage. This should usually be done at the start of UTF_Basics#RunTest() after
+/// clearing the waves.
 static Function/WAVE GetTestRunWave()
 	DFREF dfr = GetPackageFolder()
 	string name = "TestRunResult"
@@ -64,34 +68,6 @@ static Function/WAVE GetTestRunWave()
 
 	WAVE/T wv = UTF_Utils_TextGrid#Create("HOSTNAME;USERNAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;SYSTEMINFO;IGORINFO;VERSION;EXPERIMENT;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
-
-	wv[0][%HOSTNAME] = "localhost"
-#if (IgorVersion() >= 7.00)
-	strswitch(IgorInfo(2))
-		case "Windows":
-			wv[0][%HOSTNAME] = GetEnvironmentVariable("COMPUTERNAME")
-			break
-		case "Macintosh":
-			wv[0][%HOSTNAME] = GetEnvironmentVariable("HOSTNAME")
-			break
-		default:
-			break
-	endswitch
-	wv[0][%USERNAME] = IgorInfo(7)
-#endif
-	wv[0][%NUM_ERROR] = "0"
-	wv[0][%NUM_SKIPPED] = "0"
-	wv[0][%NUM_TESTS] = "0"
-	wv[0][%NUM_ASSERT] = "0"
-	wv[0][%NUM_ASSERT_ERROR] = "0"
-	wv[0][%SYSTEMINFO] = IgorInfo(3)
-	wv[0][%IGORINFO] = IgorInfo(0)
-	wv[0][%VERSION] = UTF_Basics#GetVersion()
-	wv[0][%EXPERIMENT] = IgorInfo(1)
-	wv[0][%CHILD_START] = "0"
-	wv[0][%CHILD_END] = "0"
-
-	SetDimLabel UTF_ROW, 0, CURRENT, wv
 
 	return wv
 End

@@ -15,6 +15,7 @@
 #include "unit-testing-junit"
 #include "unit-testing-tap"
 #include "unit-testing-reporting"
+#include "unit-testing-reporting-control"
 #include "unit-testing-utils"
 #include "unit-testing-utils-strings"
 #include "unit-testing-utils-textgrid"

@@ -1027,10 +1027,8 @@ static Function TestBegin(name, debugMode)
 	variable debugMode
 
 	string msg
-	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%STARTTIME] = UTF_Reporting#GetTimeString()
 
+	UTF_Reporting_Control#TestBegin()
 	InitAbortFlag()
 
 	InitIgorDebugVariables()
@@ -1043,6 +1041,7 @@ static Function TestBegin(name, debugMode)
 		igor_debug_state = EnableIgorDebugger(debugMode)
 	endif
 
+	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
 	UTF_Utils_Vector#SetLength(wvFailed, 0)
 
 	ClearBaseFilename()
@@ -1080,8 +1079,7 @@ static Function TestEnd(name, debugMode)
 	sprintf msg, "End of test \"%s\"", name
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+	UTF_Reporting_Control#TestEnd()
 
 	NVAR/SDFR=dfr igor_debug_state
 	RestoreIgorDebugger(igor_debug_state)
@@ -1093,24 +1091,8 @@ static Function TestSuiteBegin(testSuite)
 	string testSuite
 
 	string msg
-	variable id
 
-	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
-	id = UTF_Utils_Vector#AddRow(wvSuite)
-
-	wvSuite[id][%PROCEDURENAME] = testSuite
-	wvSuite[id][%STARTTIME] = UTF_Reporting#GetTimeString()
-	wvSuite[id][%NUM_ERROR] = "0"
-	wvSuite[id][%NUM_SKIPPED] = "0"
-	wvSuite[id][%NUM_TESTS] = "0"
-	wvSuite[id][%NUM_ASSERT] = "0"
-	wvSuite[id][%NUM_ASSERT_ERROR] = "0"
-
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase, init = 1)
-
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	UTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
+	UTF_Reporting_Control#TestSuiteBegin(testSuite)
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -1133,13 +1115,7 @@ static Function TestSuiteEnd(testSuite)
 
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	wvTestSuite[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
-
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]))
-	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]))
-	wvTestRun[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ERROR]))
-	wvTestRun[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_SKIPPED]) + str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]))
+	UTF_Reporting_Control#TestSuiteEnd()
 
 	sprintf msg, "Leaving test suite \"%s\"", testSuite
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
@@ -1152,34 +1128,11 @@ static Function TestCaseBegin(testCase, skip)
 	variable skip
 
 	string msg
-	variable testId
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	testId = UTF_Utils_Vector#AddRow(wvTestCase)
-
-	wvTestCase[testId][%NAME] = testCase
-	wvTestCase[testId][%STARTTIME] = UTF_Reporting#GetTimeString()
-	wvTestCase[testId][%NUM_ASSERT] = "0"
-	wvTestCase[testId][%NUM_ASSERT_ERROR] = "0"
-
-	WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
-	UTF_Reporting#UpdateChildRange(wvTestCase, wvAssertion, init = 1)
-
-	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
-	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase)
-	wvSuite[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvSuite[%CURRENT][%NUM_TESTS]) + 1)
-
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_TESTS]) + 1)
+	UTF_Reporting_Control#TestCaseBegin(testCase, skip)
 
 	if(skip)
-		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SKIP
-		wvTestCase[%CURRENT][%ENDTIME] = "0"
-		wvTestCase[%CURRENT][%STARTTIME] = "0"
 		return NaN
-	else
-		Notebook HistoryCarbonCopy, getData = 1
-		wvTestCase[%CURRENT][%STDOUT] = S_Value
 	endif
 
 	// create a new unique folder as working folder
@@ -1201,20 +1154,10 @@ static Function TestCaseEnd(testCase)
 
 	string msg
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	wvTestCase[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+	UTF_Reporting_Control#TestCaseEnd()
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
-
-	Notebook HistoryCarbonCopy, getData = 1
-	wvTestCase[%CURRENT][%STDOUT] = S_Value[strlen(wvTestCase[%CURRENT][%STDOUT]), Inf]
-
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-	wvTestSuite[%CURRENT][%STDOUT] += wvTestCase[%CURRENT][%STDOUT]
-	wvTestSuite[%CURRENT][%STDERR] += wvTestCase[%CURRENT][%STDERR]
-	wvTestSuite[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))
-	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]))
 End
 
 /// Checks functions signature of each multi data test case candidate
@@ -1918,8 +1861,6 @@ static Function BeforeTestCase(name)
 	endif
 #endif
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
 End
 
 /// @brief Called after the test case and after the test case end user hook
@@ -1980,30 +1921,6 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 		endif
 	endif
 #endif
-
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_UNKNOWN))
-		sprintf msg, "Bug: Test case \"%s\" has an unknown state after it was running.", name
-		UTF_Reporting#TestCaseFail(msg)
-	endif
-	strswitch(wvTestCase[%CURRENT][%STATUS])
-		case IUTF_STATUS_RUNNING:
-			wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SUCCESS
-			break
-		case IUTF_STATUS_ERROR:
-		case IUTF_STATUS_FAIL:
-			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-			wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) + 1)
-			break
-		case IUTF_STATUS_SKIP:
-			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-			wvTestSuite[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]) + 1)
-			break
-		default:
-			sprintf msg, "test status \"%s\" is not supported for test case \"%s\".", wvTestCase[%CURRENT][%STATUS], name
-			UTF_Reporting#ReportError(msg)
-			break
-	endswitch
 
 End
 
@@ -3074,6 +2991,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		UTF_Reporting#ClearTestResultWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
+		UTF_Reporting_Control#SetupTestRun()
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 
