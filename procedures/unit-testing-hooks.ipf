@@ -28,6 +28,37 @@ static Function InitHooks(s)
 	s.testCaseEnd = ""
 End
 
+/// @brief Execute the provided user hook and catches all runtime errors.
+///
+/// @param name      name of the test run/suite/case
+/// @param userHook  the function reference to the user hook
+/// @param procWIn   name of the procedure window
+///
+/// @returns 0 if user hook succeed without an error
+static Function ExecuteUserHook(name, userHook, procWin)
+	FUNCREF USER_HOOK_PROTO userHook
+	string name, procWin
+
+	variable err
+	string errorMessage
+
+	try
+		UTF_Basics#ClearRTError()
+		userHook(name); AbortOnRTE
+	catch
+		errorMessage = GetRTErrMessage()
+		err = GetRTError(1)
+		name = StringByKey("Name", FuncRefInfo(userHook))
+		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, name, IUTF_USER_HOOK_TYPE, procWin)
+
+		UTF_Basics#setAbortFlag()
+
+		return 1
+	endtry
+
+	return 0
+End
+
 /// @brief Execute the builtin and user hooks
 ///
 /// @param hookType One of @ref HookTypes
@@ -56,82 +87,62 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 	WAVE/T testRunData = UTF_Basics#GetTestRunData()
 	skip = str2num(testRunData[tcIndex][%SKIP])
 
-	try
-		UTF_Basics#ClearRTError()
-		switch(hookType)
-			case IUTF_TEST_BEGIN_CONST:
-				AbortOnValue ParamIsDefault(param), 1
-
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
-
-				TestBegin(name, param)
-				userHook(name); AbortOnRTE
-				break
-			case IUTF_TEST_SUITE_BEGIN_CONST:
-				AbortOnValue !ParamIsDefault(param), 1
-
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
-
-				TestSuiteBegin(name)
-				userHook(name); AbortOnRTE
-				break
-			case IUTF_TEST_CASE_BEGIN_CONST:
-				AbortOnValue !ParamIsDefault(param), 1
-
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
-
-				TestCaseBegin(name, skip)
-				if(!skip)
-					userHook(name); AbortOnRTE
-					BeforeTestCase(name)
-				endif
-				break
-			case IUTF_TEST_CASE_END_CONST:
-				AbortOnValue ParamIsDefault(param), 1
-
-				AfterTestCase(name, skip)
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
-
-				userHook(name); AbortOnRTE
-				AfterTestCaseUserHook(name, param)
-				break
-			case IUTF_TEST_SUITE_END_CONST:
-				AbortOnValue !ParamIsDefault(param), 1
-
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
-
-				userHook(name); AbortOnRTE
-				break
-			case IUTF_TEST_END_CONST:
-				AbortOnValue ParamIsDefault(param), 1
-
-				FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
-
-				userHook(name); AbortOnRTE
-				break
-			default:
-				UTF_Reporting#ReportErrorAndAbort("Unknown hookType")
-				break
-		endswitch
-	catch
-		errorMessage = GetRTErrMessage()
-		err = GetRTError(1)
-		name = StringByKey("Name", FuncRefInfo(userHook))
-		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, name, IUTF_USER_HOOK_TYPE, procWin)
-
-		UTF_Basics#setAbortFlag()
-	endtry
-
 	switch(hookType)
+		case IUTF_TEST_BEGIN_CONST:
+			AbortOnValue ParamIsDefault(param), 1
+
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testBegin
+
+			TestBegin(name, param)
+			ExecuteUserHook(name, userHook, procWin)
+			break
+		case IUTF_TEST_SUITE_BEGIN_CONST:
+			AbortOnValue !ParamIsDefault(param), 1
+
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteBegin
+
+			TestSuiteBegin(name)
+			ExecuteUserHook(name, userHook, procWin)
+			break
+		case IUTF_TEST_CASE_BEGIN_CONST:
+			AbortOnValue !ParamIsDefault(param), 1
+
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseBegin
+
+			TestCaseBegin(name, skip)
+			if(!skip)
+				ExecuteUserHook(name, userHook, procWin)
+				BeforeTestCase(name)
+			endif
+			break
 		case IUTF_TEST_CASE_END_CONST:
+			AbortOnValue ParamIsDefault(param), 1
+
+			AfterTestCase(name, skip)
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
+
+			if(!ExecuteUserHook(name, userHook, procWin))
+				AfterTestCaseUserHook(name, param)
+			endif
+
 			if(!skip)
 				TestCaseEnd(name)
 			endif
 			break
 		case IUTF_TEST_SUITE_END_CONST:
+			AbortOnValue !ParamIsDefault(param), 1
+
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testSuiteEnd
+
+			ExecuteUserHook(name, userHook, procWin)
 			TestSuiteEnd(name)
 			break
 		case IUTF_TEST_END_CONST:
+			AbortOnValue ParamIsDefault(param), 1
+
+			FUNCREF USER_HOOK_PROTO userHook = $hooks.testEnd
+
+			ExecuteUserHook(name, userHook, procWin)
 			TestEnd(name, param)
 			if(enableJU)
 				UTF_JUnit#JU_WriteOutput()
@@ -141,7 +152,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			endif
 			break
 		default:
-			// do nothing
+			UTF_Reporting#ReportErrorAndAbort("Unknown hookType")
 			break
 	endswitch
 End
