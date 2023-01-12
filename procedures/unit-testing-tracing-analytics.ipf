@@ -6,20 +6,6 @@
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
-/// @name UTF Analytic output modes
-/// @anchor AnalyticModes
-/// @{
-Constant UTF_ANALYTICS_FUNCTIONS = 0x00
-Constant UTF_ANALYTICS_LINES = 0x01
-/// @}
-
-/// @name UTF Analytics sorting modes
-/// @anchor AnalyticSorting
-/// @{
-Constant UTF_ANALYTICS_CALLS = 0x00
-Constant UTF_ANALYTICS_SUM = 0x01
-/// @}
-
 static Structure CollectionResult
 	WAVE/T functions
 	WAVE lines
