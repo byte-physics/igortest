@@ -106,6 +106,24 @@ StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
 StrConstant TC_ASSERTION_INFO_INDICATOR = "(i)"
 #endif
 
+/// @name Constants for UTF_Hooks#ExecuteHooks
+/// @anchor HookTypes
+/// @{
+Constant IUTF_TEST_BEGIN_CONST       = 0x01
+Constant IUTF_TEST_END_CONST         = 0x02
+Constant IUTF_TEST_SUITE_BEGIN_CONST = 0x04
+Constant IUTF_TEST_SUITE_END_CONST   = 0x08
+Constant IUTF_TEST_CASE_BEGIN_CONST  = 0x10
+Constant IUTF_TEST_CASE_END_CONST    = 0x20
+/// @}
+
+Constant IUTF_TEST_CASE_TYPE = 0x01
+Constant IUTF_USER_HOOK_TYPE = 0x02
+
+Constant IUTF_WVTRACK_INACTIVE_MODE = 0
+Constant IUTF_WVTRACK_COUNT_MODE = 1
+Constant IUTF_WVTRACK_TRACKER_MODE = 2
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @addtogroup AssertionFlags
