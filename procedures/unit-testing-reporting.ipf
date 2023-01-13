@@ -183,17 +183,14 @@ End
 /// @brief Add a failed assertion to the current test case.
 /// @param message          The message to add to this assertion.
 /// @param type             The type of failed assertion
-/// @param updateStatus     [optional, default enabled] If set different to zero it will update the
-///                         resulting status of the current testcase to the specified type.
 /// @param incrErrorCounter [optional, default enabled] If set different to zero it  will increment
 ///                         the current assertion error counter of the current test case.
-static Function AddError(message, type, [updateStatus, incrErrorCounter])
+static Function AddError(message, type, [incrErrorCounter])
 	string message, type
-	variable updateStatus, incrErrorCounter
+	variable incrErrorCounter
 
 	variable length, startIndex
 
-	updateStatus = ParamIsDefault(updateStatus) ? 1 : !!updateStatus
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	WAVE/T wvAssertion = GetTestAssertionWave()
@@ -203,9 +200,7 @@ static Function AddError(message, type, [updateStatus, incrErrorCounter])
 
 	WAVE/T wvTestCase = GetTestCaseWave()
 	UpdateChildRange(wvTestCase, wvAssertion)
-	if(updateStatus)
-		wvTestCase[%CURRENT][%STATUS] = type
-	endif
+	wvTestCase[%CURRENT][%STATUS] = type
 	if(incrErrorCounter)
 		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
@@ -314,26 +309,20 @@ End
 ///                 FAILURE instead an ERROR. This changes the following:
 ///                 - the test case status is set to IUTF_STATUS_FAIL
 ///                 - updateStatus is set to 0 in AddError
-/// @param logError (optional, default enabled) Enabled if set to non zero it will add this message
-///                 to the test results.
 /// @param incrErrorCounter (optional, default enabled) Enabled if set to a value different to 0.
-///                 Increases the assertion error counter for the current test case. This flag is
-///                 ignored if logError is disabled.
-static Function TestCaseFail(message, [summaryMsg, isFailure, logError, incrErrorCounter])
+///                 Increases the assertion error counter for the current test case.
+static Function TestCaseFail(message, [summaryMsg, isFailure, incrErrorCounter])
 	string message
 	string summaryMsg
-	variable isFailure, logError, incrErrorCounter
+	variable isFailure, incrErrorCounter
 
 	variable i, length
 
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
 	isFailure = ParamIsDefault(isFailure) ? 0 : !!isFailure
-	logError = ParamIsDefault(logError) ? 1 : !!logError
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
-	if(logError)
-		AddError(message, SelectString(isFailure, IUTF_STATUS_ERROR, IUTF_STATUS_FAIL), updateStatus = logError, incrErrorCounter = incrErrorCounter)
-	endif
+	AddError(message, SelectString(isFailure, IUTF_STATUS_ERROR, IUTF_STATUS_FAIL), incrErrorCounter = incrErrorCounter)
 
 	// We are increasing the local error counter so there is no need to increase the global error
 	// counter.
@@ -344,9 +333,7 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, logError, incrErro
 		ReportError("  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i], incrGlobalErrorCounter = 0)
 	endfor
 
-	if(logError)
-		AddFailedSummaryInfo(summaryMsg)
-	endif
+	AddFailedSummaryInfo(summaryMsg)
 End
 
 /// Prints an informative message that the test case failed
