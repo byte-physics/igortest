@@ -224,8 +224,8 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	endif
 
 	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
-	tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
-	tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+	tmpStr1 = UTF_Utils#IUTF_PrepareStringForOut(str1)
+	tmpStr2 = UTF_Utils#IUTF_PrepareStringForOut(str2)
 	sprintf str, "\"%s\" != \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
 
 	EvaluateResults(result, str, flags)

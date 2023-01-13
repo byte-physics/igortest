@@ -256,8 +256,8 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 			str2 = GetDimLabel(wv2, i, -1)
 
 			if(cmpstr(str1, str2))
-				tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
-				tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+				tmpStr1 = UTF_Utils#IUTF_PrepareStringForOut(str1)
+				tmpStr2 = UTF_Utils#IUTF_PrepareStringForOut(str2)
 				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, tmpStr1, tmpStr2
 				return 0
 			endif
@@ -278,8 +278,8 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 				endif
 				str1 = label1[j]
 				str2 = label2[j]
-				tmpStr1 = UTF_Utils#PrepareStringForOut(str1)
-				tmpStr2 = UTF_Utils#PrepareStringForOut(str2)
+				tmpStr1 = UTF_Utils#IUTF_PrepareStringForOut(str1)
+				tmpStr2 = UTF_Utils#IUTF_PrepareStringForOut(str2)
 				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, tmpStr1, tmpStr2
 				return 0
 			endfor
@@ -3187,13 +3187,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(err != TC_MATCH_OK)
 			if(err == TC_LIST_EMPTY)
 				errMsg = s.procWinList
-				errMsg = UTF_Utils#PrepareStringForOut(errMsg)
+				errMsg = UTF_Utils#IUTF_PrepareStringForOut(errMsg)
 				sprintf msg, "Error: A test case matching the pattern \"%s\" could not be found in test suite(s) \"%s\".", s.testcase, errMsg
 				UTF_Reporting#ReportError(msg)
 				return NaN
 			endif
 
-			errMsg = UTF_Utils#PrepareStringForOut(errMsg)
+			errMsg = UTF_Utils#IUTF_PrepareStringForOut(errMsg)
 			sprintf msg, "Error %d in CreateTestRunSetup: %s", err, errMsg
 			UTF_Reporting#ReportError(msg)
 			return NaN

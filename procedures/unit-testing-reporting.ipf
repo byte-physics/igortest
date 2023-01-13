@@ -492,7 +492,7 @@ static Function/S getInfo(result, partialStack)
 
 	cleanText = trimstring(text)
 
-	tmpStr = UTF_Utils#PrepareStringForOut(cleanText)
+	tmpStr = UTF_Utils#IUTF_PrepareStringForOut(cleanText)
 	sprintf text, "Assertion \"%s\" %s in %s%s (%s, line %s)", tmpStr, SelectString(result, "failed", "succeeded"), func, moduleName, procedure, line
 	return text
 End
@@ -563,7 +563,7 @@ static Function UTF_PrintStatusMessage(msg)
 #if	(IgorVersion() >= 9.0)
 	fprintf -1, "%s\r\n", msg
 #elif (IgorVersion() >= 8.0)
-	tmpStr = UTF_Utils#PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
+	tmpStr = IUTF_PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
 	fprintf -1, "%s\r\n", tmpStr
 #endif
 End
