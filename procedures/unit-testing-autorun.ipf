@@ -125,19 +125,20 @@ End
 /// in the same folder as this experiment as timestamped file "run_*_*.log"
 Function SaveHistoryLog()
 
-	string historyLog
+	string historyLog, msg
 	historyLog = GetBaseFilename() + ".log"
 
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)
-		print "No log notebook found, please call CreateHistoryLog() before."
+		UTF_Reporting#UTF_PrintStatusMessage("No log notebook found, please call CreateHistoryLog() before.")
 		return NaN
 	endif
 
 	PathInfo home
 	historyLog = getUnusedFileName(S_path + historyLog)
 	if(UTF_Utils#IsEmpty(historyLog))
-		printf "Error: Unable to determine unused file name for History Log output in path %s !", S_path
+		sprintf msg, "Error: Unable to determine unused file name for History Log output in path %s !", S_path
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 

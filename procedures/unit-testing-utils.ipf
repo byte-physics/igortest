@@ -258,7 +258,7 @@ End
 /// We return a fixed string if it is null and limit its size so that it can be used in a sprintf statement using plain
 /// "%s". We also do that for IP9, where this limit does not exist anymore, to have a consistent output across all IP
 /// versions.
-static Function/S PrepareStringForOut(str, [maxLen])
+threadsafe Function/S IUTF_PrepareStringForOut(str, [maxLen])
 	string &str
 	variable maxLen
 

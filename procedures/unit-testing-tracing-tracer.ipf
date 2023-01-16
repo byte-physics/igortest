@@ -40,12 +40,12 @@ threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable
 		err = V_flag
 		TUFXOP_Init/Z/Q/N="IUTF_Error"
 		if(V_flag)
-			printf "No gathered tracing data found for code coverage analysis.\r"
+			UTF_Reporting#UTF_PrintStatusMessage("No gathered tracing data found for code coverage analysis.")
 			return c
 		endif
 		TUFXOP_GetStorage/Z/Q/N="IUTF_Error"/TS wvStorage
 		if(V_flag)
-			printf "No gathered tracing data found for code coverage analysis.\r"
+			UTF_Reporting#UTF_PrintStatusMessage("No gathered tracing data found for code coverage analysis.")
 			return c
 		endif
 		if(!WaveExists(wvStorage[0]))
@@ -60,7 +60,7 @@ threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable
 		TUFXOP_Init/N="IUTF_Testrun"
 		TUFXOP_GetStorage/Z/Q/N="IUTF_Testrun"/TS wref
 		if(V_flag)
-			printf "No gathered tracing data found for code coverage analysis.\r"
+			UTF_Reporting#UTF_PrintStatusMessage("No gathered tracing data found for code coverage analysis.")
 			return c
 		endif
 	endif
