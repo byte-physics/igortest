@@ -778,20 +778,17 @@ End
 ///@cond HIDDEN_SYMBOL
 
 /// Evaluates an RTE and puts a composite error message into message/type
-static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin, [logTestCase])
+static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
 	variable err
 	string errmessage
 	variable abortCode, funcType
 	string funcName
 	string procWin
-	variable logTestCase
 
 	DFREF dfr = GetPackageFolder()
 	string message = ""
 	string str, funcTypeString
 	variable i, length
-
-	logTestCase = ParamIsDefault(logTestCase) ? 0 : !!logTestCase
 
 	if(!err && !abortCode)
 		return NaN
@@ -812,9 +809,7 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 	if(err)
 		sprintf str, "Uncaught runtime error %d:\"%s\" in %s \"%s\" (%s)", err, errmessage, funcTypeString, funcName, procWin
 		UTF_Reporting#AddFailedSummaryInfo(str)
-		if(logTestCase)
-			UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-		endif
+		UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 		message = str
 	endif
 	if(abortCode != -4)
@@ -823,23 +818,17 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 			case -1:
 				sprintf str, "User aborted Test Run manually in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				if(logTestCase)
-					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				endif
+				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 				break
 			case -2:
 				sprintf str, "Stack Overflow in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				if(logTestCase)
-					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				endif
+				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 				break
 			case -3:
 				sprintf str, "Encountered \"Abort\" in %s \"%s\" (%s)", funcTypeString, funcName, procWin
 				UTF_Reporting#AddFailedSummaryInfo(str)
-				if(logTestCase)
-					UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				endif
+				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 				break
 			default:
 				break
@@ -848,14 +837,12 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		if(abortCode > 0)
 			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
 			UTF_Reporting#AddFailedSummaryInfo(str)
-			if(logTestCase)
-				UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-			endif
+			UTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 			message += str
 		endif
 	endif
 
-	UTF_Reporting#ReportError(message, incrGlobalErrorCounter = !logTestCase)
+	UTF_Reporting#ReportError(message, incrGlobalErrorCounter = 0)
 	WAVE/T wvInfoMsg = UTF_Reporting#GetInfoMsg()
 	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
 	for(i = 0; i < length; i += 1)
@@ -2688,7 +2675,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					s.err = GetRTError(1)
 					// clear the abort code from setAbortFlag()
 					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
-					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin, logTestCase = 1)
+					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && UTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here

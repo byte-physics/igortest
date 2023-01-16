@@ -81,7 +81,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 	catch
 		errorMessage = GetRTErrMessage()
 		err = GetRTError(1)
-		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin, logTestCase = 1)
+		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin)
 
 		UTF_Basics#setAbortFlag()
 
