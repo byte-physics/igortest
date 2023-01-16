@@ -97,22 +97,6 @@ static Function/WAVE GetDataGeneratorWaves()
 	return wv
 End
 
-/// @brief Returns a global wave that stores the Function Tag Waves of this testrun
-static Function/WAVE GetFunctionTagWaves()
-
-	string name = "FunctionTagWaves"
-
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
-	if(WaveExists(wv))
-		return wv
-	endif
-
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
-
-	return wv
-End
-
 /// @brief Helper function for try/catch with AbortOnRTE
 ///
 /// Not clearing the RTE before calling `AbortOnRTE` will always trigger the RTE no
@@ -923,7 +907,7 @@ static Function/S GetDataGenFullFunctionName(procWin, fullTestCase)
 	variable err
 	string dgen, msg
 
-	dgen = UTF_Utils#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
+	dgen = UTF_FunctionTags#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
 	if(err)
 		sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
 		UTF_Reporting#ReportErrorAndAbort(msg)
@@ -1047,7 +1031,7 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 
 	varName = varTemplate + num2istr(index)
 	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-	dgen = UTF_Utils#GetFunctionTagValue(fullFuncName, tagName, err)
+	dgen = UTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
 	if(err == UTF_TAG_NOT_FOUND)
 		return NaN
 	endif
@@ -1330,7 +1314,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 					return err
 				endif
 
-				AddFunctionTagWave(fullFuncName)
+				UTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 
 				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip))
 					continue
@@ -1341,9 +1325,9 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
-				markSkip = markSkip | UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
+				markSkip = markSkip | UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
 				testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(UTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
-				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
+				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
 			endfor
 		endfor
@@ -1361,21 +1345,6 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 	endif
 
 	return TC_MATCH_OK
-End
-
-static Function AddFunctionTagWave(fullFuncName)
-	string fullFuncName
-
-	variable size
-
-	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	WAVE/T tags = UTF_Utils#GetFunctionTagWave(fullFuncName)
-	if(DimSize(tags, UTF_ROW))
-		size = DimSize(ftagWaves, UTF_ROW)
-		Redimension/N=(size + 1) ftagWaves
-		ftagWaves[size] = tags
-		SetDimLabel UTF_ROW, size, $fullFuncName, ftagWaves
-	endif
 End
 
 /// Function determines the total number of test cases
@@ -2234,7 +2203,7 @@ static Function ClearTestSetupWaves()
 
 	WAVE/T testRunData = GetTestRunData()
 	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
+	WAVE/WAVE ftagWaves = UTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/WAVE mdState = GetMMDataState()
 
 	KillWaves testRunData, dgenWaves, ftagWaves, mdState

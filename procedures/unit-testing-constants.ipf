@@ -200,7 +200,7 @@ Constant UTF_TAG_ABORTED   = 0x04
 /// @}
 
 /// @name String constants for function tags
-/// Need to be added to UTF_Utils#GetTagConstants!
+/// Need to be added to UTF_FunctionTags#GetTagConstants!
 ///
 /// @anchor FunctionTagStrings
 /// @{
