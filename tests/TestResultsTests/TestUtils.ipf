@@ -41,7 +41,12 @@ End
 /// cases in the same test suite. This function will also check if the current test case was run
 /// multiple times and always return the test case before the current one.
 /// If no previous test case exists it will return -1.
-static Function LastTestCaseIndex()
+///
+/// @param tcName  If defined this function will search for the last test case in the current test
+///                suite with this name. Leaving this parameter undefined keep the normal behavior.
+static Function LastTestCaseIndex([tcName])
+	string tcName
+
 	variable index, start, i
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
@@ -55,13 +60,23 @@ static Function LastTestCaseIndex()
 	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
 	start = str2num(wvTestSuite[%CURRENT][%CHILD_START])
 
-	// search for the previous test case with a different name. A test case can rerun under certain
-	// circumstances so the same test case name can appear more than once.
-	for(i = index - 1; i >= start; i -= 1)
-		if(CmpStr(wvTestCase[index][%NAME], wvTestCase[i][%NAME]))
-			return i
-		endif
-	endfor
+	if(ParamIsDefault(tcName))
+		// search for the previous test case with a different name. A test case can rerun under
+		// certain circumstances so the same test case name can appear more than once.
+		for(i = index - 1; i >= start; i -= 1)
+			if(CmpStr(wvTestCase[index][%NAME], wvTestCase[i][%NAME]))
+				return i
+			endif
+		endfor
+	else
+		// search the previous test case with the specified name. There could be some other test
+		// cases in between.
+		for(i = index - 1; i >= start; i -= 1)
+			if(!CmpStr(tcName, wvTestCase[i][%NAME]))
+				return i
+			endif
+		endfor
+	endif
 
 	return -1
 End
@@ -70,8 +85,19 @@ End
 /// cases in the same test suite. This function will also check if the current test case was run
 /// multiple times and always return the test case before the current one.
 /// If no previous test case exists it will return null.
-static Function/WAVE LastTestCase()
-	variable index = LastTestCaseIndex()
+///
+/// @param tcName  If defined this function will search for the last test case in the current test
+///                suite with this name. Leaving this parameter undefined keep the normal behavior.
+static Function/WAVE LastTestCase([tcName])
+	string tcName
+
+	variable index
+
+	if(ParamIsDefault(tcName))
+		index = LastTestCaseIndex()
+	else
+		index = LastTestCaseIndex(tcName = tcName)
+	endif
 
 	if(index < 0)
 		return $""
@@ -88,11 +114,20 @@ End
 /// multiple times and always return the test case before the current one.
 /// If no previous test case exists it will return null. If the previous test case was run
 /// multiple times it will return all of them.
-static Function/WAVE LastTestCases()
-	string name, name2
-	variable start
+///
+/// @param tcName  If defined this function will search for the last test case in the current test
+///                suite with this name. Leaving this parameter undefined keep the normal behavior.
+static Function/WAVE LastTestCases([tcName])
+	string tcName
 
-	variable index = LastTestCaseIndex()
+	string name, name2
+	variable start, index
+
+	if(ParamIsDefault(tcName))
+		index = LastTestCaseIndex()
+	else
+		index = LastTestCaseIndex(tcName = tcName)
+	endif
 
 	if(index < 0)
 		return $""
@@ -123,13 +158,23 @@ End
 /// status is IUTF_STATUS_ERROR or IUTF_STATUS_FAIL this will change the status to
 /// IUTF_STATUS_SUCCESS and revert any error counter.
 /// This changes the global state! Try to receive a copy with LastTestCase() first!
-static Function ExpectTestCaseStatus(status, [offset])
+///
+/// @param tcName  If defined this function will search for the last test case in the current test
+///                suite with this name. Leaving this parameter undefined keep the normal behavior.
+static Function ExpectTestCaseStatus(status, [offset, tcName])
 	string status
 	variable offset
+	string tcName
 
 	string expect, result
 	variable isFailed, numAssertError
-	variable tcIndex = LastTestCaseIndex()
+	variable tcIndex
+
+	if(ParamIsDefault(tcName))
+		tcIndex = LastTestCaseIndex()
+	else
+		tcIndex = LastTestCaseIndex(tcName = tcName)
+	endif
 
 	offset = ParamIsDefault(offset) ? 0 : offset
 
