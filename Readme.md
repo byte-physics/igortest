@@ -1,59 +1,81 @@
-![](https://img.shields.io/github/contributors-anon/byte-physics/igor-unit-testing-framework?style=plastic)
-![](https://img.shields.io/github/license/byte-physics/igor-unit-testing-framework?style=plastic)
+# Igor Pro Universal Testing Framework
 
-This project aims at providing a complete set of tools for programmers for writing and maintaining unit tests.
+[![Contributors](https://img.shields.io/github/contributors-anon/byte-physics/igor-unit-testing-framework?style=plastic)](https://github.com/byte-physics/igor-unit-testing-framework/graphs/contributors)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/byte-physics/igor-unit-testing-framework?style=plastic)](https://github.com/byte-physics/igor-unit-testing-framework/releases)
+[![License](https://img.shields.io/github/license/byte-physics/igor-unit-testing-framework?style=plastic)](https://github.com/byte-physics/igor-unit-testing-framework/blob/main/License.txt)
 
-# Features:
-* Runs on Windows and MacOSX
-* Completely documented and with lots of examples
-* Includes more than ten test assertions coming in three versions
-* Allows for the arbitrary grouping of test cases
-* Easily expandable and adaptable
-* Support for executing test suites from the command line
+The **Igor Pro Universal Testing Framework** (IUTF) is a versatile tool to write and run tests for [Igor Pro](https://www.wavemetrics.com/products/igorpro) code.
+The results of the tests is outputted in standardized formats that can be parsed by common
+[CI](https://en.wikipedia.org/wiki/Continuous_integration) frameworks. Test runs can also be fully automated as part of a CI/CD workflow.
+For simpler usage scenarios a summary of the test run is shown in the history after it finished.
 
-Planned features (open for collaboration):
-* Threadsafe test assertions
-* Igor Pro help file documentation
+## What can IUTF be used for?
 
-# Documentation
+The IUTF offers great flexibility for writing test cases. It is supported to run the same test case with multiple inputs as
+well as Igor Pro specific features such as independent modules or background activities.
 
-The documentation can be found
-[here](https://docs.byte-physics.de/igor-unit-testing-framework/). It contains
-a [guided
-tour](https://docs.byte-physics.de/igor-unit-testing-framework/guided-tour.html)
-and an [introduction to the basic
-structure](https://docs.byte-physics.de/igor-unit-testing-framework/basic.html).
+The IUTF is applied as a reliable tool in larger Igor Pro projects such as [MIES](https://github.com/AllenInstitute/MIES).
 
-# Requirements
+```igorpro
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3
 
-Igor Pro version 6.2.0 or later
+#include "unit-testing"
 
-# Installation
+// Simple demo example that tests the abs() function
+Function TestAbsolute()
 
-1. Install Igor
-2. Start Igor, this will create a folder called WaveMetrics in Documents
-3. Extract the zip file into the a folder, e. g. `thomas/unitTestingFramework` somewhere on your disc
-4. Create a link from `unitTestingFramework/procedures` to `Documents\WaveMetrics\Igor Pro 6 User Files\User Procedures`
-5. Have a look at the manual or the example experiments
-
-# Building the documentation
-
-## Requirements
-The build process is fully automated using [docker containers](https://www.docker.com/). You will need
-- [docker](https://www.docker.com/get-docker)
-- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-## Building
-
-Currently the automated build process only works on Linux.
-
-Run `make` from the documentation root directory `docu/`:
-```bash
-cd docu
-make
+	CHECK_EQUAL_VAR(abs(1.5), 1.5)
+	CHECK_EQUAL_VAR(abs(-1.5), 1.5)
+	CHECK_EQUAL_VAR(abs(NaN), NaN)
+	CHECK_EQUAL_VAR(abs(Inf), Inf)
+	CHECK_EQUAL_VAR(abs(-Inf), Inf)
+End
 ```
 
-This will create a docker container with all the required dependencies and output the manual as pdf to `docu/manual.pdf` and html to the `docu/sphinx/html` subdirectory.
-The documentation is built using [doxygen](http://www.doxygen.org/), a [home-built awk script](https://github.com/byte-physics/doxygen-filter-ipf/), [breathe](https://github.com/michaeljones/breathe) and [sphinx](http://www.sphinx-doc.org).
+The framework itself combines numerous features:
 
-[The current documentation can be found on our website.](https://docs.byte-physics.de/igor-unit-testing-framework/)
+* Test assertions for all kinds of conditions in three main flavours: Warnings, Checks and Requirements
+* Test cases can be grouped in test suites, run with multiple inputs, run in independent modules and contain background activity
+* Support of standard output formats like [JUNIT](https://junit.org/junit4) and [TAP](https://testanything.org/tap-version-13-specification.html)
+* Support for automated execution as part of a CI pipeline
+* Optional code coverage determination
+* Optional memory leak tracking
+* Fully documented and comes with lots of examples
+* Easily expandable and adaptable
+
+## Documentation
+
+The [documentation](https://docs.byte-physics.de/igor-unit-testing-framework)
+contains a [guided tour](https://docs.byte-physics.de/igor-unit-testing-framework/guided-tour.html)
+and an [introduction](https://docs.byte-physics.de/igor-unit-testing-framework/basic.html) to the basic structure.
+
+## Requirements
+
+Igor Pro version 6.37 or newer on Windows and MacOSX
+
+## Installation
+
+1. Download the zip file attached to the newest
+   [Release](https://github.com/byte-physics/igor-unit-testing-framework/releases/latest).
+   The file name is something like `UnitTestingFramework-v1.09.zip`.
+2. Extract the zip file into a folder, e. g. `alice/IgorTestingFramework`
+3. Open the Igor Pro user folder by selecting `Help/Show Igor Pro User Files`
+   from the menu in Igor Pro
+4. Create a link from `alice/IgorTestingFramework/procedures` in the `User
+   Procedures` subfolder
+5. Installation finished. You are ready to use IUTF in Igor Pro. Have a look at
+   the [documentation](https://docs.byte-physics.de/igor-unit-testing-framework)
+   or the example experiments
+
+## License
+
+Most parts of IUTF are licensed under the [BSD-3 clause](License.txt).
+
+## Versioning
+
+We plan to adopt [Semantic Versioning](http://semver.org/) in the future. See
+[issue 386](https://github.com/byte-physics/igor-unit-testing-framework/issues/386)
+for further details. For the versions available, see the [tags on this
+repository](https://github.com/byte-physics/igor-unit-testing-framework/tags)
+or our [releases](https://github.com/byte-physics/igor-unit-testing-framework/releases).
