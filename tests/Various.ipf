@@ -47,6 +47,26 @@ Function VeryLongFunctionNameThatWill2()
 End
 #endif
 
+// TAPDirective: TODO just a valid directive
+// TAPDescription: This function tests if the TAP function tags work correctly
+Function CheckTAPTags()
+	string value, expected
+
+	variable index = UTF_FunctionTags#GetFunctionTagRef("CheckTAPTags")
+	INFO("Search result of the function name")
+	CHECK_GE_VAR(index, 0)
+	WAVE/WAVE ftags = UTF_FunctionTags#GetFunctionTagWaves()
+	WAVE/T tags = ftags[index]
+
+	expected = "TODO just a valid directive"
+	value = tags[%TAPDirective]
+	CHECK_EQUAL_STR(expected, value)
+
+	expected = "This function tests if the TAP function tags work correctly"
+	value = tags[%TAPDescription]
+	CHECK_EQUAL_STR(expected, value)
+End
+
 Function DoesNotBugOutOnLongString()
 
 	string a = PadString("a", 10e4, 0x20)

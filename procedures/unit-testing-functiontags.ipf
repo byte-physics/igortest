@@ -181,7 +181,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 
 		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
-			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(.*)$"
+			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
 
 			SplitString/E=expr funcLine, tagValue
 			if(V_flag != 1)

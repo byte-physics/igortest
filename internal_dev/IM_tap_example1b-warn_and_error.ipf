@@ -8,8 +8,8 @@
 
 // RunTest("tap_example1b-warn_and_error.ipf;tap_example1a-uncaught-aborts.ipf",tapEnable=1)
 
-// #TAPDirective: ### Double Cross Enclosed Text ###
-// #TAPDescription: 123_Description_starts_with_digit_and_ends_with_double_cross_###
+// TAPDirective: ### Double Cross Enclosed Text ###
+// TAPDescription: 123_Description_starts_with_digit_and_ends_with_double_cross_###
 Function TAPTestModulo()
 
 	CHECK_EQUAL_VAR(abs(1.5),1.5)
@@ -23,7 +23,7 @@ Function TAPTestModulo()
 	CHECK_EQUAL_VAR(abs(-INF),INF)
 End
 
-// #TAPDirective: Look Left
+// TAPDirective: Look Left
 Function TAPTestModulo1()
 
 	CHECK_EQUAL_VAR(abs(1.5),1.5)
@@ -35,7 +35,7 @@ Function TAPTestModulo1()
 	CHECK_EQUAL_VAR(abs(-INF),INF)
 End
 
-// #TAPDirective: SKIP with TAP enabled this Test Case is not executed (skipped) and reported 'ok', when executed it fails
+// TAPDirective: SKIP with TAP enabled this Test Case is not executed (skipped) and reported 'ok', when executed it fails
 Function TAPTestSkip()
 	CHECK_EQUAL_VAR(1,2)
 End
