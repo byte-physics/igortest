@@ -15,7 +15,25 @@ static Function/WAVE GetFunctionTagWaves()
 		return wv
 	endif
 
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
+	Make/WAVE/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	UTF_Utils_Vector#SetLength(wv, 0)
+
+	return wv
+End
+
+/// @brief Returns a global wave that stores the full function names at the same position as their
+/// tag waves. This is used to find the references easier.
+static Function/WAVE GetFunctionTagRefs()
+	string name = "FunctionTagRefs"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	UTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -23,16 +41,40 @@ End
 static Function AddFunctionTagWave(fullFuncName)
 	string fullFuncName
 
-	variable size
+	variable index
 
 	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
+	WAVE/T ftagRefs = GetFunctionTagRefs()
 	WAVE/T tags = GetFunctionTagWave(fullFuncName)
-	if(DimSize(tags, UTF_ROW))
-		size = DimSize(ftagWaves, UTF_ROW)
-		Redimension/N=(size + 1) ftagWaves
-		ftagWaves[size] = tags
-		SetDimLabel UTF_ROW, size, $fullFuncName, ftagWaves
+	if(!DimSize(tags, UTF_ROW))
+		return NaN
 	endif
+
+	index = UTF_Utils_Vector#AddRow(ftagRefs)
+	ftagRefs[index] = fullFuncName
+	UTF_Utils_Vector#EnsureCapacity(ftagWaves, index)
+	ftagWaves[index] = tags
+End
+
+/// @brief Find the current index in the global function tag wave reference wave.
+///
+/// @param fullFuncName  the full function name
+///
+/// @returns The index inside the function tag wave reference wave. -1 if not found.
+static Function GetFunctionTagRef(fullFuncName)
+	string fullFuncName
+
+	variable length
+	WAVE/T ftagRefs = GetFunctionTagRefs()
+
+#if (IgorVersion() >= 8.00)
+	length = UTF_Utils_Vector#GetLength(ftagRefs)
+	FindValue/Z/TEXT=(fullFuncName)/TXOP=5/RMD=[0, length - 1] ftagRefs
+#else
+	FindValue/Z/TEXT=(fullFuncName)/TXOP=5 ftagRefs
+#endif
+
+	return V_value
 End
 
 /// @brief returns 1 if the comments above a function contain a certain tag, zero otherwise
@@ -43,14 +85,13 @@ End
 static Function HasFunctionTag(funcName, tagName)
 	string funcName, tagName
 
-	variable funcPos
+	variable funcPos = GetFunctionTagRef(funcName)
 
-	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	funcPos = FindDimLabel(ftagWaves, UTF_ROW, funcName)
-	if(funcPos == -2)
+	if(funcPos == -1)
 		return 0
 	endif
 
+	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
 	WAVE tagValues = ftagWaves[funcPos]
 
 	return (FindDimLabel(tagValues, UTF_ROW, tagName) != -2)
@@ -67,18 +108,18 @@ static Function/S GetFunctionTagValue(funcName, tagName, err)
 	string funcName, tagName
 	variable &err
 
-	variable tagPosition, funcPos
+	variable tagPosition
 	string tagValue, msg
+	variable funcPos = GetFunctionTagRef(funcName)
 
 	err = UTF_TAG_ABORTED
-	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	funcPos = FindDimlabel(ftagWaves, UTF_ROW, funcName)
-	if(funcPos == -2)
+	if(funcPos == -1)
 		err = UTF_TAG_NOT_FOUND
 		sprintf msg, "The tag %s was not found.", tagName
 		return msg
 	endif
 
+	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
 	WAVE/T tagValueWave = ftagWaves[funcPos]
 	tagPosition = FindDimLabel(tagValueWave, UTF_ROW, tagName)
 	if(tagPosition == -2)

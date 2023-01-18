@@ -2204,9 +2204,10 @@ static Function ClearTestSetupWaves()
 	WAVE/T testRunData = GetTestRunData()
 	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
 	WAVE/WAVE ftagWaves = UTF_FunctionTags#GetFunctionTagWaves()
+	WAVE/WAVE ftagRefs = UTF_FunctionTags#GetFunctionTagRefs()
 	WAVE/WAVE mdState = GetMMDataState()
 
-	KillWaves testRunData, dgenWaves, ftagWaves, mdState
+	KillWaves testRunData, dgenWaves, ftagWaves, ftagRefs, mdState
 End
 
 static Function/S GetMMDTCSuffix(tdIndex)

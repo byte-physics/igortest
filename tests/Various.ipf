@@ -24,6 +24,29 @@ Function CheckForWarningInHistory()
 	CHECK_EQUAL_VAR(1, V_flag)
 End
 
+// the following two test are used to check if UTF can store very long full function names and
+// distinguish them. In the end both should be executed successfully.
+
+#if (IgorVersion() >= 8.00)
+// UTF_EXPECTED_FAILURE
+Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIgor8_ThisIsTheFirstOneOfThem_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRST1()
+	CHECK(0)
+End
+
+Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIgor8_ThisIsTheFirstOneOfThem_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRST2()
+	CHECK(1)
+End
+#else
+// UTF_EXPECTED_FAILURE
+Function VeryLongFunctionNameThatWill1()
+	CHECK(0)
+End
+
+Function VeryLongFunctionNameThatWill2()
+	CHECK(1)
+End
+#endif
+
 Function DoesNotBugOutOnLongString()
 
 	string a = PadString("a", 10e4, 0x20)
