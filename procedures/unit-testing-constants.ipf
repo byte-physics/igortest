@@ -200,7 +200,7 @@ Constant UTF_TAG_ABORTED   = 0x04
 /// @}
 
 /// @name String constants for function tags
-/// Need to be added to UTF_Utils#GetTagConstants!
+/// Need to be added to UTF_FunctionTags#GetTagConstants!
 ///
 /// @anchor FunctionTagStrings
 /// @{
@@ -208,8 +208,8 @@ StrConstant UTF_FTAG_NOINSTRUMENTATION = "UTF_NOINSTRUMENTATION"
 StrConstant UTF_FTAG_TD_GENERATOR      = "UTF_TD_GENERATOR"
 StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
 StrConstant UTF_FTAG_SKIP  = "UTF_SKIP"
-StrConstant UTF_FTAG_TAP_DIRECTIVE     = "#TAPDirective:"
-StrConstant UTF_FTAG_TAP_DESCRIPTION   = "#TAPDescription:"
+StrConstant UTF_FTAG_TAP_DIRECTIVE     = "TAPDirective"
+StrConstant UTF_FTAG_TAP_DESCRIPTION   = "TAPDescription"
 StrConstant UTF_FTAG_NO_WAVE_TRACKING  = "UTF_NO_WAVE_TRACKING"
 /// @}
 

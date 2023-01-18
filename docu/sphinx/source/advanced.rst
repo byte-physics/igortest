@@ -123,8 +123,8 @@ function of a Test Case (all lines above :code:`Function` up to the previous
 
 .. code-block:: igor
 
-   // #TAPDescription: My description here
-   // #TAPDirective: My directive here
+   // TAPDescription: My description here
+   // TAPDirective: My directive here
 
 For directives two additional keywords are defined that can be written at the
 beginning of the directive message.
@@ -136,20 +136,20 @@ beginning of the directive message.
   keyword is not executed and reported always as 'ok'.
 
 If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
-and evaluated for TAP the same as if ``// #TAPDirective: SKIP`` was set.
+and evaluated for TAP the same as if ``// TAPDirective: SKIP`` was set.
 
 Examples:
 ^^^^^^^^^
 
 .. code-block:: igor
 
-   // #TAPDirective: TODO routine that should be tested is still under development
+   // TAPDirective: TODO routine that should be tested is still under development
 
 or
 
 .. code-block:: igor
 
-   // #TAPDirective: SKIP this test gets skipped
+   // TAPDirective: SKIP this test gets skipped
 
 See the Experiment in the TAP_Example folder for reference.
 

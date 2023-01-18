@@ -444,8 +444,8 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	Make/FREE/WAVE/N=(numMacros) macroTexts
 	macroTexts[] = ListToTextWave(ProcedureText(wMacroList[p], 0, procWin), "\r")
 	Make/FREE/D/N=(numMacros) macroExclusionFlag, macroIndexHelper
-	macroIndexHelper[] = UTF_Basics#AddFunctionTagWave(wMacroList[p])
-	macroExclusionFlag[] = UTF_Utils#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
+	macroIndexHelper[] = UTF_FunctionTags#AddFunctionTagWave(wMacroList[p])
+	macroExclusionFlag[] = UTF_FunctionTags#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
 	for(i = 0; i < numMacros; i += 1)
 		if(UTF_Utils#isEmpty(procedurePath))
 			procedurePath = MacroPath(wMacroList[i])
@@ -468,8 +468,8 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 			UTF_Reporting#UTF_PrintStatusMessage(msg)
 			continue
 		endif
-		UTF_Basics#AddFunctionTagWave(fullFuncName)
-		funcExclusionFlag[i] = UTF_Utils#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
+		UTF_FunctionTags#AddFunctionTagWave(fullFuncName)
+		funcExclusionFlag[i] = UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
 		if(UTF_Utils#isEmpty(procedurePath))
 			procedurePath = FunctionPath(fullFuncName)
 		endif

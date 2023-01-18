@@ -1,7 +1,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma version=1.09
 
-// #TAPDirective: SKIP
+// TAPDirective: SKIP
 
 static function dummytest()
 //	REQUIRE(0)

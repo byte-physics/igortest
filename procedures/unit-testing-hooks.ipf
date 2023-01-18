@@ -349,7 +349,7 @@ static Function BeforeTestCase(name, skip)
 		if(NVAR_Exists(waveTrackingMode))
 			WaveTracking/LOCL stop
 			WaveTracking/FREE stop
-			if(!UTF_Utils#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
+			if(!UTF_FunctionTags#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
 				if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
 					WaveTracking/FREE counter
 				endif

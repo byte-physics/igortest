@@ -20,19 +20,19 @@ Function CheckNumber(a)
 	return 1
 End
 
-// #TAPDescription: Checking if '*' is the Answer to the Ultimate Question of Life, the Universe, and Everything
+// TAPDescription: Checking if '*' is the Answer to the Ultimate Question of Life, the Universe, and Everything
 static Function TAPCheckNumber_not_nan()
 
 	CheckNumber(char2num("*"))
 End
 
-// #TAPDescription: Fails with an uncaught abort
+// TAPDescription: Fails with an uncaught abort
 static Function TAPCheckNumber_nan()
 
 	CheckNumber(NaN)
 End
 
-// #TAPDescription: Planned abort here
+// TAPDescription: Planned abort here
 static Function Bail_Out()
 
 	FAIL()

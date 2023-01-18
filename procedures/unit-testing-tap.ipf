@@ -33,7 +33,7 @@ static Function TAP_IsFunctionTodo(funcName)
 	variable err
 	string str
 
-	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	str = UTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(!err)
 		return strsearch(str, "TODO", 0, 2) == 0
 	endif
@@ -51,7 +51,7 @@ static Function TAP_IsFunctionSkip(funcName)
 	variable err
 	string str
 
-	str = UTF_Utils#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	str = UTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err == UTF_TAG_OK)
 		return strsearch(str, "SKIP", 0, 2) == 0
 	endif
@@ -115,11 +115,11 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 	name = wvTestCase[testCaseIndex][%NAME]
 	diagnostics = wvTestCase[testCaseIndex][%STDERR]
-	directive = UTF_Utils#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
+	directive = UTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err != UTF_TAG_OK)
 		directive = ""
 	endif
-	description = UTF_Utils#GetFunctionTagValue(name, UTF_FTAG_TAP_DESCRIPTION, err)
+	description = UTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DESCRIPTION, err)
 	if(err != UTF_TAG_OK)
 		description = ""
 	endif
