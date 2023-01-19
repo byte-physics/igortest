@@ -124,6 +124,9 @@ Constant IUTF_WVTRACK_INACTIVE_MODE = 0
 Constant IUTF_WVTRACK_COUNT_MODE = 1
 Constant IUTF_WVTRACK_TRACKER_MODE = 2
 
+Constant IUTF_DGEN_NUM_VARS = 5
+StrConstant IUTF_TC_SUFFIX_SEP = ":"
+
 ///@endcond // HIDDEN_SYMBOL
 
 /// @addtogroup AssertionFlags
