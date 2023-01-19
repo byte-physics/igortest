@@ -457,9 +457,24 @@ static Function AfterTestCase(name, skip)
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 
-	if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0 && !skip)
-		sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
-		UTF_Reporting#TestCaseFail(msg)
+	if(skip)
+		return NaN
+	endif
+
+	if(IsExpectedFailure())
+		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
+			sprintf msg, "Test case \"%s\" doesn't contain at least one assertion error", name
+			UTF_Reporting#TestCaseFail(msg, isFailure = 1)
+		else
+			// reset the assertion error counter as all previous errors are intended
+			wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = "0"
+			wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
+		endif
+	else
+		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
+			sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
+			UTF_Reporting#TestCaseFail(msg)
+		endif
 	endif
 End
 

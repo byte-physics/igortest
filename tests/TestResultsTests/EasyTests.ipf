@@ -96,3 +96,46 @@ static Function StatusSkip_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+// UTF_EXPECTED_FAILURE
+static Function ExpectedFailures()
+	CHECK(0)
+End
+
+static Function ExpectedFailures_Verify()
+	string expect, result
+	variable childStart, childEnd, startTime, endTime
+
+	WAVE/T/Z tc = Utils#LastTestCase()
+	INFO("Bug: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	INFO("Check if status is success")
+	expect = IUTF_STATUS_SUCCESS
+	result = tc[0][%STATUS]
+	CHECK_EQUAL_STR(expect, result)
+
+	childStart = str2num(tc[0][%CHILD_START])
+	childEnd = str2num(tc[0][%CHILD_END])
+	INFO("Check if some children are defined")
+	CHECK_EQUAL_VAR(childStart + 1, childEnd)
+
+	startTime = str2num(tc[0][%STARTTIME])
+	endTime = str2num(tc[0][%ENDTIME])
+	INFO("Check if endtime is not before the starttime")
+	CHECK_LE_VAR(startTime, endTime)
+
+	INFO("Check if some errors are thrown")
+	result = tc[0][%STDERR]
+	CHECK_NON_EMPTY_STR(result)
+
+	INFO("Check if no assertion errors are set")
+	expect = "0"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the assertion counter is correct")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End

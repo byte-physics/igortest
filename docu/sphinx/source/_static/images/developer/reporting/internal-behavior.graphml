@@ -17,7 +17,7 @@
     <node id="n0">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="52.5" width="111.0" x="602.1686507936508" y="131.0"/>
+          <y:Geometry height="52.5" width="111.0" x="567.5833333333334" y="131.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.03125" x="15.484375" y="4.0">ReportResults</y:NodeLabel>
@@ -37,7 +37,7 @@
     <node id="n1">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="51.0" width="163.0" x="390.4186507936508" y="227.5"/>
+          <y:Geometry height="51.0" width="163.0" x="355.8333333333333" y="227.5"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="75.384765625" x="43.8076171875" y="4.0">DebugOutput</y:NodeLabel>
@@ -57,7 +57,7 @@
     <node id="n2">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="77.0" width="134.0" x="776.4186507936508" y="214.5"/>
+          <y:Geometry height="77.0" width="134.0" x="741.8333333333334" y="214.5"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="68.025390625" x="32.9873046875" y="4.0">PrintFailInfo</y:NodeLabel>
@@ -79,7 +79,7 @@
     <node id="n3">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="84.0" width="312.0" x="141.86468253968252" y="612.7529296875"/>
+          <y:Geometry height="84.0" width="312.0" x="141.86468253968252" y="654.3046875000001"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="66.68359375" x="122.658203125" y="4.0">ReportError</y:NodeLabel>
@@ -101,11 +101,12 @@
     <node id="n4">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="99.0" width="188.0" x="656.2519841269841" y="605.2529296875"/>
+          <y:Geometry height="108.0" width="188.0" x="639.75" y="642.3046875000001"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="52.017578125" x="67.9912109375" y="4.0">AddError</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="172.05859375" x="2.0" y="30.701171875">- increment assert error counter
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="77.505859375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="175.046875" x="2.0" y="30.701171875">- DEFAULT: incrErrorCounter=1
+- increment assert error counter
 - set test results status
 - add test results assertion
 - add test results info<y:LabelModel>
@@ -124,11 +125,11 @@
     <node id="n5">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="84.0" width="157.0" x="679.5019841269841" y="396.90234375"/>
+          <y:Geometry height="84.0" width="188.0" x="639.75" y="396.90234375000006"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="74.6875" x="41.15625" y="4.0">TestCaseFail</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="48.103515625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="146.740234375" x="2.0" y="30.701171875">- DEFAULT: logError=1
+          <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="74.6875" x="56.65625" y="4.0">TestCaseFail</y:NodeLabel>
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="48.103515625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="183.05078125" x="2.0" y="30.701171875">- DEFEAULT: incrErrroCounter=1
 - DEFAULT: isFailure=0
 - report message and infos<y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
@@ -146,7 +147,7 @@
     <node id="n6">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="84.0" width="151.0" x="109.36468253968255" y="727.7529296875"/>
+          <y:Geometry height="84.0" width="151.0" x="109.36468253968255" y="769.3046875000001"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.384765625" x="4.8076171875" y="4.0">UTF_PrintStatusMessage</y:NodeLabel>
@@ -168,7 +169,7 @@
     <node id="n7">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="84.0" width="127.0" x="58.83333333333333" y="396.90234375"/>
+          <y:Geometry height="84.0" width="127.0" x="58.83333333333333" y="396.90234375000006"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="116.716796875" x="5.1416015625" y="4.0">ReportErrorAndAbort</y:NodeLabel>
@@ -190,7 +191,7 @@
     <node id="n8">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="51.0" width="104.0" x="605.6686507936508" y="60.0"/>
+          <y:Geometry height="51.0" width="104.0" x="571.0833333333334" y="60.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="94.046875" x="4.9765625" y="4.0"> EvaluateResults</y:NodeLabel>
@@ -210,7 +211,7 @@
     <node id="n9">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-          <y:Geometry height="40.0" width="91.0" x="612.1686507936508" y="0.0"/>
+          <y:Geometry height="40.0" width="91.0" x="577.5833333333334" y="0.0"/>
           <y:Fill color="#E8EEF7" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="73.345703125" x="8.8271484375" y="10.6494140625">ASSERTION<y:LabelModel>
@@ -229,7 +230,7 @@
     <node id="n10">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="52.0" width="163.0" x="190.36468253968252" y="227.0"/>
+          <y:Geometry height="52.0" width="163.0" x="162.83333333333334" y="227.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="74.69921875" x="44.150390625" y="4.0">EvaluateRTE</y:NodeLabel>
@@ -249,7 +250,7 @@
     <node id="n11">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-          <y:Geometry height="40.0" width="163.0" x="583.4186507936508" y="233.0"/>
+          <y:Geometry height="40.0" width="163.0" x="548.8333333333334" y="233.0"/>
           <y:Fill color="#E8EEF7" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="134.04296875" x="14.478515625" y="10.6494140625">AfterTestCaseUserHook<y:LabelModel>
@@ -268,7 +269,7 @@
     <node id="n12">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-          <y:Geometry height="40.0" width="117.0" x="940.4186507936508" y="233.0"/>
+          <y:Geometry height="40.0" width="117.0" x="905.8333333333334" y="233.0"/>
           <y:Fill color="#E8EEF7" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.693359375" x="18.1533203125" y="10.6494140625">AfterTestCase<y:LabelModel>
@@ -325,7 +326,7 @@
     <node id="n15">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-          <y:Geometry height="40.0" width="117.0" x="254.11468253968252" y="137.25"/>
+          <y:Geometry height="40.0" width="117.0" x="226.58333333333331" y="137.25"/>
           <y:Fill color="#E8EEF7" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="100.71484375" x="8.142578125" y="10.6494140625">After the test case<y:LabelModel>
@@ -344,7 +345,7 @@
     <node id="n16">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-          <y:Geometry height="40.0" width="80.0" x="31.864682539682534" y="634.7529296875"/>
+          <y:Geometry height="40.0" width="80.0" x="31.864682539682534" y="676.3046875000001"/>
           <y:Fill color="#E8EEF7" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="37.345703125" x="21.3271484375" y="10.6494140625">LOGS<y:LabelModel>
@@ -364,8 +365,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-27.75" sy="26.25" tx="0.0" ty="-25.5">
-            <y:Point x="629.9186507936508" y="199.0"/>
-            <y:Point x="471.9186507936508" y="199.0"/>
+            <y:Point x="595.3333333333334" y="199.0"/>
+            <y:Point x="437.3333333333333" y="199.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -377,8 +378,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="27.75" sy="26.25" tx="0.0" ty="-38.5">
-            <y:Point x="685.4186507936508" y="199.0"/>
-            <y:Point x="843.4186507936508" y="199.0"/>
+            <y:Point x="650.8333333333334" y="199.0"/>
+            <y:Point x="808.8333333333334" y="199.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -390,14 +391,14 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="25.5" tx="26.0" ty="-42.0">
-            <y:Point x="471.9186507936508" y="294.0"/>
-            <y:Point x="525.6265873015873" y="294.0"/>
-            <y:Point x="525.6265873015873" y="541.7529296875"/>
+            <y:Point x="437.3333333333333" y="294.0"/>
+            <y:Point x="444.92738095238093" y="294.0"/>
+            <y:Point x="444.92738095238093" y="541.7529296875"/>
             <y:Point x="323.8646825396825" y="541.7529296875"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.3580318944730929" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-16.82330283513147" y="148.94685872395831">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.3259725687351767" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-62.937212553478446" y="148.94685872395831">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -407,12 +408,12 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="38.5" tx="0.0" ty="-42.0">
-            <y:Point x="843.4186507936508" y="365.40234375"/>
-            <y:Point x="758.0019841269841" y="365.40234375"/>
+            <y:Point x="808.8333333333334" y="365.40234375000006"/>
+            <y:Point x="733.75" y="365.40234375000006"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="33.40234375" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.1876853312005311" textColor="#000000" verticalTextPosition="bottom" visible="true" width="63.02734375" x="-31.51366121806791" y="24.8125">logError=0
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="33.40234375" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.19963963819353603" textColor="#000000" verticalTextPosition="bottom" visible="true" width="188.39453125" x="-94.19724527994788" y="24.8125">incrErrorCounter=incrErrorCounter
 isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
@@ -422,10 +423,10 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e4" source="n5" target="n4">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="39.25" sy="42.0" tx="47.0" ty="-49.5"/>
+          <y:Path sx="47.0" sy="42.0" tx="47.0" ty="-54.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.75" textColor="#000000" verticalTextPosition="bottom" visible="true" width="56.013671875" x="-28.006865970672152" y="74.174560546875">if logError<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="188.39453125" x="-94.197265625" y="71.35058593750011">incrErrorCounter=incrErrorCounter<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -434,15 +435,15 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e5" source="n5" target="n3">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="-39.25" sy="42.0" tx="130.0" ty="-42.0">
-            <y:Point x="718.7519841269841" y="496.40234375"/>
-            <y:Point x="711.7206349206349" y="496.40234375"/>
-            <y:Point x="711.7206349206349" y="573.7529296875"/>
-            <y:Point x="427.8646825396825" y="573.7529296875"/>
+          <y:Path sx="-47.0" sy="42.0" tx="130.0" ty="-42.0">
+            <y:Point x="686.75" y="496.40234375000006"/>
+            <y:Point x="671.552380952381" y="496.40234375000006"/>
+            <y:Point x="671.552380952381" y="626.8046875000001"/>
+            <y:Point x="427.8646825396825" y="626.8046875000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.12875946049659093" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-77.56262923952136" y="44.82470703125">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.10459517832111934" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-85.72886904761901" y="34.78352864583337">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -452,8 +453,8 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="42.0" tx="37.75" ty="-42.0">
-            <y:Point x="297.8646825396825" y="712.2529296875"/>
-            <y:Point x="222.61468253968255" y="712.2529296875"/>
+            <y:Point x="297.8646825396825" y="753.8046875000001"/>
+            <y:Point x="222.61468253968255" y="753.8046875000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -497,16 +498,14 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e10" source="n10" target="n4">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="54.333333333333314" sy="26.0" tx="-47.0" ty="-49.5">
-            <y:Point x="326.19801587301583" y="294.5"/>
-            <y:Point x="398.7456349206349" y="294.5"/>
-            <y:Point x="398.7456349206349" y="589.7529296875"/>
-            <y:Point x="703.2519841269841" y="589.7529296875"/>
+          <y:Path sx="54.33333333333334" sy="26.0" tx="-47.0" ty="-54.0">
+            <y:Point x="298.6666666666667" y="294.5"/>
+            <y:Point x="358.3960317460317" y="294.5"/>
+            <y:Point x="358.3960317460317" y="594.8046875000001"/>
+            <y:Point x="686.75" y="594.8046875000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.3307011206983359" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.69921875" x="32.1979969811818" y="153.77587890625">if logTestCase<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
-          </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
@@ -514,10 +513,13 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e11" source="n10" target="n3">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="26.0" tx="-26.0" ty="-42.0"/>
+          <y:Path sx="0.0" sy="26.0" tx="-26.0" ty="-42.0">
+            <y:Point x="244.33333333333334" y="294.5"/>
+            <y:Point x="271.8646825396825" y="294.5"/>
+          </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-70.53125251891123" y="157.52587890625">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.49342401955204734" textColor="#000000" verticalTextPosition="bottom" visible="true" width="141.0625" x="-42.99989570738779" y="163.1571180555556">incrGlobalErrorCounter=0<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -527,12 +529,12 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-54.333333333333314" sy="26.0" tx="42.33333333333333" ty="-42.0">
-            <y:Point x="217.5313492063492" y="358.0517578125"/>
+            <y:Point x="190.0" y="358.0517578125"/>
             <y:Point x="164.66666666666666" y="358.0517578125"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.22924246398459447" textColor="#000000" verticalTextPosition="bottom" visible="true" width="24.021484375" x="-12.010749792674233" y="34.73779296875">bug<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.2797390846867869" textColor="#000000" verticalTextPosition="bottom" visible="true" width="24.021484375" x="-12.0107421875" y="34.73779296875">bug<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -541,7 +543,7 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e13" source="n11" target="n5">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="40.75" sy="20.0" tx="-52.33333333333337" ty="-42.0"/>
+          <y:Path sx="40.75" sy="20.0" tx="-62.66666666666663" ty="-42.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
@@ -551,9 +553,9 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
     <edge id="e14" source="n12" target="n5">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="20.0" tx="52.33333333333326" ty="-42.0">
-            <y:Point x="998.9186507936508" y="381.40234375"/>
-            <y:Point x="810.3353174603174" y="381.40234375"/>
+          <y:Path sx="0.0" sy="20.0" tx="62.66666666666674" ty="-42.0">
+            <y:Point x="964.3333333333334" y="381.40234375000006"/>
+            <y:Point x="796.4166666666667" y="381.40234375000006"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -578,12 +580,14 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-40.75" sy="20.0" tx="78.0" ty="-42.0">
-            <y:Point x="624.1686507936508" y="557.7529296875"/>
-            <y:Point x="375.8646825396825" y="557.7529296875"/>
+            <y:Point x="589.5833333333334" y="288.5"/>
+            <y:Point x="585.0210317460318" y="288.5"/>
+            <y:Point x="585.0210317460318" y="610.8046875000001"/>
+            <y:Point x="375.8646825396825" y="610.8046875000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.2764123682534319" textColor="#000000" verticalTextPosition="bottom" visible="true" width="24.021484375" x="-12.01073153056791" y="155.79743303571428">bug<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
+          <y:EdgeLabel alignment="center" backgroundColor="#FFFFFF" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="center_slider" preferredPlacement="on_edge" ratio="0.29836615861339644" textColor="#000000" verticalTextPosition="bottom" visible="true" width="24.021484375" x="-16.57302342974947" y="167.30175781250006">bug<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow"/>
           </y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
@@ -594,7 +598,7 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
         <y:PolyLineEdge>
           <y:Path sx="24.75" sy="20.0" tx="-40.75" ty="-26.0">
             <y:Point x="171.83333333333334" y="192.75"/>
-            <y:Point x="231.11468253968252" y="192.75"/>
+            <y:Point x="203.58333333333334" y="192.75"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -636,8 +640,8 @@ isFailure=1<y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="20.0" tx="-37.75" ty="-42.0">
-            <y:Point x="71.86468253968253" y="712.2529296875"/>
-            <y:Point x="147.11468253968255" y="712.2529296875"/>
+            <y:Point x="71.86468253968253" y="753.8046875000001"/>
+            <y:Point x="147.11468253968255" y="753.8046875000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
