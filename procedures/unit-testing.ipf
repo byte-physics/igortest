@@ -16,6 +16,7 @@
 #include "unit-testing-hooks-proto"
 #include "unit-testing-junit"
 #include "unit-testing-tap"
+#include "unit-testing-polyfill"
 #include "unit-testing-reporting"
 #include "unit-testing-reporting-control"
 #include "unit-testing-utils"

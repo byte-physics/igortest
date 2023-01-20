@@ -585,23 +585,6 @@ static Function/S SortTestCaseList(procWin, testCaseList)
 	return UTF_Utils#TextWaveToList(testCaseWave, ";")
 End
 
-#if (IgorVersion() >= 7.0)
-    // ListToTextWave is available
-#else
-/// @brief Convert a string list to a text wave
-///
-/// @param[in] list string list
-/// @param[in] sep separator string
-/// @returns wave reference to free wave
-static Function/WAVE ListToTextWave(list, sep)
-    string list, sep
-
-    Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
-
-    return result
-End
-#endif
-
 /// @brief get test cases matching a certain pattern and fill TesRunSetup wave
 ///
 /// This function searches for test cases in a given list of test suites. The
