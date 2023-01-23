@@ -2363,6 +2363,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	// do not save these for reentry
 	//
 	variable reentry
+	variable testSuiteCreated = 0
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
 	variable i, j, tcFuncCount, startNextTS, skip, tcCount, reqSave
@@ -2387,6 +2388,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			ClearReentrytoUTF()
 			UTF_Reporting#ReportErrorAndAbort("RunTest was called by user after background monitoring was registered. This is not supported.")
 		endif
+
+		// a test suite must have been created if this is a reentry
+		testSuiteCreated = 1
 
 	else
 		// no early return/abort above this point
@@ -2577,6 +2581,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(startNextTS)
 				UTF_Hooks#ExecuteHooks(IUTF_TEST_SUITE_BEGIN_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
+				testSuiteCreated = 1
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
@@ -2711,7 +2716,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	endfor
 
-	UTF_Hooks#ExecuteHooks(IUTF_TEST_SUITE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
+	// at this code path it is unclear if a test suite was ever started, so we have to check this manually
+	if(testSuiteCreated)
+		UTF_Hooks#ExecuteHooks(IUTF_TEST_SUITE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, procWin, procWin, s.i)
+	endif
 	UTF_Hooks#ExecuteHooks(IUTF_TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 	ClearReentrytoUTF()
