@@ -178,9 +178,8 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			AfterTestCase(name, skip)
 			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
-			if(!ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE))
-				AfterTestCaseUserHook(name, param)
-			endif
+			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
+			AfterTestCaseUserHook(name, param)
 
 			if(!skip)
 				// finalize the normal test case at tcOutIndex and reset the test case index to the
