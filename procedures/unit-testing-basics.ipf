@@ -1669,7 +1669,7 @@ static Function CallTestCase(s, reentry)
 	STRUCT IUTF_mData mData
 
 	variable wType0, wType1, wRefSubType, err, tcIndex
-	string func, msg, dgenFuncName, origTCName
+	string func, msg, dgenFuncName, origTCName, funcInfo
 
 	WAVE/T testRunData = GetTestRunData()
 	tcIndex = s.i
@@ -1678,6 +1678,14 @@ static Function CallTestCase(s, reentry)
 		DFREF dfr = GetPackageFolder()
 		SVAR reentryFuncName = dfr:BCKG_ReentryFunc
 		func = reentryFuncName
+
+		// Require only optional parameter
+		funcInfo = FunctionInfo(func)
+		if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+			sprintf msg, "Reentry functions require all its parameter as optional: \"%s\"", func
+			UTF_Reporting#ReportErrorAndAbort(msg)
+		endif
+
 		sprintf msg, "Entering reentry \"%s\"", func
 		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	else
