@@ -169,9 +169,11 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			tcOutIndex = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
 
 			AfterTestCase(name, skip)
-			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
-			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
+			if(!skip)
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
+				ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
+			endif
 			AfterTestCaseUserHook(name, param)
 
 			if(!skip)
