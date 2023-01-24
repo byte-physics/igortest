@@ -42,8 +42,6 @@ End
 /// @param name      name of the test run/suite/case
 /// @param userHook  the function reference to the user hook
 /// @param procWIn   name of the procedure window
-///
-/// @returns 0 if user hook succeed without an error
 static Function ExecuteUserHook(name, userHook, procWin, level)
 	FUNCREF USER_HOOK_PROTO userHook
 	string name, procWin
@@ -51,11 +49,10 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 
 	variable err
 	string errorMessage, endTime
-	variable result = 0
 	string hookName = StringByKey("Name", FuncRefInfo(userHook))
 
 	if(!StringMatch(hookName, "*_OVERRIDE"))
-		return 0
+		return NaN
 	endif
 
 	switch(level)
@@ -72,7 +69,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
 			UTF_Reporting#ReportErrorAndAbort(errorMessage)
-			return 2
+			return NaN
 	endswitch
 
 	try
@@ -84,8 +81,6 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin)
 
 		UTF_Basics#setAbortFlag()
-
-		result = 1
 	endtry
 
 	endTime = UTF_Reporting#GetTimeString()
@@ -104,10 +99,8 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
 			UTF_Reporting#ReportErrorAndAbort(errorMessage)
-			return 2
+			return NaN
 	endswitch
-
-	return result
 End
 
 /// @brief Execute the builtin and user hooks
@@ -176,11 +169,12 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			tcOutIndex = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
 
 			AfterTestCase(name, skip)
-			FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
 
-			if(!ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE))
-				AfterTestCaseUserHook(name, param)
+			if(!skip)
+				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
+				ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
 			endif
+			AfterTestCaseUserHook(name, param)
 
 			if(!skip)
 				// finalize the normal test case at tcOutIndex and reset the test case index to the
