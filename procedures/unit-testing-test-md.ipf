@@ -57,20 +57,58 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	return 1
 End
 
+/// @brief Load the list of the data generators that have to be executed for the specified testcase.
+///
+/// @param      procWin       The procedure window name
+/// @param      fullFuncName  The full function name of the test case
+/// @param[out] dgenList      The list of required data generator functions
+///
+/// @returns 1 on error, 0 on success
+static Function GetDataGeneratorListTC(procWin, fullFuncName, dgenList)
+	string procWin, fullFuncName
+	string &dgenList
+
+	variable wType1, wType0, wRefSubType
+	string dgen
+
+	dgenList = ""
+
+	// Simple Test Cases
+	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
+	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
+		return 0
+	endif
+	// MMD Test Case
+	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
+	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
+		dgenList = UTF_Test_MD_Gen#GetDataGeneratorForMMD(procWin, fullFuncName)
+		return 0
+	endif
+
+	// Multi Data Test Cases
+	if(!GetFunctionSignatureTCMD(fullFuncName, wType0, wType1, wRefSubType))
+		return 1
+	endif
+
+	dgen = UTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
+
+	dgenList = AddListItem(dgen, dgenList, ";", Inf)
+
+	return 0
+End
+
 /// Checks functions signature of a test case candidate
 /// and its attributed data generator function
 /// Returns 1 on error, 0 on success
-static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip)
+static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
 	string procWin
 	string fullFuncName
-	string &dgenList
 	variable &markSkip
 
 	variable err, wType1, wType0, wRefSubType
 	string dgen, msg
 	string funcInfo
 
-	dgenList = ""
 	markSkip = 0
 
 	// Require only optional parameter
@@ -87,7 +125,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSk
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
-		dgenList = UTF_Test_MD_Gen#CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
+		UTF_Test_MD_Gen#CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 		return 0
 	endif
 
@@ -97,10 +135,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSk
 	endif
 
 	dgen = UTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
-	WAVE wGenerator = UTF_Test_MD_Gen#CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
-
-	dgenList = AddListItem(dgen, dgenList, ";", Inf)
-	UTF_Test_MD_Gen#AddDataGeneratorWave(dgen, wGenerator)
+	WAVE wGenerator = UTF_Test_MD_Gen#CheckDGenOutput(fullFuncName, dgen, wType0, wType1, wRefSubType)
 	markSkip = UTF_Test_MD_Gen#CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 
 	return 0

@@ -369,6 +369,9 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		case IUTF_USER_HOOK_TYPE:
 			funcTypeString = "user hook"
 			break
+		case IUTF_DATA_GEN_TYPE:
+			funcTypeString = "data generator"
+			break
 		default:
 			UTF_Reporting#ReportErrorAndAbort("Unknown func type in EvaluateRTE")
 			break
@@ -483,12 +486,12 @@ End
 /// @param[out] errMsg error message in case of error
 ///
 /// @returns Numeric Error Code
-static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP)
+static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP, debugMode)
 	string procWinList
 	string matchStr
 	variable enableRegExp
 	string &errMsg
-	variable enableTAP
+	variable enableTAP, debugMode
 
 	string procWin
 	string funcName
@@ -498,6 +501,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 	variable numTC, numpWL, numFL, numMatches, markSkip
 	variable i,j,k, tdIndex
 	variable err = TC_MATCH_OK
+	variable hasDGen = 0
 
 	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
 		errMsg = "semicolon is not allowed in given regex pattern: " + matchStr
@@ -558,7 +562,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 				UTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 
-				if(UTF_Test_MD#CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip))
+				if(UTF_Test_MD#GetDataGeneratorListTC(procWin, fullFuncName, dgenList))
 					continue
 				endif
 
@@ -567,10 +571,12 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
-				markSkip = markSkip | UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
+				markSkip = UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
 				testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(UTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
+
+				hasDGen = hasDGen | !UTF_Utils#IsEmpty(dgenList)
 			endfor
 		endfor
 
@@ -580,6 +586,32 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 		endif
 	endfor
 	Redimension/N=(tdIndex, -1, -1, -1) testRunData
+
+	if(hasDGen)
+		UTF_Test_MD_Gen#ExecuteAllDataGenerators(debugMode)
+	endif
+
+	for(i = 0; i < tdIndex; i += 1)
+		dgenList = testRunData[i][%DGENLIST]
+
+		if(UTF_Utils#IsEmpty(dgenList))
+			continue
+		endif
+
+		procWin = testRunData[i][%PROCWIN]
+		fullFuncName = testRunData[i][%FULLFUNCNAME]
+
+		if(UTF_Test_MD#CheckFunctionSignatureTC(procWin, fullFuncName, markSkip))
+			// There is something wrong which is already reported. The old approach was to remove
+			// this test case from the list which isn't possible anymore. So let's skip it safely.
+			testRunData[i][%SKIP] = "1"
+			continue
+		endif
+
+		if(markSkip)
+			testRunData[i][%SKIP] = "1"
+		endif
+	endfor
 
 	if(!tdIndex)
 		errMsg = "No test cases found."
@@ -1452,7 +1484,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP)
+		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode)
 		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)

@@ -44,10 +44,15 @@ End
 ///
 /// @param tcName  If defined this function will search for the last test case in the current test
 ///                suite with this name. Leaving this parameter undefined keep the normal behavior.
-static Function LastTestCaseIndex([tcName])
+/// @param globalSearch  If set different to 0 it will search all in test suites of the current test
+///                run for the last test case.
+static Function LastTestCaseIndex([tcName, globalSearch])
 	string tcName
+	variable globalSearch
 
 	variable index, start, i
+
+	globalSearch = ParamIsDefault(globalSearch) ? 0 : globalSearch
 
 	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
 	index = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
@@ -56,9 +61,17 @@ static Function LastTestCaseIndex([tcName])
 		return -1
 	endif
 
-	// check the limits of the current test suite
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-	start = str2num(wvTestSuite[%CURRENT][%CHILD_START])
+	if(globalSearch)
+		// check the limits of the whole test run
+		WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+		start = str2num(wvTestRun[%CURRENT][%CHILD_START])
+		WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+		start = str2num(wvTestSuite[start][%CHILD_START])
+	else
+		// check the limits of the current test suite
+		WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+		start = str2num(wvTestSuite[%CURRENT][%CHILD_START])
+	endif
 
 	if(ParamIsDefault(tcName))
 		// search for the previous test case with a different name. A test case can rerun under
@@ -88,15 +101,20 @@ End
 ///
 /// @param tcName  If defined this function will search for the last test case in the current test
 ///                suite with this name. Leaving this parameter undefined keep the normal behavior.
-static Function/WAVE LastTestCase([tcName])
+/// @param globalSearch  If set different to 0 it will search all in test suites of the current test
+///                run for the last test case.
+static Function/WAVE LastTestCase([tcName, globalSearch])
 	string tcName
+	variable globalSearch
 
 	variable index
 
+	globalSearch = ParamIsDefault(globalSearch) ? 0 : globalSearch
+
 	if(ParamIsDefault(tcName))
-		index = LastTestCaseIndex()
+		index = LastTestCaseIndex(globalSearch = globalSearch)
 	else
-		index = LastTestCaseIndex(tcName = tcName)
+		index = LastTestCaseIndex(tcName = tcName, globalSearch = globalSearch)
 	endif
 
 	if(index < 0)
@@ -117,16 +135,21 @@ End
 ///
 /// @param tcName  If defined this function will search for the last test case in the current test
 ///                suite with this name. Leaving this parameter undefined keep the normal behavior.
-static Function/WAVE LastTestCases([tcName])
+/// @param globalSearch  If set different to 0 it will search all in test suites of the current test
+///                run for the last test case.
+static Function/WAVE LastTestCases([tcName, globalSearch])
 	string tcName
+	variable globalSearch
 
 	string name, name2
 	variable start, index
 
+	globalSearch = ParamIsDefault(globalSearch) ? 0 : globalSearch
+
 	if(ParamIsDefault(tcName))
-		index = LastTestCaseIndex()
+		index = LastTestCaseIndex(globalSearch = globalSearch)
 	else
-		index = LastTestCaseIndex(tcName = tcName)
+		index = LastTestCaseIndex(tcName = tcName, globalSearch = globalSearch)
 	endif
 
 	if(index < 0)
@@ -233,4 +256,35 @@ static Function/WAVE GetTestInfos(childStart, childEnd)
 	WAVE/T result = GetGridRows(wvInfo, childStart, childEnd)
 
 	return result
+End
+
+/// @brief Backups the current UTF data folder and create a clean one.
+static Function Backup()
+	DFREF dfr = GetPackageFolder()
+
+	NewDataFolder/O root:Backup
+#if (IgorVersion() >= 8.00)
+	MoveDataFolder/O=1/Z dfr, root:Backup
+#else
+	KillDataFolder/Z root:Backup:UnitTesting
+	MoveDataFolder dfr, root:Backup
+#endif
+
+	UTF_Debug#InitIgorDebugVariables()
+	UTF_Reporting_Control#SetupTestRun()
+End
+
+/// @brief Restore the backup-ed UTF data folder and move the previous UTF data folder state to
+/// root:Copy:UnitTesting.
+static Function Restore()
+	DFREF dfr = GetPackageFolder()
+
+	NewDataFolder/O root:Copy
+#if (IgorVersion() >= 8.00)
+	MoveDataFolder/O=1/Z dfr, root:Copy
+#else
+	KillDataFolder/Z root:Copy:UnitTesting
+	MoveDataFolder dfr, root:Copy
+#endif
+	MoveDataFolder root:Backup:UnitTesting, root:Packages
 End

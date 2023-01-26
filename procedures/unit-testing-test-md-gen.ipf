@@ -17,7 +17,8 @@ static Function/WAVE GetDataGeneratorWaves()
 		return wv
 	endif
 
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
+	Make/WAVE/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	UTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -94,27 +95,11 @@ static Function/S GetDataGenFullFunctionName(procWin, fullTestCase)
 	return dgen
 End
 
-static Function AddDataGeneratorWave(dgen, dgenWave)
-	string dgen
-	WAVE dgenWave
-
-	variable dgenSize
-
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	if(FindDimLabel(dgenWaves, UTF_ROW, dgen) == -2)
-		dgenSize = DimSize(dgenWaves, UTF_ROW)
-		Redimension/N=(dgenSize + 1) dgenWaves
-		dgenWaves[dgenSize] = dgenWave
-		SetDimLabel UTF_ROW, dgenSize, $dgen, dgenWaves
-	endif
-End
-
-static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
+static Function/S GetDataGeneratorForMMD(procWin, fullFuncName)
 	string procWin, fullFuncName
-	variable &markSkip
 
 	variable i, j, numTypes
-	string msg
+	string msg, dgen
 	string dgenList = ""
 
 	WAVE/T templates = UTF_Test_MD_MMD#GetMMDVarTemplates()
@@ -124,7 +109,10 @@ static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 	numTypes = DimSize(templates, UTF_ROW)
 	for(i = 0; i < numTypes; i += 1)
 		for(j = 0; j < IUTF_DGEN_NUM_VARS; j += 1)
-			markSkip = markSkip | CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i], dgenList)
+			dgen = GetSingleDataGeneratorForMMD(procWin, fullFuncName, templates[i], j)
+			if(!UTF_Utils#IsEmpty(dgen))
+				dgenList = AddListItem(dgen, dgenList, ";", Inf)
+			endif
 		endfor
 	endfor
 
@@ -136,12 +124,29 @@ static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 	return dgenList
 End
 
-/// Check Multi-Multi Data Generator output
-/// return 1 if one data generator has a zero sized wave, 0 otherwise
-static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wType0, wType1, dgenList)
+static Function CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
+	string procWin, fullFuncName
+	variable &markSkip
+
+	variable i, j, numTypes
+
+	WAVE/T templates = UTF_Test_MD_MMD#GetMMDVarTemplates()
+	Make/FREE/D wType0 = {0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64, NaN, NaN, NaN, IUTF_WAVETYPE0_CMPL, IUTF_WAVETYPE0_INT64}
+	Make/FREE/D wType1 = {IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_TEXT, IUTF_WAVETYPE1_DFR, IUTF_WAVETYPE1_WREF, IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_NUM}
+
+	numTypes = DimSize(templates, UTF_ROW)
+	for(i = 0; i < numTypes; i += 1)
+		for(j = 0; j < IUTF_DGEN_NUM_VARS; j += 1)
+			markSkip = markSkip | CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i])
+		endfor
+	endfor
+End
+
+/// Get a single data generator for a MMD test case. This returns an empty string if no data
+/// generator could be found.
+static Function/S GetSingleDataGeneratorForMMD(procWin, fullFuncName, varTemplate, index)
 	string procWin, fullFuncName, varTemplate
-	variable index, wType0, wType1
-	string &dgenList
+	variable index
 
 	string varName, tagName, dgen, msg
 	variable err
@@ -150,7 +155,7 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
 	dgen = UTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
 	if(err == UTF_TAG_NOT_FOUND)
-		return NaN
+		return ""
 	endif
 	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
 	if(err)
@@ -160,9 +165,33 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 
 	EvaluateDgenTagResult(err, fullFuncName, varName)
 
-	WAVE wGenerator = CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, NaN)
-	AddDataGeneratorWave(dgen, wGenerator)
-	dgenList = AddListItem(dgen, dgenList, ";", Inf)
+	return dgen
+End
+
+/// Check Multi-Multi Data Generator output
+/// return 1 if one data generator has a zero sized wave, 0 otherwise
+static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wType0, wType1)
+	string procWin, fullFuncName, varTemplate
+	variable index, wType0, wType1
+
+	string varName, tagName, dgen, msg
+	variable err
+
+	varName = varTemplate + num2istr(index)
+	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
+	dgen = UTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
+	if(err == UTF_TAG_NOT_FOUND)
+		return 0
+	endif
+	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
+	if(err)
+		sprintf msg, "Could not get full function name of data generator: %s", dgen
+		UTF_Reporting#ReportErrorAndAbort(msg)
+	endif
+
+	EvaluateDgenTagResult(err, fullFuncName, varName)
+
+	WAVE wGenerator = CheckDGenOutput(fullFuncName, dgen, wType0, wType1, NaN)
 
 	UTF_Test_MD_MMD#AddMMDTestCaseData(fullFuncName, dgen, varName, DimSize(wGenerator, UTF_ROW))
 
@@ -176,7 +205,7 @@ static Function CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 	string msg
 
 	if(!DimSize(wGenerator, UTF_ROW))
-		sprintf msg, "Note: In test case %s data generator function (%s) returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
+		sprintf msg, "Note: In test case %s data generator function \"%s\" returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
 		UTF_Reporting#ReportError(msg, incrGlobalErrorCounter = 0)
 		return 1
 	endif
@@ -191,57 +220,132 @@ static Function EvaluateDgenTagResult(err, fullFuncName, varName)
 	string msg
 
 	if(err == UTF_TAG_EMPTY)
-		sprintf msg, "No data generator function specified for function %s data generator variable %s.", fullFuncName, varName
+		sprintf msg, "No data generator function specified for function \"%s\" data generator variable \"%s\".", fullFuncName, varName
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	if(err != UTF_TAG_OK)
-		sprintf msg, "Problem determining data generator function specified for function %s data generator variable %s.", fullFuncName, varName
+		sprintf msg, "Problem determining data generator function specified for function \"%s\" data generator variable \"%s\".", fullFuncName, varName
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 End
 
-static Function/WAVE GetGeneratorWave(dgen, fullFuncName)
-	string dgen, fullFuncName
+static Function/WAVE GetGeneratorWave(dgen)
+	string dgen
 
 	variable dimPos
-	string msg
 
 	WAVE/WAVE wDgen = GetDataGeneratorWaves()
 	dimPos = FindDimlabel(wDgen, UTF_ROW, dgen)
 	if(dimPos == -2)
-		FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
-		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-			sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
-			UTF_Reporting#ReportErrorAndAbort(msg)
-		endif
-		WAVE/Z wGenerator = fDgen()
-	else
-		WAVE wGenerator = wDgen[dimPos]
+		return $""
+	endif
+	WAVE wGenerator = wDgen[dimPos]
+
+	return wGenerator
+End
+
+static Function/WAVE CheckDGenOutput(fullFuncName, dgen, wType0, wType1, wRefSubType)
+	string fullFuncName, dgen
+	variable wType0, wType1, wRefSubType
+
+	string msg
+
+	WAVE/Z wGenerator = GetGeneratorWave(dgen)
+	if(!WaveExists(wGenerator))
+		// wave is not stored
+		sprintf msg, "Data Generator function \"%s\" has no suitable data for test case \"%s\".", dgen, fullFuncName
+		UTF_Reporting#ReportErrorAndAbort(msg)
+	elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
+		sprintf msg, "Data Generator \"%s\" functions returned wave format does not fit to expected test case parameter. It is referenced by test case \"%s\".", dgen, fullFuncName
+		UTF_Reporting#ReportErrorAndAbort(msg)
+	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
+		sprintf msg, "Test case \"%s\" expects specific wave type1 %u from the Data Generator \"%s\". The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
+		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	return wGenerator
 End
 
-static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
-	string procWin, fullFuncName, dgen
-	variable wType0, wType1, wRefSubType
+static Function ExecuteAllDataGenerators(debugMode)
+	variable debugMode
 
-	string msg
+	variable i, j, size, length, dimPos, err
+	string dgenList, dgen, fullFuncName, endTime, msg, procWin
+	variable DGENLIST_Index
 
-	WAVE/Z wGenerator = GetGeneratorWave(dgen, fullFuncName)
-	if(!WaveExists(wGenerator))
-		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(DimSize(wGenerator, UTF_COLUMN) > 0)
-		sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
-		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
-		UTF_Reporting#ReportErrorAndAbort(msg)
+	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	size = DimSize(testRunData, UTF_ROW)
+	DGENLIST_Index = FindDimLabel(testRunData, UTF_COLUMN, "DGENLIST")
+
+	if(!size)
+		return NaN
 	endif
 
-	return wGenerator
+	WAVE/WAVE wDgen = GetDataGeneratorWaves()
+
+	UTF_Debug#SetDebugger(debugMode)
+	UTF_Reporting_Control#TestSuiteBegin("@DGEN_SUITE")
+
+	for(i = 0; i < size; i += 1)
+		dgenList = testRunData[i][DGENLIST_Index]
+		WAVE/T dgenWave = ListToTextWave(dgenList, ";")
+		length = DimSize(dgenWave, UTF_ROW)
+
+		for(j = 0; j < length; j += 1)
+			dgen = dgenWave[j]
+			dimPos = FindDimLabel(wDgen, UTF_ROW, dgen)
+			if(dimPos != -2)
+				continue
+			endif
+			procWin = StringByKey("PROCWIN", FunctionInfo(dgen))
+
+			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
+			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
+				fullFuncName = testRunData[i][%FULLFUNCNAME]
+				sprintf msg, "Data Generator function \"%s\" has wrong format. It is referenced by test case \"%s\".", dgen, fullFuncName
+				UTF_Reporting#ReportErrorAndAbort(msg)
+			endif
+
+			UTF_Reporting_Control#TestCaseBegin(dgen, 0)
+			try
+				UTF_Basics#ClearRTError()
+				WAVE/Z wGenerator = fDgen(); AbortOnRTE
+			catch
+				msg = GetRTErrMessage()
+				err = GetRTError(1)
+				UTF_Basics#EvaluateRTE(err, msg, V_AbortCode, dgen, IUTF_DATA_GEN_TYPE, procWin)
+
+				sprintf msg, "Invalid Data Generator \"%s\"", dgen
+				UTF_Reporting#ReportErrorAndAbort(msg)
+			endtry
+			endTime = UTF_Reporting#GetTimeString()
+
+			if(!WaveExists(wGenerator))
+				sprintf msg, "Data Generator function \"%s\" (%s) returns a null wave.", dgen, procWin
+				UTF_Reporting#ReportErrorAndAbort(msg)
+			elseif(DimSize(wGenerator, UTF_COLUMN) > 0)
+				sprintf msg, "Data Generator function \"%s\" (%s) returns not a 1D wave.", dgen, procWin
+				UTF_Reporting#ReportErrorAndAbort(msg)
+			endif
+
+			UTF_Reporting_Control#TestCaseEnd(endTime)
+
+			AddDataGeneratorWave(dgen, wGenerator)
+		endfor
+	endfor
+
+	UTF_Reporting_Control#TestSuiteEnd() // of @DGEN_SUITE
+	UTF_Debug#RestoreDebugger()
+End
+
+static Function AddDataGeneratorWave(name, generator)
+	string name
+	WAVE generator
+
+	variable index
+
+	WAVE/WAVE wv = GetDataGeneratorWaves()
+	index = UTF_Utils_Vector#AddRow(wv)
+	wv[index] = generator
+	SetDimLabel UTF_ROW, index, $name, wv
 End
