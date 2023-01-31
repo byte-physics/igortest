@@ -9,6 +9,7 @@
 static StrConstant PROC_BACKUP_ENDING = ".backup"
 static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"
 static StrConstant GLOBAL_IPROCLIST = "instrumentedProcWins"
+static StrConstant GLOBAL_PROCINFO = "TracedProcedureInfo"
 static StrConstant INSTRUDATA_FILENAME = "iutf_instrumentation_data.txt"
 static Constant TABSIZE = 4
 
@@ -172,9 +173,21 @@ static Function/S PreCheckProcedures(string procWinList)
 	return outList
 End
 
+/// @brief Returns the traced procedures. Do not modify these!
+static Function/WAVE GetTracedProcedureInfos()
+	DFREF dfr = GetPackageFolder()
+	WAVE/T/Z wv = dfr:$GLOBAL_PROCINFO
+
+	if(!WaveExists(wv))
+		UTF_Reporting#ReportErrorAndAbort("Bug: Cannot find stored procedure info. Did you execute tracing setup before?")
+	endif
+
+	return wv
+End
+
 /// @brief Returns the traced procedure names. Do not modify these!
 threadsafe static Function/WAVE GetTracedProcedureNames()
-	TUFXOP_GetStorage/N="IUTF_Traced_Procedures" wvStorage
+	TUFXOP_GetStorage/N="IUTF_Traced_ProcedureNames" wvStorage
 	if(V_flag)
 		UTF_Reporting#UTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
 		Make/FREE=1/T/N=0 empty
@@ -188,7 +201,7 @@ End
 /// @brief Sets up procedure files for code coverage tracing and writes them back
 static Function SetupTraceProcedures(string procWinList, string traceOptions)
 
-	variable numProcs, i, fNum, enableRegExp
+	variable numProcs, i, fNum, enableRegExp, gridIndex
 	string funcPath, output, input, compTag, endL, line, procWin, iProcList, msg
 
 	iProcList = ""
@@ -201,6 +214,8 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	procWinList = PreCheckProcedures(procWinList)
 	numProcs = ItemsInList(procWinList)
 
+	WAVE/T procTextGrid = UTF_Utils_TextGrid#Create("NAME;PATH;")
+
 	Make/FREE/D/N=(UTF_MAX_PROC_LINES, numProcs) markLinesProc
 	InitFuncLocations(numProcs)
 	InitProcSizes(numProcs)
@@ -209,6 +224,10 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
 		[procText, funcPath, markLines] = AddTraceFunctions(procWin, i)
+		gridIndex = UTF_Utils_Vector#AddRow(procTextGrid)
+		procTextGrid[gridIndex][%NAME] = procWin
+		procTextGrid[gridIndex][%PATH] = funcPath
+
 		if(!UTF_Utils#IsEmpty(funcPath))
 			markLinesProc[0, DimSize(markLines, UTF_ROW) - 1][i] = markLines[p]
 
@@ -254,24 +273,44 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
 
-	SetTracedProcedureNames(procWinList)
+	UTF_Utils_Waves#RemoveDimLabel(procTextGrid, UTF_ROW, "CURRENT")
+	SetTracedProcedures(procTextGrid)
 End
 
-static Function SetTracedProcedureNames(string procWinList)
+/// @brief Set the traced procedure names and paths for later access
+///
+/// @param procTextGrid  A Utils_TextGrid with the following columns:
+///                      - %NAME: The name of the procedure file
+///                      - %PATH: The absolute path to the procedure file
+static Function SetTracedProcedures(WAVE/T procTextGrid)
 	string msg
+	variable nameIndex, size
 
-	WAVE/T wvProcedures = ListToTextWave(procWinList, ";")
-	TUFXOP_Init/Q/Z/N="IUTF_Traced_Procedures"
+	// Store the procedures normally
+
+	DFREF dfr = GetPackageFolder()
+	KillWaves/Z dfr:$GLOBAL_PROCINFO
+	MoveWave procTextGrid, dfr:$GLOBAL_PROCINFO
+
+	// Store the names only for threaded access
+
+	nameIndex = FindDimLabel(procTextGrid, UTF_COLUMN, "NAME")
+	size = UTF_Utils_Vector#GetLength(procTextGrid)
+	Duplicate/FREE/RMD=[0, size - 1][nameIndex] procTextGrid, names
+	Redimension/N=(-1) names
+	Note/K names, ""
+
+	TUFXOP_Init/Q/Z/N="IUTF_Traced_ProcedureNames"
 	if(V_flag)
 		sprintf msg, "Cannot reserve shared wave for procedure names (error: %d)", V_flag
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
-	TUFXOP_GetStorage/N="IUTF_Traced_Procedures" wvStorage
+	TUFXOP_GetStorage/N="IUTF_Traced_ProcedureNames" wvStorage
 	if(V_flag)
 		sprintf msg, "Cannot open shared wave for procedure names (error: %d)", V_flag
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
-	wvStorage[0] = wvProcedures
+	wvStorage[0] = names
 End
 
 /// @brief Parses a function declaration and returns the list of declared variables
@@ -958,6 +997,53 @@ static Function AnalyzeTracingResult()
 
 	UTF_Reporting#UTF_PrintStatusMessage("Done.")
 	UTF_Reporting#UTF_PrintStatusMessage(statOut)
+End
+
+Function IUTF_RestoreTracing()
+	variable i, size
+	string path, backupPath, msg
+
+	WAVE/T wvProcs = GetTracedProcedureInfos()
+	size = UTF_Utils_Vector#GetLength(wvProcs)
+
+	if(size == 0)
+		UTF_Reporting#UTF_PrintStatusMessage("Nothing to restore")
+		return NaN
+	endif
+
+	sprintf msg, "%d procedure files to restore", size
+	UTF_Reporting#UTF_PrintStatusMessage(msg)
+
+	for(i = 0; i < size; i += 1)
+		path = wvProcs[i][%PATH]
+		backupPath = path + PROC_BACKUP_ENDING
+
+		if(UTF_Utils#IsEmpty(path))
+			// there was never a backup created
+			continue
+		endif
+
+		if(UTF_Utils_Paths#FileNotExists(backupPath))
+			sprintf msg, "Backup file not found: %s (%s)", backupPath, wvProcs[i][%NAME]
+			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			continue
+		endif
+
+		MoveFile/O/Z=1 backupPath as path
+		if(V_flag)
+			msg = GetErrMessage(V_flag)
+			sprintf msg, "Cannot move \"%s\" to \"%s\": \"%s\"", S_fileName, S_path, msg
+		endif
+
+		sprintf msg, "Backup restored for %s", path
+		UTF_Reporting#UTF_PrintStatusMessage(msg)
+	endfor
+
+	WAVE/T procs = UTF_Utils_TextGrid#Create("NAME;PATH;")
+	SetTracedProcedures(procs)
+
+	UTF_Reporting#UTF_PrintStatusMessage("Restoring procedure files from backup completed.")
+	CompileAndRestart()
 End
 
 #endif
