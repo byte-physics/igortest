@@ -46,7 +46,7 @@ static Function TracingTest2()
 	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	numThreads = NumberByKey("Index", note(wrefMain))
 
-	WAVE/T procNames = GetTracedProcedureNames()
+	WAVE/T procNames = UTF_Tracing#GetTracedProcedureNames()
 	numProcs = DimSize(procNames, UTF_ROW)
 	CHECK_EQUAL_TEXTWAVES(procNames, {"test-tracing2.ipf"})
 

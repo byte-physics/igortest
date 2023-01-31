@@ -6,11 +6,6 @@
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
-static StrConstant TRACING_AUTOGEN_PROCEDURE = "unit-testing-tracing-auto.ipf"
-static StrConstant TRACING_AUTOGEN_FUNCTION = "GetTracedProcedureNames"
-static StrConstant AUTOGEN_START = "// START OF AUTO GENERATED LINES"
-static StrConstant AUTOGEN_END = "// END OF AUTO GENERATED LINES"
-static StrConstant AUTODEL_START = "// AUTO DELETE AFTER THIS LINE"
 static StrConstant PROC_BACKUP_ENDING = ".backup"
 static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"
 static StrConstant GLOBAL_IPROCLIST = "instrumentedProcWins"
@@ -134,7 +129,6 @@ static Function AllCompiled()
 	DFREF dfr = GetPackageFolder()
 	SVAR procWinList = dfr:$GLOBAL_IPROCLIST
 
-	procWinList = AddListItem(TRACING_AUTOGEN_PROCEDURE, procWinList, ";", Inf)
 	numProcs = ItemsInList(procWinList)
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
@@ -176,6 +170,19 @@ static Function/S PreCheckProcedures(string procWinList)
 	endfor
 
 	return outList
+End
+
+/// @brief Returns the traced procedure names. Do not modify these!
+threadsafe static Function/WAVE GetTracedProcedureNames()
+	TUFXOP_GetStorage/N="IUTF_Traced_Procedures" wvStorage
+	if(V_flag)
+		UTF_Reporting#UTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
+		Make/FREE=1/T/N=0 empty
+		return empty
+	endif
+
+	WAVE/T wv = wvStorage[0]
+	return wv
 End
 
 /// @brief Sets up procedure files for code coverage tracing and writes them back
@@ -247,60 +254,24 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
 
-	WriteProcList(procWinList)
+	SetTracedProcedureNames(procWinList)
 End
 
-/// @brief Generates code for GetTracedProcedureNames function to resolve procNum to procedure name on analysis.
-static Function WriteProcList(string procWinList)
+static Function SetTracedProcedureNames(string procWinList)
+	string msg
 
-	string fullProcText, newCode, funcPath, fullFuncName, output, msg
-	variable i, numProcs, err, fNum
-
-	fullFuncName = UTF_Basics#getFullFunctionName(err, TRACING_AUTOGEN_FUNCTION, TRACING_AUTOGEN_PROCEDURE)
-	if(err)
-		UTF_Reporting#ReportErrorAndAbort("Unable to retrieve full function name.")
-	endif
-	funcPath = FunctionPath(fullFuncName)
-
-	fullProcText = ProcedureText("", NaN, TRACING_AUTOGEN_PROCEDURE)
-	WAVE/T wProcText = ListToTextWave(fullProcText, "\r")
-	FindValue/TEXT=AUTOGEN_END/TXOP=4 wProcText
-	if(V_Value < 0)
-		UTF_Reporting#ReportErrorAndAbort("Autogen end marker not found.")
-	endif
-	Duplicate/FREE/RMD=[V_Value, Inf] wProcText, fullTrailText
-	FindValue/TEXT=AUTODEL_START/TXOP=4 fullTrailText
-	Duplicate/FREE/RMD=[0 , V_Value] fullTrailText, trailText
-
-	FindValue/TEXT=AUTOGEN_START/TXOP=4 wProcText
-	if(V_Value < 0)
-		UTF_Reporting#ReportErrorAndAbort("Autogen start marker not found.")
-	endif
-	Duplicate/FREE/RMD=[0, V_Value] wProcText, headText
-
-	numProcs = ItemsInList(procWinList)
-
-	newCode = "Make/FREE/T wt = {\\\r"
-	for(i = 0; i < numProcs - 1; i += 1)
-		newCode += "\"" + StringFromList(i, procWinList) + "\",\\\r"
-	endfor
-	newCode += "\"" + StringFromList(numProcs - 1, procWinList) + "\"\\\r"
-	newCode += "}\r"
-	newCode += "return wt\r"
-	WAVE/T wNewCode = ListToTextWave(newCode, "\r")
-
-	Open/Z fNum as funcPath
+	WAVE/T wvProcedures = ListToTextWave(procWinList, ";")
+	TUFXOP_Init/Q/Z/N="IUTF_Traced_Procedures"
 	if(V_flag)
-		sprintf msg, "Open failed for file %s.", funcPath
+		sprintf msg, "Cannot reserve shared wave for procedure names (error: %d)", V_flag
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
-	wfprintf fNum, "%s\r", headText
-	wfprintf fNum, "%s\r", wNewCode
-	wfprintf fNum, "%s\r", trailText
-
-	output = "Function " + GetTaggedFunctionName(TRACING_AUTOGEN_PROCEDURE) + "()\rEnd\r"
-	fprintf fNum, "%s", output
-	Close fNum
+	TUFXOP_GetStorage/N="IUTF_Traced_Procedures" wvStorage
+	if(V_flag)
+		sprintf msg, "Cannot open shared wave for procedure names (error: %d)", V_flag
+		UTF_Reporting#ReportErrorAndAbort(msg)
+	endif
+	wvStorage[0] = wvProcedures
 End
 
 /// @brief Parses a function declaration and returns the list of declared variables
