@@ -242,7 +242,7 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 		endif
 	endfor
 
-	Save/P=home/O/M="\n"/J markLinesProc as INSTRUDATA_FILENAME
+	Save/O/M="\n"/J markLinesProc as (UTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME))
 
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
@@ -852,7 +852,7 @@ static Function AnalyzeTracingResult()
 	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace, statOut
 	string procLineFormat
 	variable colR, colG, colB
-	string msg
+	string msg, instruDataPath
 
 	UTF_Reporting#UTF_PrintStatusMessage("Generating coverage output.")
 
@@ -872,12 +872,13 @@ static Function AnalyzeTracingResult()
 		MultiThread logdata += logdataThread[p][q][r]
 	endfor
 
-	GetFileFolderInfo/P=home/Z/Q INSTRUDATA_FILENAME
+	instruDataPath = UTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME)
+	GetFileFolderInfo/Z/Q instruDataPath
 	if(V_flag || !V_IsFile)
 		UTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
 	endif
 
-	LoadWave/P=home/J/K=1/O/Q/M/N=iutf_instrumented_data INSTRUDATA_FILENAME
+	LoadWave/J/K=1/O/Q/M/N=iutf_instrumented_data instruDataPath
 	if(V_flag != 1)
 		UTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
 	endif
@@ -977,7 +978,7 @@ static Function AnalyzeTracingResult()
 			Notebook NBTracedData selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(0 * 0xff, 32  * 0xff, 128  * 0xff)
 		endfor
 		fName = procWin[0, strlen(procWin) - 5] + ".htm"
-		SaveNotebook/O/P=home/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as fName
+		SaveNotebook/O/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as (UTF_Utils_Paths#AtHome(fName))
 	endfor
 
 	MatrixOP/FREE statLines = sum(col(statistics, STAT_LINES))

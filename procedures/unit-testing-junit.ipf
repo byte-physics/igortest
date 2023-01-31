@@ -256,21 +256,14 @@ static Function JU_WriteOutput()
 #else
 	out = JU_UTF8Filter(out)
 #endif
-	PathInfo home
-	juFileName = getUnusedFileName(S_path + "JU_" + GetBaseFilename() + ".xml")
-	if(UTF_Utils#IsEmpty(juFileName))
-		sprintf msg, "Error: Unable to determine unused file name for JUNIT output in path %s !", S_path
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
-		return NaN
-	endif
+	juFileName = UTF_Utils_Paths#AtHome("JU_" + GetBaseFilename() + ".xml", unusedName = 1)
 
-	open/Z/P=home fnum as juFileName
+	open/Z fnum as juFileName
 	if(!V_flag)
 		fBinWrite fnum, out
 		close fnum
 	else
-		PathInfo home
-		sprintf msg, "Error: Could not create JUNIT output file at %s", S_path + juFileName
+		sprintf msg, "Error: Could not create JUNIT output file at %s", juFileName
 		UTF_Reporting#UTF_PrintStatusMessage(msg)
 	endif
 End
