@@ -220,16 +220,7 @@ static Function TestBegin(name, debugMode)
 
 	UTF_Reporting_Control#TestBegin()
 	UTF_Basics#InitAbortFlag()
-
-	UTF_Basics#InitIgorDebugVariables()
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_state
-	if(!debugMode)
-		igor_debug_state = UTF_Basics#DisableIgorDebugger()
-	endif
-	if(debugMode & (IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION))
-		igor_debug_state = UTF_Basics#EnableIgorDebugger(debugMode)
-	endif
+	UTF_Debug#SetDebugger(debugMode)
 
 	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
 	UTF_Utils_Vector#SetLength(wvFailed, 0)
@@ -270,9 +261,7 @@ static Function TestEnd(name, debugMode)
 	UTF_Reporting#UTF_PrintStatusMessage(msg)
 
 	UTF_Reporting_Control#TestEnd()
-
-	NVAR/SDFR=dfr igor_debug_state
-	UTF_Basics#RestoreIgorDebugger(igor_debug_state)
+	UTF_Debug#RestoreDebugger()
 End
 
 /// Internal Setup for Test Suite

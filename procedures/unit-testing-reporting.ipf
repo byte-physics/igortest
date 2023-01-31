@@ -474,7 +474,7 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	UTF_Basics#DebugOutput(str, result)
+	UTF_Debug#DebugOutput(str, result)
 
 	if(!result)
 		expectedFailure = IsExpectedFailure()

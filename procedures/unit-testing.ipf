@@ -11,6 +11,7 @@
 #include "unit-testing-autorun"
 #include "unit-testing-basics"
 #include "unit-testing-constants"
+#include "unit-testing-debug"
 #include "unit-testing-functiontags"
 #include "unit-testing-hooks"
 #include "unit-testing-hooks-proto"

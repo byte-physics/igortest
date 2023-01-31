@@ -230,31 +230,6 @@ Function/DF GetPackageFolder()
 	return dfr
 End
 
-/// Returns 1 if debug output is enabled and zero otherwise
-Function EnabledDebug()
-	DFREF dfr = GetPackageFolder()
-	NVAR/Z/SDFR=dfr verbose
-
-	if(NVAR_EXISTS(verbose) && verbose == 1)
-		return 1
-	endif
-
-	return 0
-End
-
-/// Output debug string in assertions
-/// @param str            debug string
-/// @param booleanValue   assertion state
-static Function DebugOutput(str, booleanValue)
-	string &str
-	variable booleanValue
-
-	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
-	if(EnabledDebug())
-		UTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
-	endif
-End
-
 /// Evaluate the result of an assertion that was used in a testcase. For evaluating internal errors use
 /// ReportError* functions.
 /// @param result          Set to 0 to signal an error. Any value different to 0 will be considered as success.
@@ -271,81 +246,8 @@ Function EvaluateResults(result, str, flags, [cleanupInfo])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	DebugFailedAssertion(result)
+	UTF_Debug#DebugFailedAssertion(result)
 	UTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
-End
-
-/// Opens the Debugger if the assertion failed and the debugMode option is set
-static Function DebugFailedAssertion(result)
-	variable result
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_assertion
-
-	if(igor_debug_assertion && !result)
-		Debugger
-	endif
-End
-
-/// Returns the current state of the Igor Debugger as ORed bitmask of IUTF_DEBUG_* constants
-static Function GetCurrentDebuggerState()
-
-	DebuggerOptions
-	return (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
-End
-
-/// Set the Igor Debugger, returns the previous state
-/// @param state		3 bits to set
-///						0x01: debugger enable
-///						0x02: debug on error
-///						0x04: debug on NVAR SVAR WAVE reference error
-static Function SetIgorDebugger(state)
-	variable state
-
-	variable prevState, enable, debugOnError, nvarSvarWave
-
-	prevState = GetCurrentDebuggerState()
-
-	enable = !!(state & IUTF_DEBUG_ENABLE)
-	debugOnError = !!(state & IUTF_DEBUG_ON_ERROR)
-	nvarSvarWave = !!(state & IUTF_DEBUG_NVAR_SVAR_WAVE)
-
-	DebuggerOptions enable=enable, debugOnError=debugOnError, NVAR_SVAR_WAVE_Checking=nvarSvarWave
-
-	return prevState
-End
-
-/// Enable the Igor Pro Debugger in a certain state, return its previous state
-static Function EnableIgorDebugger(debugMode)
-	variable debugMode
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_assertion
-
-	igor_debug_assertion = !!(debugMode & IUTF_DEBUG_FAILED_ASSERTION)
-
-	return SetIgorDebugger(debugMode | IUTF_DEBUG_ENABLE)
-End
-
-/// Disable the Igor Pro Debugger, return its previous state
-static Function DisableIgorDebugger()
-
-	return SetIgorDebugger(IUTF_DEBUG_DISABLE)
-End
-
-/// Restore the Igor Pro Debugger to its prior state
-static Function RestoreIgorDebugger(debuggerState)
-	variable debuggerState
-
-	SetIgorDebugger(debuggerState)
-End
-
-/// Create the variables igor_debug_state and igor_debug_assertion
-/// in PKG_FOLDER and initialize it to zero
-static Function InitIgorDebugVariables()
-	DFREF dfr = GetPackageFolder()
-	Variable/G dfr:igor_debug_state = 0
-	Variable/G dfr:igor_debug_assertion = 0
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -442,27 +344,6 @@ static Function/S getFullFunctionName(err, funcName, procName)
 
 	return funcNameReturn
 End
-
-///@endcond // HIDDEN_SYMBOL
-
-///@addtogroup Helpers
-///@{
-
-/// Turns debug output on
-Function EnableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 1
-End
-
-/// Turns debug output off
-Function DisableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 0
-End
-
-///@}
-
-///@cond HIDDEN_SYMBOL
 
 /// Evaluates an RTE and puts a composite error message into message/type
 static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
@@ -1499,7 +1380,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			print "Note: debugMode parameter is set, allowDebug parameter is ignored."
 		endif
 		if(s.debugMode == 0 && allowDebug > 0)
-			s.debugMode = GetCurrentDebuggerState()
+			s.debugMode = UTF_Debug#GetCurrentDebuggerState()
 		endif
 
 #if IgorVersion() < 9.00
