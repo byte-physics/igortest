@@ -18,13 +18,17 @@ End
 ///
 /// @returns one of @ref AutorunModes
 Function GetAutorunMode()
-	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN.TXT"
+	string path
+
+	path = UTF_Utils_Paths#AtHome("DO_AUTORUN.TXT")
+	GetFileFolderInfo/Q/Z path
 
 	if(!V_flag)
 		return AUTORUN_FULL
 	endif
 
-	GetFileFolderInfo/Q/Z/P=home "DO_AUTORUN_PLAIN.TXT"
+	path = UTF_Utils_Paths#AtHome("DO_AUTORUN_PLAIN.TXT")
+	GetFileFolderInfo/Q/Z path
 
 	if(!V_flag)
 		return AUTORUN_PLAIN
@@ -134,13 +138,7 @@ Function SaveHistoryLog()
 		return NaN
 	endif
 
-	PathInfo home
-	historyLog = getUnusedFileName(S_path + historyLog)
-	if(UTF_Utils#IsEmpty(historyLog))
-		sprintf msg, "Error: Unable to determine unused file name for History Log output in path %s !", S_path
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
-		return NaN
-	endif
+	historyLog = UTF_Utils_Paths#AtHome(historyLog, unusedName = 1)
 
-	SaveNoteBook/S=3/P=home HistoryCarbonCopy as historyLog
+	SaveNoteBook/S=3 HistoryCarbonCopy as historyLog
 End

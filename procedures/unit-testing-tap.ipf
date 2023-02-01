@@ -189,19 +189,11 @@ static Function TAP_Write()
 	string filename, s, msg
 	variable caseCount = 1
 
-	filename = "tap_" + GetBaseFilename() + ".log"
-	PathInfo home
-	filename = getUnusedFileName(S_path + filename)
-	if(!strlen(filename))
-		sprintf msg, "Error: Unable to determine unused file name for TAP output in path %s !", S_path
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
-		return NaN
-	endif
+	filename = UTF_Utils_Paths#AtHome("tap_" + GetBaseFilename() + ".log", unusedName = 1)
 
-	open/Z/P=home fnum as filename
+	open/Z fnum as filename
 	if(V_flag)
-		PathInfo home
-		sprintf msg, "Error: Could not create TAP output file at %s", S_path + filename
+		sprintf msg, "Error: Could not create TAP output file at %s", filename
 		UTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif

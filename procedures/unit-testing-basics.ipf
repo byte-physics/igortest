@@ -273,39 +273,6 @@ Function/DF GetPackageFolder()
 	return dfr
 End
 
-/// Returns 0 if the file exists, !0 otherwise
-static Function FileNotExists(fname)
-	string fname
-
-	GetFileFolderInfo/Q/Z fname
-	return V_Flag
-End
-
-/// returns a non existing file name an empty string
-Function/S getUnusedFileName(fname)
-	string fname
-
-	variable count
-	string fn, fnext, fnn
-
-	if (FileNotExists(fname))
-		return fname
-	endif
-	fname = ParseFilePath(5, fname, "\\", 0, 0)
-	fnext = "." + ParseFilePath(4, fname, "\\", 0, 0)
-	fnn = RemoveEnding(fname, fnext)
-
-	count = -1
-	do
-		count += 1
-		sprintf fn, "%s_%03d%s", fnn, count, fnext
-	while(!FileNotExists(fn) && count < 999)
-	if(!FileNotExists(fn))
-		return ""
-	endif
-	return fn
-End
-
 /// Creates a global with the allowed variable names for mmd data tests and returns the value
 static Function/S GetMMDAllVariablesList()
 
@@ -2402,6 +2369,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	else
 		// no early return/abort above this point
+		UTF_Utils_Paths#ClearHomePath()
 		DFREF dfr = GetPackageFolder()
 		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, "", FIXED_LOG_FILENAME)
 		ClearTestSetupWaves()
@@ -2424,8 +2392,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !UTF_Utils#IsEmpty(traceWinList)
 
 		if(s.enableJU || s.enableTAP || s.tracingEnabled)
-			PathInfo home
-			if(!V_flag)
+			// the path is only needed locally
+			msg = UTF_Utils_Paths#GetHomePath()
+			if(UTF_Utils#IsEmpty(msg))
 				UTF_Reporting#ReportError("Error: Please Save experiment first.")
 				return NaN
 			endif
