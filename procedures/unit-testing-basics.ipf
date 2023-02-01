@@ -27,19 +27,9 @@ static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
-static StrConstant DGEN_VAR_TEMPLATE = "v"
-static StrConstant DGEN_STR_TEMPLATE = "s"
-static StrConstant DGEN_DFR_TEMPLATE = "dfr"
-static StrConstant DGEN_WAVE_TEMPLATE = "w"
-static StrConstant DGEN_CMPLX_TEMPLATE = "c"
-static StrConstant DGEN_INT64_TEMPLATE = "i"
-static Constant DGEN_NUM_VARS = 5
-
 static Constant TC_MODE_NORMAL = 0
 static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
-
-static StrConstant TC_SUFFIX_SEP = ":"
 
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
@@ -60,39 +50,6 @@ static Function/WAVE GetTestRunData()
 	SetDimLabel UTF_COLUMN, 3, DGENLIST, wv
 	SetDimLabel UTF_COLUMN, 4, SKIP, wv
 	SetDimLabel UTF_COLUMN, 5, EXPECTFAIL, wv
-
-	return wv
-End
-
-/// @brief Returns a global wave that stores the multi-multi-data testcase (MMD TC) state waves
-///        The getter function for the MMD TC state waves is GetMMDFuncState()
-static Function/WAVE GetMMDataState()
-
-	string name = "MMDataState"
-
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
-	if(WaveExists(wv))
-		return wv
-	endif
-
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
-
-	return wv
-End
-
-/// @brief Returns a global wave that stores the results of the DataGenerators of this testrun
-static Function/WAVE GetDataGeneratorWaves()
-
-	string name = "DataGeneratorWaves"
-
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
-	if(WaveExists(wv))
-		return wv
-	endif
-
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
 
 	return wv
 End
@@ -273,60 +230,6 @@ Function/DF GetPackageFolder()
 	return dfr
 End
 
-/// Creates a global with the allowed variable names for mmd data tests and returns the value
-static Function/S GetMMDAllVariablesList()
-
-	variable i, j, numTemplates
-	string varName, varList
-
-	DFREF dfr = GetPackageFolder()
-	SVAR/Z/SDFR=dfr mmdAllVariablesList
-
-	if(SVAR_EXISTS(mmdAllVariablesList))
-		return mmdAllVariablesList
-	endif
-
-	varList = ""
-
-	WAVE/T templates = GetMMDVarTemplates()
-	numTemplates = DimSize(templates, UTF_ROW)
-	for(i = 0; i < numTemplates; i += 1)
-		for(j = 0; j < DGEN_NUM_VARS; j += 1)
-			varName = templates[i] + num2istr(j)
-			varList = AddListItem(varName, varList)
-		endfor
-	endfor
-
-	string/G dfr:mmdAllVariablesList = varList
-
-	return varList
-End
-
-/// Returns 1 if debug output is enabled and zero otherwise
-Function EnabledDebug()
-	DFREF dfr = GetPackageFolder()
-	NVAR/Z/SDFR=dfr verbose
-
-	if(NVAR_EXISTS(verbose) && verbose == 1)
-		return 1
-	endif
-
-	return 0
-End
-
-/// Output debug string in assertions
-/// @param str            debug string
-/// @param booleanValue   assertion state
-static Function DebugOutput(str, booleanValue)
-	string &str
-	variable booleanValue
-
-	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
-	if(EnabledDebug())
-		UTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
-	endif
-End
-
 /// Evaluate the result of an assertion that was used in a testcase. For evaluating internal errors use
 /// ReportError* functions.
 /// @param result          Set to 0 to signal an error. Any value different to 0 will be considered as success.
@@ -343,81 +246,8 @@ Function EvaluateResults(result, str, flags, [cleanupInfo])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	DebugFailedAssertion(result)
+	UTF_Debug#DebugFailedAssertion(result)
 	UTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
-End
-
-/// Opens the Debugger if the assertion failed and the debugMode option is set
-static Function DebugFailedAssertion(result)
-	variable result
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_assertion
-
-	if(igor_debug_assertion && !result)
-		Debugger
-	endif
-End
-
-/// Returns the current state of the Igor Debugger as ORed bitmask of IUTF_DEBUG_* constants
-static Function GetCurrentDebuggerState()
-
-	DebuggerOptions
-	return (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
-End
-
-/// Set the Igor Debugger, returns the previous state
-/// @param state		3 bits to set
-///						0x01: debugger enable
-///						0x02: debug on error
-///						0x04: debug on NVAR SVAR WAVE reference error
-static Function SetIgorDebugger(state)
-	variable state
-
-	variable prevState, enable, debugOnError, nvarSvarWave
-
-	prevState = GetCurrentDebuggerState()
-
-	enable = !!(state & IUTF_DEBUG_ENABLE)
-	debugOnError = !!(state & IUTF_DEBUG_ON_ERROR)
-	nvarSvarWave = !!(state & IUTF_DEBUG_NVAR_SVAR_WAVE)
-
-	DebuggerOptions enable=enable, debugOnError=debugOnError, NVAR_SVAR_WAVE_Checking=nvarSvarWave
-
-	return prevState
-End
-
-/// Enable the Igor Pro Debugger in a certain state, return its previous state
-static Function EnableIgorDebugger(debugMode)
-	variable debugMode
-
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr igor_debug_assertion
-
-	igor_debug_assertion = !!(debugMode & IUTF_DEBUG_FAILED_ASSERTION)
-
-	return SetIgorDebugger(debugMode | IUTF_DEBUG_ENABLE)
-End
-
-/// Disable the Igor Pro Debugger, return its previous state
-static Function DisableIgorDebugger()
-
-	return SetIgorDebugger(IUTF_DEBUG_DISABLE)
-End
-
-/// Restore the Igor Pro Debugger to its prior state
-static Function RestoreIgorDebugger(debuggerState)
-	variable debuggerState
-
-	SetIgorDebugger(debuggerState)
-End
-
-/// Create the variables igor_debug_state and igor_debug_assertion
-/// in PKG_FOLDER and initialize it to zero
-static Function InitIgorDebugVariables()
-	DFREF dfr = GetPackageFolder()
-	Variable/G dfr:igor_debug_state = 0
-	Variable/G dfr:igor_debug_assertion = 0
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -476,54 +306,6 @@ static Function IsProcGlobal()
 	return !cmpstr("ProcGlobal", GetIndependentModuleName())
 End
 
-/// Returns the functionName of the specified DataGenerator. The priority is first local then ProcGlobal.
-/// If funcName is specified with Module then in all procedures is looked. No ProcGlobal function is returned in that case.
-static Function/S GetDataGeneratorFunctionName(err, funcName, procName)
-	variable &err
-	string funcName, procName
-
-	string infoStr, modName, pName, errMsg
-
-	err = 0
-	if(ItemsInList(funcName, "#") > 2)
-		sprintf errMsg, "Data Generator Function %s is specified with Independent Module, this is not supported.", funcName
-		err = 1
-		return errMsg
-	endif
-	// if funcName is specified without Module then FunctionInfo looks in procedure procName only.
-	// if funcName is specified with Module then FunctionInfo looks in all procedures of current compile unit, independent of procName
-	infoStr = FunctionInfo(funcName, procName)
-	if(!UTF_Utils#IsEmpty(infoStr))
-		modName = StringByKey("MODULE", infoStr)
-		pName = StringByKey("NAME", infoStr)
-		if(!CmpStr(StringByKey("SPECIAL", infoStr), "static") && UTF_Utils#IsEmpty(modName))
-			sprintf errMsg, "Data Generator Function %s is declared static but the procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.", pName, procName
-			err = 1
-			return errMsg
-		endif
-		if(UTF_Utils#IsEmpty(modName))
-			return pName
-		endif
-		return modName + "#" + pName
-	else
-		// look in ProcGlobal of current compile unit
-		infoStr = FunctionInfo(funcName)
-		if(!UTF_Utils#IsEmpty(infoStr))
-			pName = StringByKey("NAME", infoStr)
-			return pName
-		endif
-	endif
-	infoStr = GetIndependentModuleName()
-	if(!CmpStr(infoStr, "ProcGlobal"))
-		sprintf errMsg, "Data Generator Function %s not found in %s or ProcGlobal.", funcName, procName
-	else
-		sprintf errMsg, "In Independent Module %s, data Generator Function %s not found in %s or globally in IM.", infoStr, funcName, procName
-	endif
-	err = 1
-
-	return errMsg
-End
-
 /// Returns the full name of a function including its module
 /// @param &err returns 0 for no error, 1 if function not found, 2 is static function in proc without ModuleName
 static Function/S getFullFunctionName(err, funcName, procName)
@@ -563,171 +345,6 @@ static Function/S getFullFunctionName(err, funcName, procName)
 	return funcNameReturn
 End
 
-/// Prototype for test cases
-Function TEST_CASE_PROTO()
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-/// Prototypes for multi data test cases
-Function TEST_CASE_PROTO_MD_VAR([var])
-	variable var
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_STR([str])
-	string str
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_WV([wv])
-	WAVE wv
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_WVTEXT([wv])
-	WAVE/T wv
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_WVDFREF([wv])
-	WAVE/DF wv
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
-	WAVE/WAVE wv
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_DFR([dfr])
-	DFREF dfr
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-Function TEST_CASE_PROTO_MD_CMPL([cmpl])
-	variable/C cmpl
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-#if (IgorVersion() >= 7.0)
-
-Function TEST_CASE_PROTO_MD_INT([int])
-	int64 int
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-#else
-
-Function TEST_CASE_PROTO_MD_INT([int])
-	variable int
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-#endif
-
-/// Prototype for multi data test cases data generator
-Function/WAVE TEST_CASE_PROTO_DGEN()
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-/// Prototype for run functions in autorun mode
-Function AUTORUN_MODE_PROTO()
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-/// Prototype for hook functions
-Function USER_HOOK_PROTO(str)
-	string str
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-/// Prototype for multi multi data test case functions
-Function TEST_CASE_PROTO_MD([md])
-	STRUCT IUTF_mData &md
-
-	string msg
-
-	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
-End
-
-///@endcond // HIDDEN_SYMBOL
-
-///@addtogroup Helpers
-///@{
-
-/// Turns debug output on
-Function EnableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 1
-End
-
-/// Turns debug output off
-Function DisableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 0
-End
-
-///@}
-
-///@cond HIDDEN_SYMBOL
-
 /// Evaluates an RTE and puts a composite error message into message/type
 static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
 	variable err
@@ -751,6 +368,9 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 			break
 		case IUTF_USER_HOOK_TYPE:
 			funcTypeString = "user hook"
+			break
+		case IUTF_DATA_GEN_TYPE:
+			funcTypeString = "data generator"
 			break
 		default:
 			UTF_Reporting#ReportErrorAndAbort("Unknown func type in EvaluateRTE")
@@ -814,331 +434,6 @@ static Function CheckAbortCondition(abortCode)
 	endif
 End
 
-/// Checks functions signature of each multi data test case candidate
-/// returns 1 if ok, 0 otherwise
-/// when 1 is returned the wave type variable contain the format
-static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
-	string testCase
-	variable &wType0
-	variable &wType1
-	variable &wrefSubType
-
-	wType0 = NaN
-	wType1 = NaN
-	wrefSubType = NaN
-	// Check function signature
-	FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_DFR fTCMDDFR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WV fTCMDWV = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMDWVTEXT = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMDWVDFREF = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMDWVWAVEREF = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
-		wType0 = 0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64
-		wType1 = IUTF_WAVETYPE1_NUM
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
-		wType1 = IUTF_WAVETYPE1_TEXT
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
-		wType1 = IUTF_WAVETYPE1_DFR
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
-		wType1 = IUTF_WAVETYPE1_WREF
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
-		wType1 = IUTF_WAVETYPE1_WREF
-		wrefSubType = IUTF_WAVETYPE1_TEXT
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
-		wType1 = IUTF_WAVETYPE1_WREF
-		wrefSubType = IUTF_WAVETYPE1_DFR
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
-		wType1 = IUTF_WAVETYPE1_WREF
-		wrefSubType = IUTF_WAVETYPE1_WREF
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
-		wType0 = IUTF_WAVETYPE0_CMPL
-		wType1 = IUTF_WAVETYPE1_NUM
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
-		wType0 = IUTF_WAVETYPE0_INT64
-		wType1 = IUTF_WAVETYPE1_NUM
-	else
-		return 0
-	endif
-
-	return 1
-End
-
-static Function/S GetDataGenFullFunctionName(procWin, fullTestCase)
-	string fullTestCase
-	string procWin
-
-	variable err
-	string dgen, msg
-
-	dgen = UTF_FunctionTags#GetFunctionTagValue(fullTestCase, UTF_FTAG_TD_GENERATOR, err)
-	if(err)
-		sprintf msg, "Could not find data generator specification for multi data test case %s. %s", fullTestCase, dgen
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-
-	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
-	if(err)
-		sprintf msg, "Could not get full function name of data generator: %s", dgen
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-
-	return dgen
-End
-
-/// Checks functions signature of a test case candidate
-/// and its attributed data generator function
-/// Returns 1 on error, 0 on success
-static Function CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip)
-	string procWin
-	string fullFuncName
-	string &dgenList
-	variable &markSkip
-
-	variable err, wType1, wType0, wRefSubType
-	string dgen, msg
-	string funcInfo
-
-	dgenList = ""
-	markSkip = 0
-
-	// Require only optional parameter
-	funcInfo = FunctionInfo(fullFuncName)
-	if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
-		return 1
-	endif
-
-	// Simple Test Cases
-	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
-		return 0
-	endif
-	// MMD Test Case
-	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
-		dgenList = CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
-		return 0
-	endif
-
-	// Multi Data Test Cases
-	if(!GetFunctionSignatureTCMD(fullFuncName, wType0, wType1, wRefSubType))
-		return 1
-	endif
-
-	dgen = GetDataGenFullFunctionName(procWin, fullFuncName)
-	WAVE wGenerator = CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
-
-	dgenList = AddListItem(dgen, dgenList, ";", Inf)
-	AddDataGeneratorWave(dgen, wGenerator)
-	markSkip = CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
-
-	return 0
-End
-
-static Function AddDataGeneratorWave(dgen, dgenWave)
-	string dgen
-	WAVE dgenWave
-
-	variable dgenSize
-
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	if(FindDimLabel(dgenWaves, UTF_ROW, dgen) == -2)
-		dgenSize = DimSize(dgenWaves, UTF_ROW)
-		Redimension/N=(dgenSize + 1) dgenWaves
-		dgenWaves[dgenSize] = dgenWave
-		SetDimLabel UTF_ROW, dgenSize, $dgen, dgenWaves
-	endif
-End
-
-static Function/WAVE GetMMDVarTemplates()
-
-	Make/FREE/T templates = {DGEN_VAR_TEMPLATE, DGEN_STR_TEMPLATE, DGEN_DFR_TEMPLATE, DGEN_WAVE_TEMPLATE, DGEN_CMPLX_TEMPLATE, DGEN_INT64_TEMPLATE}
-	return templates
-End
-
-static Function/S CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
-	string procWin, fullFuncName
-	variable &markSkip
-
-	variable i, j, numTypes
-	string msg
-	string dgenList = ""
-
-	WAVE/T templates = GetMMDVarTemplates()
-	Make/FREE/D wType0 = {0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64, NaN, NaN, NaN, IUTF_WAVETYPE0_CMPL, IUTF_WAVETYPE0_INT64}
-	Make/FREE/D wType1 = {IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_TEXT, IUTF_WAVETYPE1_DFR, IUTF_WAVETYPE1_WREF, IUTF_WAVETYPE1_NUM, IUTF_WAVETYPE1_NUM}
-
-	numTypes = DimSize(templates, UTF_ROW)
-	for(i = 0; i < numTypes; i += 1)
-		for(j = 0; j < DGEN_NUM_VARS; j += 1)
-			markSkip = markSkip | CheckMDgenOutput(procWin, fullFuncName, templates[i], j, wType0[i], wType1[i], dgenList)
-		endfor
-	endfor
-
-	if(UTF_Utils#IsEmpty(dgenList))
-		sprintf msg, "No data generator functions specified for test case %s in test suite %s.", fullFuncName, procWin
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-
-	return dgenList
-End
-
-/// Check Multi-Multi Data Generator output
-/// return 1 if one data generator has a zero sized wave, 0 otherwise
-static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wType0, wType1, dgenList)
-	string procWin, fullFuncName, varTemplate
-	variable index, wType0, wType1
-	string &dgenList
-
-	string varName, tagName, dgen, msg
-	variable err
-
-	varName = varTemplate + num2istr(index)
-	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-	dgen = UTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
-	if(err == UTF_TAG_NOT_FOUND)
-		return NaN
-	endif
-	dgen = GetDataGeneratorFunctionName(err, dgen, procWin)
-	if(err)
-		sprintf msg, "Could not get full function name of data generator: %s", dgen
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-
-	EvaluateDgenTagResult(err, fullFuncName, varName)
-
-	WAVE wGenerator = CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, NaN)
-	AddDataGeneratorWave(dgen, wGenerator)
-	dgenList = AddListItem(dgen, dgenList, ";", Inf)
-
-	AddMMDTestCaseData(fullFuncName, dgen, varName, DimSize(wGenerator, UTF_ROW))
-
-	return CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
-End
-
-static Function CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
-	WAVE wGenerator
-	string fullFuncName, dgen
-
-	string msg
-
-	if(!DimSize(wGenerator, UTF_ROW))
-		sprintf msg, "Note: In test case %s data generator function (%s) returns a zero sized wave. Test case marked SKIP.", fullFuncName, dgen
-		UTF_Reporting#ReportError(msg, incrGlobalErrorCounter = 0)
-		return 1
-	endif
-
-	return 0
-End
-
-static Function/WAVE GetMMDFuncState()
-
-	Make/FREE/T/N=(0, 3) mdFunState
-	SetDimLabel UTF_COLUMN, 0, DATAGEN, mdFunState
-	SetDimLabel UTF_COLUMN, 1, GENSIZE, mdFunState
-	SetDimLabel UTF_COLUMN, 2, INDEX, mdFunState
-
-	return mdFunState
-End
-
-static Function AddMMDTestCaseData(fullFuncName, dgen, varName, genSize)
-	string fullFuncName, dgen, varName
-	variable genSize
-
-	variable funPos, size
-	variable varPos, vSize
-
-	WAVE/WAVE mdState = GetMMDataState()
-	funPos = FindDimLabel(mdState, UTF_ROW, fullFuncName)
-	if(funPos == -2)
-		size = DimSize(mdState, UTF_ROW)
-		Redimension/N=(size + 1) mdState
-		SetDimLabel UTF_ROW, size, $fullFuncName, mdState
-		funPos = size
-		WAVE/T mdFunState = GetMMDFuncState()
-		varPos = -2
-	else
-		WAVE/T mdFunState = mdState[funPos]
-		varPos = FindDimLabel(mdFunState, UTF_ROW, varName)
-	endif
-
-	if(varPos == -2)
-		vSize = DimSize(mdFunState, UTF_ROW)
-		Redimension/N=(vSize + 1, -1) mdFunState
-		SetDimLabel UTF_ROW, vSize, $varName, mdFunState
-		varPos = vSize
-	endif
-	mdFunState[varPos][%DATAGEN] = dgen
-	mdFunState[varPos][%GENSIZE] = num2istr(genSize)
-	mdFunState[varPos][%INDEX] = num2istr(0)
-	mdState[funPos] = mdFunState
-End
-
-static Function EvaluateDgenTagResult(err, fullFuncName, varName)
-	variable err
-	string fullFuncName, varName
-
-	string msg
-
-	if(err == UTF_TAG_EMPTY)
-		sprintf msg, "No data generator function specified for function %s data generator variable %s.", fullFuncName, varName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-	if(err != UTF_TAG_OK)
-		sprintf msg, "Problem determining data generator function specified for function %s data generator variable %s.", fullFuncName, varName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-End
-
-static Function/WAVE GetGeneratorWave(dgen, fullFuncName)
-	string dgen, fullFuncName
-
-	variable dimPos
-	string msg
-
-	WAVE/WAVE wDgen = GetDataGeneratorWaves()
-	dimPos = FindDimlabel(wDgen, UTF_ROW, dgen)
-	if(dimPos == -2)
-		FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
-		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
-			sprintf msg, "Data Generator function %s has wrong format. It is referenced by test case %s.", dgen, fullFuncName
-			UTF_Reporting#ReportErrorAndAbort(msg)
-		endif
-		WAVE/Z wGenerator = fDgen()
-	else
-		WAVE wGenerator = wDgen[dimPos]
-	endif
-
-	return wGenerator
-End
-
-static Function/WAVE CheckDGenOutput(procWin, fullFuncName, dgen, wType0, wType1, wRefSubType)
-	string procWin, fullFuncName, dgen
-	variable wType0, wType1, wRefSubType
-
-	string msg
-
-	WAVE/Z wGenerator = GetGeneratorWave(dgen, fullFuncName)
-	if(!WaveExists(wGenerator))
-		sprintf msg, "Data Generator function %s returns a null wave. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(DimSize(wGenerator, UTF_COLUMN) > 0)
-		sprintf msg, "Data Generator function %s returns not a 1D wave. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(!((wType1 == IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1 && WaveType(wGenerator) & wType0) || (wType1 != IUTF_WAVETYPE1_NUM && WaveType(wGenerator, 1) == wType1)))
-		sprintf msg, "Data Generator %s functions returned wave format does not fit to expected test case parameter. It is referenced by test case %s.", dgen, fullFuncName
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	elseif(!UTF_Utils#IsNaN(wRefSubType) && wType1 == IUTF_WAVETYPE1_WREF && !UTF_Utils#HasConstantWaveTypes(wGenerator, wRefSubType))
-		sprintf msg, "Test case %s expects specific wave type1 %u from the Data Generator %s. The wave type from the data generator does not fit to expected wave type.", fullFuncName, wRefSubType, dgen
-		UTF_Reporting#ReportErrorAndAbort(msg)
-	endif
-
-	return wGenerator
-End
-
 /// Returns List of Test Functions in Procedure Window procWin
 static Function/S GetTestCaseList(procWin)
 	string procWin
@@ -1174,23 +469,6 @@ static Function/S SortTestCaseList(procWin, testCaseList)
 	return UTF_Utils#TextWaveToList(testCaseWave, ";")
 End
 
-#if (IgorVersion() >= 7.0)
-    // ListToTextWave is available
-#else
-/// @brief Convert a string list to a text wave
-///
-/// @param[in] list string list
-/// @param[in] sep separator string
-/// @returns wave reference to free wave
-static Function/WAVE ListToTextWave(list, sep)
-    string list, sep
-
-    Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
-
-    return result
-End
-#endif
-
 /// @brief get test cases matching a certain pattern and fill TesRunSetup wave
 ///
 /// This function searches for test cases in a given list of test suites. The
@@ -1208,12 +486,12 @@ End
 /// @param[out] errMsg error message in case of error
 ///
 /// @returns Numeric Error Code
-static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP)
+static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP, debugMode)
 	string procWinList
 	string matchStr
 	variable enableRegExp
 	string &errMsg
-	variable enableTAP
+	variable enableTAP, debugMode
 
 	string procWin
 	string funcName
@@ -1223,6 +501,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 	variable numTC, numpWL, numFL, numMatches, markSkip
 	variable i,j,k, tdIndex
 	variable err = TC_MATCH_OK
+	variable hasDGen = 0
 
 	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
 		errMsg = "semicolon is not allowed in given regex pattern: " + matchStr
@@ -1283,7 +562,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 				UTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 
-				if(CheckFunctionSignatureTC(procWin, fullFuncName, dgenList, markSkip))
+				if(UTF_Test_MD#GetDataGeneratorListTC(procWin, fullFuncName, dgenList))
 					continue
 				endif
 
@@ -1292,10 +571,12 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 				testRunData[tdIndex][%TESTCASE] = fullFuncName
 				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
 				testRunData[tdIndex][%DGENLIST] = dgenList
-				markSkip = markSkip | UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
+				markSkip = UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
 				testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(UTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
 				testRunData[tdIndex][%EXPECTFAIL] = num2istr(UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
 				tdIndex += 1
+
+				hasDGen = hasDGen | !UTF_Utils#IsEmpty(dgenList)
 			endfor
 		endfor
 
@@ -1305,6 +586,32 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 		endif
 	endfor
 	Redimension/N=(tdIndex, -1, -1, -1) testRunData
+
+	if(hasDGen)
+		UTF_Test_MD_Gen#ExecuteAllDataGenerators(debugMode)
+	endif
+
+	for(i = 0; i < tdIndex; i += 1)
+		dgenList = testRunData[i][%DGENLIST]
+
+		if(UTF_Utils#IsEmpty(dgenList))
+			continue
+		endif
+
+		procWin = testRunData[i][%PROCWIN]
+		fullFuncName = testRunData[i][%FULLFUNCNAME]
+
+		if(UTF_Test_MD#CheckFunctionSignatureTC(procWin, fullFuncName, markSkip))
+			// There is something wrong which is already reported. The old approach was to remove
+			// this test case from the list which isn't possible anymore. So let's skip it safely.
+			testRunData[i][%SKIP] = "1"
+			continue
+		endif
+
+		if(markSkip)
+			testRunData[i][%SKIP] = "1"
+		endif
+	endfor
 
 	if(!tdIndex)
 		errMsg = "No test cases found."
@@ -1327,7 +634,7 @@ static Function GetTestCaseCount([procWin])
 	variable tcCount, dgenCount
 	string dgenList, dgen
 
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
 	WAVE/T testRunData = GetTestRunData()
 	size = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < size; i += 1)
@@ -1661,7 +968,7 @@ static Function CallTestCase(s, reentry)
 
 	if(s.mdMode  == TC_MODE_MD)
 
-		WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+		WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
 		dgenFuncName = StringFromList(0, testRunData[tcIndex][%DGENLIST])
 		WAVE wGenerator = dgenWaves[%$dgenFuncName]
 		wType0 = WaveType(wGenerator)
@@ -1757,7 +1064,7 @@ static Function CallTestCase(s, reentry)
 		endif
 	elseif(s.mdMode  == TC_MODE_MMD)
 		origTCName = testRunData[tcIndex][%FULLFUNCNAME]
-		SetupMMDStruct(mData, origTCName)
+		UTF_Test_MD_MMD#SetupMMDStruct(mData, origTCName)
 		FUNCREF TEST_CASE_PROTO_MD fTCMD = $func
 		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD)))
 			sprintf msg, "Reentry function %s does not meet required format for multi-multi-data test case.", func
@@ -1773,284 +1080,6 @@ static Function CallTestCase(s, reentry)
 		UTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 End
-
-/// Return 1 if the counting finished, 0 otherwise
-static Function IncreaseMMDIndices(fullFuncName)
-	string fullFuncName
-
-	variable i, numVars, index, genSize
-
-	WAVE/WAVE mdState = GetMMDataState()
-	WAVE/T mdFunState = mdState[%$fullFuncName]
-	numVars = DimSize(mdFunState, UTF_ROW)
-	for(i = 0; i < numVars; i += 1)
-		index = str2num(mdFunState[i][%INDEX])
-		genSize = str2num(mdFunState[i][%GENSIZE])
-		index += 1
-		if(index < genSize)
-			mdFunState[i][%INDEX] = num2istr(index)
-			return 0
-		else
-			mdFunState[i][%INDEX] = num2istr(0)
-		endif
-	endfor
-
-	return 1
-End
-
-static Function SetupMMDStruct(mData, fullFuncName)
-	STRUCT IUTF_mData &mData
-	string fullFuncName
-
-	variable i, j, numTypes
-	variable funPos, varPos, index, val
-	variable/C cplx
-	string msg, varName, dgen, str
-#if (IgorVersion() >= 7.0)
-	int64 i64
-#endif
-
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	WAVE/WAVE mdState = GetMMDataState()
-	WAVE/T templates = GetMMDVarTemplates()
-
-	WAVE/T mdFunState = mdState[%$fullFuncName]
-
-	numTypes = DimSize(templates, UTF_ROW)
-	for(i = 0; i < numTypes; i += 1)
-		for(j = 0; j < DGEN_NUM_VARS; j += 1)
-			varName = templates[i] + num2istr(j)
-			varPos = FindDimLabel(mdFunState, UTF_ROW, varName)
-			if(varPos == -2)
-				continue
-			endif
-			dgen = mdFunState[varPos][%DATAGEN]
-			index = str2num(mdFunState[varPos][%INDEX])
-
-			strSwitch(templates[i])
-				case DGEN_VAR_TEMPLATE:
-					WAVE wGenerator = dgenWaves[%$dgen]
-					val = wGenerator[index]
-
-					switch(j)
-						case 0:
-							mData.v0 = val
-							break
-						case 1:
-							mData.v1 = val
-							break
-						case 2:
-							mData.v2 = val
-							break
-						case 3:
-							mData.v3 = val
-							break
-						case 4:
-							mData.v4 = val
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-				case DGEN_STR_TEMPLATE:
-					WAVE/T wGeneratorT = dgenWaves[%$dgen]
-					str = wGeneratorT[index]
-
-					switch(j)
-						case 0:
-							mData.s0 = str
-							break
-						case 1:
-							mData.s1 = str
-							break
-						case 2:
-							mData.s2 = str
-							break
-						case 3:
-							mData.s3 = str
-							break
-						case 4:
-							mData.s4 = str
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-				case DGEN_DFR_TEMPLATE:
-					WAVE/DF wGeneratorDFR = dgenWaves[%$dgen]
-					DFREF dfr = wGeneratorDFR[index]
-
-					switch(j)
-						case 0:
-							mData.dfr0 = dfr
-							break
-						case 1:
-							mData.dfr1 = dfr
-							break
-						case 2:
-							mData.dfr2 = dfr
-							break
-						case 3:
-							mData.dfr3 = dfr
-							break
-						case 4:
-							mData.dfr4 = dfr
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-				case DGEN_WAVE_TEMPLATE:
-					WAVE/WAVE wGeneratorWV = dgenWaves[%$dgen]
-					WAVE wv = wGeneratorWV[index]
-
-					switch(j)
-						case 0:
-							WAVE mData.w0 = wv
-							break
-						case 1:
-							WAVE mData.w1 = wv
-							break
-						case 2:
-							WAVE mData.w2 = wv
-							break
-						case 3:
-							WAVE mData.w3 = wv
-							break
-						case 4:
-							WAVE mData.w4 = wv
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-				case DGEN_CMPLX_TEMPLATE:
-					WAVE/C wGeneratorC = dgenWaves[%$dgen]
-					cplx = wGeneratorC[index]
-
-					switch(j)
-						case 0:
-							mData.c0 = cplx
-							break
-						case 1:
-							mData.c1 = cplx
-							break
-						case 2:
-							mData.c2 = cplx
-							break
-						case 3:
-							mData.c3 = cplx
-							break
-						case 4:
-							mData.c4 = cplx
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-#if (IgorVersion() >= 7.0)
-				case DGEN_INT64_TEMPLATE:
-					WAVE wGeneratorI = dgenWaves[%$dgen]
-					i64 = wGeneratorI[index]
-
-					switch(j)
-						case 0:
-							mData.i0 = i64
-							break
-						case 1:
-							mData.i1 = i64
-							break
-						case 2:
-							mData.i2 = i64
-							break
-						case 3:
-							mData.i3 = i64
-							break
-						case 4:
-							mData.i4 = i64
-							break
-						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
-							break
-					endswitch
-					break
-#endif
-				default:
-					UTF_Reporting#ReportErrorAndAbort("Encountered invalid type for mmd tc")
-					break
-			endswitch
-		endfor
-	endfor
-End
-
-/// @brief Structure for multi data function using multiple data generators
-#if (IgorVersion() >= 7.0)
-Structure IUTF_mData
-	variable v0
-	variable v1
-	variable v2
-	variable v3
-	variable v4
-	string s0
-	string s1
-	string s2
-	string s3
-	string s4
-	DFREF dfr0
-	DFREF dfr1
-	DFREF dfr2
-	DFREF dfr3
-	DFREF dfr4
-	WAVE/WAVE w0
-	WAVE/WAVE w1
-	WAVE/WAVE w2
-	WAVE/WAVE w3
-	WAVE/WAVE w4
-	variable/C c0
-	variable/C c1
-	variable/C c2
-	variable/C c3
-	variable/C c4
-	int64 i0
-	int64 i1
-	int64 i2
-	int64 i3
-	int64 i4
-EndStructure
-#else
-Structure IUTF_mData
-	variable v0
-	variable v1
-	variable v2
-	variable v3
-	variable v4
-	string s0
-	string s1
-	string s2
-	string s3
-	string s4
-	DFREF dfr0
-	DFREF dfr1
-	DFREF dfr2
-	DFREF dfr3
-	DFREF dfr4
-	WAVE/WAVE w0
-	WAVE/WAVE w1
-	WAVE/WAVE w2
-	WAVE/WAVE w3
-	WAVE/WAVE w4
-	variable/C c0
-	variable/C c1
-	variable/C c2
-	variable/C c3
-	variable/C c4
-EndStructure
-#endif
 
 /// @brief initialize all strings in strRunTest structure to be non <null>
 static Function InitStrRunTest(s)
@@ -2159,7 +1188,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentryFunc
-	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
+	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !UTF_Test_MD#GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
 		UTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
 	endif
 
@@ -2177,42 +1206,12 @@ End
 static Function ClearTestSetupWaves()
 
 	WAVE/T testRunData = GetTestRunData()
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
 	WAVE/WAVE ftagWaves = UTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/WAVE ftagRefs = UTF_FunctionTags#GetFunctionTagRefs()
-	WAVE/WAVE mdState = GetMMDataState()
+	WAVE/WAVE mdState = UTF_Test_MD_MMD#GetMMDataState()
 
 	KillWaves testRunData, dgenWaves, ftagWaves, ftagRefs, mdState
-End
-
-static Function/S GetMMDTCSuffix(tdIndex)
-	variable tdIndex
-
-	variable i, numVars, index
-	string fullFuncName, dgen, lbl
-	string tcSuffix = ""
-
-	WAVE/T testRunData = GetTestRunData()
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
-	WAVE/WAVE mdState = GetMMDataState()
-
-	fullFuncName = testRunData[tdIndex][%FULLFUNCNAME]
-	WAVE/T mdFunState = mdState[%$fullFuncName]
-
-	numVars = DimSize(mdFunState, UTF_ROW)
-	for(i = 0; i < numVars; i += 1)
-		dgen = mdFunState[i][%DATAGEN]
-		index = str2num(mdFunState[i][%INDEX])
-		WAVE wGenerator = dgenWaves[%$dgen]
-		lbl = GetDimLabel(wGenerator, UTF_ROW, index)
-		if(!UTF_Utils#IsEmpty(lbl))
-			tcSuffix += TC_SUFFIX_SEP + lbl
-		else
-			tcSuffix += TC_SUFFIX_SEP + num2istr(index)
-		endif
-	endfor
-
-	return tcSuffix
 End
 
 /// @brief Main function to execute test suites with the unit testing framework.
@@ -2413,7 +1412,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			print "Note: debugMode parameter is set, allowDebug parameter is ignored."
 		endif
 		if(s.debugMode == 0 && allowDebug > 0)
-			s.debugMode = GetCurrentDebuggerState()
+			s.debugMode = UTF_Debug#GetCurrentDebuggerState()
 		endif
 
 #if IgorVersion() < 9.00
@@ -2485,7 +1484,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP)
+		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode)
 		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)
@@ -2522,7 +1521,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endif
 
 	// The Test Run itself is split into Test Suites for each Procedure File
-	WAVE/WAVE dgenWaves = GetDataGeneratorWaves()
+	WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
 	WAVE/T testRunData = GetTestRunData()
 	tcFuncCount = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < tcFuncCount; i += 1)
@@ -2589,10 +1588,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					WAVE wGenerator = dgenWaves[%$dgenFuncName]
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
-						s.tcSuffix = TC_SUFFIX_SEP + num2istr(s.dgenIndex)
+						s.tcSuffix = IUTF_TC_SUFFIX_SEP + num2istr(s.dgenIndex)
 					endif
 				elseif(s.mdMode == TC_MODE_MMD)
-					s.tcSuffix = GetMMDTCSuffix(i)
+					s.tcSuffix = UTF_Test_MD_MMD#GetMMDTCSuffix(i)
 				endif
 
 				UTF_Hooks#ExecuteHooks(IUTF_TEST_CASE_BEGIN_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i)
@@ -2682,7 +1681,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(s.mdMode == TC_MODE_MD)
 				s.dgenIndex += 1
 			elseif(s.mdMode == TC_MODE_MMD)
-				s.dgenIndex = IncreaseMMDIndices(fullFuncName)
+				s.dgenIndex = UTF_Test_MD_MMD#IncreaseMMDIndices(fullFuncName)
 			endif
 
 		while((s.mdMode == TC_MODE_MD && s.dgenIndex < s.dgenSize) || (s.mdMode == TC_MODE_MMD && !s.dgenIndex))

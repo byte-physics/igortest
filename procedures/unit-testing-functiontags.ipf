@@ -161,7 +161,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 	variable i, j, numUniqueTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
-	WAVE templates = UTF_Basics#GetMMDVarTemplates()
+	WAVE templates = UTF_Test_MD_MMD#GetMMDVarTemplates()
 	numUniqueTags = DimSize(tag_constants, UTF_ROW)
 
 	numFound = 0
@@ -197,7 +197,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
 				varName = StringFromList(0, tagvalue, ":")
 				tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-				allVarList = UTF_Basics#GetMMDAllVariablesList()
+				allVarList = UTF_Test_MD_MMD#GetMMDAllVariablesList()
 				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
 					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue
 					UTF_Reporting#ReportErrorAndAbort(msg)
