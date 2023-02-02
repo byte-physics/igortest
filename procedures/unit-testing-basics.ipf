@@ -1213,6 +1213,22 @@ static Function ClearTestSetupWaves()
 	KillWaves testRunData, dgenWaves, ftagWaves, ftagRefs, mdState
 End
 
+/// @brief Detects if deprecated files are included and prompt a warning.
+static Function DetectDeprecation()
+	string text = ProcedureText("", 0, "unit-testing.ipf")
+	if(UTF_Utils#IsEmpty(text))
+		return NaN
+	endif
+
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING: You are using a deprecated method to include the Igor Pro Universal Testing Framework!")
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING: Search in your code for all")
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING:     #include \"unit-testing\"")
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING: and replace it with")
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING:     #include \"igortest\"")
+	UTF_Reporting#UTF_PrintStatusMessage("WARNING: In a future release will this warning and the deprecated file removed.")
+	UTF_Reporting#UTF_PrintStatusMessage("", allowEmptyLine = 1)
+End
+
 /// @brief Main function to execute test suites with the unit testing framework.
 ///
 /// @verbatim embed:rst:leading-slashes
@@ -1367,6 +1383,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	else
 		// no early return/abort above this point
+		DetectDeprecation()
 		UTF_Utils_Paths#ClearHomePath()
 		DFREF dfr = GetPackageFolder()
 		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, "", FIXED_LOG_FILENAME)

@@ -500,12 +500,17 @@ End
 /// Always use this function if you want to inform the user about something.
 ///
 /// @param msg message to be outputted, without trailing end-of-line
-threadsafe static Function UTF_PrintStatusMessage(msg)
+/// @param allowEmptyLine (optional, default 0 disabled) If set to 1 it will allow to print empty
+///            strings to the output. The default behavior is to skip printing empty strings.
+threadsafe static Function UTF_PrintStatusMessage(msg, [allowEmptyLine])
 	string msg
+	variable allowEmptyLine
 
 	string tmpStr
 
-	if(strlen(msg) == 0)
+	allowEmptyLine = ParamIsDefault(allowEmptyLine) ? 0 : !!allowEmptyLine
+
+	if(!allowEmptyLine && strlen(msg) == 0)
 		return NaN
 	endif
 
