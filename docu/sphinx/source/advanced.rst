@@ -87,8 +87,8 @@ JUNIT Output
 ------------
 
 All common continuous integration frameworks support input as JUNIT XML files.
-The igor unit testing framework supports output of test run results in JUNIT
-XML format. The output can be enabled by adding the optional parameter
+The Igor Pro Universal Testing Framework supports output of test run results in
+JUNIT XML format. The output can be enabled by adding the optional parameter
 :code:`enableJU=1` to :cpp:func:`RunTest()`.
 
 The XML output files are written to the experiments `home` directory with naming
@@ -193,7 +193,7 @@ See also :ref:`example6`.
 Running in an Independent Module
 --------------------------------
 
-The unit-testing framework can be run itself in an independent module.
+The universal testing framework can be run itself in an independent module.
 This can be required in very rare cases when the `ProcGlobal` procedures
 might not always be compiled.
 
@@ -202,7 +202,7 @@ See also :ref:`example9`.
 Handling of Abort Code
 ----------------------
 
-The unit-testing framework continues with the next test case after catching
+The universal testing framework continues with the next test case after catching
 `Abort` and logs the abort code. Currently differentiation of different abort
 conditions include manual user aborts, stack overflow and an encountered
 `Abort` in the code. The framework is terminated when manually pressing the
@@ -225,7 +225,7 @@ command prompt and continue after a background task has finished. A real world
 use case is for example a testing code that runs data acquisition in a
 background task and the test case should continue after the acquisition finished.
 
-The unit-testing framework supports such cases with a feature that allows to
+The universal testing framework supports such cases with a feature that allows to
 register one or more background tasks that should be monitored. A procedure name
 can be given that is called when the monitored background tasks finish. After the
 current test case procedure finishes the framework will return to Igors command
@@ -247,10 +247,10 @@ Function definition of RegisterUTFMonitor
 
 The function that is registered to continue the test execution must have the
 same format as a test case function and the name has to end with `_REENTRY`.
-When the unit-testing framework temporary drops to Igors command line and resumes later
-no begin/end hooks are executed. Logically the unit-testing frame work stays in
-the same test case. It is allowed to register another monitoring in
-the `_REENTRY` function.
+When the universal testing framework temporary drops to Igors command line and
+resumes later no begin/end hooks are executed. Logically the universal testing
+frame work stays in the same test case. It is allowed to register another
+monitoring in the `_REENTRY` function.
 
 Multiple subsequent calls to :cpp:func:`RegisterUTFMonitor()` in the same
 function overwrite the previous registration.
@@ -267,11 +267,11 @@ Test Cases with background activity are supported from multi data test cases, se
 Multi Data Test Cases
 ---------------------
 
-Often the same test should be run multiple times with different sets of data. The
-unit-testing framework offers direct support for such tests. Test cases that are
-run with multiple data take one optional argument. To the test case a data generator
-function is attributed that returns a wave. For each element of that wave the test
-case is run. This sketches a simple multi data test case:
+Often the same test should be run multiple times with different sets of data.
+The universal testing framework offers direct support for such tests. Test cases
+that are run with multiple data take one optional argument. To the test case a
+data generator function is attributed that returns a wave. For each element of
+that wave the test case is run. This sketches a simple multi data test case:
 
 .. code-block:: igor
 
@@ -359,9 +359,9 @@ different formats:
 For the second case, the reentry function is called with the same wave element as argument as
 when the multi data test case was started.
 
-If the reentry function uses a different argument type than the test case entry function
-then on reentry to the unit-testing framework an error is printed and further
-test execution is aborted.
+If the reentry function uses a different argument type than the test case entry
+function then on reentry to the universal testing framework an error is printed
+and further test execution is aborted.
 
 .. code-block:: igor
 
@@ -489,9 +489,10 @@ signature.
 Code Coverage Determination
 ---------------------------
 
-When running Igor Pro 9 or newer the Igor Unit testing Framework offers the feature to obtain code coverage
-information. When enabled the IUTF adds to functions in target procedure files code to track execution.
-At the end of the test run the IUTF outputs files in HTML format with coverage information.
+When running Igor Pro 9 or newer the Igor Pro Universal Testing Framework offers
+the feature to obtain code coverage information. When enabled the IUTF adds to
+functions in target procedure files code to track execution. At the end of the
+test run the IUTF outputs files in HTML format with coverage information.
 
 This feature is enabled when the optional parameter ``traceWinList`` is set and non-empty when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
@@ -566,8 +567,10 @@ The data is also available as a global wave in ``root:Packages:UnitTesting:Traci
 Limitations
 ^^^^^^^^^^^
 
-The function that calls RunTest with tracing enabled must return to the Igor Pro command line afterwards to allow recompilation of the instrumented code.
-It is not allowed to have another RunTest call in between. The unit testing framework will abort with an error in that case.
+The function that calls RunTest with tracing enabled must return to the Igor Pro
+command line afterwards to allow recompilation of the instrumented code. It is
+not allowed to have another RunTest call in between. The Igor Pro Universal
+Testing Framework will abort with an error in that case.
 
 If the full autorun feature is enabled through ``DO_AUTORUN.TXT`` the RunTest call with instrumentation must be the only call in the experiment.
 Specifically, if a RunTest call without tracing is placed before then the RunTest call with tracing will not execute tests.

@@ -28,7 +28,7 @@ static Function Ensure(var, [quiet])
 End
 
 // One test case for everyting
-// This is done so that we don't rely on the UTF test case discovery logic to work.
+// This is done so that we don't rely on the IUTF test case discovery logic to work.
 static Function TestUTF()
 	variable err
 

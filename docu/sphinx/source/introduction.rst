@@ -2,8 +2,8 @@
 
 .. _introduction:
 
-What is a Unit Testing Framework?
-=================================
+What is a Universal Testing Framework?
+======================================
 
 The purpose of every program is to ensure that a specific task is performed
 reliably in a defined matter. Therefore, programming is all about testing and

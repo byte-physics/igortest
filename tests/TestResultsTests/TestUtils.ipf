@@ -258,7 +258,7 @@ static Function/WAVE GetTestInfos(childStart, childEnd)
 	return result
 End
 
-/// @brief Backups the current UTF data folder and create a clean one.
+/// @brief Backups the current IUTF data folder and create a clean one.
 static Function Backup()
 	DFREF dfr = GetPackageFolder()
 
@@ -274,7 +274,7 @@ static Function Backup()
 	UTF_Reporting_Control#SetupTestRun()
 End
 
-/// @brief Restore the backup-ed UTF data folder and move the previous UTF data folder state to
+/// @brief Restore the backup-ed IUTF data folder and move the previous IUTF data folder state to
 /// root:Copy:UnitTesting.
 static Function Restore()
 	DFREF dfr = GetPackageFolder()

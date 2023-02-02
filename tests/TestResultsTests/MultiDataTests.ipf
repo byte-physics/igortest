@@ -7,7 +7,7 @@
 #include "unit-testing"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with multi data tests
+// These are tests that check if IUTF works correctly with multi data tests
 
 // UTF_TD_GENERATOR CheckMultiData_GEN
 static Function CheckMultiData([arg])

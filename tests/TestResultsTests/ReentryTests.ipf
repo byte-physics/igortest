@@ -7,7 +7,7 @@
 #include "unit-testing"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with re-entry tests
+// These are tests that check if IUTF works correctly with re-entry tests
 
 // a simple background task that directly exists after its first run
 static Function ReEntryTask(s)

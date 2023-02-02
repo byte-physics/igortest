@@ -17,7 +17,7 @@ static Function ReEntryTask(s)
 	return !mod(trunc(datetime), 5)
 End
 
-// We issue an abort after the registration that is caught be the UTF
+// We issue an abort after the registration that is caught be the IUTF
 // and the reentry function is called
 static Function BackgroundTesta()
 
@@ -26,8 +26,8 @@ static Function BackgroundTesta()
 	Abort
 End
 
-// We issue a REQUIRE after the registration where the UTF should abort further testing
-// The (internal) UTF background monitor is stopped and the reentry function NOT called.
+// We issue a REQUIRE after the registration where the IUTF should abort further testing
+// The (internal) IUTF background monitor is stopped and the reentry function NOT called.
 static Function BackgroundTestb()
 
 	CtrlNamedBackGround testtask, proc=ExampleXX#ReEntryTask, period=1, start

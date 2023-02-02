@@ -5,9 +5,10 @@
 Guided Tour
 ===========
 
-To visualize the functionality of the unit testing framework, we will start
-with a guided tour in which we create our first unit and test it with the
-unit testing framework. The tour will cover the following steps:
+To visualize the functionality of the Igor Pro Universal Testing Framework, we
+will start with a guided tour in which we create our first unit and test it with
+the Igor Pro Universal Testing Framework. The tour will cover the following
+steps:
 
 * :ref:`tour_create`
 * :ref:`tour_test`

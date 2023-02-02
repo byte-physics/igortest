@@ -3,7 +3,7 @@
 SPHINXOPTS    = -w sphinx.log
 SPHINXBUILD   = sphinx-build
 SPHINXAUTO    = sphinx-autobuild
-SPHINXPROJ    = IgorUnitTestingFramework
+SPHINXPROJ    = igortest
 SOURCEDIR     = source
 BUILDDIR      = build
 

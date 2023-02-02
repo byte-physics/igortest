@@ -23,7 +23,7 @@ Function CheckForWarningInHistory()
 	CHECK_EQUAL_VAR(1, V_flag)
 End
 
-// the following two test are used to check if UTF can store very long full function names and
+// the following two test are used to check if IUTF can store very long full function names and
 // distinguish them. In the end both should be executed successfully.
 
 #if (IgorVersion() >= 8.00)

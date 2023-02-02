@@ -1,8 +1,8 @@
 .. vim: set et sts=3 sw=3 tw=79:
 
-***************************
-Igor Unit Testing Framework
-***************************
+************************************
+Igor Pro Universal Testing Framework
+************************************
 
 This package empowers a programmer to utilize unit testing for Igor Pro
 procedures and XOPs. If you do not yet know about unit tests, start by reading

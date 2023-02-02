@@ -7,7 +7,7 @@
 #include "unit-testing"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with failed tests
+// These are tests that check ifI IUTF works correctly with failed tests
 
 static Function StatusFail()
 	CHECK(0)

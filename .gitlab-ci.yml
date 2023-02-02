@@ -83,7 +83,7 @@ testing:
   script:
     - test ${IGOR_VERSION} = "9" && mkdir -p "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}" || true
     - test ${IGOR_VERSION} = "9" && ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}" || true
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
@@ -131,7 +131,7 @@ testing_nightly:
   script:
     - mkdir -p "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}"
     - ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}"
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"

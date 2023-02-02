@@ -37,7 +37,7 @@ def getDocRoot():
 
 # -- Project information -----------------------------------------------------
 
-project = u'Igor Unit Testing Framework'
+project = u'Igor Pro Universal Testing Framework'
 copyright = u'2012-2023 All Contributors'
 author = u'All Contributors'
 
@@ -138,7 +138,7 @@ def setup(app):
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'IgorUnitTestingFrameworkdoc'
+htmlhelp_basename = 'igortestdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -165,7 +165,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'IgorUnitTestingFramework.tex', u'Igor Unit Testing Framework Documentation',
+    (master_doc, 'igortest.tex', u'Igor Pro Universal Testing Framework Documentation',
      u'byte-physics.de', 'manual'),
 ]
 
@@ -175,7 +175,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'igorunittestingframework', u'Igor Unit Testing Framework Documentation',
+    (master_doc, 'igortest', u'Igor Pro Universal Testing Framework Documentation',
      [author], 1)
 ]
 
@@ -186,17 +186,17 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'IgorUnitTestingFramework', u'Igor Unit Testing Framework Documentation',
-     author, 'IgorUnitTestingFramework',
-     u'A unit testing framework for Wavemetrics Igor Pro', 'byte-physics'),
+    (master_doc, 'igortest', u'Igor Pro Universal Testing FrameworkDocumentation',
+     author, 'igortest',
+     u'An universal testing framework for Wavemetrics Igor Pro', 'byte-physics'),
 ]
 
 
 # -- Extension configuration -------------------------------------------------
 
 # breathe
-breathe_projects            = { "igor-utf": "xml" }
-breathe_default_project     = "igor-utf"
+breathe_projects            = { "igortest": "xml" }
+breathe_default_project     = "igortest"
 breathe_domain_by_extension = { "ipf" : "cpp" }
 breathe_default_members     = ('members', 'undoc-members')
 

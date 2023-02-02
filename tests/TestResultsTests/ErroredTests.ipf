@@ -7,7 +7,7 @@
 #include "unit-testing"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with errored tests
+// These are tests that check if IUTF works correctly with errored tests
 
 static Function PendingRTE()
 	// Increase assertion counter
