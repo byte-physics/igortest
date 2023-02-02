@@ -266,7 +266,7 @@ static Function Backup()
 #if (IgorVersion() >= 8.00)
 	MoveDataFolder/O=1/Z dfr, root:Backup
 #else
-	KillDataFolder/Z root:Backup:UnitTesting
+	KillDataFolder/Z root:Backup:igortest
 	MoveDataFolder dfr, root:Backup
 #endif
 
@@ -275,7 +275,7 @@ static Function Backup()
 End
 
 /// @brief Restore the backup-ed IUTF data folder and move the previous IUTF data folder state to
-/// root:Copy:UnitTesting.
+/// root:Copy:igortest.
 static Function Restore()
 	DFREF dfr = GetPackageFolder()
 
@@ -283,8 +283,8 @@ static Function Restore()
 #if (IgorVersion() >= 8.00)
 	MoveDataFolder/O=1/Z dfr, root:Copy
 #else
-	KillDataFolder/Z root:Copy:UnitTesting
+	KillDataFolder/Z root:Copy:igortest
 	MoveDataFolder dfr, root:Copy
 #endif
-	MoveDataFolder root:Backup:UnitTesting, root:Packages
+	MoveDataFolder root:Backup:igortest, root:Packages
 End

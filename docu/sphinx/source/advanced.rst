@@ -562,7 +562,7 @@ sorted for. Currently supported are ``UTF_ANALYTICS_CALLS`` (default) to sort fo
 ``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` can not
 combined with the mode ``UTF_ANALYTICS_LINES``.
 
-The data is also available as a global wave in ``root:Packages:UnitTesting:TracingAnalyticResult``.
+The data is also available as a global wave in ``root:Packages:igortest:TracingAnalyticResult``.
 
 Limitations
 ^^^^^^^^^^^

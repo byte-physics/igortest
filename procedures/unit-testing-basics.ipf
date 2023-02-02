@@ -222,7 +222,7 @@ End
 Function/DF GetPackageFolder()
 	if(!DataFolderExists(PKG_FOLDER))
 		NewDataFolder/O root:Packages
-		NewDataFolder/O root:Packages:UnitTesting
+		NewDataFolder/O root:Packages:igortest
 	endif
 
 	DFREF dfr = $PKG_FOLDER

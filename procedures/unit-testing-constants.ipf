@@ -10,8 +10,8 @@
 Constant PKG_VERSION = 1.09
 
 /// Settings folder
-StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
-StrConstant PKG_FOLDER_SAVE = "root:Packages:UnitTesting:SaveState"
+StrConstant PKG_FOLDER = "root:Packages:igortest"
+StrConstant PKG_FOLDER_SAVE = "root:Packages:igortest:SaveState"
 
 Constant CLOSE_COMPARE_STRONG  = 1
 Constant DEFAULT_TOLERANCE     = 1e-8
