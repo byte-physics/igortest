@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Test_MD
+#pragma ModuleName = IUTF_Test_MD
 
 /// Checks functions signature of each multi data test case candidate
 /// returns 1 if ok, 0 otherwise
@@ -81,7 +81,7 @@ static Function GetDataGeneratorListTC(procWin, fullFuncName, dgenList)
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
-		dgenList = UTF_Test_MD_Gen#GetDataGeneratorForMMD(procWin, fullFuncName)
+		dgenList = IUTF_Test_MD_Gen#GetDataGeneratorForMMD(procWin, fullFuncName)
 		return 0
 	endif
 
@@ -90,7 +90,7 @@ static Function GetDataGeneratorListTC(procWin, fullFuncName, dgenList)
 		return 1
 	endif
 
-	dgen = UTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
+	dgen = IUTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
 
 	dgenList = AddListItem(dgen, dgenList, ";", Inf)
 
@@ -125,7 +125,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
 	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
-		UTF_Test_MD_Gen#CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
+		IUTF_Test_MD_Gen#CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 		return 0
 	endif
 
@@ -134,9 +134,9 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
 		return 1
 	endif
 
-	dgen = UTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
-	WAVE wGenerator = UTF_Test_MD_Gen#CheckDGenOutput(fullFuncName, dgen, wType0, wType1, wRefSubType)
-	markSkip = UTF_Test_MD_Gen#CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
+	dgen = IUTF_Test_MD_Gen#GetDataGenFullFunctionName(procWin, fullFuncName)
+	WAVE wGenerator = IUTF_Test_MD_Gen#CheckDGenOutput(fullFuncName, dgen, wType0, wType1, wRefSubType)
+	markSkip = IUTF_Test_MD_Gen#CheckDataGenZeroSize(wGenerator, fullFuncName, dgen)
 
 	return 0
 End

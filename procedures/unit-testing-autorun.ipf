@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_AutoRun
+#pragma ModuleName=IUTF_AutoRun
 
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
@@ -19,14 +19,14 @@ End
 Function GetAutorunMode()
 	string path
 
-	path = UTF_Utils_Paths#AtHome("DO_AUTORUN.TXT")
+	path = IUTF_Utils_Paths#AtHome("DO_AUTORUN.TXT")
 	GetFileFolderInfo/Q/Z path
 
 	if(!V_flag)
 		return AUTORUN_FULL
 	endif
 
-	path = UTF_Utils_Paths#AtHome("DO_AUTORUN_PLAIN.TXT")
+	path = IUTF_Utils_Paths#AtHome("DO_AUTORUN_PLAIN.TXT")
 	GetFileFolderInfo/Q/Z path
 
 	if(!V_flag)
@@ -133,11 +133,11 @@ Function SaveHistoryLog()
 
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)
-		UTF_Reporting#UTF_PrintStatusMessage("No log notebook found, please call CreateHistoryLog() before.")
+		IUTF_Reporting#UTF_PrintStatusMessage("No log notebook found, please call CreateHistoryLog() before.")
 		return NaN
 	endif
 
-	historyLog = UTF_Utils_Paths#AtHome(historyLog, unusedName = 1)
+	historyLog = IUTF_Utils_Paths#AtHome(historyLog, unusedName = 1)
 
 	SaveNoteBook/S=3 HistoryCarbonCopy as historyLog
 End

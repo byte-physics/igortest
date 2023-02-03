@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_Utils_Strings
+#pragma ModuleName=IUTF_Utils_Strings
 
 
 // This pattern is used to find all placeholder in the string. This pattern consists of multiple parts:

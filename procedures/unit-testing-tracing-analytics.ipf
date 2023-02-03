@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Tracing_Analytics
+#pragma ModuleName = IUTF_Tracing_Analytics
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
@@ -15,7 +15,7 @@ static Structure CollectionResult
 EndStructure
 
 static Function GetMaxFuncCount()
-	WAVE/WAVE funcLocations = UTF_Tracing#GetFuncLocations()
+	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
 	variable size = DimSize(funcLocations, UTF_ROW)
 
 	Make/FREE=1/N=(size) helper = DimSize(funcLocations[p][%FUNCLIST], UTF_ROW)
@@ -23,7 +23,7 @@ static Function GetMaxFuncCount()
 End
 
 static Function GetMaxProcLineCount()
-	WAVE wv = UTF_Tracing#GetProcSizes()
+	WAVE wv = IUTF_Tracing#GetProcSizes()
 
 	return WaveMax(wv)
 End
@@ -59,7 +59,7 @@ static Function CollectFunctions(WAVE totals, WAVE/T procs, STRUCT CollectionRes
 	variable procCount = DimSize(procs, UTF_ROW)
 	variable maxFuncCount = GetMaxFuncCount()
 	DFREF dfr = GetPackageFolder()
-	WAVE/WAVE funcLocations = UTF_Tracing#GetFuncLocations()
+	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
 	variable lbFuncList = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
 	variable lbFuncStart = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
 
@@ -93,7 +93,7 @@ static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult 
 	variable procCount = DimSize(procs, UTF_ROW)
 	variable lineCount = GetMaxProcLineCount()
 	DFREF dfr = GetPackageFolder()
-	WAVE/WAVE funcLocations = UTF_Tracing#GetFuncLocations()
+	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
 	variable lbFuncList = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
 	variable lbFuncStart = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
 
@@ -101,7 +101,7 @@ static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult 
 	Make/FREE=1/N=(procCount, lineCount) result.lines = q
 	Make/FREE=1/N=(procCount, lineCount) result.calls = totals[q][0][p]
 
-	WAVE procSizes = UTF_Tracing#GetProcSizes()
+	WAVE procSizes = IUTF_Tracing#GetProcSizes()
 	for(i = 0; i < procCount; i++)
 		WAVE/T procFuncNames = funcLocations[i][lbFuncList]
 		WAVE procFuncLines = funcLocations[i][lbFuncStart]
@@ -150,7 +150,7 @@ static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult
 		metaIndex = 0
 	else
 		sprintf msg, "Bug: Sorting %d is not supported", sorting
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -185,7 +185,7 @@ static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collec
 		WAVE searchWave = collectionResult.calls
 	else
 		sprintf msg, "Bug: Sorting %d is not supported", sorting
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -244,7 +244,7 @@ End
 Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	STRUCT CollectionResult collectionResult
 	string msg, header
-	WAVE/T procs = UTF_Tracing#GetTracedProcedureNames()
+	WAVE/T procs = IUTF_Tracing#GetTracedProcedureNames()
 	DFREF dfr = GetPackageFolder()
 
 	mode = ParamIsDefault(mode) ? UTF_ANALYTICS_FUNCTIONS : mode
@@ -252,32 +252,32 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 
 	if(mode != UTF_ANALYTICS_FUNCTIONS && mode != UTF_ANALYTICS_LINES)
 		sprintf msg, "Mode %d is an unsupported mode", mode
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting != UTF_ANALYTICS_CALLS && sorting != UTF_ANALYTICS_SUM)
 		sprintf msg, "Sorting %d is an unsupported sorting", sorting
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting == UTF_ANALYTICS_SUM && mode != UTF_ANALYTICS_FUNCTIONS)
-		UTF_Reporting#UTF_PrintStatusMessage("Sum sorting is only available for the functions mode")
+		IUTF_Reporting#UTF_PrintStatusMessage("Sum sorting is only available for the functions mode")
 		return NaN
 	endif
-	if(count < 0 || UTF_Utils#IsNaN(count))
+	if(count < 0 || IUTF_Utils#IsNaN(count))
 		sprintf msg, "Invalid count: %d", count
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(!HasTracingData())
-		UTF_Reporting#UTF_PrintStatusMessage("No Tracing data exists. Try to run tracing first.")
+		IUTF_Reporting#UTF_PrintStatusMessage("No Tracing data exists. Try to run tracing first.")
 		return NaN
 	endif
 
 	WAVE totals = GetTotals()
 	if(!DimSize(totals, UTF_ROW))
 		// this can happen after stored Experiment is loaded to a fresh instance of Igor
-		UTF_Reporting#UTF_PrintStatusMessage("TUFXOP has no data. Try to rerun tracing to get new data.")
+		IUTF_Reporting#UTF_PrintStatusMessage("TUFXOP has no data. Try to rerun tracing to get new data.")
 		return NaN
 	endif
 
@@ -287,7 +287,7 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 		CollectLines(totals, procs, collectionResult)
 	else
 		sprintf msg, "Bug: Unknown mode %d for collection", mode
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
@@ -301,14 +301,14 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 		WAVE/T result = SearchHighest(procs, collectionResult, sorting)
 	else
 		sprintf msg, "Bug: Unknown mode %d for sorting", mode
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 	endif
 
 	Duplicate/O result, dfr:TracingAnalyticResult
 
 	header = GetWaveHeader(result)
-	msg = UTF_Utils#NicifyTableText(result, header)
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	msg = IUTF_Utils#NicifyTableText(result, header)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 #endif

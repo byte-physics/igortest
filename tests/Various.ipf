@@ -51,10 +51,10 @@ End
 Function CheckTAPTags()
 	string value, expected
 
-	variable index = UTF_FunctionTags#GetFunctionTagRef("CheckTAPTags")
+	variable index = IUTF_FunctionTags#GetFunctionTagRef("CheckTAPTags")
 	INFO("Search result of the function name")
 	CHECK_GE_VAR(index, 0)
-	WAVE/WAVE ftags = UTF_FunctionTags#GetFunctionTagWaves()
+	WAVE/WAVE ftags = IUTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/T tags = ftags[index]
 
 	expected = "TODO just a valid directive"
@@ -81,7 +81,7 @@ Function GetWavePointerWorks()
 
 	Make/FREE content
 
-	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	pointer = str2num(IUTF_Utils#GetWavePointer(content))
 	CHECK_GT_VAR(pointer, 0)
 
 	Make/N=(inf) data
@@ -89,7 +89,7 @@ Function GetWavePointerWorks()
 	// check that lingering RTE's are not changed
 	err = GetRTError(0)
 	CHECK_GT_VAR(err, 0)
-	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	pointer = str2num(IUTF_Utils#GetWavePointer(content))
 	CHECK_EQUAL_VAR(err, GetRTError(0))
 
 	// clear RTE to make the testing framework happy
@@ -432,10 +432,10 @@ Function TC_UTILS_GNSFN_Check_IGNORE(expect32, expect64, num)
 
 	string str
 
-	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
 	REQUIRE_EQUAL_STR(expect32, str)
 
-	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
 	REQUIRE_EQUAL_STR(expect64, str)
 End
 
@@ -482,11 +482,11 @@ static Function TC_StringDiff()
 
 	// Escaping
 #if (IgorVersion() >= 7.00)
-	res = UTF_UTILS#EscapeString("a\000\n\r\t\007")
+	res = IUTF_UTILS#EscapeString("a\000\n\r\t\007")
 	expected = " a <NUL> <LF> <CR> <TAB> <0x07>"
 #else
 	// Igor 6 is handling \000 as string termination
-	res = UTF_UTILS#EscapeString("a\n\r\t\007")
+	res = IUTF_UTILS#EscapeString("a\n\r\t\007")
 	expected = " a <LF> <CR> <TAB> <0x07>"
 #endif
 	CHECK_EQUAL_STR(expected, res)
@@ -514,9 +514,9 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 
 	// forward check
 	if(ParamIsDefault(case_sensitive))
-		UTF_UTILS#DiffString(str1, str2, result)
+		IUTF_UTILS#DiffString(str1, str2, result)
 	else
-		UTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out1, str)
@@ -525,9 +525,9 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 
 	// backward check (switched arguments)
 	if(ParamIsDefault(case_sensitive))
-		UTF_UTILS#DiffString(str2, str1, result)
+		IUTF_UTILS#DiffString(str2, str1, result)
 	else
-		UTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out2, str)
@@ -566,7 +566,7 @@ static Function TC_WaveMajorTypeString_Check(expected, type)
 
 	string str
 
-	str = UTF_Checks#GetWaveMajorTypeString(type)
+	str = IUTF_Checks#GetWaveMajorTypeString(type)
 	CHECK_EQUAL_STR(expected, str)
 End
 
@@ -609,7 +609,7 @@ static Function TC_WaveMinorTypeString_Check(expected, type)
 
 	string str
 
-	str = UTF_Checks#GetWaveMinorTypeString(type)
+	str = IUTF_Checks#GetWaveMinorTypeString(type)
 	CHECK_EQUAL_STR(expected, str)
 End
 
@@ -627,23 +627,23 @@ static Function TC_WaveName()
 
 	dfr = GetDataFolder(1)
 
-	str = UTF_Utils#GetWaveNameInDFStr($"")
+	str = IUTF_Utils#GetWaveNameInDFStr($"")
 	expect = "_null_"
 	CHECK_EQUAL_STR(expect, str)
 
 	Make namedDFWave
-	str = UTF_Utils#GetWaveNameInDFStr(namedDFWave)
+	str = IUTF_Utils#GetWaveNameInDFStr(namedDFWave)
 	expect = "namedDFWave in " + dfr
 	CHECK_EQUAL_STR(expect, str)
 
 	Make/FREE unnamedFreeWave
-	str = UTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
+	str = IUTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
 	CHECK(GrepString(str, "^_free_ \\(0x[0-9a-f]+\\)$"))
 
 #if IgorVersion() >= 9.0
 	Make/FREE=1 namedFreeWave
-	str = UTF_Utils#GetWaveNameInDFStr(namedFreeWave)
+	str = IUTF_Utils#GetWaveNameInDFStr(namedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
 	CHECK(GrepString(str, "^namedFreeWave \\(0x[0-9a-f]+\\)$"))
 #endif
@@ -655,19 +655,19 @@ static Function TC_VectorCapacity()
 
 	INFO("test small waves")
 	Make/FREE/N=50 wv
-	UTF_Utils_Vector#EnsureCapacity(wv, 100)
+	IUTF_Utils_Vector#EnsureCapacity(wv, 100)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE, size)
 
 	INFO("test small increment")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE * 2) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 2)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 2)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 4, size)
 
 	INFO("test big jump")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 16, size)
 
@@ -675,7 +675,7 @@ static Function TC_VectorCapacity()
 	// I am sorry for breaking your test setup
 	INFO("test heavy load")
 	MAKE/FREE/N=(IUTF_BIGWAVECHUNK_SIZE) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_BIGWAVECHUNK_SIZE * 3, size)
 #endif // IGOR64

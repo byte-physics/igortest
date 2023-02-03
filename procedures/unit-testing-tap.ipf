@@ -2,7 +2,7 @@
 #pragma rtGlobals=3		// Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.09
-#pragma ModuleName=UTF_Tap
+#pragma ModuleName=IUTF_Tap
 
 
 static StrConstant TAP_LINEEND_STR     = "\n"
@@ -15,7 +15,7 @@ static Function TAP_AreAllFunctionsSkip()
 
 	variable dimPos
 
-	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
 	dimPos = FindDimLabel(testRunData, UTF_COLUMN, "SKIP")
 	Duplicate/FREE/R=[][dimPos, dimPos] testRunData, skipCol
 
@@ -32,7 +32,7 @@ static Function TAP_IsFunctionTodo(funcName)
 	variable err
 	string str
 
-	str = UTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	str = IUTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(!err)
 		return strsearch(str, "TODO", 0, 2) == 0
 	endif
@@ -50,7 +50,7 @@ static Function TAP_IsFunctionSkip(funcName)
 	variable err
 	string str
 
-	str = UTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
+	str = IUTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err == UTF_TAG_OK)
 		return strsearch(str, "SKIP", 0, 2) == 0
 	endif
@@ -62,7 +62,7 @@ static Function/S TAP_GetValidDirective(str)
 	string str
 
 	str = ReplaceString("#", str, "_")
-	if(!UTF_Utils#IsEmpty(str))
+	if(!IUTF_Utils#IsEmpty(str))
 		str = " # " + str
 	endif
 
@@ -74,7 +74,7 @@ static Function/S TAP_GetValidDescription(str)
 	string str
 
 	str = ReplaceString("#", str, "_")
-	if(!UTF_Utils#IsEmpty(str))
+	if(!IUTF_Utils#IsEmpty(str))
 		str = " - " + str
 	endif
 
@@ -85,7 +85,7 @@ end
 static Function/S TAP_ValidDiagnostic(diag)
 	string diag
 
-	if(UTF_Utils#IsEmpty(diag))
+	if(IUTF_Utils#IsEmpty(diag))
 		return diag
 	endif
 	// diagnostic message may start with 'ok' or 'not ok' in a line which are TAP keywords
@@ -111,14 +111,14 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	string name, out, ok, diagnostics, description, directive, caseCountStr, msg, prefix
 	variable err
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	name = wvTestCase[testCaseIndex][%NAME]
 	diagnostics = wvTestCase[testCaseIndex][%STDERR]
-	directive = UTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
+	directive = IUTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err != UTF_TAG_OK)
 		directive = ""
 	endif
-	description = UTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DESCRIPTION, err)
+	description = IUTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DESCRIPTION, err)
 	if(err != UTF_TAG_OK)
 		description = ""
 	endif
@@ -126,7 +126,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	directive = TAP_GetValidDirective(directive)
 	description = TAP_GetValidDescription(description)
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	sprintf prefix, "%s (%s)", ReplaceString("#", name, ":"), wvTestSuite[%CURRENT][%PROCEDURENAME]
 
 	strswitch(wvTestCase[testCaseIndex][%STATUS])
@@ -145,7 +145,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 			break
 		default:
 			sprintf msg, "Error: Unknown test status %s for test case %s (%d)", wvTestCase[testCaseIndex][%STATUS], name, testCaseIndex
-			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#UTF_PrintStatusMessage(msg)
 			return ""
 	endswitch
 
@@ -170,7 +170,7 @@ static Function/S TAP_ToSuiteString(testSuiteIndex, caseCount)
 	variable childStart, childEnd, i
 	string s = ""
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	childStart = str2num(wvTestSuite[testSuiteIndex][%CHILD_START])
 	childEnd = str2num(wvTestSuite[testSuiteIndex][%CHILD_END])
 
@@ -188,16 +188,16 @@ static Function TAP_Write()
 	string filename, s, msg
 	variable caseCount = 1
 
-	filename = UTF_Utils_Paths#AtHome("tap_" + GetBaseFilename() + ".log", unusedName = 1)
+	filename = IUTF_Utils_Paths#AtHome("tap_" + GetBaseFilename() + ".log", unusedName = 1)
 
 	open/Z fnum as filename
 	if(V_flag)
 		sprintf msg, "Error: Could not create TAP output file at %s", filename
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	childStart = str2num(wvTestRun[%CURRENT][%CHILD_START])
 	childEnd = str2num(wvTestRun[%CURRENT][%CHILD_END])
 

@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Debug
+#pragma ModuleName = IUTF_Debug
 
 ///@cond HIDDEN_SYMBOL
 
@@ -100,7 +100,7 @@ static Function DebugOutput(str, booleanValue)
 
 	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 	if(EnabledDebug())
-		UTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
+		IUTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
 	endif
 End
 

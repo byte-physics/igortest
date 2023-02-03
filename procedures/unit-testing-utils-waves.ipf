@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Utils_Waves
+#pragma ModuleName = IUTF_Utils_Waves
 
 /// @brief Search for the first occurrence of the specified dimension label and remove it. If the
 /// label wasn't found nothing will be changed.

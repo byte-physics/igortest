@@ -105,7 +105,7 @@ StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
 StrConstant TC_ASSERTION_INFO_INDICATOR = "(i)"
 #endif
 
-/// @name Constants for UTF_Hooks#ExecuteHooks
+/// @name Constants for IUTF_Hooks#ExecuteHooks
 /// @anchor HookTypes
 /// @{
 Constant IUTF_TEST_BEGIN_CONST       = 0x01
@@ -203,7 +203,7 @@ Constant UTF_TAG_ABORTED   = 0x04
 /// @}
 
 /// @name String constants for function tags
-/// Need to be added to UTF_FunctionTags#GetTagConstants!
+/// Need to be added to IUTF_FunctionTags#GetTagConstants!
 ///
 /// @anchor FunctionTagStrings
 /// @{

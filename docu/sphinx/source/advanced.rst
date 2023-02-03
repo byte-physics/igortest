@@ -519,7 +519,7 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 
 * ``UTF_KEY_REGEXP`` (``REGEXP:boolean``) When set the parameter ``traceWinList`` is parsed as a regular expression for all procedure window names.
 * ``UTF_KEY_HTMLCREATION`` (``HTMLCREATION:boolean``) When set to zero no HTML files are created after the test run.
-  HTML files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
+  HTML files can be created by calling ``IUTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.

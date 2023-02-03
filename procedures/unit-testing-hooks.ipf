@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Hooks
+#pragma ModuleName = IUTF_Hooks
 
 ///@cond HIDDEN_SYMBOL
 
@@ -57,48 +57,48 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 
 	switch(level)
 		case HOOK_LEVEL_TEST_RUN:
-			UTF_Reporting_Control#TestSuiteBegin("@HOOK_SUITE")
-			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			IUTF_Reporting_Control#TestSuiteBegin("@HOOK_SUITE")
+			IUTF_Reporting_Control#TestCaseBegin(hookName, 0)
 			break;
 		case HOOK_LEVEL_TEST_SUITE:
-			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			IUTF_Reporting_Control#TestCaseBegin(hookName, 0)
 			break;
 		case HOOK_LEVEL_TEST_CASE:
-			UTF_Reporting_Control#TestCaseBegin(hookName, 0)
+			IUTF_Reporting_Control#TestCaseBegin(hookName, 0)
 			break;
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
-			UTF_Reporting#ReportErrorAndAbort(errorMessage)
+			IUTF_Reporting#ReportErrorAndAbort(errorMessage)
 			return NaN
 	endswitch
 
 	try
-		UTF_Basics#ClearRTError()
+		IUTF_Basics#ClearRTError()
 		userHook(name); AbortOnRTE
 	catch
 		errorMessage = GetRTErrMessage()
 		err = GetRTError(1)
-		UTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin)
+		IUTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin)
 
-		UTF_Basics#setAbortFlag()
+		IUTF_Basics#setAbortFlag()
 	endtry
 
-	endTime = UTF_Reporting#GetTimeString()
+	endTime = IUTF_Reporting#GetTimeString()
 
 	switch(level)
 		case HOOK_LEVEL_TEST_RUN:
-			UTF_Reporting_Control#TestCaseEnd(endTime)
-			UTF_Reporting_Control#TestSuiteEnd()
+			IUTF_Reporting_Control#TestCaseEnd(endTime)
+			IUTF_Reporting_Control#TestSuiteEnd()
 			break
 		case HOOK_LEVEL_TEST_SUITE:
-			UTF_Reporting_Control#TestCaseEnd(endTime)
+			IUTF_Reporting_Control#TestCaseEnd(endTime)
 			break
 		case HOOK_LEVEL_TEST_CASE:
-			UTF_Reporting_Control#TestCaseEnd(endTime)
+			IUTF_Reporting_Control#TestCaseEnd(endTime)
 			break
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
-			UTF_Reporting#ReportErrorAndAbort(errorMessage)
+			IUTF_Reporting#ReportErrorAndAbort(errorMessage)
 			return NaN
 	endswitch
 End
@@ -128,7 +128,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 	variable err, skip, tcOutIndex
 	string errorMessage, hookName, endTime
 
-	WAVE/T testRunData = UTF_Basics#GetTestRunData()
+	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
 	skip = str2num(testRunData[tcIndex][%SKIP])
 
 	switch(hookType)
@@ -163,9 +163,9 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			AbortOnValue ParamIsDefault(param), 1
 
 			// get the end time of the test case as fast as possible
-			endTime = UTF_Reporting#GetTimeString()
+			endTime = IUTF_Reporting#GetTimeString()
 			// cache the current index in the results wave as a hook can change it
-			WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+			WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 			tcOutIndex = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
 
 			AfterTestCase(name, skip)
@@ -198,14 +198,14 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_RUN)
 			TestEnd(name, param)
 			if(enableJU)
-				UTF_JUnit#JU_WriteOutput()
+				IUTF_JUnit#JU_WriteOutput()
 			endif
 			if(enableTAP)
-				UTF_TAP#TAP_Write()
+				IUTF_TAP#TAP_Write()
 			endif
 			break
 		default:
-			UTF_Reporting#ReportErrorAndAbort("Unknown hookType")
+			IUTF_Reporting#ReportErrorAndAbort("Unknown hookType")
 			break
 	endswitch
 End
@@ -218,17 +218,17 @@ static Function TestBegin(name, debugMode)
 
 	string msg
 
-	UTF_Reporting_Control#TestBegin()
-	UTF_Basics#InitAbortFlag()
-	UTF_Debug#SetDebugger(debugMode)
+	IUTF_Reporting_Control#TestBegin()
+	IUTF_Basics#InitAbortFlag()
+	IUTF_Debug#SetDebugger(debugMode)
 
-	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
-	UTF_Utils_Vector#SetLength(wvFailed, 0)
+	WAVE/T wvFailed = IUTF_Reporting#GetFailedProcWave()
+	IUTF_Utils_Vector#SetLength(wvFailed, 0)
 
 	ClearBaseFilename()
 
 	sprintf msg, "Start of test \"%s\"", name
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Testrun
@@ -240,8 +240,8 @@ static Function TestEnd(name, debugMode)
 	string msg
 	variable i, index
 	DFREF dfr = GetPackageFolder()
-	WAVE/T wvFailed = UTF_Reporting#GetFailedProcWave()
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvFailed = IUTF_Reporting#GetFailedProcWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 
 	if(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
 		sprintf msg, "Test finished with no errors"
@@ -249,19 +249,19 @@ static Function TestEnd(name, debugMode)
 		sprintf msg, "Test finished with %s errors", wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	index = UTF_Utils_Vector#GetLength(wvFailed)
+	index = IUTF_Utils_Vector#GetLength(wvFailed)
 	for(i = 0; i < index; i += 1)
 		msg = "  " + TC_ASSERTION_LIST_INDICATOR + " " + wvFailed[i]
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#UTF_PrintStatusMessage(msg)
 	endfor
 
 	sprintf msg, "End of test \"%s\"", name
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	UTF_Reporting_Control#TestEnd()
-	UTF_Debug#RestoreDebugger()
+	IUTF_Reporting_Control#TestEnd()
+	IUTF_Debug#RestoreDebugger()
 End
 
 /// Internal Setup for Test Suite
@@ -271,10 +271,10 @@ static Function TestSuiteBegin(testSuite)
 
 	string msg
 
-	UTF_Reporting_Control#TestSuiteBegin(testSuite)
+	IUTF_Reporting_Control#TestSuiteBegin(testSuite)
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Suite
@@ -284,7 +284,7 @@ static Function TestSuiteEnd(testSuite)
 
 	string msg
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 
 	if(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
 		sprintf msg, "Finished with no errors"
@@ -292,12 +292,12 @@ static Function TestSuiteEnd(testSuite)
 		sprintf msg, "Failed with %s errors", wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 
-	UTF_Reporting_Control#TestSuiteEnd()
+	IUTF_Reporting_Control#TestSuiteEnd()
 
 	sprintf msg, "Leaving test suite \"%s\"", testSuite
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// Internal Setup for Test Case
@@ -316,7 +316,7 @@ static Function TestCaseBegin(testCase)
 	NewDataFolder/O/S $workFolder
 
 	sprintf msg, "Entering test case \"%s\"", testCase
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// @brief Called after the test case begin user hook and before the test case function
@@ -332,7 +332,7 @@ static Function BeforeTestCase(name, skip)
 		if(NVAR_Exists(waveTrackingMode))
 			WaveTracking/LOCL stop
 			WaveTracking/FREE stop
-			if(!UTF_FunctionTags#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
+			if(!IUTF_FunctionTags#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
 				if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
 					WaveTracking/FREE counter
 				endif
@@ -344,7 +344,7 @@ static Function BeforeTestCase(name, skip)
 	endif
 #endif
 
-	UTF_Reporting_Control#TestCaseBegin(name, skip)
+	IUTF_Reporting_Control#TestCaseBegin(name, skip)
 
 End
 
@@ -378,14 +378,14 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
 				if(V_numWaves)
 					sprintf msg, "Local wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					UTF_Reporting#TestCaseFail(msg)
+					IUTF_Reporting#TestCaseFail(msg)
 				endif
 				WaveTracking/LOCL stop
 			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
 				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
 				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
-				UTF_Reporting#TestCaseFail(msg)
+				IUTF_Reporting#TestCaseFail(msg)
 			endif
 		endif
 
@@ -394,14 +394,14 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
 				if(V_numWaves)
 					sprintf msg, "Free wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					UTF_Reporting#TestCaseFail(msg)
+					IUTF_Reporting#TestCaseFail(msg)
 				endif
 				WaveTracking/FREE stop
 			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
 				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
 				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
-				UTF_Reporting#TestCaseFail(msg)
+				IUTF_Reporting#TestCaseFail(msg)
 			endif
 		endif
 	endif
@@ -418,15 +418,15 @@ static Function TestCaseEnd(testCase, tcIndex, endTime)
 	string msg
 	variable oldIndex
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	oldIndex = UTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", tcIndex)
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	oldIndex = IUTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", tcIndex)
 
-	UTF_Reporting_Control#TestCaseEnd(endTime)
+	IUTF_Reporting_Control#TestCaseEnd(endTime)
 
-	UTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", oldIndex)
+	IUTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", oldIndex)
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#UTF_PrintStatusMessage(msg)
 End
 
 /// @brief Called after the test case and before the test case end user hook
@@ -436,9 +436,9 @@ static Function AfterTestCase(name, skip)
 
 	string msg
 
-	UTF_Reporting#CleanupInfoMsg()
+	IUTF_Reporting#CleanupInfoMsg()
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 
 	if(skip)
 		return NaN
@@ -447,7 +447,7 @@ static Function AfterTestCase(name, skip)
 	if(IsExpectedFailure())
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
 			sprintf msg, "Test case \"%s\" doesn't contain at least one assertion error", name
-			UTF_Reporting#TestCaseFail(msg, isFailure = 1)
+			IUTF_Reporting#TestCaseFail(msg, isFailure = 1)
 		else
 			// reset the assertion error counter as all previous errors are intended
 			wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = "0"
@@ -456,7 +456,7 @@ static Function AfterTestCase(name, skip)
 	else
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
 			sprintf msg, "Test case \"%s\" doesn't contain at least one assertion", name
-			UTF_Reporting#TestCaseFail(msg)
+			IUTF_Reporting#TestCaseFail(msg)
 		endif
 	endif
 End
@@ -494,12 +494,12 @@ static Function abortWithInvalidHooks(hooks)
 	for(i = 0; i < numEntries; i += 1)
 		if(NumberByKey("N_PARAMS", wvInfo[i]) != 1 || NumberByKey("N_OPT_PARAMS", wvInfo[i]) != 0 || NumberByKey("PARAM_0_TYPE", wvInfo[i]) != 0x2000)
 			sprintf msg, "The override test hook \"%s\" must accept exactly one string parameter.", StringByKey("NAME", wvInfo[i])
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 		if(NumberByKey("RETURNTYPE", wvInfo[i]) != 0x4)
 			sprintf msg, "The override test hook \"%s\" must return a numeric variable.", StringByKey("NAME", wvInfo[i])
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 	endfor
 End
@@ -554,7 +554,7 @@ static Function getLocalHooks(hooks, procName)
 	for(i = 0; i < ItemsInList(userHooks); i += 1)
 		string userHook = StringFromList(i, userHooks)
 
-		string fullFunctionName = UTF_Basics#getFullFunctionName(err, userHook, procName)
+		string fullFunctionName = IUTF_Basics#getFullFunctionName(err, userHook, procName)
 		strswitch(userHook)
 			case "TEST_SUITE_BEGIN_OVERRIDE":
 				hooks.testSuiteBegin = fullFunctionName
