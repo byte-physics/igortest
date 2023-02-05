@@ -8,6 +8,11 @@ Developer Documentation
 Some diagrams are generated with yEd. Due to license restrictions we have to
 include the project file and the generated svg in this repository.
 
+Installation steps for running the tests
+----------------------------------------
+
+Create a link from ``tests`` in the ``User Procedures`` subfolder.
+
 .. _GlobalVariables:
 
 Global Variables
