@@ -3,7 +3,6 @@
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// Steps for adding new test assertions:
 /// - Add the test you want to perform to `unit-testing-assertion-checks.ipf`, these

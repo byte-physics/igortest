@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_AutoRun
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history

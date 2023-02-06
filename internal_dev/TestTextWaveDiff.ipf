@@ -6,7 +6,6 @@
 
 #include "unit-testing"
 
-// Licensed under 3-Clause BSD, see License.txt
 
 static Function TC_CheckForWaveDifferences()
 	Make/FREE/T/N=4 wv1

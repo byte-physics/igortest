@@ -4,7 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=UTF_Tap
 
-// Licensed under 3-Clause BSD, see License.txt
 
 static StrConstant TAP_LINEEND_STR     = "\n"
 

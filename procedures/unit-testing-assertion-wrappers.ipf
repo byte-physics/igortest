@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=UTF_Wrapper
 
-// Licensed under 3-Clause BSD, see License.txt
 
 /// @class INFO_DOCU
 /// Append information to the next assertion to print if failed

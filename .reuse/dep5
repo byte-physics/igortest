@@ -1,0 +1,46 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: igor-unit-testing-framework
+Upstream-Contact: support@byte-physics.de
+Source: https://github.com/byte-physics/igor-unit-testing-framework
+
+# Git/Github/Gitlab files
+Files: *.gitignore .gitlab-ci.yml .gitattributes .gitmodules License.txt
+Copyright: 2013 - 2023 All contributors
+License: CC0-1.0
+
+# Build scripts
+Files: create-public-release.sh docu/scripts/* *Makefile
+Copyright: 2013 - 2023 All contributors
+License: CC0-1.0
+
+# Configuration
+Files: Readme.md .editorconfig .pre-commit-config.yaml CODEOWNERS ctags.cnf
+       *Dockerfile *Doxyfile
+       docu/sphinx/source/conf.py docu/sphinx/source/_templates/*.html */matomo.js
+       docu/sphinx/source/_static/custom.css
+Copyright: 2013 - 2023 All contributors
+License: CC0-1.0
+
+# Code, examples, tests, documentation
+Files: procedures/* tests/* internal_dev/* helper/*
+       docu/examples/* docu/sphinx/source/*rst docu/sphinx/source/htmloutput.txt
+       docu/sphinx/source/_static/*.png
+       docu/sphinx/source/_static/images/*
+Copyright: 2013 - 2023 All contributors
+License: BSD-3-Clause
+
+# Third-party files
+Files: docu/sphinx/source/junit.xsd
+       docu/sphinx/source/junit.xml
+Copyright: 2014 Gregory Boissinot
+License: MIT
+
+# Proprietary XOPs
+Files: xop/*
+Copyright: 2021 - 2023 byte physics e. K.
+License: CC-BY-NC-ND-4.0
+
+# byte physics company logo
+Files: docu/sphinx/source/_static/images/logo/bp-logo.png
+Copyright: 2012 Stefan Dumont, Thomas Braun
+License: CC-BY-NC-ND-4.0

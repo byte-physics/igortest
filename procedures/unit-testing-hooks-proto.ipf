@@ -4,8 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName = UTF_Hooks_Proto
 
-// Licensed under 3-Clause BSD, see License.txt
-
 // These functions are included for compatibility only
 // and have no functionality. Do NOT call this functions in future
 // test setups to extend a test run. The functions may be removed in a later version.
