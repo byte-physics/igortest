@@ -542,6 +542,10 @@ At the end of a run with code coverage determination Igor Pro outputs the global
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
 ``(?:^Coverage: )(\d+.\d+)(?:%$)``.
 
+After the test run the user can call ``IUTF_RestoreTracing()`` to restore the
+instrumented procedure files back to their original version. It is recommended
+to call this manually after the test run.
+
 .. _coverage_statistics:
 
 Statistics

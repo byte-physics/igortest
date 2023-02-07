@@ -244,7 +244,7 @@ End
 Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	STRUCT CollectionResult collectionResult
 	string msg, header
-	WAVE/T procs = GetTracedProcedureNames()
+	WAVE/T procs = UTF_Tracing#GetTracedProcedureNames()
 	DFREF dfr = GetPackageFolder()
 
 	mode = ParamIsDefault(mode) ? UTF_ANALYTICS_FUNCTIONS : mode

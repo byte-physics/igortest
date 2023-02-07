@@ -73,7 +73,7 @@ threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable
 
 	WAVE/D/Z logData = wref[0]
 	if(!WaveExists(logData))
-		WAVE/T wProcNames = GetTracedProcedureNames()
+		WAVE/T wProcNames = UTF_Tracing#GetTracedProcedureNames()
 		numProcs = DimSize(wProcNames, UTF_ROW)
 		Make/FREE/D/N=(UTF_MAX_PROC_LINES, 3, numProcs) logData
 		wref[0] = logData
