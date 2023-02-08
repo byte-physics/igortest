@@ -390,7 +390,7 @@ static Function/S getInfo(result, partialStack)
 		caller    = StringFromList(i, callStack)
 		procedure = StringFromList(1, caller, ",")
 
-		if(StringMatch(procedure, "unit-testing*"))
+		if(StringMatch(procedure, "igortest*"))
 			if(IUTF_Utils#IsNaN(callerIndex))
 				continue
 			endif
@@ -459,7 +459,7 @@ End
 /// @brief Wrapper function result reporting. This functions should only be called for
 ///        assertions in user test cases. For internal errors use ReportError* functions.
 ///
-/// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
+/// @param result Return value of a check function from `igortest-assertion-checks.ipf`
 /// @param str    Message string
 /// @param flags  Wrapper function `flags` argument
 /// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup

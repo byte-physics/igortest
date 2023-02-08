@@ -6,15 +6,15 @@
 
 
 /// Steps for adding new test assertions:
-/// - Add the test you want to perform to `unit-testing-assertion-checks.ipf`, these
+/// - Add the test you want to perform to `igortest-assertion-checks.ipf`, these
 ///   functions must return 0/1 from their input parameters. No access of globals
 ///   is allowed here.
 /// - Add a wrapper function which also handles error
-///   reporting to unit-testing-assertion-wrappers.ipf
+///   reporting to igortest-assertion-wrappers.ipf
 /// - Document the `*_WRAPPER` function using "@class *_DOCU" without the flags parameter
 /// - Add WARN/CHECK/REQUIRE variants in this file
 /// - Use `copydoc *_DOCU` for copying the documentation to the test assertions
-/// - Write tests for the check function in `unit-testing-assertion-checks.ipf`
+/// - Write tests for the check function in `igortest-assertion-checks.ipf`
 ///   and the `CHECK_*` assertion in `VTTE.ipf`
 
 /// @addtogroup Assertions
