@@ -17,14 +17,8 @@ static Function TC_CheckForWaveDifferences()
 	wv2[0] = "My example\nDocumentation\nwith a smoll difference\n"
 
 	// very long text
-	wv1[1] = ""
-	wv2[1] = ""
-	PadString(wv1[1], 500, "0")
-	PadString(wv2[1], 500, "0")
-	wv1[1] += "a"
-	wv2[1] += "z"
-	PadString(wv1[1], 1000, "1")
-	PadString(wv2[1], 1000, "1")
+	wv1[1] = PadString("", 500, 0x30) + "a" + PadString("", 500, 0x31)
+	wv2[1] = PadString("", 500, 0x30) + "z" + PadString("", 500, 0x31)
 
 	wv1[2] = "Example\ntext\nwith\nunexpected\nline\nendings."
 	wv2[2] = "Example\rtext\rwith\runexpected\rline\rendings."
