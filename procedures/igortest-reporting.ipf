@@ -50,7 +50,7 @@ End
 ///   - NUM_ASSERT_ERROR: number of failed or errored assertions in all test cases
 ///   - SYSTEMINFO: information of the current system
 ///   - IGORINFO: information of the current igor instance
-///   - VERSION: version number of the used UTF
+///   - VERSION: version number of the used IUTF
 ///   - EXPERIMENT: name of the experiment file
 ///   - CHILD_START: the start index (inclusive) for all test suites that belong to this test run
 ///   - CHILD_END: the end index (exclusive) for all test suites that belong to this test run
@@ -384,7 +384,7 @@ static Function/S getInfo(result, partialStack)
 	partialStack = ""
 
 	// traverse the callstack from bottom up,
-	// the first function not in one of the unit testing procedures is
+	// the first function not in one of the igortest procedures is
 	// the one we want to report. Except if helper functions are involved.
 	for(i = numCallers - 1; i >= 0; i -= 1)
 		caller    = StringFromList(i, callStack)

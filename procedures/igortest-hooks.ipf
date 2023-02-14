@@ -384,7 +384,7 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
 				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
-				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
 				IUTF_Reporting#TestCaseFail(msg)
 			endif
 		endif
@@ -400,7 +400,7 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
 				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
 				// Most likely the user has used a tag to opt out this test case for wave tracking.
-				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. UTF can not track at the same time.", name, V_Flag
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
 				IUTF_Reporting#TestCaseFail(msg)
 			endif
 		endif

@@ -238,7 +238,7 @@ background tasks that should be monitored. The mode parameter sets if all or one
 task has to finish to continue test execution. Optional a timeout can be set
 after the test continues independently of the user task(s) state.
 
-See also :ref:`flags_UTFBackgroundMonModes`.
+See also :ref:`flags_IUTFBackgroundMonModes`.
 
 Function definition of RegisterUTFMonitor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

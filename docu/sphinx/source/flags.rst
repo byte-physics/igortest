@@ -43,7 +43,7 @@ MinorType
 .. doxygengroup:: TestWaveFlagsMinor
    :content-only:
 
-.. _flags_UTFBackgroundMonModes:
+.. _flags_IUTFBackgroundMonModes:
 
 Background Monitor Modes
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -51,5 +51,5 @@ Background Monitor Modes
 The following constants are used with :cpp:func:`RegisterUTFMonitor`. They define
 the condition how multiple user tasks states are evaluated.
 
-.. doxygengroup:: UTFBackgroundMonModes
+.. doxygengroup:: IUTFBackgroundMonModes
    :content-only:

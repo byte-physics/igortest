@@ -29,7 +29,7 @@ End
 
 // One test case for everyting
 // This is done so that we don't rely on the IUTF test case discovery logic to work.
-static Function TestUTF()
+static Function TestIUTF()
 	variable err
 
 	PASS()

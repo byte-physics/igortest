@@ -105,7 +105,7 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	for(i = startIndex; i < endIndex; i += 1)
 		message = JU_ToXMLCharacters(wvAssertion[i][%MESSAGE])
 		type = JU_ToXMLCharacters(wvAssertion[i][%TYPE])
-		// we are outputing everything as error to keep the same behavior as older versions of UTF
+		// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 		// strswitch(wvAssertion[i][%TYPE])
 		// 	case IUTF_STATUS_FAIL:
@@ -179,7 +179,7 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	out += JU_ToPropertyString("User", wvTestRun[testRunIndex][%USERNAME])
 	out += JU_ToPropertyString("System", JU_NicifyList(wvTestRun[testRunIndex][%SYSTEMINFO]))
 	out += JU_ToPropertyString("Experiment", wvTestRun[testRunIndex][%EXPERIMENT])
-	out += JU_ToPropertyString("UTFversion", wvTestRun[testRunIndex][%VERSION])
+	out += JU_ToPropertyString("IUTFversion", wvTestRun[testRunIndex][%VERSION])
 	out += JU_ToPropertyString("IgorInfo", JU_NicifyList(wvTestRun[testRunIndex][%IGORINFO]))
 	out += "\t\t</properties>\n"
 

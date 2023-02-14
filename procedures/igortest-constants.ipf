@@ -179,7 +179,7 @@ Constant AUTORUN_FULL  = 0x1
 Constant AUTORUN_PLAIN = 0x2
 /// @}
 
-/// @addtogroup UTFBackgroundMonModes
+/// @addtogroup IUTFBackgroundMonModes
 /// @{
 Constant BACKGROUNDMONMODE_AND  = 0
 Constant BACKGROUNDMONMODE_OR   = 1
@@ -242,14 +242,14 @@ Constant UTF_WAVE_TRACKING_LOCAL = 0x02
 Constant UTF_WAVE_TRACKING_ALL = 0x03
 /// @}
 
-/// @name UTF Analytic output modes
+/// @name IUTF Analytic output modes
 /// @anchor AnalyticModes
 /// @{
 Constant UTF_ANALYTICS_FUNCTIONS = 0x00
 Constant UTF_ANALYTICS_LINES = 0x01
 /// @}
 
-/// @name UTF Analytics sorting modes
+/// @name IUTF Analytics sorting modes
 /// @anchor AnalyticSorting
 /// @{
 Constant UTF_ANALYTICS_CALLS = 0x00

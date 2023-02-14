@@ -703,7 +703,7 @@ static Function/S GetProcedureList()
 
 	if(!IsProcGlobal())
 		if(!QueryIgorOption("IndependentModuleDev"))
-			sprintf msg, "Error: The unit-testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.", GetIndependentModuleName()
+			sprintf msg, "Error: The universal testing framework lives in the IM \"%s\" but \"SetIgorOption IndependentModuleDev=1\" is not set.", GetIndependentModuleName()
 			IUTF_Reporting#ReportError(msg)
 			return ""
 		endif
@@ -784,7 +784,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	return procWinListOut
 End
 
-/// @brief Background monitor of the Unit Testing Framework
+/// @brief Background monitor of the Universal Testing Framework
 Function UTFBackgroundMonitor(s)
 	STRUCT WMBackgroundStruct &s
 
@@ -799,7 +799,7 @@ Function UTFBackgroundMonitor(s)
 	NVAR/Z failOnTimeout = df:BCKG_failOnTimeout
 
 	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout) || !NVAR_Exists(failOnTimeout))
-		IUTF_Reporting#ReportErrorAndAbort("UTFBackgroundMonitor can not find monitoring data in package DF, aborting monitoring.", setFlagOnly = 1)
+		IUTF_Reporting#ReportErrorAndAbort("IUTF BackgroundMonitor can not find monitoring data in package DF, aborting monitoring.", setFlagOnly = 1)
 		ClearReentrytoUTF()
 		QuitOnAutoRunFull()
 		return 2
@@ -817,7 +817,7 @@ Function UTFBackgroundMonitor(s)
 	endif
 
 	if(timeout && datetime > timeout)
-		IUTF_Reporting#ReportError("UTF background monitor has reached the timeout for reentry", incrGlobalErrorCounter = failOnTimeout)
+		IUTF_Reporting#ReportError("IUTF background monitor has reached the timeout for reentry", incrGlobalErrorCounter = failOnTimeout)
 
 		RunTest(BACKGROUNDINFOSTR)
 		return 0
@@ -842,7 +842,7 @@ Function UTFBackgroundMonitor(s)
 	return 0
 End
 
-/// @brief Clear the glboal reentry flag, removes any saved RunTest state and stops the UTF monitoring task
+/// @brief Clear the glboal reentry flag, removes any saved RunTest state and stops the IUTF monitoring task
 static Function ClearReentrytoUTF()
 
 	ResetBckgRegistered()
@@ -1129,7 +1129,7 @@ EndStructure
 ///        RegisterUTFMonitor("TestCaseTask1;TestCaseTask2", BACKGROUNDMONMODE_OR, \
 ///                           "testcase_REENTRY", timeout = 60)
 ///
-///     This command will register the UTF background monitor task to monitor
+///     This command will register the IUTF background monitor task to monitor
 ///     the state of `TestCaseTask1` and `TestCaseTask2`. As mode is set to
 ///     `BACKGROUNDMONMODE_OR`, when `TestCaseTask1` OR `TestCaseTask2` has
 ///     finished the function `testcase_REENTRY()` is called to  continue the
@@ -1138,14 +1138,14 @@ EndStructure
 ///
 /// @endverbatim
 ///
-/// @param   taskList      A list of background task names that should be monitored by the unit testing framework
+/// @param   taskList      A list of background task names that should be monitored by the universal testing framework
 ///                        @n The list should be given semicolon (";") separated.
 ///
 /// @param   mode          Mode sets how multiple tasks are evaluated. If set to
 ///                        `BACKGROUNDMONMODE_AND` all tasks of the list must finish (AND).
 ///                        If set to `BACKGROUNDMONMODE_OR` one task of the list must finish (OR).
 ///
-/// @param   reentryFunc   Name of the function that the unit testing framework calls when the monitored background tasks finished.
+/// @param   reentryFunc   Name of the function that the universal testing framework calls when the monitored background tasks finished.
 ///                        The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
 ///                        The reentry function *continues* the current test case therefore no hooks are called.
 ///
@@ -1178,7 +1178,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	endif
 
 	if(FindListItem(BACKGROUNDMONTASK, taskList) != -1)
-		IUTF_Reporting#ReportErrorAndAbort("Igor Unit Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ").")
+		IUTF_Reporting#ReportErrorAndAbort("Igor Universal Testing framework will not monitor its own monitoring task (" + BACKGROUNDMONTASK + ").")
 	endif
 
 	// check valid reentry function
@@ -1229,7 +1229,7 @@ static Function DetectDeprecation()
 	IUTF_Reporting#UTF_PrintStatusMessage("", allowEmptyLine = 1)
 End
 
-/// @brief Main function to execute test suites with the unit testing framework.
+/// @brief Main function to execute test suites with the universal testing framework.
 ///
 /// @verbatim embed:rst:leading-slashes
 ///     .. code-block:: igor
@@ -1310,7 +1310,7 @@ End
 ///                         produced data.
 ///
 /// @param   traceWinList   (optional) default ""
-///                         A list of windows where execution gets traced. The unit testing framework saves a RTF document
+///                         A list of windows where execution gets traced. The universal testing framework saves a RTF document
 ///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
 ///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
@@ -1631,7 +1631,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				if(GetRTError(0))
 					msg = GetRTErrMessage()
 					err = GetRTError(1)
-					sprintf msg, "Internal runtime error in UTF %d:\"%s\" before executing test case \"%s\".", err, msg, fullFuncName
+					sprintf msg, "Internal runtime error in IUTF %d:\"%s\" before executing test case \"%s\".", err, msg, fullFuncName
 					IUTF_Reporting#ReportErrorAndAbort(msg, setFlagOnly = 1)
 				endif
 
