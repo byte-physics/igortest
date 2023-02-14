@@ -4,7 +4,7 @@
 #pragma IndependentModule=ABCD
 #pragma ModuleName=TAP1
 
-#include "unit-testing"
+#include "igortest"
 
 static Function run_IGNORE()
 	RunTest("IM_tap_example1b-warn_and_error.ipf;IM_tap_example1a-uncaught-aborts.ipf",enableTAP=1)

@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example6
 
-#include "unit-testing"
+#include "igortest"
 
 static Function CheckTrigonometricFunctions()
 

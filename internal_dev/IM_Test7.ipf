@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 // As this procedure file is in ProcGlobal context
 // the test hook overrides are global.

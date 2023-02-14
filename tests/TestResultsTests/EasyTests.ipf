@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_EasyTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
 // These are simple tests that do not rely on modifying the test results

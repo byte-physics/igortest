@@ -4,7 +4,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName=UTF_TestTextWaveDiff
 
-#include "unit-testing"
+#include "igortest"
 
 
 static Function TC_CheckForWaveDifferences()

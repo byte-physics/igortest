@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
 
-#include "unit-testing"
+#include "igortest"
 
 // Example of how to use the failOnTimeOut feature
 // The testcase `First` must have one error in the end.

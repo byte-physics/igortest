@@ -3,7 +3,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 
-#include "unit-testing"
+#include "igortest"
 
 // All tests here should fail and give an detailed message
 // from CHECK_EQUAL_WAVES in WAVE_DATA mode

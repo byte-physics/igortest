@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = Utils
 
-#include "unit-testing"
+#include "igortest"
 
 static Function/WAVE GetGridRows(wv, y1, y2)
 	WAVE/T wv

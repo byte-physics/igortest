@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName=TestExampleMain
 
-#include "unit-testing"
+#include "igortest"
 
 #include ":test_example_sub1"
 #include ":test_example_sub2"

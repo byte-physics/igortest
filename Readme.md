@@ -21,7 +21,7 @@ The IUTF is applied as a reliable tool in larger Igor Pro projects such as [MIES
 #pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3
 
-#include "unit-testing"
+#include "igortest"
 
 // Simple demo example that tests the abs() function
 Function TestAbsolute()

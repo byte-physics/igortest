@@ -4,7 +4,7 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=ExampleXX
 
-#include "unit-testing"
+#include "igortest"
 
 static Function TEST_CASE_BEGIN_OVERRIDE(name)
 	string name

@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example2
 
-#include "unit-testing"
+#include "igortest"
 
 Function run_IGNORE()
 

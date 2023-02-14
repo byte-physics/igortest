@@ -69,7 +69,7 @@ range. To perform these two tests, we define a :ref:`TestCase`.
    #pragma TextEncoding = "UTF-8"
    #pragma rtGlobals=3
 
-   #include "unit-testing"
+   #include "igortest"
 
    Function testDiameter()
        // the (6,5) type is 0.757nm in diameter

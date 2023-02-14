@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 // Execute the test suite, same named as this procedure file
 // with RunTest("example1-plain.ipf")

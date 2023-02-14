@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example12
 
-#include "unit-testing"
+#include "igortest"
 
 // A task that is run by the test, could be data acquisition
 // but to keep it simple this task runs until the current seconds

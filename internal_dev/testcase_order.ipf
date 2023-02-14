@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName=SortingTestcases
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("issue109-sorting-testcases.ipf")
 

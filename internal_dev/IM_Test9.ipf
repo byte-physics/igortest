@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 // Command: RunTest("example8-pass-fail.ipf")
 // Shows how to use PASS() and FAIL() together with try/catch

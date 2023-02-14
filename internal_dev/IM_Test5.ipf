@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 // Command: RunTest("example4-wavechecking.ipf")
 // Helper functions to check wave types and compare with

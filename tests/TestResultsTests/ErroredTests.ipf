@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_ErroredTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
 // These are tests that check if IUTF works correctly with errored tests

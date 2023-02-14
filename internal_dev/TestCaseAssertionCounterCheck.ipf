@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma rtFunctionErrors=1
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("TestCaseAssertionCounterCheck.ipf")
 

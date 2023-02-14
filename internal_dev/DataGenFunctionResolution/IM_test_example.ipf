@@ -5,7 +5,7 @@
 #pragma ModuleName=TestExampleMain
 #pragma IndependentModule=TestExample_IM
 
-#include "unit-testing"
+#include "igortest"
 
 #include ":IM_test_example_sub1"
 #include ":IM_test_example_sub2"

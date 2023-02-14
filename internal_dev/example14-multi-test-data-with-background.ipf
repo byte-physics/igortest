@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example14internal
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("example14-multi-test-data-with-background.ipf")
 

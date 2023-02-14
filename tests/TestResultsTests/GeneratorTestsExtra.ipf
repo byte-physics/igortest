@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_GeneratorTestsExtra
 
-#include "unit-testing"
+#include "igortest"
 
 static Function/WAVE GenAbort()
 	abort

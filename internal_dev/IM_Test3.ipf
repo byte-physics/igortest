@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 // Command: run_IGNORE()
 // Shows how to use ignore routines

@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_BadHooks
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
 // These are tests that checks if failed hooks have the correct output in the test results

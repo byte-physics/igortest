@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_GeneratorTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
 // These are some tests that test the behavior of data generator

@@ -1,7 +1,7 @@
 #pragma rtGlobals=3
 #pragma version=1.09
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("tap_example1b-warn_and_error.ipf", enableTAP = 1)
 

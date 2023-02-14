@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example7
 
-#include "unit-testing"
+#include "igortest"
 
 Function CheckNumber(a)
 	variable a
