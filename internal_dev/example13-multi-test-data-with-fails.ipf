@@ -14,7 +14,7 @@ static Function/WAVE tcDataGenVar()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MDTestCaseVar([var])
 	variable var
 
@@ -26,7 +26,7 @@ static Function/WAVE tcDataGenInt()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenInt
+// IUTF_TD_GENERATOR tcDataGenInt
 static Function MDTestCaseInt([int])
 	Int64 int
 
@@ -38,7 +38,7 @@ static Function/WAVE tcDataGenCmpl()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenCmpl
+// IUTF_TD_GENERATOR tcDataGenCmpl
 static Function MDTestCaseCmpl([cmpl])
 	variable/C cmpl
 
@@ -50,7 +50,7 @@ static Function/WAVE tcDataGenStr()
 	return favorites
 End
 
-// UTF_TD_GENERATOR tcDataGenStr
+// IUTF_TD_GENERATOR tcDataGenStr
 static Function MDTestCaseStr([str])
 	string str
 
@@ -66,7 +66,7 @@ static Function/WAVE tcDataGenWv()
 	return wr
 End
 
-// UTF_TD_GENERATOR tcDataGenWv
+// IUTF_TD_GENERATOR tcDataGenWv
 static Function MDTestCaseWv([wv])
 	WAVE wv
 
@@ -82,7 +82,7 @@ static Function/WAVE tcDataGenDFR()
 	return w
 End
 
-// UTF_TD_GENERATOR tcDataGenDFR
+// IUTF_TD_GENERATOR tcDataGenDFR
 static Function MDTestCaseDFR([dfr])
 	DFREF dfr
 
@@ -99,7 +99,7 @@ static Function MultiTestCaseFail([var])
 	CHECK(var)
 End
 
-// UTF_TD_GENERATOR IdoNotExist
+// IUTF_TD_GENERATOR IdoNotExist
 static Function MultiTestCaseFail2([var])
 	variable var
 
@@ -107,35 +107,35 @@ static Function MultiTestCaseFail2([var])
 End
 
 // wrong generator
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail3([str])
 	string str
 
 End
 
 // wrong generator
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail4([dfr])
 	DFREF dfr
 
 End
 
 // wrong generator
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail5([wv])
 	WAVE wv
 
 End
 
 // wrong generator
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail6([cmpl])
 	Complex cmpl
 
 End
 
 // wrong generator
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail7([int])
 	Int64 int
 

@@ -27,7 +27,7 @@ End
 // distinguish them. In the end both should be executed successfully.
 
 #if (IgorVersion() >= 8.00)
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIgor8_ThisIsTheFirstOneOfThem_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRST1()
 	CHECK(0)
 End
@@ -36,7 +36,7 @@ Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIg
 	CHECK(1)
 End
 #else
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 Function VeryLongFunctionNameThatWill1()
 	CHECK(0)
 End
@@ -139,7 +139,7 @@ static Function/WAVE GeneratorSC()
 	return data
 End
 
-// UTF_TD_GENERATOR GeneratorSC
+// IUTF_TD_GENERATOR GeneratorSC
 static Function TestDGenSingleCall_A([var])
 	variable var
 
@@ -176,11 +176,11 @@ Function/WAVE GeneratorZeroSize()
 	return data
 End
 
-// UTF_TD_GENERATOR v0:GeneratorVar
-// UTF_TD_GENERATOR v1:GeneratorVar
-// UTF_TD_GENERATOR v2:GeneratorVar
-// UTF_TD_GENERATOR v3:GeneratorVar
-// UTF_TD_GENERATOR v4:GeneratorVar
+// IUTF_TD_GENERATOR v0:GeneratorVar
+// IUTF_TD_GENERATOR v1:GeneratorVar
+// IUTF_TD_GENERATOR v2:GeneratorVar
+// IUTF_TD_GENERATOR v3:GeneratorVar
+// IUTF_TD_GENERATOR v4:GeneratorVar
 static Function TC_MMD_Part1([md])
 	STRUCT IUTF_mData &md
 
@@ -220,7 +220,7 @@ static Function TC_MMD_Part2()
 	PASS()
 End
 
-// UTF_TD_GENERATOR s0:GeneratorStr
+// IUTF_TD_GENERATOR s0:GeneratorStr
 static Function TC_MMD_InitValues([md])
 	STRUCT IUTF_mData &md
 
@@ -238,14 +238,14 @@ static Function TC_MMD_InitValues([md])
 
 End
 
-// UTF_TD_GENERATOR v0:GeneratorZeroSize
+// IUTF_TD_GENERATOR v0:GeneratorZeroSize
 static Function TC_MMD_ZeroSize([md])
 	STRUCT IUTF_mData &md
 
 	FAIL()
 End
 
-// UTF_TD_GENERATOR GeneratorZeroSize
+// IUTF_TD_GENERATOR GeneratorZeroSize
 static Function TC_MD_ZeroSize([val])
 	variable val
 
@@ -288,31 +288,31 @@ static Function/WAVE GeneratorDFR()
 	return wv
 End
 
-// UTF_TD_GENERATOR v0:GeneratorV
-// UTF_TD_GENERATOR v1:GeneratorV
-// UTF_TD_GENERATOR v2:GeneratorV
-// UTF_TD_GENERATOR v3:GeneratorV
-// UTF_TD_GENERATOR v4:GeneratorV
-// UTF_TD_GENERATOR s0:GeneratorS
-// UTF_TD_GENERATOR s1:GeneratorS
-// UTF_TD_GENERATOR s2:GeneratorS
-// UTF_TD_GENERATOR s3:GeneratorS
-// UTF_TD_GENERATOR s4:GeneratorS
-// UTF_TD_GENERATOR c0:GeneratorC
-// UTF_TD_GENERATOR c1:GeneratorC
-// UTF_TD_GENERATOR c2:GeneratorC
-// UTF_TD_GENERATOR c3:GeneratorC
-// UTF_TD_GENERATOR c4:GeneratorC
-// UTF_TD_GENERATOR w0:GeneratorW
-// UTF_TD_GENERATOR w1:GeneratorW
-// UTF_TD_GENERATOR w2:GeneratorW
-// UTF_TD_GENERATOR w3:GeneratorW
-// UTF_TD_GENERATOR w4:GeneratorW
-// UTF_TD_GENERATOR dfr0:GeneratorDFR
-// UTF_TD_GENERATOR dfr1:GeneratorDFR
-// UTF_TD_GENERATOR dfr2:GeneratorDFR
-// UTF_TD_GENERATOR dfr3:GeneratorDFR
-// UTF_TD_GENERATOR dfr4:GeneratorDFR
+// IUTF_TD_GENERATOR v0:GeneratorV
+// IUTF_TD_GENERATOR v1:GeneratorV
+// IUTF_TD_GENERATOR v2:GeneratorV
+// IUTF_TD_GENERATOR v3:GeneratorV
+// IUTF_TD_GENERATOR v4:GeneratorV
+// IUTF_TD_GENERATOR s0:GeneratorS
+// IUTF_TD_GENERATOR s1:GeneratorS
+// IUTF_TD_GENERATOR s2:GeneratorS
+// IUTF_TD_GENERATOR s3:GeneratorS
+// IUTF_TD_GENERATOR s4:GeneratorS
+// IUTF_TD_GENERATOR c0:GeneratorC
+// IUTF_TD_GENERATOR c1:GeneratorC
+// IUTF_TD_GENERATOR c2:GeneratorC
+// IUTF_TD_GENERATOR c3:GeneratorC
+// IUTF_TD_GENERATOR c4:GeneratorC
+// IUTF_TD_GENERATOR w0:GeneratorW
+// IUTF_TD_GENERATOR w1:GeneratorW
+// IUTF_TD_GENERATOR w2:GeneratorW
+// IUTF_TD_GENERATOR w3:GeneratorW
+// IUTF_TD_GENERATOR w4:GeneratorW
+// IUTF_TD_GENERATOR dfr0:GeneratorDFR
+// IUTF_TD_GENERATOR dfr1:GeneratorDFR
+// IUTF_TD_GENERATOR dfr2:GeneratorDFR
+// IUTF_TD_GENERATOR dfr3:GeneratorDFR
+// IUTF_TD_GENERATOR dfr4:GeneratorDFR
 static Function TC_MMD_Types([md])
 	STRUCT IUTF_mData &md
 
@@ -373,7 +373,7 @@ Function/WAVE DataGeneratorFunction()
 	return data
 End
 
-// UTF_TD_GENERATOR DataGeneratorFunction
+// IUTF_TD_GENERATOR DataGeneratorFunction
 Function TC_MD_bck([var])
 	variable var
 
@@ -389,7 +389,7 @@ Function TC_MD_bck_REENTRY([var])
 	PASS()
 End
 
-// UTF_TD_GENERATOR v0:DataGeneratorFunction
+// IUTF_TD_GENERATOR v0:DataGeneratorFunction
 Function TC_MMD_bck([md])
 	STRUCT IUTF_mData &md
 
@@ -613,7 +613,7 @@ static Function TC_WaveMinorTypeString_Check(expected, type)
 	CHECK_EQUAL_STR(expected, str)
 End
 
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 static Function TC_BreaksHard()
 
 	Make/FREE/T wv1 = {"a"}

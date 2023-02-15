@@ -12,7 +12,7 @@ static Function TestProduceWaveLeaks()
 	CHECK_EQUAL_VAR(2.0, max)
 End
 
-// UTF_NO_WAVE_TRACKING
+// IUTF_NO_WAVE_TRACKING
 static Function TestWaveLeaksIgnored()
 	variable max = WaveMax(GiveMeWave_IGNORE())
 

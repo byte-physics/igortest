@@ -1371,7 +1371,7 @@ End
 /// @param   waveTrackingMode (optional) default disabled, enabled when set to a value different than 0: @n
 ///                         Monitors the number of free waves before and after a test case run. If for some reasons the number is not
 ///                         the same as before this considered as an error. If you want to opt-out a single test case you have to tag
-///                         it with UTF_NO_WAVE_TRACKING.
+///                         it with IUTF_NO_WAVE_TRACKING.
 ///                         This uses the flags UTF_WAVE_TRACKING_FREE, UTF_WAVE_TRACKING_LOCAL and UTF_WAVE_TRACKING_ALL.
 ///                         This feature is only available since Igor Pro 9.
 ///

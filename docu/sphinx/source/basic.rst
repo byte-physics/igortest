@@ -95,7 +95,7 @@ tags, every tag in separate line):
 
 .. code-block:: igor
 
-   // UTF_EXPECTED_FAILURE
+   // IUTF_EXPECTED_FAILURE
    Function TestCase_NotWorkingYet()
 
 All assertions in a test case are marked as expected failures. If the test case

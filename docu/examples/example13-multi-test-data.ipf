@@ -20,7 +20,7 @@ static Function/WAVE tcDataGenVar()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MDTestCaseVar([var])
 	variable var
 
@@ -32,7 +32,7 @@ static Function/WAVE tcDataGenStr()
 	return favorites
 End
 
-// UTF_TD_GENERATOR tcDataGenStr
+// IUTF_TD_GENERATOR tcDataGenStr
 static Function MDTestCaseStr([str])
 	string str
 
@@ -48,7 +48,7 @@ static Function/WAVE tcDataGenWv()
 	return wr
 End
 
-// UTF_TD_GENERATOR tcDataGenWv
+// IUTF_TD_GENERATOR tcDataGenWv
 static Function MDTestCaseWv([wv])
 	WAVE wv
 
@@ -64,7 +64,7 @@ static Function/WAVE tcDataGenDFR()
 	return w
 End
 
-// UTF_TD_GENERATOR tcDataGenDFR
+// IUTF_TD_GENERATOR tcDataGenDFR
 static Function MDTestCaseDFR([dfr])
 	DFREF dfr
 

@@ -44,7 +44,7 @@ Function/WAVE myMDGeneratorWAVE()
 	return wref
 End
 
-// UTF_TD_GENERATOR myMDGeneratorText
+// IUTF_TD_GENERATOR myMDGeneratorText
 Function myMDTestText([textWave])
 	WAVE/T textWave
 
@@ -53,7 +53,7 @@ Function myMDTestText([textWave])
 	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
 End
 
-// UTF_TD_GENERATOR myMDGeneratorText
+// IUTF_TD_GENERATOR myMDGeneratorText
 Function myMDTestGeneric([wv])
 	WAVE wv
 
@@ -63,14 +63,14 @@ Function myMDTestGeneric([wv])
 	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
 End
 
-// UTF_TD_GENERATOR myMDGeneratorDFR
+// IUTF_TD_GENERATOR myMDGeneratorDFR
 Function myMDTestDFR([dfrWave])
 	WAVE/DF dfrWave
 
 	CHECK(DataFolderRefStatus(dfrWave[0]))
 End
 
-// UTF_TD_GENERATOR myMDGeneratorMulti
+// IUTF_TD_GENERATOR myMDGeneratorMulti
 Function myMDTestMulti([textWave])
 	WAVE/T textWave
 
@@ -79,7 +79,7 @@ Function myMDTestMulti([textWave])
 	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
 End
 
-// UTF_TD_GENERATOR myMDGeneratorWAVE
+// IUTF_TD_GENERATOR myMDGeneratorWAVE
 Function myMDTestWAVEGeneric([wv])
 	WAVE wv
 
@@ -88,7 +88,7 @@ Function myMDTestWAVEGeneric([wv])
 	CHECK(WaveExists(wref[0]))
 End
 
-// UTF_TD_GENERATOR myMDGeneratorWAVE
+// IUTF_TD_GENERATOR myMDGeneratorWAVE
 Function myMDTestWAVE([wrefWave])
 	WAVE/WAVE wrefWave
 
@@ -96,7 +96,7 @@ Function myMDTestWAVE([wrefWave])
 	RegisterIUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE1_REENTRY")
 End
 
-// UTF_TD_GENERATOR myMDGeneratorWAVE
+// IUTF_TD_GENERATOR myMDGeneratorWAVE
 Function myMDTestWAVE1_REENTRY([wrefWave])
 	WAVE/WAVE wrefWave
 
@@ -104,7 +104,7 @@ Function myMDTestWAVE1_REENTRY([wrefWave])
 	RegisterIUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE2_REENTRY")
 End
 
-// UTF_TD_GENERATOR myMDGeneratorWAVE
+// IUTF_TD_GENERATOR myMDGeneratorWAVE
 Function myMDTestWAVE2_REENTRY([wv])
 	WAVE wv
 

@@ -181,7 +181,14 @@ static Function/WAVE GetFunctionTagWave(funcName)
 
 		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
-			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
+			if(CmpStr("IUTF_", tagName[0, 4]))
+				// function tags that do not use the IUTF_ prefix
+				expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
+			else
+				// compatibility layer to allow the deprecated UTF_ and the new IUTF_ prefix for
+				// function tags
+				expr = "\/{2,}[[:space:]]*I?\\Q" + tagName[1, Inf] + "\\E(?::)?(.*)$"
+			endif
 
 			SplitString/E=expr funcLine, tagValue
 			if(V_flag != 1)

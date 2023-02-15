@@ -99,7 +99,7 @@ and history log of each test case and test suite.
 The format reference that the IUTF uses is described in the section
 :ref:`junit_reference`.
 
-If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
 and counted for JUNIT as `skipped`.
 
 Test Anything Protocol Output
@@ -135,7 +135,7 @@ beginning of the directive message.
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
   keyword is not executed and reported always as 'ok'.
 
-If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
 and evaluated for TAP the same as if ``// TAPDirective: SKIP`` was set.
 
 Examples:
@@ -275,7 +275,7 @@ that wave the test case is run. This sketches a simple multi data test case:
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR DataGeneratorFunction
+   // IUTF_TD_GENERATOR DataGeneratorFunction
    Function myTestCase([arg])
      variable arg
      // add checks here
@@ -287,7 +287,7 @@ that wave the test case is run. This sketches a simple multi data test case:
    End
 
 To the test case `myTestCase` a data generator function name is attributed with the
-comment line above following the tag word `UTF_TD_GENERATOR`.
+comment line above following the tag word `IUTF_TD_GENERATOR`.
 All lines above :code:`Function` up to the previous :code:`Function` are considered
 as tags with every tag in separate line.
 If the data generator function is not found in the current procedure file it is searched
@@ -298,7 +298,7 @@ files if such specified function is not found.
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR GeneratorModule#DataGeneratorFunction
+   // IUTF_TD_GENERATOR GeneratorModule#DataGeneratorFunction
 
 The data generator `DataGeneratorFunction` returns a wave of numeric type and the
 test case takes one optional argument of numeric type. When run `myTestCase` is
@@ -309,7 +309,7 @@ references and wave references. The type of the returned wave of the attributed
 data generator function must fit to the argument type that the multi data test
 case takes.
 The data generator function name must be attributed with a comment within four
-lines above the test cases Function line. The key word is `UTF_TD_GENERATOR` with
+lines above the test cases Function line. The key word is `IUTF_TD_GENERATOR` with
 the data generators function name following as seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit
 to the wave type then a error message is printed and the test run is aborted.
@@ -365,7 +365,7 @@ and further test execution is aborted.
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR DataGeneratorFunction
+   // IUTF_TD_GENERATOR DataGeneratorFunction
    Function myTestCase([var])
      variable var
 
@@ -421,11 +421,11 @@ Multi-Multi-Data test cases are an extension of multi-data test cases. They allo
 	   return data
    End
 
-   // UTF_TD_GENERATOR v0:GeneratorVar
-   // UTF_TD_GENERATOR s2:GeneratorStr
-   // UTF_TD_GENERATOR v1:GeneratorVar
-   // UTF_TD_GENERATOR v2:GeneratorVar
-   // UTF_TD_GENERATOR v3:GeneratorVar
+   // IUTF_TD_GENERATOR v0:GeneratorVar
+   // IUTF_TD_GENERATOR s2:GeneratorStr
+   // IUTF_TD_GENERATOR v1:GeneratorVar
+   // IUTF_TD_GENERATOR v2:GeneratorVar
+   // IUTF_TD_GENERATOR v3:GeneratorVar
    static Function TC_MMD_Part1([md])
 	   STRUCT IUTF_mData &md
 
@@ -436,7 +436,7 @@ Multi-Multi-Data test cases are an extension of multi-data test cases. They allo
 
 The basic functionality works the same as for the regular multi-data test cases.
 In Multi-Multi-Data test cases the changing variables are elements of the structure ``IUTF_mData``. Each variable can have a data generator function set with the
-``UTF_TD_GENERATOR`` directive. The tag syntax is ``varName:DataGeneratorName``. The test case is called for all permutations of setup data generators values of all variables.
+``IUTF_TD_GENERATOR`` directive. The tag syntax is ``varName:DataGeneratorName``. The test case is called for all permutations of setup data generators values of all variables.
 In the upper example these are 32 test case calls. The structure defines the following variables:
 
 .. code-block:: igor
@@ -522,7 +522,7 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
   HTML files can be created by calling ``IUTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
-Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
+Additionally function and macros can be excluded from instrumentation by adding the special comment ``// IUTF_NOINSTRUMENTATION`` before the first line of the function.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
@@ -530,7 +530,7 @@ For static functions that exist in a given procedure file without ModuleName a w
 appear in the coverage result file with zero executions.
 
 Instrumented code runs roughly 30% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
-very often called functions from the instrumentation with the special comment ``// UTF_NOINSTRUMENTATION`` as described above.
+very often called functions from the instrumentation with the special comment ``// IUTF_NOINSTRUMENTATION`` as described above.
 
 Coverage logging also works for threadsafe functions and functions that are executed in preemptive threads.
 

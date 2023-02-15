@@ -27,7 +27,7 @@ static Function/WAVE tcDataGenVar2()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MDTestCaseVar([var])
 	variable var
 
@@ -36,7 +36,7 @@ static Function MDTestCaseVar([var])
 	CHECK(var == 1 || var == 5)
 End
 
-// UTF_TD_GENERATOR tcDataGenVar2
+// IUTF_TD_GENERATOR tcDataGenVar2
 static Function MDTestCaseVar2([var])
 	variable var
 

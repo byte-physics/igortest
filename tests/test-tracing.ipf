@@ -163,7 +163,7 @@ Proc TraceProcTest()
 EndMacro
 
 // Before uninstrumented Macro
-// UTF_NOINSTRUMENTATION
+// IUTF_NOINSTRUMENTATION
 Macro TraceMacroNoInstrument()
 	print "1"
 

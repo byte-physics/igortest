@@ -104,7 +104,7 @@ static Function MultipleAssertions_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 static Function EmptyExpected()
 	PASS()
 End

@@ -15,7 +15,7 @@ static Function/WAVE GeneratorEmpty()
 	return data
 End
 
-// UTF_TD_GENERATOR GeneratorEmpty
+// IUTF_TD_GENERATOR GeneratorEmpty
 static Function GeneratorEmpty_Verify([var])
 	variable var
 
@@ -66,7 +66,7 @@ static Function/WAVE GeneratorSucceed()
 	return data
 End
 
-// UTF_TD_GENERATOR GeneratorSucceed
+// IUTF_TD_GENERATOR GeneratorSucceed
 static Function GeneratorSucceed_Verify([var])
 	variable var
 

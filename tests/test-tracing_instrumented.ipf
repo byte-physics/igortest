@@ -242,7 +242,7 @@ Z_(0, 161)
 EndMacro
 
 // Before uninstrumented Macro
-// UTF_NOINSTRUMENTATION
+// IUTF_NOINSTRUMENTATION
 Macro TraceMacroNoInstrument()
 	print "1"
 
