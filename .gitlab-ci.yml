@@ -170,7 +170,7 @@ deployment_staging:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
   needs:
     - documentation
 
@@ -189,7 +189,7 @@ deployment:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
   needs:
     - documentation
     - job: testing

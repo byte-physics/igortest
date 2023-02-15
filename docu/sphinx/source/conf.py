@@ -106,7 +106,7 @@ html_theme = 'alabaster'
 #
 html_theme_options = {
     'github_user': 'byte-physics',
-    'github_repo': 'igor-unit-testing-framework',
+    'github_repo': 'igortest',
     'github_banner': True,
     'show_powered_by': False,
     'page_width' : '90%',
