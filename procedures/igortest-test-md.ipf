@@ -26,28 +26,28 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMDWVWAVEREF = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
+	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
 		wType0 = 0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64
 		wType1 = IUTF_WAVETYPE1_NUM
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDSTR)))
 		wType1 = IUTF_WAVETYPE1_TEXT
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDDFR)))
 		wType1 = IUTF_WAVETYPE1_DFR
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
 		wType1 = IUTF_WAVETYPE1_WREF
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
 		wType1 = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_TEXT
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
 		wType1 = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_DFR
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
 		wType1 = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_WREF
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
 		wType0 = IUTF_WAVETYPE0_CMPL
 		wType1 = IUTF_WAVETYPE1_NUM
-	elseif(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
+	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDINT)))
 		wType0 = IUTF_WAVETYPE0_INT64
 		wType1 = IUTF_WAVETYPE1_NUM
 	else
@@ -75,12 +75,12 @@ static Function GetDataGeneratorListTC(procWin, fullFuncName, dgenList)
 
 	// Simple Test Cases
 	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
+	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
 		return 0
 	endif
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
+	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
 		dgenList = IUTF_Test_MD_Gen#GetDataGeneratorForMMD(procWin, fullFuncName)
 		return 0
 	endif
@@ -119,12 +119,12 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
 
 	// Simple Test Cases
 	FUNCREF TEST_CASE_PROTO fTC = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
+	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTC)))
 		return 0
 	endif
 	// MMD Test Case
 	FUNCREF TEST_CASE_PROTO_MD fTCmmd = $fullFuncName
-	if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
+	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCmmd)))
 		IUTF_Test_MD_Gen#CheckFunctionSignatureMDgen(procWin, fullFuncName, markSkip)
 		return 0
 	endif

@@ -378,7 +378,7 @@ Function TC_MD_bck([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TC_MD_bck_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TC_MD_bck_REENTRY")
 	CHECK(var == 1 || var == 5)
 End
 
@@ -394,7 +394,7 @@ Function TC_MMD_bck([md])
 	STRUCT IUTF_mData &md
 
 	CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TC_MMD_bck_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TC_MMD_bck_REENTRY")
 	CHECK(md.v0 == 1 || md.v0 == 5)
 End
 

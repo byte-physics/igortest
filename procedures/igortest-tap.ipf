@@ -145,7 +145,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 			break
 		default:
 			sprintf msg, "Error: Unknown test status %s for test case %s (%d)", wvTestCase[testCaseIndex][%STATUS], name, testCaseIndex
-			IUTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			return ""
 	endswitch
 
@@ -193,7 +193,7 @@ static Function TAP_Write()
 	open/Z fnum as filename
 	if(V_flag)
 		sprintf msg, "Error: Could not create TAP output file at %s", filename
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 

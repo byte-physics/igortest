@@ -22,7 +22,7 @@ End
 static Function BackgroundTesta()
 
 	CtrlNamedBackGround testtask, proc=ExampleXX#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "ExampleXX#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "ExampleXX#FirstReentry_reentry")
 	Abort
 End
 
@@ -31,7 +31,7 @@ End
 static Function BackgroundTestb()
 
 	CtrlNamedBackGround testtask, proc=ExampleXX#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "ExampleXX#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "ExampleXX#FirstReentry_reentry")
 	REQUIRE(0)
 End
 

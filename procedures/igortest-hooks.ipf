@@ -228,7 +228,7 @@ static Function TestBegin(name, debugMode)
 	ClearBaseFilename()
 
 	sprintf msg, "Start of test \"%s\"", name
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Testrun
@@ -249,16 +249,16 @@ static Function TestEnd(name, debugMode)
 		sprintf msg, "Test finished with %s errors", wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 
 	index = IUTF_Utils_Vector#GetLength(wvFailed)
 	for(i = 0; i < index; i += 1)
 		msg = "  " + TC_ASSERTION_LIST_INDICATOR + " " + wvFailed[i]
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endfor
 
 	sprintf msg, "End of test \"%s\"", name
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 
 	IUTF_Reporting_Control#TestEnd()
 	IUTF_Debug#RestoreDebugger()
@@ -274,7 +274,7 @@ static Function TestSuiteBegin(testSuite)
 	IUTF_Reporting_Control#TestSuiteBegin(testSuite)
 
 	sprintf msg, "Entering test suite \"%s\"", testSuite
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// Internal Cleanup for Test Suite
@@ -292,12 +292,12 @@ static Function TestSuiteEnd(testSuite)
 		sprintf msg, "Failed with %s errors", wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]
 	endif
 
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 
 	IUTF_Reporting_Control#TestSuiteEnd()
 
 	sprintf msg, "Leaving test suite \"%s\"", testSuite
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// Internal Setup for Test Case
@@ -316,7 +316,7 @@ static Function TestCaseBegin(testCase)
 	NewDataFolder/O/S $workFolder
 
 	sprintf msg, "Entering test case \"%s\"", testCase
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// @brief Called after the test case begin user hook and before the test case function
@@ -426,7 +426,7 @@ static Function TestCaseEnd(testCase, tcIndex, endTime)
 	IUTF_Utils_Waves#MoveDimLabel(wvTestCase, UTF_ROW, "CURRENT", oldIndex)
 
 	sprintf msg, "Leaving test case \"%s\"", testCase
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// @brief Called after the test case and before the test case end user hook

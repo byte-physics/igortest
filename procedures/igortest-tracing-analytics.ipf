@@ -150,7 +150,7 @@ static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult
 		metaIndex = 0
 	else
 		sprintf msg, "Bug: Sorting %d is not supported", sorting
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -185,7 +185,7 @@ static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collec
 		WAVE searchWave = collectionResult.calls
 	else
 		sprintf msg, "Bug: Sorting %d is not supported", sorting
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return result
 	endif
 
@@ -252,32 +252,32 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 
 	if(mode != UTF_ANALYTICS_FUNCTIONS && mode != UTF_ANALYTICS_LINES)
 		sprintf msg, "Mode %d is an unsupported mode", mode
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting != UTF_ANALYTICS_CALLS && sorting != UTF_ANALYTICS_SUM)
 		sprintf msg, "Sorting %d is an unsupported sorting", sorting
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(sorting == UTF_ANALYTICS_SUM && mode != UTF_ANALYTICS_FUNCTIONS)
-		IUTF_Reporting#UTF_PrintStatusMessage("Sum sorting is only available for the functions mode")
+		IUTF_Reporting#IUTF_PrintStatusMessage("Sum sorting is only available for the functions mode")
 		return NaN
 	endif
 	if(count < 0 || IUTF_Utils#IsNaN(count))
 		sprintf msg, "Invalid count: %d", count
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 	if(!HasTracingData())
-		IUTF_Reporting#UTF_PrintStatusMessage("No Tracing data exists. Try to run tracing first.")
+		IUTF_Reporting#IUTF_PrintStatusMessage("No Tracing data exists. Try to run tracing first.")
 		return NaN
 	endif
 
 	WAVE totals = GetTotals()
 	if(!DimSize(totals, UTF_ROW))
 		// this can happen after stored Experiment is loaded to a fresh instance of Igor
-		IUTF_Reporting#UTF_PrintStatusMessage("TUFXOP has no data. Try to rerun tracing to get new data.")
+		IUTF_Reporting#IUTF_PrintStatusMessage("TUFXOP has no data. Try to rerun tracing to get new data.")
 		return NaN
 	endif
 
@@ -287,7 +287,7 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 		CollectLines(totals, procs, collectionResult)
 	else
 		sprintf msg, "Bug: Unknown mode %d for collection", mode
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 		return NaN
 	endif
 
@@ -301,14 +301,14 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 		WAVE/T result = SearchHighest(procs, collectionResult, sorting)
 	else
 		sprintf msg, "Bug: Unknown mode %d for sorting", mode
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endif
 
 	Duplicate/O result, dfr:TracingAnalyticResult
 
 	header = GetWaveHeader(result)
 	msg = IUTF_Utils#NicifyTableText(result, header)
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 #endif

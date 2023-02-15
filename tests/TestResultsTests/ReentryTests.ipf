@@ -21,7 +21,7 @@ End
 static Function CheckBackgroundTask()
 	PASS()
 	CtrlNamedBackground testtask, proc=TS_ReentryTests#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TS_ReentryTests#CheckBackgroundTask_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TS_ReentryTests#CheckBackgroundTask_REENTRY")
 End
 
 static Function CheckBackgroundTask_REENTRY()

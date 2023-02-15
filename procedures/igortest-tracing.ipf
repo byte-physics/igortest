@@ -189,7 +189,7 @@ End
 threadsafe static Function/WAVE GetTracedProcedureNames()
 	TUFXOP_GetStorage/N="IUTF_Traced_ProcedureNames" wvStorage
 	if(V_flag)
-		IUTF_Reporting#UTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
+		IUTF_Reporting#IUTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
 		Make/FREE=1/T/N=0 empty
 		return empty
 	endif
@@ -473,9 +473,9 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 		fullFuncName = IUTF_Basics#getFullFunctionName(err, wFuncList[i], procWin)
 		if(err)
 			sprintf msg, "Unable to retrieve full function name for %s in procedure %s.", wFuncList[i], procWin
-			IUTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			sprintf msg, "Is procedure file %s missing a #pragma ModuleName=<name> ?!?.", procWin
-			IUTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			continue
 		endif
 		IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
@@ -864,7 +864,7 @@ static Function AnalyzeTracingResult()
 	variable colR, colG, colB
 	string msg, instruDataPath
 
-	IUTF_Reporting#UTF_PrintStatusMessage("Generating coverage output.")
+	IUTF_Reporting#IUTF_PrintStatusMessage("Generating coverage output.")
 
 	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	if(V_flag)
@@ -995,8 +995,8 @@ static Function AnalyzeTracingResult()
 	MatrixOP/FREE statCovered = sum(col(statistics, STAT_COVERED))
 	sprintf statOut, "Code lines: %d\rLines covered : %d\rCoverage: %.1f%%\r", statLines[0], statCovered[0], statCovered[0] * 100 / statLines[0]
 
-	IUTF_Reporting#UTF_PrintStatusMessage("Done.")
-	IUTF_Reporting#UTF_PrintStatusMessage(statOut)
+	IUTF_Reporting#IUTF_PrintStatusMessage("Done.")
+	IUTF_Reporting#IUTF_PrintStatusMessage(statOut)
 End
 
 Function IUTF_RestoreTracing()
@@ -1007,12 +1007,12 @@ Function IUTF_RestoreTracing()
 	size = IUTF_Utils_Vector#GetLength(wvProcs)
 
 	if(size == 0)
-		IUTF_Reporting#UTF_PrintStatusMessage("Nothing to restore")
+		IUTF_Reporting#IUTF_PrintStatusMessage("Nothing to restore")
 		return NaN
 	endif
 
 	sprintf msg, "%d procedure files to restore", size
-	IUTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 
 	for(i = 0; i < size; i += 1)
 		path = wvProcs[i][%PATH]
@@ -1025,7 +1025,7 @@ Function IUTF_RestoreTracing()
 
 		if(IUTF_Utils_Paths#FileNotExists(backupPath))
 			sprintf msg, "Backup file not found: %s (%s)", backupPath, wvProcs[i][%NAME]
-			IUTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			continue
 		endif
 
@@ -1036,13 +1036,13 @@ Function IUTF_RestoreTracing()
 		endif
 
 		sprintf msg, "Backup restored for %s", path
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endfor
 
 	WAVE/T procs = IUTF_Utils_TextGrid#Create("NAME;PATH;")
 	SetTracedProcedures(procs)
 
-	IUTF_Reporting#UTF_PrintStatusMessage("Restoring procedure files from backup completed.")
+	IUTF_Reporting#IUTF_PrintStatusMessage("Restoring procedure files from backup completed.")
 	CompileAndRestart()
 End
 

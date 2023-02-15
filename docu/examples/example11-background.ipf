@@ -20,14 +20,14 @@ End
 Function BackgroundTest()
 
 	CtrlNamedBackGround testtask, proc=Example11#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "FirstReentry_reentry")
 End
 
 // A second test case that registers our second reentry function.
 Function BackgroundTest2()
 
 	CtrlNamedBackGround testtask, proc=Example11#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "SecondReentry_REENTRY", timeout=2)
+	RegisterIUTFMonitor("testtask", 1, "SecondReentry_REENTRY", timeout=2)
 End
 
 // The registered reentry function from BackgroundTest()
@@ -38,7 +38,7 @@ Function FirstReentry_REENTRY()
 	WARN_EQUAL_VAR(1, 0)
 	// Setup follow up background task
 	CtrlNamedBackGround testtask, proc=Example11#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "SecondReentry_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "SecondReentry_REENTRY")
 End
 
 // After two tasks run our BackgroundTest() test case concludes with this final reentry function.

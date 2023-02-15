@@ -26,7 +26,7 @@ End
 Function BackgroundTest()
 
 	CtrlNamedBackGround testtask, proc=Example14#MyModule#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "MyModule#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "MyModule#FirstReentry_reentry")
 End
 
 

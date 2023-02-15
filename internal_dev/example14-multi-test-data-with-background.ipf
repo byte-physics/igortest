@@ -32,7 +32,7 @@ static Function MDTestCaseVar([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=Example14internal#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "Example14internal#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "Example14internal#FirstReentry_reentry")
 	CHECK(var == 1 || var == 5)
 End
 
@@ -41,7 +41,7 @@ static Function MDTestCaseVar2([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=Example14internal#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "Example14internal#SecondReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "Example14internal#SecondReentry_reentry")
 	CHECK(var == 3 || var == 4)
 End
 

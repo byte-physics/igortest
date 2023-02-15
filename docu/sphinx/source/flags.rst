@@ -48,7 +48,7 @@ MinorType
 Background Monitor Modes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following constants are used with :cpp:func:`RegisterUTFMonitor`. They define
+The following constants are used with :cpp:func:`RegisterIUTFMonitor`. They define
 the condition how multiple user tasks states are evaluated.
 
 .. doxygengroup:: IUTFBackgroundMonModes

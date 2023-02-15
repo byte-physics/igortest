@@ -22,8 +22,8 @@ static StrConstant FIXED_LOG_FILENAME = "IUTF_Test"
 
 static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
 
-static StrConstant BACKGROUNDMONTASK   = "UTFBackgroundMonitor"
-static StrConstant BACKGROUNDMONFUNC   = "UTFBackgroundMonitor"
+static StrConstant BACKGROUNDMONTASK   = "IUTFBackgroundMonitor"
+static StrConstant BACKGROUNDMONFUNC   = "IUTFBackgroundMonitor"
 static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
 
 static Constant TC_MODE_NORMAL = 0
@@ -104,6 +104,7 @@ Function/S EqualWavesModeToString(mode)
 	endswitch
 End
 
+/// @class FUNC_REF_IS_ASSIGNED_DOCU
 /// @brief Check wether the function reference points to
 /// the prototype function or to an assigned function
 ///
@@ -111,10 +112,18 @@ End
 /// info from `FuncRefInfo` and not the function reference itself.
 ///
 /// @return 0 if pointing to prototype function, 1 otherwise
-Function UTF_FuncRefIsAssigned(funcInfo)
+Function IUTF_FuncRefIsAssigned(funcInfo)
 	string funcInfo
 
 	return NumberByKey("ISPROTO", funcInfo) == 0
+End
+
+/// @copydoc FUNC_REF_IS_ASSIGNED_DOCU
+/// @deprecated Use IUTF_FuncRefIsAssigned instead
+Function UTF_FuncRefIsAssigned(funcInfo)
+	string funcInfo
+
+	return IUTF_FuncRefIsAssigned(funcInfo)
 End
 
 /// @brief Return a free text wave with the dimension labels of the
@@ -784,8 +793,17 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	return procWinListOut
 End
 
-/// @brief Background monitor of the Universal Testing Framework
+/// @copydoc BACKGROUND_MONITOR_DOCU
+/// @deprecated use IUTFBackgroundMonitor instead
 Function UTFBackgroundMonitor(s)
+	STRUCT WMBackgroundStruct &s
+
+	IUTFBackgroundMonitor(s)
+End
+
+/// @class BACKGROUND_MONITOR_DOCU
+/// @brief Background monitor of the Universal Testing Framework
+Function IUTFBackgroundMonitor(s)
 	STRUCT WMBackgroundStruct &s
 
 	variable i, numTasks, result, stopState
@@ -800,7 +818,7 @@ Function UTFBackgroundMonitor(s)
 
 	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout) || !NVAR_Exists(failOnTimeout))
 		IUTF_Reporting#ReportErrorAndAbort("IUTF BackgroundMonitor can not find monitoring data in package DF, aborting monitoring.", setFlagOnly = 1)
-		ClearReentrytoUTF()
+		ClearReentrytoIUTF()
 		QuitOnAutoRunFull()
 		return 2
 	endif
@@ -811,7 +829,7 @@ Function UTFBackgroundMonitor(s)
 		result = 1
 	else
 		IUTF_Reporting#ReportErrorAndAbort("Unknown mode set for background monitor", setFlagOnly = 1)
-		ClearReentrytoUTF()
+		ClearReentrytoIUTF()
 		QuitOnAutoRunFull()
 		return 2
 	endif
@@ -843,7 +861,7 @@ Function UTFBackgroundMonitor(s)
 End
 
 /// @brief Clear the glboal reentry flag, removes any saved RunTest state and stops the IUTF monitoring task
-static Function ClearReentrytoUTF()
+static Function ClearReentrytoIUTF()
 
 	ResetBckgRegistered()
 	KillDataFolder/Z $PKG_FOLDER_SAVE
@@ -960,7 +978,7 @@ static Function CallTestCase(s, reentry)
 		endif
 
 		sprintf msg, "Entering reentry \"%s\"", func
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	else
 		func = testRunData[tcIndex][%FULLFUNCNAME]
 	endif
@@ -976,7 +994,7 @@ static Function CallTestCase(s, reentry)
 			if(wType0 & IUTF_WAVETYPE0_CMPL)
 
 				FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMD_CMPL = $func
-				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
+				if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_CMPL)))
 					sprintf msg, "Reentry function %s does not meet required format for Complex argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
@@ -985,7 +1003,7 @@ static Function CallTestCase(s, reentry)
 			elseif(wType0 & IUTF_WAVETYPE0_INT64)
 
 				FUNCREF TEST_CASE_PROTO_MD_INT fTCMD_INT = $func
-				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
+				if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_INT)))
 					sprintf msg, "Reentry function %s does not meet required format for INT64 argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
@@ -994,7 +1012,7 @@ static Function CallTestCase(s, reentry)
 			else
 
 				FUNCREF TEST_CASE_PROTO_MD_VAR fTCMD_VAR = $func
-				if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_VAR)))
+				if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_VAR)))
 					sprintf msg, "Reentry function %s does not meet required format for numeric argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
@@ -1005,7 +1023,7 @@ static Function CallTestCase(s, reentry)
 
 			WAVE/T wGeneratorStr = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
-			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
+			if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
 				sprintf msg, "Reentry function %s does not meet required format for string argument.", func
 				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
@@ -1015,7 +1033,7 @@ static Function CallTestCase(s, reentry)
 
 			WAVE/DF wGeneratorDF = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
-			if(reentry && !UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
+			if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
 				sprintf msg, "Reentry function %s does not meet required format for data folder reference argument.", func
 				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
@@ -1025,27 +1043,27 @@ static Function CallTestCase(s, reentry)
 
 			WAVE/WAVE wGeneratorWV = wGenerator
 			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
-			if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
+			if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
 				fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 			else
 				wRefSubType = WaveType(wGeneratorWV[s.dgenIndex], 1)
 				if(wRefSubType == IUTF_WAVETYPE1_TEXT)
 					FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMD_WVTEXT = $func
-					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
+					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
 						fTCMD_WVTEXT(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_DFR)
 					FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMD_WVDFREF = $func
-					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
+					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
 						fTCMD_WVDFREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_WREF)
 					FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMD_WVWAVEREF = $func
-					if(UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
+					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
 						fTCMD_WVWAVEREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
@@ -1065,7 +1083,7 @@ static Function CallTestCase(s, reentry)
 		origTCName = testRunData[tcIndex][%FULLFUNCNAME]
 		IUTF_Test_MD_MMD#SetupMMDStruct(mData, origTCName)
 		FUNCREF TEST_CASE_PROTO_MD fTCMD = $func
-		if(!UTF_FuncRefIsAssigned(FuncRefInfo(fTCMD)))
+		if(!IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD)))
 			sprintf msg, "Reentry function %s does not meet required format for multi-multi-data test case.", func
 			IUTF_Reporting#ReportErrorAndAbort(msg)
 		else
@@ -1120,13 +1138,37 @@ EndStructure
 
 ///@endcond // HIDDEN_SYMBOL
 
+/// @copydoc REGISTER_IUTF_MONITOR_DOCU
+/// @deprecated use RegisterIUTFMonitor instead
+Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
+	string taskList
+	variable mode
+	string reentryFunc
+	variable timeout, failOnTimeout
+
+	if(ParamIsDefault(timeout))
+		if(ParamIsDefault(failOnTimeout))
+			RegisterIUTFMonitor(taskList, mode, reentryFunc)
+		else
+			RegisterIUTFMonitor(taskList, mode, reentryFunc, failOnTimeout = failOnTimeout)
+		endif
+	else
+		if(ParamIsDefault(failOnTimeout))
+			RegisterIUTFMonitor(taskList, mode, reentryFunc, timeout = timeout)
+		else
+			RegisterIUTFMonitor(taskList, mode, reentryFunc, timeout = timeout, failOnTimeout = failOnTimeout)
+		endif
+	endif
+End
+
+/// @class REGISTER_IUTF_MONITOR_DOCU
 /// @brief Registers a background monitor for a list of other background tasks
 ///
 /// @verbatim embed:rst:leading-slashes
 ///     .. code-block:: igor
 ///        :caption: usage example
 ///
-///        RegisterUTFMonitor("TestCaseTask1;TestCaseTask2", BACKGROUNDMONMODE_OR, \
+///        RegisterIUTFMonitor("TestCaseTask1;TestCaseTask2", BACKGROUNDMONMODE_OR, \
 ///                           "testcase_REENTRY", timeout = 60)
 ///
 ///     This command will register the IUTF background monitor task to monitor
@@ -1152,7 +1194,7 @@ EndStructure
 /// @param   timeout       (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
 ///                        A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
 /// @param   failOnTimeout (optional) default to false. If the test case should be failed on reaching the timeout.
-Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
+Function RegisterIUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
 	string taskList
 	variable mode
 	string reentryFunc
@@ -1187,7 +1229,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	endif
 	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
 	FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentryFunc
-	if(!UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !UTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !IUTF_Test_MD#GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
+	if(!IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !IUTF_Test_MD#GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
 		IUTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
 	endif
 
@@ -1199,7 +1241,7 @@ Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout
 	variable/G dfr:BCKG_Registered = 1
 	variable/G dfr:BCKG_FailOnTimeout = failOnTimeout
 
-	CtrlNamedBackground $BACKGROUNDMONTASK, proc=UTFBackgroundMonitor, period=10, start
+	CtrlNamedBackground $BACKGROUNDMONTASK, proc=IUTFBackgroundMonitor, period=10, start
 End
 
 static Function ClearTestSetupWaves()
@@ -1220,13 +1262,13 @@ static Function DetectDeprecation()
 		return NaN
 	endif
 
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING: You are using a deprecated method to include the Igor Pro Universal Testing Framework!")
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING: Search in your code for all")
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING:     #include \"unit-testing\"")
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING: and replace it with")
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING:     #include \"igortest\"")
-	IUTF_Reporting#UTF_PrintStatusMessage("WARNING: In a future release will this warning and the deprecated file removed.")
-	IUTF_Reporting#UTF_PrintStatusMessage("", allowEmptyLine = 1)
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING: You are using a deprecated method to include the Igor Pro Universal Testing Framework!")
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING: Search in your code for all")
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING:     #include \"unit-testing\"")
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING: and replace it with")
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING:     #include \"igortest\"")
+	IUTF_Reporting#IUTF_PrintStatusMessage("WARNING: In a future release will this warning and the deprecated file removed.")
+	IUTF_Reporting#IUTF_PrintStatusMessage("", allowEmptyLine = 1)
 End
 
 /// @brief Main function to execute test suites with the universal testing framework.
@@ -1370,11 +1412,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		// check also if a saved state is existing
 		if(!DataFolderExists(PKG_FOLDER_SAVE))
-			IUTF_Reporting#ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterUTFMonitor in an End Hook?)")
+			IUTF_Reporting#ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterIUTFMonitor in an End Hook?)")
 		endif
 	  // check if the reentry call originates from our own background monitor
 		if(CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
-			ClearReentrytoUTF()
+			ClearReentrytoIUTF()
 			IUTF_Reporting#ReportErrorAndAbort("RunTest was called by user after background monitoring was registered. This is not supported.")
 		endif
 
@@ -1466,9 +1508,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			if(!CmpStr(traceWinList, IUTF_TRACE_REENTRY_KEYWORD))
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				RestoreState(dfSave, s)
-				ClearReentrytoUTF()
+				ClearReentrytoIUTF()
 			else
-				ClearReentrytoUTF()
+				ClearReentrytoIUTF()
 
 				var = NumberByKey(UTF_KEY_HTMLCREATION, traceOptions)
 				s.htmlCreation = IUTF_Utils#IsNaN(var) ? 1 : var
@@ -1582,9 +1624,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			s.tcSuffix = ""
 			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
 			FUNCREF TEST_CASE_PROTO_MD TestCaseFuncMMD = $fullFuncName
-			if(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
+			if(IUTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
 				s.mdMode = TC_MODE_NORMAL
-			elseif(UTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFuncMMD)))
+			elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFuncMMD)))
 				s.mdMode = TC_MODE_MMD
 			else
 				s.mdMode = TC_MODE_MD
@@ -1617,7 +1659,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				RestoreState(dfSave, s)
 				// restore state done
 				DFREF dfSave = $""
-				ClearReentrytoUTF()
+				ClearReentrytoIUTF()
 				// restore all loop counters and end loop locals
 				i = s.i
 				procWin = testRunData[s.i][%PROCWIN]
@@ -1652,7 +1694,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 						IUTF_Hooks#ExecuteHooks(IUTF_TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
-						ClearReentrytoUTF()
+						ClearReentrytoIUTF()
 						QuitOnAutoRunFull()
 
 						WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
@@ -1714,7 +1756,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endif
 	IUTF_Hooks#ExecuteHooks(IUTF_TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
-	ClearReentrytoUTF()
+	ClearReentrytoIUTF()
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 	if(s.htmlCreation)

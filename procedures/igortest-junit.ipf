@@ -263,7 +263,7 @@ static Function JU_WriteOutput()
 		close fnum
 	else
 		sprintf msg, "Error: Could not create JUNIT output file at %s", juFileName
-		IUTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endif
 End
 

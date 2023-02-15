@@ -93,7 +93,7 @@ Function myMDTestWAVE([wrefWave])
 	WAVE/WAVE wrefWave
 
 	CHECK(WaveExists(wrefWave[0]))
-	RegisterUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE1_REENTRY")
+	RegisterIUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE1_REENTRY")
 End
 
 // UTF_TD_GENERATOR myMDGeneratorWAVE
@@ -101,7 +101,7 @@ Function myMDTestWAVE1_REENTRY([wrefWave])
 	WAVE/WAVE wrefWave
 
 	CHECK(WaveExists(wrefWave[0]))
-	RegisterUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE2_REENTRY")
+	RegisterIUTFMonitor("dummyTask", BACKGROUNDMONMODE_OR, "myMDTestWAVE2_REENTRY")
 End
 
 // UTF_TD_GENERATOR myMDGeneratorWAVE

@@ -67,7 +67,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	if(ItemsInList(funcList) >= 1)
 		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
-		if(UTF_FuncRefIsAssigned(FuncRefInfo(f)))
+		if(IUTF_FuncRefIsAssigned(FuncRefInfo(f)))
 			try
 				err = GetRTError(1)
 				f(); AbortOnRTE
@@ -133,7 +133,7 @@ Function SaveHistoryLog()
 
 	DoWindow HistoryCarbonCopy
 	if(V_flag == 0)
-		IUTF_Reporting#UTF_PrintStatusMessage("No log notebook found, please call CreateHistoryLog() before.")
+		IUTF_Reporting#IUTF_PrintStatusMessage("No log notebook found, please call CreateHistoryLog() before.")
 		return NaN
 	endif
 

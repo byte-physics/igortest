@@ -300,7 +300,7 @@ static Function ExecuteAllDataGenerators(debugMode)
 			procWin = StringByKey("PROCWIN", FunctionInfo(dgen))
 
 			FUNCREF TEST_CASE_PROTO_DGEN fDgen = $dgen
-			if(!UTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
+			if(!IUTF_FuncRefIsAssigned(FuncRefInfo(fDgen)))
 				fullFuncName = testRunData[i][%FULLFUNCNAME]
 				sprintf msg, "Data Generator function \"%s\" has wrong format. It is referenced by test case \"%s\".", dgen, fullFuncName
 				IUTF_Reporting#ReportErrorAndAbort(msg)

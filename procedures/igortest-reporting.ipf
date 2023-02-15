@@ -502,7 +502,7 @@ End
 /// @param msg message to be outputted, without trailing end-of-line
 /// @param allowEmptyLine (optional, default 0 disabled) If set to 1 it will allow to print empty
 ///            strings to the output. The default behavior is to skip printing empty strings.
-threadsafe static Function UTF_PrintStatusMessage(msg, [allowEmptyLine])
+threadsafe static Function IUTF_PrintStatusMessage(msg, [allowEmptyLine])
 	string msg
 	variable allowEmptyLine
 
@@ -546,7 +546,7 @@ static Function ReportError(message, [incrGlobalErrorCounter])
 
 	incrGlobalErrorCounter = ParamIsDefault(incrGlobalErrorCounter) ? 1 : !!incrGlobalErrorCounter
 
-	UTF_PrintStatusMessage(message)
+	IUTF_PrintStatusMessage(message)
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	currentIndex = FindDimLabel(wvTestCase, UTF_COLUMN, "CURRENT")

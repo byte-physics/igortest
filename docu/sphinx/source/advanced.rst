@@ -232,7 +232,7 @@ current test case procedure finishes the framework will return to Igors command
 prompt. This allows the users background task(s) to do its job. After the
 task(s) finish the framework continues the test case with the registered procedure.
 
-The registration is done by calling :cpp:func:`RegisterUTFMonitor()` from a
+The registration is done by calling :cpp:func:`RegisterIUTFMonitor()` from a
 test case or a BEGIN hook. The registration allows to give a list of
 background tasks that should be monitored. The mode parameter sets if all or one
 task has to finish to continue test execution. Optional a timeout can be set
@@ -240,10 +240,10 @@ after the test continues independently of the user task(s) state.
 
 See also :ref:`flags_IUTFBackgroundMonModes`.
 
-Function definition of RegisterUTFMonitor
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Function definition of RegisterIUTFMonitor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygenfunction:: RegisterUTFMonitor
+.. doxygenfunction:: RegisterIUTFMonitor
 
 The function that is registered to continue the test execution must have the
 same format as a test case function and the name has to end with `_REENTRY`.
@@ -252,7 +252,7 @@ resumes later no begin/end hooks are executed. Logically the universal testing
 frame work stays in the same test case. It is allowed to register another
 monitoring in the `_REENTRY` function.
 
-Multiple subsequent calls to :cpp:func:`RegisterUTFMonitor()` in the same
+Multiple subsequent calls to :cpp:func:`RegisterIUTFMonitor()` in the same
 function overwrite the previous registration.
 
 Test Cases with background activity are supported from multi data test cases, see
@@ -370,7 +370,7 @@ and further test execution is aborted.
      variable var
 
      CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-     RegisterUTFMonitor("testtask", 1, "testCase_REENTRY")
+     RegisterIUTFMonitor("testtask", 1, "testCase_REENTRY")
      CHECK(var == 1 || var == 5)
    End
 
