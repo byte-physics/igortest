@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: igor-unit-testing-framework
+Upstream-Name: igortest
 Upstream-Contact: support@byte-physics.de
-Source: https://github.com/byte-physics/igor-unit-testing-framework
+Source: https://github.com/byte-physics/igortest
 
 # Git/Github/Gitlab files
 Files: *.gitignore .gitlab-ci.yml .gitattributes .gitmodules License.txt

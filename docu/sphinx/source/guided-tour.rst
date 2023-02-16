@@ -17,7 +17,7 @@ steps:
 
 Please make sure that the framework has been properly installed if you wish to
 follow the guide. For the framework to work, the files from the `procedures folder
-<https://github.com/byte-physics/igor-unit-testing-framework/tree/master/procedures>`__
+<https://github.com/byte-physics/igortest/tree/master/procedures>`__
 should be placed into the `User Procedures` Folder of your Igor Pro setup.
 
 .. _tour_create:

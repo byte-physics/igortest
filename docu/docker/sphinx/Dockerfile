@@ -27,4 +27,4 @@ RUN pip3 install                 \
   'sphinx-copybutton==0.5.0'
 
 USER user
-WORKDIR /var/igor-unit-testing-framework/docu
+WORKDIR /var/igortest/docu
