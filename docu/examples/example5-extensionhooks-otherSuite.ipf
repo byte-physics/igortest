@@ -2,7 +2,7 @@
 #pragma TextEncoding="UTF-8"
 #pragma version=1.09
 
-#include "unit-testing"
+#include "igortest"
 
 Function TEST_BEGIN_OVERRIDE(name)
 	string name

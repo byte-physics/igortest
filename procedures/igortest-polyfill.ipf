@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_Polyfill
+#pragma ModuleName=IUTF_Polyfill
 
 #if (IgorVersion() >= 7.0)
 #else

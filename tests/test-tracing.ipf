@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName=TestTracing
 
-#include "unit-testing"
+#include "igortest"
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
@@ -163,7 +163,7 @@ Proc TraceProcTest()
 EndMacro
 
 // Before uninstrumented Macro
-// UTF_NOINSTRUMENTATION
+// IUTF_NOINSTRUMENTATION
 Macro TraceMacroNoInstrument()
 	print "1"
 

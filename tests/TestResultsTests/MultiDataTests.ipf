@@ -4,12 +4,12 @@
 #pragma version=1.09
 #pragma ModuleName = TS_MD_Tests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with multi data tests
+// These are tests that check if IUTF works correctly with multi data tests
 
-// UTF_TD_GENERATOR CheckMultiData_GEN
+// IUTF_TD_GENERATOR CheckMultiData_GEN
 static Function CheckMultiData([arg])
 	variable arg
 

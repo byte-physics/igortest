@@ -83,7 +83,7 @@ testing:
   script:
     - test ${IGOR_VERSION} = "9" && mkdir -p "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}" || true
     - test ${IGOR_VERSION} = "9" && ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}" || true
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
@@ -131,7 +131,7 @@ testing_nightly:
   script:
     - mkdir -p "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}"
     - ln -rs xop/*.xop "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/${IGOREXTPATH}"
-    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/utf"
+    - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
@@ -170,7 +170,7 @@ deployment_staging:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
   needs:
     - documentation
 
@@ -189,7 +189,7 @@ deployment:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igor-unit-testing-framework; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
   needs:
     - documentation
     - job: testing

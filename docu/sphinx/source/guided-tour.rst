@@ -5,9 +5,10 @@
 Guided Tour
 ===========
 
-To visualize the functionality of the unit testing framework, we will start
-with a guided tour in which we create our first unit and test it with the
-unit testing framework. The tour will cover the following steps:
+To visualize the functionality of the Igor Pro Universal Testing Framework, we
+will start with a guided tour in which we create our first unit and test it with
+the Igor Pro Universal Testing Framework. The tour will cover the following
+steps:
 
 * :ref:`tour_create`
 * :ref:`tour_test`
@@ -16,7 +17,7 @@ unit testing framework. The tour will cover the following steps:
 
 Please make sure that the framework has been properly installed if you wish to
 follow the guide. For the framework to work, the files from the `procedures folder
-<https://github.com/byte-physics/igor-unit-testing-framework/tree/master/procedures>`__
+<https://github.com/byte-physics/igortest/tree/master/procedures>`__
 should be placed into the `User Procedures` Folder of your Igor Pro setup.
 
 .. _tour_create:
@@ -68,7 +69,7 @@ range. To perform these two tests, we define a :ref:`TestCase`.
    #pragma TextEncoding = "UTF-8"
    #pragma rtGlobals=3
 
-   #include "unit-testing"
+   #include "igortest"
 
    Function testDiameter()
        // the (6,5) type is 0.757nm in diameter

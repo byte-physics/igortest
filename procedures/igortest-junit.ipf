@@ -2,7 +2,7 @@
 #pragma rtGlobals=3
 #pragma rtFunctionErrors=1
 #pragma version=1.09
-#pragma ModuleName=UTF_JUnit
+#pragma ModuleName=IUTF_JUnit
 
 
 /// XML properties
@@ -86,9 +86,9 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	string out, name, classname, message, type
 	variable i, timeTaken, startIndex, endIndex
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 
 	classname = JU_ToXMLToken(JU_ToXMLCharacters(wvTestCase[testCaseIndex][%NAME]))
 	name = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
@@ -105,7 +105,7 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	for(i = startIndex; i < endIndex; i += 1)
 		message = JU_ToXMLCharacters(wvAssertion[i][%MESSAGE])
 		type = JU_ToXMLCharacters(wvAssertion[i][%TYPE])
-		// we are outputing everything as error to keep the same behavior as older versions of UTF
+		// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 		// strswitch(wvAssertion[i][%TYPE])
 		// 	case IUTF_STATUS_FAIL:
@@ -159,8 +159,8 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	string package, name, timestamp, hostname, tests, failures, errors, skipped
 	variable i, timeTaken, childStart, childEnd
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 
 	package = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
 	name = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
@@ -179,7 +179,7 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	out += JU_ToPropertyString("User", wvTestRun[testRunIndex][%USERNAME])
 	out += JU_ToPropertyString("System", JU_NicifyList(wvTestRun[testRunIndex][%SYSTEMINFO]))
 	out += JU_ToPropertyString("Experiment", wvTestRun[testRunIndex][%EXPERIMENT])
-	out += JU_ToPropertyString("UTFversion", wvTestRun[testRunIndex][%VERSION])
+	out += JU_ToPropertyString("IUTFversion", wvTestRun[testRunIndex][%VERSION])
 	out += JU_ToPropertyString("IgorInfo", JU_NicifyList(wvTestRun[testRunIndex][%IGORINFO]))
 	out += "\t\t</properties>\n"
 
@@ -206,7 +206,7 @@ static Function/S JU_ToPropertyString(name, value)
 
 	string s
 
-	if(UTF_Utils#IsEmpty(value))
+	if(IUTF_Utils#IsEmpty(value))
 		return ""
 	endif
 
@@ -241,7 +241,7 @@ static Function JU_WriteOutput()
 	variable fnum, i, childStart, childEnd
 	string out, juFileName, msg
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	childStart = str2num(wvTestRun[%CURRENT][%CHILD_START])
 	childEnd = str2num(wvTestRun[%CURRENT][%CHILD_END])
 
@@ -255,7 +255,7 @@ static Function JU_WriteOutput()
 #else
 	out = JU_UTF8Filter(out)
 #endif
-	juFileName = UTF_Utils_Paths#AtHome("JU_" + GetBaseFilename() + ".xml", unusedName = 1)
+	juFileName = IUTF_Utils_Paths#AtHome("JU_" + GetBaseFilename() + ".xml", unusedName = 1)
 
 	open/Z fnum as juFileName
 	if(!V_flag)
@@ -263,7 +263,7 @@ static Function JU_WriteOutput()
 		close fnum
 	else
 		sprintf msg, "Error: Could not create JUNIT output file at %s", juFileName
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endif
 End
 
@@ -274,7 +274,7 @@ static Function/S JU_NicifyList(list)
 
 	list = RemoveEnding(list, ";")
 
-	if(UTF_Utils#IsEmpty(list))
+	if(IUTF_Utils#IsEmpty(list))
 		return list
 	endif
 

@@ -5,8 +5,8 @@
 Examples
 ========
 
-The example section shows the usage of the Igor Unit Testing Framework. If you
-are just starting to use this framework, consider taking the :ref:`tour`.
+The example section shows the usage of the Igor Pro Universal Testing Framework.
+If you are just starting to use this framework, consider taking the :ref:`tour`.
 
 .. _example1:
 
@@ -254,9 +254,9 @@ on :ref:`automate`.
    :tab-width: 4
    :name: example6-code-2
 
-In this example, the automatic invocation of the Unit Testing Framework is also
-producing :ref:`JUNITOutput`. This allows the framework to be used in automated
-CI/CD Pipelines.
+In this example, the automatic invocation of the Igor Pro Universal Testing
+Framework is also producing :ref:`JUNITOutput`. This allows the framework to be
+used in automated CI/CD Pipelines.
 
 .. note::
 
@@ -295,7 +295,7 @@ works with :code:`Abort`, :code:`AbortOnValue` and :code:`AbortOnRTE` (see
 Example8
 --------
 
-This test suite shows the behaviour of the unit testing environment if user
+This test suite shows the behaviour of the universal testing environment if user
 code generates an uncaught Runtime Error (RTE). The test environment catches
 this condition and gives a detailed error message in the history. The runtime
 error is of course treated as an error.
@@ -401,13 +401,14 @@ only as good as the unit test the define it.
 Example11
 ---------
 
-This example demonstrates the usage of the unit-test framework background monitor.
-It contains a single test case that registers a user task to be monitored. After
-the initial test case procedure finishes the unit-testing framework drops to Igors
-command line. After the user task finishes the unit-testing framework resumes
-the test case in the given `_REENTRY` function.
-To emphasize that this feature can be chained the first `_REENTRY` function
-registers the same user task again with another `_REENTRY` function to resume.
+This example demonstrates the usage of the igortest background
+monitor. It contains a single test case that registers a user task to be
+monitored. After the initial test case procedure finishes the universal testing
+framework drops to Igors command line. After the user task finishes the
+universal testing framework resumes the test case in the given `_REENTRY`
+function. To emphasize that this feature can be chained the first `_REENTRY`
+function registers the same user task again with another `_REENTRY` function to
+resume.
 
 .. literalinclude:: ../../examples/example11-background.ipf
    :caption: example11-background.ipf
@@ -429,7 +430,7 @@ registers the same user task again with another `_REENTRY` function to resume.
 Example12
 ---------
 
-This example demonstrates the usage of the unit-test framework background
+This example demonstrates the usage of the igortest background
 monitor from a :cpp:func:`TEST_CASE_BEGIN_OVERRIDE` hook, see :ref:`TestHooks`.
 The background monitor registration can be called from any begin hook.
 

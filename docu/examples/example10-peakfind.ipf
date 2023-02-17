@@ -2,7 +2,7 @@
 #pragma version=1.09
 #pragma rtGlobals=3		// Use modern global access method and strict wave access.
 
-#include "unit-testing"
+#include "igortest"
 
 // https://github.com/ukos-git/igor-common-utilities.git
 #include "common-utilities"

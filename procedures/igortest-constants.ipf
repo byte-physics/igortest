@@ -10,8 +10,8 @@
 Constant PKG_VERSION = 1.09
 
 /// Settings folder
-StrConstant PKG_FOLDER = "root:Packages:UnitTesting"
-StrConstant PKG_FOLDER_SAVE = "root:Packages:UnitTesting:SaveState"
+StrConstant PKG_FOLDER = "root:Packages:igortest"
+StrConstant PKG_FOLDER_SAVE = "root:Packages:igortest:SaveState"
 
 Constant CLOSE_COMPARE_STRONG  = 1
 Constant DEFAULT_TOLERANCE     = 1e-8
@@ -105,7 +105,7 @@ StrConstant TC_ASSERTION_LIST_INDICATOR = "-"
 StrConstant TC_ASSERTION_INFO_INDICATOR = "(i)"
 #endif
 
-/// @name Constants for UTF_Hooks#ExecuteHooks
+/// @name Constants for IUTF_Hooks#ExecuteHooks
 /// @anchor HookTypes
 /// @{
 Constant IUTF_TEST_BEGIN_CONST       = 0x01
@@ -179,7 +179,7 @@ Constant AUTORUN_FULL  = 0x1
 Constant AUTORUN_PLAIN = 0x2
 /// @}
 
-/// @addtogroup UTFBackgroundMonModes
+/// @addtogroup IUTFBackgroundMonModes
 /// @{
 Constant BACKGROUNDMONMODE_AND  = 0
 Constant BACKGROUNDMONMODE_OR   = 1
@@ -203,17 +203,17 @@ Constant UTF_TAG_ABORTED   = 0x04
 /// @}
 
 /// @name String constants for function tags
-/// Need to be added to UTF_FunctionTags#GetTagConstants!
+/// Need to be added to IUTF_FunctionTags#GetTagConstants!
 ///
 /// @anchor FunctionTagStrings
 /// @{
-StrConstant UTF_FTAG_NOINSTRUMENTATION = "UTF_NOINSTRUMENTATION"
-StrConstant UTF_FTAG_TD_GENERATOR      = "UTF_TD_GENERATOR"
-StrConstant UTF_FTAG_EXPECTED_FAILURE  = "UTF_EXPECTED_FAILURE"
-StrConstant UTF_FTAG_SKIP  = "UTF_SKIP"
+StrConstant UTF_FTAG_NOINSTRUMENTATION = "IUTF_NOINSTRUMENTATION"
+StrConstant UTF_FTAG_TD_GENERATOR      = "IUTF_TD_GENERATOR"
+StrConstant UTF_FTAG_EXPECTED_FAILURE  = "IUTF_EXPECTED_FAILURE"
+StrConstant UTF_FTAG_SKIP              = "IUTF_SKIP"
 StrConstant UTF_FTAG_TAP_DIRECTIVE     = "TAPDirective"
 StrConstant UTF_FTAG_TAP_DESCRIPTION   = "TAPDescription"
-StrConstant UTF_FTAG_NO_WAVE_TRACKING  = "UTF_NO_WAVE_TRACKING"
+StrConstant UTF_FTAG_NO_WAVE_TRACKING  = "IUTF_NO_WAVE_TRACKING"
 /// @}
 
 /// @name Keys for traceOptions parameter
@@ -242,14 +242,14 @@ Constant UTF_WAVE_TRACKING_LOCAL = 0x02
 Constant UTF_WAVE_TRACKING_ALL = 0x03
 /// @}
 
-/// @name UTF Analytic output modes
+/// @name IUTF Analytic output modes
 /// @anchor AnalyticModes
 /// @{
 Constant UTF_ANALYTICS_FUNCTIONS = 0x00
 Constant UTF_ANALYTICS_LINES = 0x01
 /// @}
 
-/// @name UTF Analytics sorting modes
+/// @name IUTF Analytics sorting modes
 /// @anchor AnalyticSorting
 /// @{
 Constant UTF_ANALYTICS_CALLS = 0x00

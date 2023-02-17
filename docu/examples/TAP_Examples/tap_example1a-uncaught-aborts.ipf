@@ -2,7 +2,7 @@
 #pragma ModuleName=TAPExample1a
 #pragma version=1.09
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("tap_example1a-uncaught-aborts.ipf", enableTAP = 1)
 

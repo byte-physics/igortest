@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName = UTF_Hooks_Proto
+#pragma ModuleName = IUTF_Hooks_Proto
 
 // These functions are included for compatibility only
 // and have no functionality. Do NOT call this functions in future

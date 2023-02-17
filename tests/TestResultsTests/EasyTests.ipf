@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = TS_EasyTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
 // These are simple tests that do not rely on modifying the test results
@@ -52,7 +52,7 @@ static Function StatusSuccess_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
-// UTF_SKIP
+// IUTF_SKIP
 static Function StatusSkip()
 	FAIL()
 End
@@ -97,7 +97,7 @@ static Function StatusSkip_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 static Function ExpectedFailures()
 	CHECK(0)
 End

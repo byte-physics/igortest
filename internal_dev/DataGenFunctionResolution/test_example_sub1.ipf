@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName=TestExampleSub1
 
-#include "unit-testing"
+#include "igortest"
 
 static Function/WAVE dataGenGlobal()
 	Make/FREE/T data = {"TestExampleSub1"}

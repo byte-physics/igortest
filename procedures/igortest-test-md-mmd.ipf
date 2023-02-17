@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Test_MD_MMD
+#pragma ModuleName = IUTF_Test_MD_MMD
 
 ///@cond HIDDEN_SYMBOL
 
@@ -146,7 +146,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 	int64 i64
 #endif
 
-	WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
 	WAVE/WAVE mdState = GetMMDataState()
 	WAVE/T templates = GetMMDVarTemplates()
 
@@ -185,7 +185,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.v4 = val
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -210,7 +210,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.s4 = str
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -235,7 +235,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.dfr4 = dfr
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -260,7 +260,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							WAVE mData.w4 = wv
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -285,7 +285,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.c4 = cplx
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
@@ -311,13 +311,13 @@ static Function SetupMMDStruct(mData, fullFuncName)
 							mData.i4 = i64
 							break
 						default:
-							UTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
+							IUTF_Reporting#ReportErrorAndAbort("Encountered invalid index for mmd tc")
 							break
 					endswitch
 					break
 #endif
 				default:
-					UTF_Reporting#ReportErrorAndAbort("Encountered invalid type for mmd tc")
+					IUTF_Reporting#ReportErrorAndAbort("Encountered invalid type for mmd tc")
 					break
 			endswitch
 		endfor
@@ -395,8 +395,8 @@ static Function/S GetMMDTCSuffix(tdIndex)
 	string fullFuncName, dgen, lbl
 	string tcSuffix = ""
 
-	WAVE/T testRunData = UTF_Basics#GetTestRunData()
-	WAVE/WAVE dgenWaves = UTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
+	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
 	WAVE/WAVE mdState = GetMMDataState()
 
 	fullFuncName = testRunData[tdIndex][%FULLFUNCNAME]
@@ -408,7 +408,7 @@ static Function/S GetMMDTCSuffix(tdIndex)
 		index = str2num(mdFunState[i][%INDEX])
 		WAVE wGenerator = dgenWaves[%$dgen]
 		lbl = GetDimLabel(wGenerator, UTF_ROW, index)
-		if(!UTF_Utils#IsEmpty(lbl))
+		if(!IUTF_Utils#IsEmpty(lbl))
 			tcSuffix += IUTF_TC_SUFFIX_SEP + lbl
 		else
 			tcSuffix += IUTF_TC_SUFFIX_SEP + num2istr(index)

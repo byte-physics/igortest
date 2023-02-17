@@ -3,7 +3,7 @@
 set -e
 
 newVersion=1.09
-revision=UnitTestingFramework-v$newVersion
+revision=igortest-v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
 

@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Test_Proto
+#pragma ModuleName = IUTF_Test_Proto
 
 ///@cond HIDDEN_SYMBOL
 
@@ -12,7 +12,7 @@ Function TEST_CASE_PROTO()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototypes for multi data test cases
@@ -22,7 +22,7 @@ Function TEST_CASE_PROTO_MD_VAR([var])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_STR([str])
@@ -31,7 +31,7 @@ Function TEST_CASE_PROTO_MD_STR([str])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WV([wv])
@@ -40,7 +40,7 @@ Function TEST_CASE_PROTO_MD_WV([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVTEXT([wv])
@@ -49,7 +49,7 @@ Function TEST_CASE_PROTO_MD_WVTEXT([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVDFREF([wv])
@@ -58,7 +58,7 @@ Function TEST_CASE_PROTO_MD_WVDFREF([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
@@ -67,7 +67,7 @@ Function TEST_CASE_PROTO_MD_WVWAVEREF([wv])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_DFR([dfr])
@@ -76,7 +76,7 @@ Function TEST_CASE_PROTO_MD_DFR([dfr])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 Function TEST_CASE_PROTO_MD_CMPL([cmpl])
@@ -85,7 +85,7 @@ Function TEST_CASE_PROTO_MD_CMPL([cmpl])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #if (IgorVersion() >= 7.0)
@@ -96,7 +96,7 @@ Function TEST_CASE_PROTO_MD_INT([int])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #else
@@ -107,7 +107,7 @@ Function TEST_CASE_PROTO_MD_INT([int])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 #endif
@@ -118,7 +118,7 @@ Function/WAVE TEST_CASE_PROTO_DGEN()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for run functions in autorun mode
@@ -127,7 +127,7 @@ Function AUTORUN_MODE_PROTO()
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for hook functions
@@ -137,7 +137,7 @@ Function USER_HOOK_PROTO(str)
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 /// Prototype for multi multi data test case functions
@@ -147,7 +147,7 @@ Function TEST_CASE_PROTO_MD([md])
 	string msg
 
 	sprintf msg, "Error: Prototype function %s was called.", GetRTStackInfo(1)
-	UTF_Reporting#ReportErrorAndAbort(msg)
+	IUTF_Reporting#ReportErrorAndAbort(msg)
 End
 
 ///@endcond // HIDDEN_SYMBOL

@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName = Utils
 
-#include "unit-testing"
+#include "igortest"
 
 static Function/WAVE GetGridRows(wv, y1, y2)
 	WAVE/T wv
@@ -54,7 +54,7 @@ static Function LastTestCaseIndex([tcName, globalSearch])
 
 	globalSearch = ParamIsDefault(globalSearch) ? 0 : globalSearch
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	index = FindDimLabel(wvTestCase, UTF_ROW, "CURRENT")
 
 	if(index <= 0)
@@ -63,13 +63,13 @@ static Function LastTestCaseIndex([tcName, globalSearch])
 
 	if(globalSearch)
 		// check the limits of the whole test run
-		WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+		WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 		start = str2num(wvTestRun[%CURRENT][%CHILD_START])
-		WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+		WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 		start = str2num(wvTestSuite[start][%CHILD_START])
 	else
 		// check the limits of the current test suite
-		WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+		WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 		start = str2num(wvTestSuite[%CURRENT][%CHILD_START])
 	endif
 
@@ -121,7 +121,7 @@ static Function/WAVE LastTestCase([tcName, globalSearch])
 		return $""
 	endif
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	WAVE/T result = GetGridRow(wvTestCase, index)
 
 	return result
@@ -156,7 +156,7 @@ static Function/WAVE LastTestCases([tcName, globalSearch])
 		return $""
 	endif
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 
 	if(index > 0)
 		name = StringFromList(0, wvTestCase[index][%NAME], ":")
@@ -206,7 +206,7 @@ static Function ExpectTestCaseStatus(status, [offset, tcName])
 	INFO("BUG: a last test was expected (offset: %d, index: %d)", n1 = offset, n2 = tcIndex)
 	REQUIRE_LE_VAR(0, tcIndex)
 
-	WAVE/T wvTest = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTest = IUTF_Reporting#GetTestCaseWave()
 	INFO("TC index: %d, offset: %d", n0 = tcIndex, n1 = offset)
 	expect = status
 	result = wvTest[tcIndex][%STATUS]
@@ -227,7 +227,7 @@ static Function ExpectTestCaseStatus(status, [offset, tcName])
 	wvTest[tcIndex][%STDERR] = ""
 	wvTest[tcIndex][%CHILD_END] = wvTest[tcIndex][%CHILD_START] // trim any assertions
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	if(isFailed)
 		wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) - 1)
 	endif
@@ -241,7 +241,7 @@ static Function/WAVE GetTestAssertions(childStart, childEnd)
 
 	CHECK_LE_VAR(childStart, childEnd)
 
-	WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
+	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 	WAVE/T result = GetGridRows(wvAssertion, childStart, childEnd)
 
 	return result
@@ -252,13 +252,13 @@ static Function/WAVE GetTestInfos(childStart, childEnd)
 
 	CHECK_LE_VAR(childStart, childEnd)
 
-	WAVE/T wvInfo = UTF_Reporting#GetTestInfoWave()
+	WAVE/T wvInfo = IUTF_Reporting#GetTestInfoWave()
 	WAVE/T result = GetGridRows(wvInfo, childStart, childEnd)
 
 	return result
 End
 
-/// @brief Backups the current UTF data folder and create a clean one.
+/// @brief Backups the current IUTF data folder and create a clean one.
 static Function Backup()
 	DFREF dfr = GetPackageFolder()
 
@@ -266,16 +266,16 @@ static Function Backup()
 #if (IgorVersion() >= 8.00)
 	MoveDataFolder/O=1/Z dfr, root:Backup
 #else
-	KillDataFolder/Z root:Backup:UnitTesting
+	KillDataFolder/Z root:Backup:igortest
 	MoveDataFolder dfr, root:Backup
 #endif
 
-	UTF_Debug#InitIgorDebugVariables()
-	UTF_Reporting_Control#SetupTestRun()
+	IUTF_Debug#InitIgorDebugVariables()
+	IUTF_Reporting_Control#SetupTestRun()
 End
 
-/// @brief Restore the backup-ed UTF data folder and move the previous UTF data folder state to
-/// root:Copy:UnitTesting.
+/// @brief Restore the backup-ed IUTF data folder and move the previous IUTF data folder state to
+/// root:Copy:igortest.
 static Function Restore()
 	DFREF dfr = GetPackageFolder()
 
@@ -283,8 +283,8 @@ static Function Restore()
 #if (IgorVersion() >= 8.00)
 	MoveDataFolder/O=1/Z dfr, root:Copy
 #else
-	KillDataFolder/Z root:Copy:UnitTesting
+	KillDataFolder/Z root:Copy:igortest
 	MoveDataFolder dfr, root:Copy
 #endif
-	MoveDataFolder root:Backup:UnitTesting, root:Packages
+	MoveDataFolder root:Backup:igortest, root:Packages
 End

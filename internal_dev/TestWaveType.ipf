@@ -3,7 +3,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 
-#include "unit-testing"
+#include "igortest"
 
 Function run_IGNORE()
 	RunTest("TestWaveType.ipf", name="Test different Wave Types", testCase="testWaveTypes;testNullType")

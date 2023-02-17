@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Utils_Vector
+#pragma ModuleName = IUTF_Utils_Vector
 
 // Vector is a special concept that is similar to Vec<> in Rust or List<T> in C#. It represents a
 // dynamically sized array of elements. All operation should be done using these methods. The wave
@@ -124,7 +124,7 @@ static Function AddRows(wv, count)
 	EnsureCapacity(wv, newLength - 1)
 	SetLength(wv, newLength)
 
-	UTF_Utils_Waves#RemoveDimLabel(wv, UTF_ROW, "CURRENT")
+	IUTF_Utils_Waves#RemoveDimLabel(wv, UTF_ROW, "CURRENT")
 	SetDimLabel UTF_ROW, newLength - 1, CURRENT, wv
 
 	return newLength - 1

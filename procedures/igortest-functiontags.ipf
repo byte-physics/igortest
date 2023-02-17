@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_FunctionTags
+#pragma ModuleName=IUTF_FunctionTags
 
 /// @brief Returns a global wave that stores the Function Tag Waves of this testrun
 static Function/WAVE GetFunctionTagWaves()
@@ -16,7 +16,7 @@ static Function/WAVE GetFunctionTagWaves()
 	endif
 
 	Make/WAVE/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
-	UTF_Utils_Vector#SetLength(wv, 0)
+	IUTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -33,7 +33,7 @@ static Function/WAVE GetFunctionTagRefs()
 	endif
 
 	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
-	UTF_Utils_Vector#SetLength(wv, 0)
+	IUTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -50,9 +50,9 @@ static Function AddFunctionTagWave(fullFuncName)
 		return NaN
 	endif
 
-	index = UTF_Utils_Vector#AddRow(ftagRefs)
+	index = IUTF_Utils_Vector#AddRow(ftagRefs)
 	ftagRefs[index] = fullFuncName
-	UTF_Utils_Vector#EnsureCapacity(ftagWaves, index)
+	IUTF_Utils_Vector#EnsureCapacity(ftagWaves, index)
 	ftagWaves[index] = tags
 End
 
@@ -68,7 +68,7 @@ static Function GetFunctionTagRef(fullFuncName)
 	WAVE/T ftagRefs = GetFunctionTagRefs()
 
 #if (IgorVersion() >= 8.00)
-	length = UTF_Utils_Vector#GetLength(ftagRefs)
+	length = IUTF_Utils_Vector#GetLength(ftagRefs)
 	FindValue/Z/TEXT=(fullFuncName)/TXOP=5/RMD=[0, length - 1] ftagRefs
 #else
 	FindValue/Z/TEXT=(fullFuncName)/TXOP=5 ftagRefs
@@ -129,7 +129,7 @@ static Function/S GetFunctionTagValue(funcName, tagName, err)
 	endif
 
 	tagValue = tagValueWave[tagPosition]
-	if(UTF_Utils#IsEmpty(tagValue))
+	if(IUTF_Utils#IsEmpty(tagValue))
 		err = UTF_TAG_EMPTY
 		sprintf msg, "The tag %s has no value.", tagName
 		return msg
@@ -161,7 +161,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 	variable i, j, numUniqueTags, numLines, numFound
 	WAVE/T tag_constants = GetTagConstants()
 
-	WAVE templates = UTF_Test_MD_MMD#GetMMDVarTemplates()
+	WAVE templates = IUTF_Test_MD_MMD#GetMMDVarTemplates()
 	numUniqueTags = DimSize(tag_constants, UTF_ROW)
 
 	numFound = 0
@@ -175,13 +175,20 @@ static Function/WAVE GetFunctionTagWave(funcName)
 
 	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1 )
 		funcLine = StringFromList(i, funcText, "\r")
-		if(UTF_Utils#IsEmpty(funcLine))
+		if(IUTF_Utils#IsEmpty(funcLine))
 			continue
 		endif
 
 		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
-			expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
+			if(CmpStr("IUTF_", tagName[0, 4]))
+				// function tags that do not use the IUTF_ prefix
+				expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
+			else
+				// compatibility layer to allow the deprecated UTF_ and the new IUTF_ prefix for
+				// function tags
+				expr = "\/{2,}[[:space:]]*I?\\Q" + tagName[1, Inf] + "\\E(?::)?(.*)$"
+			endif
 
 			SplitString/E=expr funcLine, tagValue
 			if(V_flag != 1)
@@ -191,16 +198,16 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			tagValue = TrimString(tagValue)
 			if(FindDimLabel(tagValueWave, 0, tagName) != -2)
 				sprintf msg, "Test case %s has the tag %s at least twice.", funcName, tagValue
-				UTF_Reporting#ReportErrorAndAbort(msg)
+				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 
 			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
 				varName = StringFromList(0, tagvalue, ":")
 				tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-				allVarList = UTF_Test_MD_MMD#GetMMDAllVariablesList()
+				allVarList = IUTF_Test_MD_MMD#GetMMDAllVariablesList()
 				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
 					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue
-					UTF_Reporting#ReportErrorAndAbort(msg)
+					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
 				tagValue = StringFromList(1, tagvalue, ":")
 			endif

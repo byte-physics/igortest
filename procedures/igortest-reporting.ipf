@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Reporting
+#pragma ModuleName = IUTF_Reporting
 
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 
@@ -26,7 +26,7 @@ static Function UpdateChildRange(parentWave, childWave, [init])
 	WAVE/T parentWave, childWave
 	variable init
 
-	variable length = UTF_Utils_Vector#GetLength(childWave)
+	variable length = IUTF_Utils_Vector#GetLength(childWave)
 
 	init = ParamIsDefault(init) ? 0 : !!init
 
@@ -50,13 +50,13 @@ End
 ///   - NUM_ASSERT_ERROR: number of failed or errored assertions in all test cases
 ///   - SYSTEMINFO: information of the current system
 ///   - IGORINFO: information of the current igor instance
-///   - VERSION: version number of the used UTF
+///   - VERSION: version number of the used IUTF
 ///   - EXPERIMENT: name of the experiment file
 ///   - CHILD_START: the start index (inclusive) for all test suites that belong to this test run
 ///   - CHILD_END: the end index (exclusive) for all test suites that belong to this test run
 ///
-/// Warning: You have to initialize the TestRunWave with UTF_Reporting_Control#SetupTestRun()
-/// before its first usage. This should usually be done at the start of UTF_Basics#RunTest() after
+/// Warning: You have to initialize the TestRunWave with IUTF_Reporting_Control#SetupTestRun()
+/// before its first usage. This should usually be done at the start of IUTF_Basics#RunTest() after
 /// clearing the waves.
 static Function/WAVE GetTestRunWave()
 	DFREF dfr = GetPackageFolder()
@@ -66,7 +66,7 @@ static Function/WAVE GetTestRunWave()
 		return wv
 	endif
 
-	WAVE/T wv = UTF_Utils_TextGrid#Create("HOSTNAME;USERNAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;SYSTEMINFO;IGORINFO;VERSION;EXPERIMENT;CHILD_START;CHILD_END;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("HOSTNAME;USERNAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;SYSTEMINFO;IGORINFO;VERSION;EXPERIMENT;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -96,7 +96,7 @@ static Function/WAVE GetTestSuiteWave()
 		return wv
 	endif
 
-	WAVE/T wv = UTF_Utils_TextGrid#Create("PROCEDURENAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("PROCEDURENAME;STARTTIME;ENDTIME;NUM_ERROR;NUM_SKIPPED;NUM_TESTS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -125,7 +125,7 @@ static Function/WAVE GetTestCaseWave()
 		return wv
 	endif
 
-	WAVE/T wv = UTF_Utils_TextGrid#Create("NAME;STARTTIME;ENDTIME;STATUS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("NAME;STARTTIME;ENDTIME;STATUS;NUM_ASSERT;NUM_ASSERT_ERROR;STDOUT;STDERR;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -147,7 +147,7 @@ static Function/WAVE GetTestAssertionWave()
 		return wv
 	endif
 
-	WAVE/T wv = UTF_Utils_TextGrid#Create("MESSAGE;TYPE;STACKTRACE;CHILD_START;CHILD_END;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("MESSAGE;TYPE;STACKTRACE;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -164,7 +164,7 @@ static Function/WAVE GetTestInfoWave()
 		return wv
 	endif
 
-	WAVE/T wv = UTF_Utils_TextGrid#Create("MESSAGE;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("MESSAGE;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -194,7 +194,7 @@ static Function AddError(message, type, [incrErrorCounter])
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	WAVE/T wvAssertion = GetTestAssertionWave()
-	UTF_Utils_Vector#AddRow(wvAssertion)
+	IUTF_Utils_Vector#AddRow(wvAssertion)
 	wvAssertion[%CURRENT][%MESSAGE] = message
 	wvAssertion[%CURRENT][%TYPE] = type
 
@@ -212,10 +212,10 @@ static Function AddError(message, type, [incrErrorCounter])
 	UpdateChildRange(wvAssertion, wvInfo, init = 1)
 
 	WAVE/T wvInfoMsg = GetInfoMsg()
-	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
+	length = IUTF_Utils_Vector#GetLength(wvInfoMsg)
 	if(length > 0)
-		startIndex = UTF_Utils_Vector#GetLength(wvInfo)
-		UTF_Utils_Vector#AddRows(wvInfo, length)
+		startIndex = IUTF_Utils_Vector#GetLength(wvInfo)
+		IUTF_Utils_Vector#AddRows(wvInfo, length)
 		UpdateChildRange(wvAssertion, wvInfo)
 		wvInfo[startIndex, startIndex + length - 1][%MESSAGE] = wvInfoMsg[p - startIndex]
 	endif
@@ -223,20 +223,20 @@ End
 
 /// Increments the assertion counter for the current test case
 static Function incrAssert()
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	wvTestCase[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) + 1)
 End
 
 /// Increments the global error counter for the complete test run. This wont change the error
 /// counter for test cases. Use AddError for these cases.
 static Function incrGlobalError()
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 End
 
 /// Get the wave that can store information for the next assertion. These wave is cleared
 /// automatically at the end of the test case or assertion. This wave is considered as a list. Use
-/// UTF_Utils_Waves#GetListLength to retrieve its length.
+/// IUTF_Utils_Waves#GetListLength to retrieve its length.
 static Function/WAVE GetInfoMsg()
 	DFREF dfr = GetPackageFolder()
 	string name = "InfoMsg"
@@ -246,7 +246,7 @@ static Function/WAVE GetInfoMsg()
 	endif
 
 	MAKE/FREE/T/N=(IUTF_WAVECHUNK_SIZE) wv
-	UTF_Utils_Vector#SetLength(wv, 0)
+	IUTF_Utils_Vector#SetLength(wv, 0)
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -257,7 +257,7 @@ End
 static Function CleanupInfoMsg()
 	WAVE/T wv = GetInfoMsg()
 
-	UTF_Utils_Vector#SetLength(wv, 0)
+	IUTF_Utils_Vector#SetLength(wv, 0)
 	wv[] = ""
 End
 
@@ -272,7 +272,7 @@ static Function/WAVE GetFailedProcWave()
 	endif
 
 	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
-	UTF_Utils_Vector#SetLength(wv, 0)
+	IUTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
 End
@@ -287,9 +287,9 @@ static Function AddFailedSummaryInfo(msg)
 	variable index
 	WAVE/T wvFailed = GetFailedProcWave()
 
-	index = UTF_Utils_Vector#GetLength(wvFailed)
-	UTF_Utils_Vector#EnsureCapacity(wvFailed, index)
-	UTF_Utils_Vector#SetLength(wvFailed, index + 1)
+	index = IUTF_Utils_Vector#GetLength(wvFailed)
+	IUTF_Utils_Vector#EnsureCapacity(wvFailed, index)
+	IUTF_Utils_Vector#SetLength(wvFailed, index + 1)
 	wvFailed[index] = msg
 End
 
@@ -328,7 +328,7 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, incrErrorCounter])
 	// counter.
 	ReportError(message, incrGlobalErrorCounter = 0)
 	WAVE/T wvInfoMsg = GetInfoMsg()
-	length = UTF_Utils_Vector#GetLength(wvInfoMsg)
+	length = IUTF_Utils_Vector#GetLength(wvInfoMsg)
 	for(i = 0; i < length; i += 1)
 		ReportError("  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i], incrGlobalErrorCounter = 0)
 	endfor
@@ -384,27 +384,27 @@ static Function/S getInfo(result, partialStack)
 	partialStack = ""
 
 	// traverse the callstack from bottom up,
-	// the first function not in one of the unit testing procedures is
+	// the first function not in one of the igortest procedures is
 	// the one we want to report. Except if helper functions are involved.
 	for(i = numCallers - 1; i >= 0; i -= 1)
 		caller    = StringFromList(i, callStack)
 		procedure = StringFromList(1, caller, ",")
 
-		if(StringMatch(procedure, "unit-testing*"))
-			if(UTF_Utils#IsNaN(callerIndex))
+		if(StringMatch(procedure, "igortest*"))
+			if(IUTF_Utils#IsNaN(callerIndex))
 				continue
 			endif
 			testCaseIndex = i + 1
 			break
 		else
-			if(UTF_Utils#IsNaN(callerIndex))
+			if(IUTF_Utils#IsNaN(callerIndex))
 				callerIndex = i
 			endif
 		endif
 	endfor
 
-	if(UTF_Utils#IsNaN(callerIndex))
-		WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	if(IUTF_Utils#IsNaN(callerIndex))
+		WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
 			// We have no external caller, assuming the internal call was the check in AfterTestCase()
 			return "The test case did not make any assertions!"
@@ -422,14 +422,14 @@ static Function/S getInfo(result, partialStack)
 	line       = StringFromList(2, caller, ",")
 	assertLine = str2num(StringFromList(2, caller, ","))
 
-	text = UTF_Basics#getFullFunctionName(err, func, procedure)
+	text = IUTF_Basics#getFullFunctionName(err, func, procedure)
 	if(!err)
 		func = text
 	endif
 
 	if(callerIndex != testcaseIndex)
 		tmpStr = StringFromList(0, callerTestCase, ",")
-		text = UTF_Basics#getFullFunctionName(err, tmpStr, StringFromList(1, callerTestCase, ","))
+		text = IUTF_Basics#getFullFunctionName(err, tmpStr, StringFromList(1, callerTestCase, ","))
 		if(!err)
 			tmpStr = text
 		endif
@@ -442,7 +442,7 @@ static Function/S getInfo(result, partialStack)
 		partialStack = AddListItem(StringFromList(i, callStack), partialStack, ";", Inf)
 	endfor
 
-	if(!UTF_Basics#IsProcGlobal())
+	if(!IUTF_Basics#IsProcGlobal())
 		moduleName = " [" + GetIndependentModuleName() + "]"
 	endif
 
@@ -451,7 +451,7 @@ static Function/S getInfo(result, partialStack)
 
 	cleanText = trimstring(text)
 
-	tmpStr = UTF_Utils#IUTF_PrepareStringForOut(cleanText)
+	tmpStr = IUTF_Utils#IUTF_PrepareStringForOut(cleanText)
 	sprintf text, "Assertion \"%s\" %s in %s%s (%s, line %s)", tmpStr, SelectString(result, "failed", "succeeded"), func, moduleName, procedure, line
 	return text
 End
@@ -459,7 +459,7 @@ End
 /// @brief Wrapper function result reporting. This functions should only be called for
 ///        assertions in user test cases. For internal errors use ReportError* functions.
 ///
-/// @param result Return value of a check function from `unit-testing-assertion-checks.ipf`
+/// @param result Return value of a check function from `igortest-assertion-checks.ipf`
 /// @param str    Message string
 /// @param flags  Wrapper function `flags` argument
 /// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
@@ -474,7 +474,7 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	UTF_Debug#DebugOutput(str, result)
+	IUTF_Debug#DebugOutput(str, result)
 
 	if(!result)
 		expectedFailure = IsExpectedFailure()
@@ -484,14 +484,14 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 		endif
 
 		if(!expectedFailure && (flags & ABORT_FUNCTION))
-			UTF_Reporting#CleanupInfoMsg()
-			UTF_Basics#setAbortFlag()
+			IUTF_Reporting#CleanupInfoMsg()
+			IUTF_Basics#setAbortFlag()
 			Abort
 		endif
 	endif
 
 	if(cleanupInfo)
-		UTF_Reporting#CleanupInfoMsg()
+		IUTF_Reporting#CleanupInfoMsg()
 	endif
 End
 
@@ -500,12 +500,17 @@ End
 /// Always use this function if you want to inform the user about something.
 ///
 /// @param msg message to be outputted, without trailing end-of-line
-threadsafe static Function UTF_PrintStatusMessage(msg)
+/// @param allowEmptyLine (optional, default 0 disabled) If set to 1 it will allow to print empty
+///            strings to the output. The default behavior is to skip printing empty strings.
+threadsafe static Function IUTF_PrintStatusMessage(msg, [allowEmptyLine])
 	string msg
+	variable allowEmptyLine
 
 	string tmpStr
 
-	if(strlen(msg) == 0)
+	allowEmptyLine = ParamIsDefault(allowEmptyLine) ? 0 : !!allowEmptyLine
+
+	if(!allowEmptyLine && strlen(msg) == 0)
 		return NaN
 	endif
 
@@ -541,9 +546,9 @@ static Function ReportError(message, [incrGlobalErrorCounter])
 
 	incrGlobalErrorCounter = ParamIsDefault(incrGlobalErrorCounter) ? 1 : !!incrGlobalErrorCounter
 
-	UTF_PrintStatusMessage(message)
+	IUTF_PrintStatusMessage(message)
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	currentIndex = FindDimLabel(wvTestCase, UTF_COLUMN, "CURRENT")
 	if(currentIndex >= 0)
 		wvTestCase[currentIndex][%STDERR] += message + "\r"
@@ -568,7 +573,7 @@ static Function ReportErrorAndAbort(message, [setFlagOnly])
 	setFlagOnly = ParamIsDefault(setFlagOnly) ? 0 : !!setFlagOnly
 
 	ReportError("Fatal: " + message, incrGlobalErrorCounter = 1)
-	UTF_Basics#setAbortFlag()
+	IUTF_Basics#setAbortFlag()
 	if(!setFlagOnly)
 		Abort
 	endif

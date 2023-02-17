@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example8
 
-#include "unit-testing"
+#include "igortest"
 
 Function TestWaveOp()
 

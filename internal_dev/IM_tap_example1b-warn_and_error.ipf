@@ -4,7 +4,7 @@
 #pragma IndependentModule=ABCD
 #pragma ModuleName=TAP2
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("tap_example1b-warn_and_error.ipf;tap_example1a-uncaught-aborts.ipf",tapEnable=1)
 

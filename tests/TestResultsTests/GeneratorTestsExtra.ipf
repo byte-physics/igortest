@@ -4,13 +4,13 @@
 #pragma version=1.09
 #pragma ModuleName = TS_GeneratorTestsExtra
 
-#include "unit-testing"
+#include "igortest"
 
 static Function/WAVE GenAbort()
 	abort
 End
 
-// UTF_TD_GENERATOR GenAbort
+// IUTF_TD_GENERATOR GenAbort
 static Function TCAbort([var])
 	variable var
 
@@ -26,7 +26,7 @@ static Function/WAVE GenRTE()
 	return result
 End
 
-// UTF_TD_GENERATOR GenRTE
+// IUTF_TD_GENERATOR GenRTE
 static Function TCRTE([var])
 	variable var
 
@@ -38,7 +38,7 @@ static Function/WAVE GenNull()
 	return wv
 End
 
-// UTF_TD_GENERATOR GenNull
+// IUTF_TD_GENERATOR GenNull
 static Function TCNull([var])
 	variable var
 
@@ -50,7 +50,7 @@ static Function/WAVE Gen2D()
 	return wv
 End
 
-// UTF_TD_GENERATOR Gen2D
+// IUTF_TD_GENERATOR Gen2D
 static Function TC2D([var])
 	variable var
 
@@ -62,7 +62,7 @@ static Function/WAVE GenSignature()
 	return wv
 End
 
-// UTF_TD_GENERATOR GenSignature
+// IUTF_TD_GENERATOR GenSignature
 static Function TCSignature([var])
 	variable var
 

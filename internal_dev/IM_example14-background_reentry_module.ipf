@@ -5,7 +5,7 @@
 #pragma IndependentModule=Example14
 #pragma ModuleName=MyModule
 
-#include "unit-testing"
+#include "igortest"
 
 // This example shows the usage of ModuleName for static function in combination with
 // an IndependentModule. Please note how the functions are referenced in BackgroundTest()
@@ -26,7 +26,7 @@ End
 Function BackgroundTest()
 
 	CtrlNamedBackGround testtask, proc=Example14#MyModule#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "MyModule#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "MyModule#FirstReentry_reentry")
 End
 
 

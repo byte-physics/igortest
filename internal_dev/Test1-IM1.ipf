@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 
-#include "unit-testing"
+#include "igortest"
 
 Function TEST_BEGIN_OVERRIDE(testCase)
 	string testCase

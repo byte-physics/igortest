@@ -1,7 +1,7 @@
 NAME      := byte-physics/igor-utf-docu-sphinx
 LATEST    := ${NAME}:latest
 LOCAL_TOP_LEVEL := $$(git rev-parse --show-toplevel)
-DOCKER_TOP_LEVEL := /var/igor-unit-testing-framework
+DOCKER_TOP_LEVEL := /var/igortest
 LINKDIR   := -v ${LOCAL_TOP_LEVEL}:${DOCKER_TOP_LEVEL}
 
 default: build-docker
@@ -31,7 +31,7 @@ requirements: build-docker
 		git --version'
 
 sphinx: requirements
-	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash /var/igor-unit-testing-framework/docu/scripts/docu-sphinx.sh
+	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash /var/igortest/docu/scripts/docu-sphinx.sh
 
 sphinx-debug: requirements
 	docker run -t --rm ${LINKDIR} ${LATEST} /bin/bash -c \

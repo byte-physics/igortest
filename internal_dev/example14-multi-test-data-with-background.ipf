@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example14internal
 
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("example14-multi-test-data-with-background.ipf")
 
@@ -27,21 +27,21 @@ static Function/WAVE tcDataGenVar2()
 	return data
 End
 
-// UTF_TD_GENERATOR tcDataGenVar
+// IUTF_TD_GENERATOR tcDataGenVar
 static Function MDTestCaseVar([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=Example14internal#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "Example14internal#FirstReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "Example14internal#FirstReentry_reentry")
 	CHECK(var == 1 || var == 5)
 End
 
-// UTF_TD_GENERATOR tcDataGenVar2
+// IUTF_TD_GENERATOR tcDataGenVar2
 static Function MDTestCaseVar2([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=Example14internal#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "Example14internal#SecondReentry_reentry")
+	RegisterIUTFMonitor("testtask", 1, "Example14internal#SecondReentry_reentry")
 	CHECK(var == 3 || var == 4)
 End
 

@@ -5,7 +5,7 @@
 #pragma ModuleName=TestExampleMain
 #pragma IndependentModule=TestExample_IM
 
-#include "unit-testing"
+#include "igortest"
 
 #include ":IM_test_example_sub1"
 #include ":IM_test_example_sub2"
@@ -20,7 +20,7 @@ static Function/WAVE dataGenTestExample()
 	return data
 End
 
-// UTF_TD_GENERATOR dataGenTestExample
+// IUTF_TD_GENERATOR dataGenTestExample
 static Function MDTestCaseVar1([var])
 	string var
 
@@ -28,7 +28,7 @@ static Function MDTestCaseVar1([var])
 	CHECK_EQUAL_STR(var, ref)
 End
 
-// UTF_TD_GENERATOR TestExampleSub1#dataGenTestExample
+// IUTF_TD_GENERATOR TestExampleSub1#dataGenTestExample
 static Function MDTestCaseVar2([var])
 	string var
 
@@ -36,7 +36,7 @@ static Function MDTestCaseVar2([var])
 	CHECK_EQUAL_STR(var, ref)
 End
 
-// UTF_TD_GENERATOR dataGenGlobal
+// IUTF_TD_GENERATOR dataGenGlobal
 static Function MDTestCaseVar3([var])
 	string var
 

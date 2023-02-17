@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
 #pragma version=1.09
-#pragma ModuleName = UTF_Reporting_Control
+#pragma ModuleName = IUTF_Reporting_Control
 
 // This procedure file combines functions that control the output like test suite begin/end or test
 // case begin/end.
@@ -11,8 +11,8 @@
 static Function SetupTestRun()
 	variable id
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	id = UTF_Utils_Vector#AddRow(wvTestRun)
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	id = IUTF_Utils_Vector#AddRow(wvTestRun)
 
 	wvTestRun[id][%HOSTNAME] = "localhost"
 #if (IgorVersion() >= 7.00)
@@ -35,7 +35,7 @@ static Function SetupTestRun()
 	wvTestRun[id][%NUM_ASSERT_ERROR] = "0"
 	wvTestRun[id][%SYSTEMINFO] = IgorInfo(3)
 	wvTestRun[id][%IGORINFO] = IgorInfo(0)
-	wvTestRun[id][%VERSION] = UTF_Basics#GetVersion()
+	wvTestRun[id][%VERSION] = IUTF_Basics#GetVersion()
 	wvTestRun[id][%EXPERIMENT] = IgorInfo(1)
 	wvTestRun[id][%CHILD_START] = "0"
 	wvTestRun[id][%CHILD_END] = "0"
@@ -43,14 +43,14 @@ End
 
 /// @brief Begin a new test run. This test run has to be initialized with SetupTestRun first.
 static Function TestBegin()
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%STARTTIME] = UTF_Reporting#GetTimeString()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%STARTTIME] = IUTF_Reporting#GetTimeString()
 End
 
 /// @brief End the current test run.
 static Function TestEnd()
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	wvTestRun[%CURRENT][%ENDTIME] = IUTF_Reporting#GetTimeString()
 End
 
 /// @brief Begin a new test suite.
@@ -61,30 +61,30 @@ static Function TestSuiteBegin(testSuite)
 
 	variable id
 
-	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
-	id = UTF_Utils_Vector#AddRow(wvSuite)
+	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
+	id = IUTF_Utils_Vector#AddRow(wvSuite)
 
 	wvSuite[id][%PROCEDURENAME] = testSuite
-	wvSuite[id][%STARTTIME] = UTF_Reporting#GetTimeString()
+	wvSuite[id][%STARTTIME] = IUTF_Reporting#GetTimeString()
 	wvSuite[id][%NUM_ERROR] = "0"
 	wvSuite[id][%NUM_SKIPPED] = "0"
 	wvSuite[id][%NUM_TESTS] = "0"
 	wvSuite[id][%NUM_ASSERT] = "0"
 	wvSuite[id][%NUM_ASSERT_ERROR] = "0"
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase, init = 1)
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	IUTF_Reporting#UpdateChildRange(wvSuite, wvTestCase, init = 1)
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
-	UTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	IUTF_Reporting#UpdateChildRange(wvTestRun, wvSuite)
 End
 
 /// @brief End the current test suite
 static Function TestSuiteEnd()
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
-	wvTestSuite[%CURRENT][%ENDTIME] = UTF_Reporting#GetTimeString()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
+	wvTestSuite[%CURRENT][%ENDTIME] = IUTF_Reporting#GetTimeString()
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]))
 	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]))
 	wvTestRun[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ERROR]))
@@ -102,23 +102,23 @@ static Function TestCaseBegin(testCase, skip)
 
 	variable testId
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
-	testId = UTF_Utils_Vector#AddRow(wvTestCase)
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	testId = IUTF_Utils_Vector#AddRow(wvTestCase)
 
 	wvTestCase[testId][%NAME] = testCase
-	wvTestCase[testId][%STARTTIME] = UTF_Reporting#GetTimeString()
+	wvTestCase[testId][%STARTTIME] = IUTF_Reporting#GetTimeString()
 	wvTestCase[testId][%NUM_ASSERT] = "0"
 	wvTestCase[testId][%NUM_ASSERT_ERROR] = "0"
 	wvTestCase[testId][%STATUS] = IUTF_STATUS_RUNNING
 
-	WAVE/T wvAssertion = UTF_Reporting#GetTestAssertionWave()
-	UTF_Reporting#UpdateChildRange(wvTestCase, wvAssertion, init = 1)
+	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
+	IUTF_Reporting#UpdateChildRange(wvTestCase, wvAssertion, init = 1)
 
-	WAVE/T wvSuite = UTF_Reporting#GetTestSuiteWave()
-	UTF_Reporting#UpdateChildRange(wvSuite, wvTestCase)
+	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
+	IUTF_Reporting#UpdateChildRange(wvSuite, wvTestCase)
 	wvSuite[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvSuite[%CURRENT][%NUM_TESTS]) + 1)
 
-	WAVE/T wvTestRun = UTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	wvTestRun[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_TESTS]) + 1)
 
 	if(skip)
@@ -133,20 +133,20 @@ End
 
 /// @brief End the current test case
 ///
-/// @param endTime  The end time when this test case finished. Use UTF_Reporting#GetTimeString() to
+/// @param endTime  The end time when this test case finished. Use IUTF_Reporting#GetTimeString() to
 ///                 get the value for this parameter.
 static Function TestCaseEnd(endTime)
 	string endTime
 
 	string name, msg
 
-	WAVE/T wvTestCase = UTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	wvTestCase[%CURRENT][%ENDTIME] = endTime
 
 	if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_UNKNOWN))
 		name = wvTestCase[%CURRENT][%NAME]
 		sprintf msg, "Bug: Test case \"%s\" has an unknown state after it was running.", name
-		UTF_Reporting#TestCaseFail(msg)
+		IUTF_Reporting#TestCaseFail(msg)
 	endif
 	strswitch(wvTestCase[%CURRENT][%STATUS])
 		case IUTF_STATUS_RUNNING:
@@ -154,23 +154,23 @@ static Function TestCaseEnd(endTime)
 			break
 		case IUTF_STATUS_ERROR:
 		case IUTF_STATUS_FAIL:
-			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+			WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 			wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) + 1)
 			break
 		case IUTF_STATUS_SKIP:
-			WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+			WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 			wvTestSuite[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]) + 1)
 			break
 		default:
 			sprintf msg, "test status \"%s\" is not supported for test case \"%s\".", wvTestCase[%CURRENT][%STATUS], name
-			UTF_Reporting#ReportError(msg)
+			IUTF_Reporting#ReportError(msg)
 			break
 	endswitch
 
 	Notebook HistoryCarbonCopy, getData = 1
 	wvTestCase[%CURRENT][%STDOUT] = S_Value[strlen(wvTestCase[%CURRENT][%STDOUT]), Inf]
 
-	WAVE/T wvTestSuite = UTF_Reporting#GetTestSuiteWave()
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	wvTestSuite[%CURRENT][%STDOUT] += wvTestCase[%CURRENT][%STDOUT]
 	wvTestSuite[%CURRENT][%STDERR] += wvTestCase[%CURRENT][%STDERR]
 	wvTestSuite[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))

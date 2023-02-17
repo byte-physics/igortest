@@ -87,8 +87,8 @@ JUNIT Output
 ------------
 
 All common continuous integration frameworks support input as JUNIT XML files.
-The igor unit testing framework supports output of test run results in JUNIT
-XML format. The output can be enabled by adding the optional parameter
+The Igor Pro Universal Testing Framework supports output of test run results in
+JUNIT XML format. The output can be enabled by adding the optional parameter
 :code:`enableJU=1` to :cpp:func:`RunTest()`.
 
 The XML output files are written to the experiments `home` directory with naming
@@ -99,7 +99,7 @@ and history log of each test case and test suite.
 The format reference that the IUTF uses is described in the section
 :ref:`junit_reference`.
 
-If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
 and counted for JUNIT as `skipped`.
 
 Test Anything Protocol Output
@@ -135,7 +135,7 @@ beginning of the directive message.
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
   keyword is not executed and reported always as 'ok'.
 
-If the function tag ``// UTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
 and evaluated for TAP the same as if ``// TAPDirective: SKIP`` was set.
 
 Examples:
@@ -193,7 +193,7 @@ See also :ref:`example6`.
 Running in an Independent Module
 --------------------------------
 
-The unit-testing framework can be run itself in an independent module.
+The universal testing framework can be run itself in an independent module.
 This can be required in very rare cases when the `ProcGlobal` procedures
 might not always be compiled.
 
@@ -202,7 +202,7 @@ See also :ref:`example9`.
 Handling of Abort Code
 ----------------------
 
-The unit-testing framework continues with the next test case after catching
+The universal testing framework continues with the next test case after catching
 `Abort` and logs the abort code. Currently differentiation of different abort
 conditions include manual user aborts, stack overflow and an encountered
 `Abort` in the code. The framework is terminated when manually pressing the
@@ -225,34 +225,34 @@ command prompt and continue after a background task has finished. A real world
 use case is for example a testing code that runs data acquisition in a
 background task and the test case should continue after the acquisition finished.
 
-The unit-testing framework supports such cases with a feature that allows to
+The universal testing framework supports such cases with a feature that allows to
 register one or more background tasks that should be monitored. A procedure name
 can be given that is called when the monitored background tasks finish. After the
 current test case procedure finishes the framework will return to Igors command
 prompt. This allows the users background task(s) to do its job. After the
 task(s) finish the framework continues the test case with the registered procedure.
 
-The registration is done by calling :cpp:func:`RegisterUTFMonitor()` from a
+The registration is done by calling :cpp:func:`RegisterIUTFMonitor()` from a
 test case or a BEGIN hook. The registration allows to give a list of
 background tasks that should be monitored. The mode parameter sets if all or one
 task has to finish to continue test execution. Optional a timeout can be set
 after the test continues independently of the user task(s) state.
 
-See also :ref:`flags_UTFBackgroundMonModes`.
+See also :ref:`flags_IUTFBackgroundMonModes`.
 
-Function definition of RegisterUTFMonitor
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Function definition of RegisterIUTFMonitor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygenfunction:: RegisterUTFMonitor
+.. doxygenfunction:: RegisterIUTFMonitor
 
 The function that is registered to continue the test execution must have the
 same format as a test case function and the name has to end with `_REENTRY`.
-When the unit-testing framework temporary drops to Igors command line and resumes later
-no begin/end hooks are executed. Logically the unit-testing frame work stays in
-the same test case. It is allowed to register another monitoring in
-the `_REENTRY` function.
+When the universal testing framework temporary drops to Igors command line and
+resumes later no begin/end hooks are executed. Logically the universal testing
+frame work stays in the same test case. It is allowed to register another
+monitoring in the `_REENTRY` function.
 
-Multiple subsequent calls to :cpp:func:`RegisterUTFMonitor()` in the same
+Multiple subsequent calls to :cpp:func:`RegisterIUTFMonitor()` in the same
 function overwrite the previous registration.
 
 Test Cases with background activity are supported from multi data test cases, see
@@ -267,15 +267,15 @@ Test Cases with background activity are supported from multi data test cases, se
 Multi Data Test Cases
 ---------------------
 
-Often the same test should be run multiple times with different sets of data. The
-unit-testing framework offers direct support for such tests. Test cases that are
-run with multiple data take one optional argument. To the test case a data generator
-function is attributed that returns a wave. For each element of that wave the test
-case is run. This sketches a simple multi data test case:
+Often the same test should be run multiple times with different sets of data.
+The universal testing framework offers direct support for such tests. Test cases
+that are run with multiple data take one optional argument. To the test case a
+data generator function is attributed that returns a wave. For each element of
+that wave the test case is run. This sketches a simple multi data test case:
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR DataGeneratorFunction
+   // IUTF_TD_GENERATOR DataGeneratorFunction
    Function myTestCase([arg])
      variable arg
      // add checks here
@@ -287,7 +287,7 @@ case is run. This sketches a simple multi data test case:
    End
 
 To the test case `myTestCase` a data generator function name is attributed with the
-comment line above following the tag word `UTF_TD_GENERATOR`.
+comment line above following the tag word `IUTF_TD_GENERATOR`.
 All lines above :code:`Function` up to the previous :code:`Function` are considered
 as tags with every tag in separate line.
 If the data generator function is not found in the current procedure file it is searched
@@ -298,7 +298,7 @@ files if such specified function is not found.
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR GeneratorModule#DataGeneratorFunction
+   // IUTF_TD_GENERATOR GeneratorModule#DataGeneratorFunction
 
 The data generator `DataGeneratorFunction` returns a wave of numeric type and the
 test case takes one optional argument of numeric type. When run `myTestCase` is
@@ -309,7 +309,7 @@ references and wave references. The type of the returned wave of the attributed
 data generator function must fit to the argument type that the multi data test
 case takes.
 The data generator function name must be attributed with a comment within four
-lines above the test cases Function line. The key word is `UTF_TD_GENERATOR` with
+lines above the test cases Function line. The key word is `IUTF_TD_GENERATOR` with
 the data generators function name following as seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit
 to the wave type then a error message is printed and the test run is aborted.
@@ -359,18 +359,18 @@ different formats:
 For the second case, the reentry function is called with the same wave element as argument as
 when the multi data test case was started.
 
-If the reentry function uses a different argument type than the test case entry function
-then on reentry to the unit-testing framework an error is printed and further
-test execution is aborted.
+If the reentry function uses a different argument type than the test case entry
+function then on reentry to the universal testing framework an error is printed
+and further test execution is aborted.
 
 .. code-block:: igor
 
-   // UTF_TD_GENERATOR DataGeneratorFunction
+   // IUTF_TD_GENERATOR DataGeneratorFunction
    Function myTestCase([var])
      variable var
 
      CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-     RegisterUTFMonitor("testtask", 1, "testCase_REENTRY")
+     RegisterIUTFMonitor("testtask", 1, "testCase_REENTRY")
      CHECK(var == 1 || var == 5)
    End
 
@@ -421,11 +421,11 @@ Multi-Multi-Data test cases are an extension of multi-data test cases. They allo
 	   return data
    End
 
-   // UTF_TD_GENERATOR v0:GeneratorVar
-   // UTF_TD_GENERATOR s2:GeneratorStr
-   // UTF_TD_GENERATOR v1:GeneratorVar
-   // UTF_TD_GENERATOR v2:GeneratorVar
-   // UTF_TD_GENERATOR v3:GeneratorVar
+   // IUTF_TD_GENERATOR v0:GeneratorVar
+   // IUTF_TD_GENERATOR s2:GeneratorStr
+   // IUTF_TD_GENERATOR v1:GeneratorVar
+   // IUTF_TD_GENERATOR v2:GeneratorVar
+   // IUTF_TD_GENERATOR v3:GeneratorVar
    static Function TC_MMD_Part1([md])
 	   STRUCT IUTF_mData &md
 
@@ -436,7 +436,7 @@ Multi-Multi-Data test cases are an extension of multi-data test cases. They allo
 
 The basic functionality works the same as for the regular multi-data test cases.
 In Multi-Multi-Data test cases the changing variables are elements of the structure ``IUTF_mData``. Each variable can have a data generator function set with the
-``UTF_TD_GENERATOR`` directive. The tag syntax is ``varName:DataGeneratorName``. The test case is called for all permutations of setup data generators values of all variables.
+``IUTF_TD_GENERATOR`` directive. The tag syntax is ``varName:DataGeneratorName``. The test case is called for all permutations of setup data generators values of all variables.
 In the upper example these are 32 test case calls. The structure defines the following variables:
 
 .. code-block:: igor
@@ -489,9 +489,10 @@ signature.
 Code Coverage Determination
 ---------------------------
 
-When running Igor Pro 9 or newer the Igor Unit testing Framework offers the feature to obtain code coverage
-information. When enabled the IUTF adds to functions in target procedure files code to track execution.
-At the end of the test run the IUTF outputs files in HTML format with coverage information.
+When running Igor Pro 9 or newer the Igor Pro Universal Testing Framework offers
+the feature to obtain code coverage information. When enabled the IUTF adds to
+functions in target procedure files code to track execution. At the end of the
+test run the IUTF outputs files in HTML format with coverage information.
 
 This feature is enabled when the optional parameter ``traceWinList`` is set and non-empty when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
@@ -518,10 +519,10 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 
 * ``UTF_KEY_REGEXP`` (``REGEXP:boolean``) When set the parameter ``traceWinList`` is parsed as a regular expression for all procedure window names.
 * ``UTF_KEY_HTMLCREATION`` (``HTMLCREATION:boolean``) When set to zero no HTML files are created after the test run.
-  HTML files can be created by calling ``UTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
+  HTML files can be created by calling ``IUTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
 
-Additionally function and macros can be excluded from instrumentation by adding the special comment ``// UTF_NOINSTRUMENTATION`` before the first line of the function.
+Additionally function and macros can be excluded from instrumentation by adding the special comment ``// IUTF_NOINSTRUMENTATION`` before the first line of the function.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
@@ -529,7 +530,7 @@ For static functions that exist in a given procedure file without ModuleName a w
 appear in the coverage result file with zero executions.
 
 Instrumented code runs roughly 30% slower. In special cases a stronger slowdown can occur. In such cases it should be considered to exclude
-very often called functions from the instrumentation with the special comment ``// UTF_NOINSTRUMENTATION`` as described above.
+very often called functions from the instrumentation with the special comment ``// IUTF_NOINSTRUMENTATION`` as described above.
 
 Coverage logging also works for threadsafe functions and functions that are executed in preemptive threads.
 
@@ -561,13 +562,15 @@ sorted for. Currently supported are ``UTF_ANALYTICS_CALLS`` (default) to sort fo
 ``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` can not
 combined with the mode ``UTF_ANALYTICS_LINES``.
 
-The data is also available as a global wave in ``root:Packages:UnitTesting:TracingAnalyticResult``.
+The data is also available as a global wave in ``root:Packages:igortest:TracingAnalyticResult``.
 
 Limitations
 ^^^^^^^^^^^
 
-The function that calls RunTest with tracing enabled must return to the Igor Pro command line afterwards to allow recompilation of the instrumented code.
-It is not allowed to have another RunTest call in between. The unit testing framework will abort with an error in that case.
+The function that calls RunTest with tracing enabled must return to the Igor Pro
+command line afterwards to allow recompilation of the instrumented code. It is
+not allowed to have another RunTest call in between. The Igor Pro Universal
+Testing Framework will abort with an error in that case.
 
 If the full autorun feature is enabled through ``DO_AUTORUN.TXT`` the RunTest call with instrumentation must be the only call in the experiment.
 Specifically, if a RunTest call without tracing is placed before then the RunTest call with tracing will not execute tests.

@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example3
 
-#include "unit-testing"
+#include "igortest"
 
 // WARN_* does not increment the error count
 Function WarnTest()

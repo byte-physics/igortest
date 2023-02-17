@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma ModuleName=Example5
 
-#include "unit-testing"
+#include "igortest"
 
 static Function TEST_CASE_BEGIN_OVERRIDE(name)
 	string name

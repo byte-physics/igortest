@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors=1
 #pragma version=1.09
-#pragma ModuleName=UTF_Tracing
+#pragma ModuleName=IUTF_Tracing
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
@@ -28,7 +28,7 @@ static Function SetupTracing(string procWinList, string traceOptions)
 	variable/G dfr:enableTracingAfterCompileHook = 1
 
 	instrumentOnly = NumberByKey(UTF_KEY_INSTRUMENTATIONONLY, traceOptions)
-	variable/G dfr:instrumentOnly = UTF_Utils#IsNaN(instrumentOnly) ? 0 : instrumentOnly
+	variable/G dfr:instrumentOnly = IUTF_Utils#IsNaN(instrumentOnly) ? 0 : instrumentOnly
 
 	print "Recompiling..."
 	CompileAndRestart()
@@ -135,7 +135,7 @@ static Function AllCompiled()
 		procWin = StringFromList(i, procWinList)
 		funcName = GetTaggedFunctionName(procWin)
 		funcList = FunctionList(funcName, ";", "WIN:" + procWin)
-		if(UTF_Utils#IsEmpty(funcList))
+		if(IUTF_Utils#IsEmpty(funcList))
 			return 0
 		endif
 	endfor
@@ -156,14 +156,14 @@ static Function/S PreCheckProcedures(string procWinList)
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
 		infoStr = FunctionInfo(GetTaggedFunctionName(procWin), procWin)
-		if(!UTF_Utils#IsEmpty(infoStr))
+		if(!IUTF_Utils#IsEmpty(infoStr))
 			sprintf msg, "Tag function for procedure file %s is already present. (Is the procedure already instrumented?)", procWin
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		WAVE/T wProcText = ListToTextWave(ProcedureText("", NaN, procWin), "\r")
 		if(DimSize(wProcText, UTF_ROW) >= UTF_MAX_PROC_LINES)
 			sprintf msg, "Procedure file %s has too many lines. (Current limit %d)", procWin, UTF_MAX_PROC_LINES
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 		if(CmpStr(procWin, reservedProcWin))
 			outList = AddListItem(procWin, outList, ";", Inf)
@@ -179,7 +179,7 @@ static Function/WAVE GetTracedProcedureInfos()
 	WAVE/T/Z wv = dfr:$GLOBAL_PROCINFO
 
 	if(!WaveExists(wv))
-		UTF_Reporting#ReportErrorAndAbort("Bug: Cannot find stored procedure info. Did you execute tracing setup before?")
+		IUTF_Reporting#ReportErrorAndAbort("Bug: Cannot find stored procedure info. Did you execute tracing setup before?")
 	endif
 
 	return wv
@@ -189,7 +189,7 @@ End
 threadsafe static Function/WAVE GetTracedProcedureNames()
 	TUFXOP_GetStorage/N="IUTF_Traced_ProcedureNames" wvStorage
 	if(V_flag)
-		UTF_Reporting#UTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
+		IUTF_Reporting#IUTF_PrintStatusMessage("Error: Cannot get IUTF_Traced_ProcedureNames storage for traced procedure names")
 		Make/FREE=1/T/N=0 empty
 		return empty
 	endif
@@ -207,14 +207,14 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	iProcList = ""
 
 	enableRegExp = NumberByKey(UTF_KEY_REGEXP, traceOptions)
-	enableRegExp = UTF_Utils#IsNaN(enableRegExp) ? 0 : enableRegExp
+	enableRegExp = IUTF_Utils#IsNaN(enableRegExp) ? 0 : enableRegExp
 
-	procWinList = UTF_Basics#AdaptProcWinList(procWinList, enableRegExp)
-	procWinList = UTF_Basics#FindProcedures(procWinList, enableRegExp)
+	procWinList = IUTF_Basics#AdaptProcWinList(procWinList, enableRegExp)
+	procWinList = IUTF_Basics#FindProcedures(procWinList, enableRegExp)
 	procWinList = PreCheckProcedures(procWinList)
 	numProcs = ItemsInList(procWinList)
 
-	WAVE/T procTextGrid = UTF_Utils_TextGrid#Create("NAME;PATH;")
+	WAVE/T procTextGrid = IUTF_Utils_TextGrid#Create("NAME;PATH;")
 
 	Make/FREE/D/N=(UTF_MAX_PROC_LINES, numProcs) markLinesProc
 	InitFuncLocations(numProcs)
@@ -224,17 +224,17 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
 		[procText, funcPath, markLines] = AddTraceFunctions(procWin, i)
-		gridIndex = UTF_Utils_Vector#AddRow(procTextGrid)
+		gridIndex = IUTF_Utils_Vector#AddRow(procTextGrid)
 		procTextGrid[gridIndex][%NAME] = procWin
 		procTextGrid[gridIndex][%PATH] = funcPath
 
-		if(!UTF_Utils#IsEmpty(funcPath))
+		if(!IUTF_Utils#IsEmpty(funcPath))
 			markLinesProc[0, DimSize(markLines, UTF_ROW) - 1][i] = markLines[p]
 
 			Open/R/Z fNum as funcPath
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath
-				UTF_Reporting#ReportErrorAndAbort(msg)
+				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FStatus fNum
 			input = PadString("", V_logEOF, 0x20)
@@ -244,14 +244,14 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			Open/Z fNum as (funcPath + PROC_BACKUP_ENDING)
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath + PROC_BACKUP_ENDING
-				UTF_Reporting#ReportErrorAndAbort(msg)
+				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FBinWrite fnum, input
 			Close fNum
 
 			endL = GetLineEnding(input, defEndL = "\r")
 
-			output = UTF_Utils#TextWaveToList(procText, endL)
+			output = IUTF_Utils#TextWaveToList(procText, endL)
 
 			output += "Function " + GetTaggedFunctionName(procWin) + "()" + endL
 			output += "End" + endL
@@ -259,7 +259,7 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			Open/Z fNum as funcPath
 			if(V_flag)
 				sprintf msg, "Open failed for file %s.", funcPath
-				UTF_Reporting#ReportErrorAndAbort(msg)
+				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
 			FBinWrite fNum, output
 			Close fNum
@@ -268,12 +268,12 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 		endif
 	endfor
 
-	Save/O/M="\n"/J markLinesProc as (UTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME))
+	Save/O/M="\n"/J markLinesProc as (IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME))
 
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
 
-	UTF_Utils_Waves#RemoveDimLabel(procTextGrid, UTF_ROW, "CURRENT")
+	IUTF_Utils_Waves#RemoveDimLabel(procTextGrid, UTF_ROW, "CURRENT")
 	SetTracedProcedures(procTextGrid)
 End
 
@@ -295,7 +295,7 @@ static Function SetTracedProcedures(WAVE/T procTextGrid)
 	// Store the names only for threaded access
 
 	nameIndex = FindDimLabel(procTextGrid, UTF_COLUMN, "NAME")
-	size = UTF_Utils_Vector#GetLength(procTextGrid)
+	size = IUTF_Utils_Vector#GetLength(procTextGrid)
 	Duplicate/FREE/RMD=[0, size - 1][nameIndex] procTextGrid, names
 	Redimension/N=(-1) names
 	Note/K names, ""
@@ -303,12 +303,12 @@ static Function SetTracedProcedures(WAVE/T procTextGrid)
 	TUFXOP_Init/Q/Z/N="IUTF_Traced_ProcedureNames"
 	if(V_flag)
 		sprintf msg, "Cannot reserve shared wave for procedure names (error: %d)", V_flag
-		UTF_Reporting#ReportErrorAndAbort(msg)
+		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	TUFXOP_GetStorage/N="IUTF_Traced_ProcedureNames" wvStorage
 	if(V_flag)
 		sprintf msg, "Cannot open shared wave for procedure names (error: %d)", V_flag
-		UTF_Reporting#ReportErrorAndAbort(msg)
+		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	wvStorage[0] = names
 End
@@ -322,15 +322,15 @@ static Function/WAVE GetFunctionDeclarationList(string line)
 	b1 = strsearch(line, "(", 0)
 	if(b1 < 0)
 		sprintf msg, "Error parsing function declaration: %s.", line
-		UTF_Reporting#ReportErrorAndAbort(msg)
+		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	b2 = strsearch(line, ")", b1 + 1)
 	if(b2 < 0)
 		sprintf msg, "Error parsing function declaration: %s.", line
-		UTF_Reporting#ReportErrorAndAbort(msg)
+		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 	decPart = line[b1 + 1, b2 - 1]
-	if(UTF_Utils#IsEmpty(decPart))
+	if(IUTF_Utils#IsEmpty(decPart))
 		Make/FREE/T/N=0 wt
 		return wt
 	endif
@@ -435,7 +435,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	numLineStartZAfterKeys = DimSize(lineStartZAfterKeys, UTF_ROW)
 	numLineStartZReplaceKeys = DimSize(lineStartZReplaceKeys, UTF_ROW)
 
-	allProcWins = UTF_Basics#GetProcedureList()
+	allProcWins = IUTF_Basics#GetProcedureList()
 	if(WhichListItem(procWin, allProcWins) == -1)
 		sprintf errMsg, "Procedure window %s not found.", procWin
 		print errMsg
@@ -444,7 +444,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 	allMacrosList = MacroList("*", ";", "KIND:7,WIN:" + procWin)
 	funcList = FunctionList("*", ";", "KIND:18,WIN:" + procWin)
-	if(UTF_Utils#IsEmpty(funcList) && UTF_Utils#IsEmpty(allMacrosList))
+	if(IUTF_Utils#IsEmpty(funcList) && IUTF_Utils#IsEmpty(allMacrosList))
 		return [$"", "", $""]
 	endif
 
@@ -454,10 +454,10 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	Make/FREE/WAVE/N=(numMacros) macroTexts
 	macroTexts[] = ListToTextWave(ProcedureText(wMacroList[p], 0, procWin), "\r")
 	Make/FREE/D/N=(numMacros) macroExclusionFlag, macroIndexHelper
-	macroIndexHelper[] = UTF_FunctionTags#AddFunctionTagWave(wMacroList[p])
-	macroExclusionFlag[] = UTF_FunctionTags#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
+	macroIndexHelper[] = IUTF_FunctionTags#AddFunctionTagWave(wMacroList[p])
+	macroExclusionFlag[] = IUTF_FunctionTags#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
 	for(i = 0; i < numMacros; i += 1)
-		if(UTF_Utils#isEmpty(procedurePath))
+		if(IUTF_Utils#isEmpty(procedurePath))
 			procedurePath = MacroPath(wMacroList[i])
 			break
 		endif
@@ -470,24 +470,24 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	funcTexts[] = ListToTextWave(ProcedureText(wFuncList[p], 0, procWin), "\r")
 	Make/FREE/D/N=(numFunc) funcExclusionFlag
 	for(i = 0; i < numFunc; i += 1)
-		fullFuncName = UTF_Basics#getFullFunctionName(err, wFuncList[i], procWin)
+		fullFuncName = IUTF_Basics#getFullFunctionName(err, wFuncList[i], procWin)
 		if(err)
 			sprintf msg, "Unable to retrieve full function name for %s in procedure %s.", wFuncList[i], procWin
-			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			sprintf msg, "Is procedure file %s missing a #pragma ModuleName=<name> ?!?.", procWin
-			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			continue
 		endif
-		UTF_FunctionTags#AddFunctionTagWave(fullFuncName)
-		funcExclusionFlag[i] = UTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
-		if(UTF_Utils#isEmpty(procedurePath))
+		IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
+		funcExclusionFlag[i] = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
+		if(IUTF_Utils#isEmpty(procedurePath))
 			procedurePath = FunctionPath(fullFuncName)
 		endif
 	endfor
 
-	if(UTF_Utils#isEmpty(procedurePath))
+	if(IUTF_Utils#isEmpty(procedurePath))
 		sprintf msg, "Unable to retrieve path of procedure file %s as no macro or function could be resolved.", procWin
-		UTF_Reporting#ReportErrorAndAbort(msg)
+		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
 
 	Concatenate/FREE/NP/T {wMacroList}, wFuncList
@@ -539,7 +539,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 		funcLines = DimSize(wFuncText, UTF_ROW)
 		maxFuncLine = max(maxFuncLine, funcLines + funcLineStart[i])
 		for(j = 0; j < funcLines; j += 1)
-			if(UTF_Utils#IsEmpty(preLine))
+			if(IUTF_Utils#IsEmpty(preLine))
 				currFuncLineNum = j
 			endif
 			line = preLine + wFuncText[j]
@@ -563,9 +563,9 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 			line = CutLineComment(line)
 			line = TrimString(line, 1)
-			if(UTF_Utils#IsEmpty(line))
+			if(IUTF_Utils#IsEmpty(line))
 				sTmp = wFuncText[j]
-				if(UTF_Utils#IsEmpty(sTmp))
+				if(IUTF_Utils#IsEmpty(sTmp))
 					newProcCode += AddNoZ(origLines, lineCnt)
 				else
 					newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum)
@@ -630,7 +630,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 	// Add lines after last function
 	DeletePoints 0, maxFuncLine, wProcText
-	newProcCode += UTF_Utils#TextWaveToList(wProcText, "\r")
+	newProcCode += IUTF_Utils#TextWaveToList(wProcText, "\r")
 
 	return [ListToTextWave(newProcCode, "\r"), procedurePath, betweenLineHelper]
 End
@@ -662,7 +662,7 @@ Function/T ReplaceWithZ(string &origLines, variable currLineNum, variable &lineC
 	b1 = strsearch(tmpLine, "(", 0)
 	b2 = strsearch(tmpLine, ")", Inf, 1)
 	if(b1 == -1 || b2 == -1)
-		UTF_Reporting#ReportErrorAndAbort("Failed to parse condition; " + origLines)
+		IUTF_Reporting#ReportErrorAndAbort("Failed to parse condition; " + origLines)
 	endif
 
 	cmd = tmpLine[0, b1 - 1]
@@ -825,11 +825,11 @@ static Function/S GetLineEnding(string line[, string defEndL])
 	string endL = ""
 	variable len, i, c, e
 
-	if(UTF_Utils#IsEmpty(line))
+	if(IUTF_Utils#IsEmpty(line))
 		if(!ParamIsDefault(defEndL))
 			return defEndl
 		endif
-		UTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
+		IUTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
 	endif
 
 	len = strlen(line)
@@ -845,11 +845,11 @@ static Function/S GetLineEnding(string line[, string defEndL])
 		endif
 	endfor
 
-	if(UTF_Utils#IsEmpty(line))
+	if(IUTF_Utils#IsEmpty(line))
 		if(!ParamIsDefault(defEndL))
 			return defEndl
 		endif
-		UTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
+		IUTF_Reporting#ReportErrorAndAbort("Can not determine line ending.")
 	endif
 
 	return endL
@@ -864,11 +864,11 @@ static Function AnalyzeTracingResult()
 	variable colR, colG, colB
 	string msg, instruDataPath
 
-	UTF_Reporting#UTF_PrintStatusMessage("Generating coverage output.")
+	IUTF_Reporting#IUTF_PrintStatusMessage("Generating coverage output.")
 
 	TUFXOP_GetStorage/N="IUTF_Testrun" wrefMain
 	if(V_flag)
-		UTF_Reporting#ReportErrorAndAbort("No gathered tracing data found for code coverage analysis.")
+		IUTF_Reporting#ReportErrorAndAbort("No gathered tracing data found for code coverage analysis.")
 	endif
 	numThreads = NumberByKey("Index", note(wrefMain))
 
@@ -882,20 +882,20 @@ static Function AnalyzeTracingResult()
 		MultiThread logdata += logdataThread[p][q][r]
 	endfor
 
-	instruDataPath = UTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME)
+	instruDataPath = IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME)
 	GetFileFolderInfo/Z/Q instruDataPath
 	if(V_flag || !V_IsFile)
-		UTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
+		IUTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
 	endif
 
 	LoadWave/J/K=1/O/Q/M/N=iutf_instrumented_data instruDataPath
 	if(V_flag != 1)
-		UTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
+		IUTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
 	endif
 	wName = StringFromList(0, S_waveNames)
 	WAVE instrData = $wName
 	if(DimSize(instrData, UTF_ROW) != UTF_MAX_PROC_LINES || DimSize(instrData, UTF_COLUMN) != numProcs)
-		UTF_Reporting#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
+		IUTF_Reporting#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
 	endif
 
 	tabReplace = ""
@@ -910,12 +910,12 @@ static Function AnalyzeTracingResult()
 		printf "."
 		procWin = procNames[i]
 		funcList = FunctionList("*", ";", "KIND:18,WIN:" + procWin)
-		if(UTF_Utils#IsEmpty(funcList))
+		if(IUTF_Utils#IsEmpty(funcList))
 			continue
 		endif
-		fullFuncName = UTF_Basics#getFullFunctionName(err, StringFromList(0, funcList), procWin)
+		fullFuncName = IUTF_Basics#getFullFunctionName(err, StringFromList(0, funcList), procWin)
 		if(err)
-			UTF_Reporting#ReportErrorAndAbort("Unable to retrieve full function name.")
+			IUTF_Reporting#ReportErrorAndAbort("Unable to retrieve full function name.")
 		endif
 		funcPath = FunctionPath(fullFuncName) + PROC_BACKUP_ENDING
 
@@ -923,7 +923,7 @@ static Function AnalyzeTracingResult()
 		Open/R/Z fNum as funcPath
 		if(V_flag)
 			sprintf msg, "Open failed for file %s.", funcPath
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 		do
@@ -953,7 +953,7 @@ static Function AnalyzeTracingResult()
 		for(j = 0; j < numProcLines; j += 1)
 
 			procLine = ReplaceString("\t", wProcText[j], tabReplace)
-			countProcLine = !UTF_Utils#IsEmpty(procLine)
+			countProcLine = !IUTF_Utils#IsEmpty(procLine)
 
 			execC = logData[j][0][i]
 			nobranchC = logData[j][1][i]
@@ -988,15 +988,15 @@ static Function AnalyzeTracingResult()
 			Notebook NBTracedData selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(0 * 0xff, 32  * 0xff, 128  * 0xff)
 		endfor
 		fName = procWin[0, strlen(procWin) - 5] + ".htm"
-		SaveNotebook/O/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as (UTF_Utils_Paths#AtHome(fName))
+		SaveNotebook/O/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as (IUTF_Utils_Paths#AtHome(fName))
 	endfor
 
 	MatrixOP/FREE statLines = sum(col(statistics, STAT_LINES))
 	MatrixOP/FREE statCovered = sum(col(statistics, STAT_COVERED))
 	sprintf statOut, "Code lines: %d\rLines covered : %d\rCoverage: %.1f%%\r", statLines[0], statCovered[0], statCovered[0] * 100 / statLines[0]
 
-	UTF_Reporting#UTF_PrintStatusMessage("Done.")
-	UTF_Reporting#UTF_PrintStatusMessage(statOut)
+	IUTF_Reporting#IUTF_PrintStatusMessage("Done.")
+	IUTF_Reporting#IUTF_PrintStatusMessage(statOut)
 End
 
 Function IUTF_RestoreTracing()
@@ -1004,28 +1004,28 @@ Function IUTF_RestoreTracing()
 	string path, backupPath, msg
 
 	WAVE/T wvProcs = GetTracedProcedureInfos()
-	size = UTF_Utils_Vector#GetLength(wvProcs)
+	size = IUTF_Utils_Vector#GetLength(wvProcs)
 
 	if(size == 0)
-		UTF_Reporting#UTF_PrintStatusMessage("Nothing to restore")
+		IUTF_Reporting#IUTF_PrintStatusMessage("Nothing to restore")
 		return NaN
 	endif
 
 	sprintf msg, "%d procedure files to restore", size
-	UTF_Reporting#UTF_PrintStatusMessage(msg)
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 
 	for(i = 0; i < size; i += 1)
 		path = wvProcs[i][%PATH]
 		backupPath = path + PROC_BACKUP_ENDING
 
-		if(UTF_Utils#IsEmpty(path))
+		if(IUTF_Utils#IsEmpty(path))
 			// there was never a backup created
 			continue
 		endif
 
-		if(UTF_Utils_Paths#FileNotExists(backupPath))
+		if(IUTF_Utils_Paths#FileNotExists(backupPath))
 			sprintf msg, "Backup file not found: %s (%s)", backupPath, wvProcs[i][%NAME]
-			UTF_Reporting#UTF_PrintStatusMessage(msg)
+			IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 			continue
 		endif
 
@@ -1036,13 +1036,13 @@ Function IUTF_RestoreTracing()
 		endif
 
 		sprintf msg, "Backup restored for %s", path
-		UTF_Reporting#UTF_PrintStatusMessage(msg)
+		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endfor
 
-	WAVE/T procs = UTF_Utils_TextGrid#Create("NAME;PATH;")
+	WAVE/T procs = IUTF_Utils_TextGrid#Create("NAME;PATH;")
 	SetTracedProcedures(procs)
 
-	UTF_Reporting#UTF_PrintStatusMessage("Restoring procedure files from backup completed.")
+	IUTF_Reporting#IUTF_PrintStatusMessage("Restoring procedure files from backup completed.")
 	CompileAndRestart()
 End
 

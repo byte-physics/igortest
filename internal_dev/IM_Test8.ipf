@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 #pragma ModuleName=test8
-#include "unit-testing"
+#include "igortest"
 
 // Command: RunTest("example7-uncaught-aborts.ipf")
 // Showing the effect of uncaught aborts

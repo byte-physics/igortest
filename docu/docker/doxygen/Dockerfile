@@ -11,4 +11,4 @@ RUN DEBIAN_FRONTEND=noninteractive \
 	apt-get clean
 
 USER user
-WORKDIR /var/igor-unit-testing-framework/docu
+WORKDIR /var/igortest/docu

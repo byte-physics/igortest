@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=DoICompile
 
-#include "unit-testing"
+#include "igortest"
 
 Function PleaseCompile()
 

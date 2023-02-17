@@ -4,7 +4,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName=TracingZError
 
-#include "unit-testing"
+#include "igortest"
 
 static Function CorruptXOPDatabase()
 	TUFXOP_Clear/A/Z

@@ -23,11 +23,11 @@ Function CheckForWarningInHistory()
 	CHECK_EQUAL_VAR(1, V_flag)
 End
 
-// the following two test are used to check if UTF can store very long full function names and
+// the following two test are used to check if IUTF can store very long full function names and
 // distinguish them. In the end both should be executed successfully.
 
 #if (IgorVersion() >= 8.00)
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIgor8_ThisIsTheFirstOneOfThem_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRST1()
 	CHECK(0)
 End
@@ -36,7 +36,7 @@ Function VeryLongFunctionNameThatWillDefinitelyExceedThe255CharacterLimitSinceIg
 	CHECK(1)
 End
 #else
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 Function VeryLongFunctionNameThatWill1()
 	CHECK(0)
 End
@@ -51,10 +51,10 @@ End
 Function CheckTAPTags()
 	string value, expected
 
-	variable index = UTF_FunctionTags#GetFunctionTagRef("CheckTAPTags")
+	variable index = IUTF_FunctionTags#GetFunctionTagRef("CheckTAPTags")
 	INFO("Search result of the function name")
 	CHECK_GE_VAR(index, 0)
-	WAVE/WAVE ftags = UTF_FunctionTags#GetFunctionTagWaves()
+	WAVE/WAVE ftags = IUTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/T tags = ftags[index]
 
 	expected = "TODO just a valid directive"
@@ -81,7 +81,7 @@ Function GetWavePointerWorks()
 
 	Make/FREE content
 
-	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	pointer = str2num(IUTF_Utils#GetWavePointer(content))
 	CHECK_GT_VAR(pointer, 0)
 
 	Make/N=(inf) data
@@ -89,7 +89,7 @@ Function GetWavePointerWorks()
 	// check that lingering RTE's are not changed
 	err = GetRTError(0)
 	CHECK_GT_VAR(err, 0)
-	pointer = str2num(UTF_Utils#GetWavePointer(content))
+	pointer = str2num(IUTF_Utils#GetWavePointer(content))
 	CHECK_EQUAL_VAR(err, GetRTError(0))
 
 	// clear RTE to make the testing framework happy
@@ -139,7 +139,7 @@ static Function/WAVE GeneratorSC()
 	return data
 End
 
-// UTF_TD_GENERATOR GeneratorSC
+// IUTF_TD_GENERATOR GeneratorSC
 static Function TestDGenSingleCall_A([var])
 	variable var
 
@@ -176,11 +176,11 @@ Function/WAVE GeneratorZeroSize()
 	return data
 End
 
-// UTF_TD_GENERATOR v0:GeneratorVar
-// UTF_TD_GENERATOR v1:GeneratorVar
-// UTF_TD_GENERATOR v2:GeneratorVar
-// UTF_TD_GENERATOR v3:GeneratorVar
-// UTF_TD_GENERATOR v4:GeneratorVar
+// IUTF_TD_GENERATOR v0:GeneratorVar
+// IUTF_TD_GENERATOR v1:GeneratorVar
+// IUTF_TD_GENERATOR v2:GeneratorVar
+// IUTF_TD_GENERATOR v3:GeneratorVar
+// IUTF_TD_GENERATOR v4:GeneratorVar
 static Function TC_MMD_Part1([md])
 	STRUCT IUTF_mData &md
 
@@ -220,7 +220,7 @@ static Function TC_MMD_Part2()
 	PASS()
 End
 
-// UTF_TD_GENERATOR s0:GeneratorStr
+// IUTF_TD_GENERATOR s0:GeneratorStr
 static Function TC_MMD_InitValues([md])
 	STRUCT IUTF_mData &md
 
@@ -238,14 +238,14 @@ static Function TC_MMD_InitValues([md])
 
 End
 
-// UTF_TD_GENERATOR v0:GeneratorZeroSize
+// IUTF_TD_GENERATOR v0:GeneratorZeroSize
 static Function TC_MMD_ZeroSize([md])
 	STRUCT IUTF_mData &md
 
 	FAIL()
 End
 
-// UTF_TD_GENERATOR GeneratorZeroSize
+// IUTF_TD_GENERATOR GeneratorZeroSize
 static Function TC_MD_ZeroSize([val])
 	variable val
 
@@ -288,31 +288,31 @@ static Function/WAVE GeneratorDFR()
 	return wv
 End
 
-// UTF_TD_GENERATOR v0:GeneratorV
-// UTF_TD_GENERATOR v1:GeneratorV
-// UTF_TD_GENERATOR v2:GeneratorV
-// UTF_TD_GENERATOR v3:GeneratorV
-// UTF_TD_GENERATOR v4:GeneratorV
-// UTF_TD_GENERATOR s0:GeneratorS
-// UTF_TD_GENERATOR s1:GeneratorS
-// UTF_TD_GENERATOR s2:GeneratorS
-// UTF_TD_GENERATOR s3:GeneratorS
-// UTF_TD_GENERATOR s4:GeneratorS
-// UTF_TD_GENERATOR c0:GeneratorC
-// UTF_TD_GENERATOR c1:GeneratorC
-// UTF_TD_GENERATOR c2:GeneratorC
-// UTF_TD_GENERATOR c3:GeneratorC
-// UTF_TD_GENERATOR c4:GeneratorC
-// UTF_TD_GENERATOR w0:GeneratorW
-// UTF_TD_GENERATOR w1:GeneratorW
-// UTF_TD_GENERATOR w2:GeneratorW
-// UTF_TD_GENERATOR w3:GeneratorW
-// UTF_TD_GENERATOR w4:GeneratorW
-// UTF_TD_GENERATOR dfr0:GeneratorDFR
-// UTF_TD_GENERATOR dfr1:GeneratorDFR
-// UTF_TD_GENERATOR dfr2:GeneratorDFR
-// UTF_TD_GENERATOR dfr3:GeneratorDFR
-// UTF_TD_GENERATOR dfr4:GeneratorDFR
+// IUTF_TD_GENERATOR v0:GeneratorV
+// IUTF_TD_GENERATOR v1:GeneratorV
+// IUTF_TD_GENERATOR v2:GeneratorV
+// IUTF_TD_GENERATOR v3:GeneratorV
+// IUTF_TD_GENERATOR v4:GeneratorV
+// IUTF_TD_GENERATOR s0:GeneratorS
+// IUTF_TD_GENERATOR s1:GeneratorS
+// IUTF_TD_GENERATOR s2:GeneratorS
+// IUTF_TD_GENERATOR s3:GeneratorS
+// IUTF_TD_GENERATOR s4:GeneratorS
+// IUTF_TD_GENERATOR c0:GeneratorC
+// IUTF_TD_GENERATOR c1:GeneratorC
+// IUTF_TD_GENERATOR c2:GeneratorC
+// IUTF_TD_GENERATOR c3:GeneratorC
+// IUTF_TD_GENERATOR c4:GeneratorC
+// IUTF_TD_GENERATOR w0:GeneratorW
+// IUTF_TD_GENERATOR w1:GeneratorW
+// IUTF_TD_GENERATOR w2:GeneratorW
+// IUTF_TD_GENERATOR w3:GeneratorW
+// IUTF_TD_GENERATOR w4:GeneratorW
+// IUTF_TD_GENERATOR dfr0:GeneratorDFR
+// IUTF_TD_GENERATOR dfr1:GeneratorDFR
+// IUTF_TD_GENERATOR dfr2:GeneratorDFR
+// IUTF_TD_GENERATOR dfr3:GeneratorDFR
+// IUTF_TD_GENERATOR dfr4:GeneratorDFR
 static Function TC_MMD_Types([md])
 	STRUCT IUTF_mData &md
 
@@ -373,12 +373,12 @@ Function/WAVE DataGeneratorFunction()
 	return data
 End
 
-// UTF_TD_GENERATOR DataGeneratorFunction
+// IUTF_TD_GENERATOR DataGeneratorFunction
 Function TC_MD_bck([var])
 	variable var
 
 	CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TC_MD_bck_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TC_MD_bck_REENTRY")
 	CHECK(var == 1 || var == 5)
 End
 
@@ -389,12 +389,12 @@ Function TC_MD_bck_REENTRY([var])
 	PASS()
 End
 
-// UTF_TD_GENERATOR v0:DataGeneratorFunction
+// IUTF_TD_GENERATOR v0:DataGeneratorFunction
 Function TC_MMD_bck([md])
 	STRUCT IUTF_mData &md
 
 	CtrlNamedBackGround testtask, proc=UserTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TC_MMD_bck_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TC_MMD_bck_REENTRY")
 	CHECK(md.v0 == 1 || md.v0 == 5)
 End
 
@@ -432,10 +432,10 @@ Function TC_UTILS_GNSFN_Check_IGNORE(expect32, expect64, num)
 
 	string str
 
-	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
 	REQUIRE_EQUAL_STR(expect32, str)
 
-	str = UTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
 	REQUIRE_EQUAL_STR(expect64, str)
 End
 
@@ -482,11 +482,11 @@ static Function TC_StringDiff()
 
 	// Escaping
 #if (IgorVersion() >= 7.00)
-	res = UTF_UTILS#EscapeString("a\000\n\r\t\007")
+	res = IUTF_UTILS#EscapeString("a\000\n\r\t\007")
 	expected = " a <NUL> <LF> <CR> <TAB> <0x07>"
 #else
 	// Igor 6 is handling \000 as string termination
-	res = UTF_UTILS#EscapeString("a\n\r\t\007")
+	res = IUTF_UTILS#EscapeString("a\n\r\t\007")
 	expected = " a <LF> <CR> <TAB> <0x07>"
 #endif
 	CHECK_EQUAL_STR(expected, res)
@@ -514,9 +514,9 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 
 	// forward check
 	if(ParamIsDefault(case_sensitive))
-		UTF_UTILS#DiffString(str1, str2, result)
+		IUTF_UTILS#DiffString(str1, str2, result)
 	else
-		UTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out1, str)
@@ -525,9 +525,9 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 
 	// backward check (switched arguments)
 	if(ParamIsDefault(case_sensitive))
-		UTF_UTILS#DiffString(str2, str1, result)
+		IUTF_UTILS#DiffString(str2, str1, result)
 	else
-		UTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out2, str)
@@ -566,7 +566,7 @@ static Function TC_WaveMajorTypeString_Check(expected, type)
 
 	string str
 
-	str = UTF_Checks#GetWaveMajorTypeString(type)
+	str = IUTF_Checks#GetWaveMajorTypeString(type)
 	CHECK_EQUAL_STR(expected, str)
 End
 
@@ -609,11 +609,11 @@ static Function TC_WaveMinorTypeString_Check(expected, type)
 
 	string str
 
-	str = UTF_Checks#GetWaveMinorTypeString(type)
+	str = IUTF_Checks#GetWaveMinorTypeString(type)
 	CHECK_EQUAL_STR(expected, str)
 End
 
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 static Function TC_BreaksHard()
 
 	Make/FREE/T wv1 = {"a"}
@@ -627,23 +627,23 @@ static Function TC_WaveName()
 
 	dfr = GetDataFolder(1)
 
-	str = UTF_Utils#GetWaveNameInDFStr($"")
+	str = IUTF_Utils#GetWaveNameInDFStr($"")
 	expect = "_null_"
 	CHECK_EQUAL_STR(expect, str)
 
 	Make namedDFWave
-	str = UTF_Utils#GetWaveNameInDFStr(namedDFWave)
+	str = IUTF_Utils#GetWaveNameInDFStr(namedDFWave)
 	expect = "namedDFWave in " + dfr
 	CHECK_EQUAL_STR(expect, str)
 
 	Make/FREE unnamedFreeWave
-	str = UTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
+	str = IUTF_UTILS#GetWaveNameInDFStr(unnamedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
 	CHECK(GrepString(str, "^_free_ \\(0x[0-9a-f]+\\)$"))
 
 #if IgorVersion() >= 9.0
 	Make/FREE=1 namedFreeWave
-	str = UTF_Utils#GetWaveNameInDFStr(namedFreeWave)
+	str = IUTF_Utils#GetWaveNameInDFStr(namedFreeWave)
 	INFO("name: \"%s\"", s1 = str)
 	CHECK(GrepString(str, "^namedFreeWave \\(0x[0-9a-f]+\\)$"))
 #endif
@@ -655,19 +655,19 @@ static Function TC_VectorCapacity()
 
 	INFO("test small waves")
 	Make/FREE/N=50 wv
-	UTF_Utils_Vector#EnsureCapacity(wv, 100)
+	IUTF_Utils_Vector#EnsureCapacity(wv, 100)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE, size)
 
 	INFO("test small increment")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE * 2) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 2)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 2)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 4, size)
 
 	INFO("test big jump")
 	MAKE/FREE/N=(IUTF_WAVECHUNK_SIZE) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_WAVECHUNK_SIZE * 16 - 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_WAVECHUNK_SIZE * 16, size)
 
@@ -675,7 +675,7 @@ static Function TC_VectorCapacity()
 	// I am sorry for breaking your test setup
 	INFO("test heavy load")
 	MAKE/FREE/N=(IUTF_BIGWAVECHUNK_SIZE) wv
-	UTF_Utils_Vector#EnsureCapacity(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
+	IUTF_Utils_Vector#EnsureCapacity(wv, IUTF_BIGWAVECHUNK_SIZE * 2 + 1)
 	size = DimSize(wv, UTF_ROW)
 	CHECK_EQUAL_VAR(IUTF_BIGWAVECHUNK_SIZE * 3, size)
 #endif // IGOR64

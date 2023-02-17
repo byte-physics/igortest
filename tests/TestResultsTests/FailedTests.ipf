@@ -4,10 +4,10 @@
 #pragma version=1.09
 #pragma ModuleName = TS_FailedTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with failed tests
+// These are tests that check ifI IUTF works correctly with failed tests
 
 static Function StatusFail()
 	CHECK(0)
@@ -104,7 +104,7 @@ static Function MultipleAssertions_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
-// UTF_EXPECTED_FAILURE
+// IUTF_EXPECTED_FAILURE
 static Function EmptyExpected()
 	PASS()
 End

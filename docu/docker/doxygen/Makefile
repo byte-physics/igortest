@@ -1,7 +1,7 @@
 NAME      := byte-physics/igor-utf-docu-doxygen
 LATEST    := ${NAME}:latest
 TOP_LEVEL := $$(git rev-parse --show-toplevel)
-LINKDIR   := -v ${TOP_LEVEL}:/var/igor-unit-testing-framework
+LINKDIR   := -v ${TOP_LEVEL}:/var/igortest
 
 default: build-docker
 
@@ -19,7 +19,7 @@ requirements: build-docker
 		git --version'
 
 doxygen: requirements
-	docker run -t --rm ${LINKDIR} ${LATEST} /var/igor-unit-testing-framework/docu/scripts/docu-doxygen.sh
+	docker run -t --rm ${LINKDIR} ${LATEST} /var/igortest/docu/scripts/docu-doxygen.sh
 
 links:
 	@stat "${TOP_LEVEL}/docu/doxygen/html/index.html"

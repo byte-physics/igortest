@@ -3,7 +3,7 @@
 #pragma rtGlobals=3
 #pragma IndependentModule=Example9
 
-#include "unit-testing"
+#include "igortest"
 
 Function TestMe()
 

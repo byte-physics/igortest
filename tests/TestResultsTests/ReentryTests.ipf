@@ -4,10 +4,10 @@
 #pragma version=1.09
 #pragma ModuleName = TS_ReentryTests
 
-#include "unit-testing"
+#include "igortest"
 #include "TestUtils"
 
-// These are tests that check if UTF works correctly with re-entry tests
+// These are tests that check if IUTF works correctly with re-entry tests
 
 // a simple background task that directly exists after its first run
 static Function ReEntryTask(s)
@@ -21,7 +21,7 @@ End
 static Function CheckBackgroundTask()
 	PASS()
 	CtrlNamedBackground testtask, proc=TS_ReentryTests#ReEntryTask, period=1, start
-	RegisterUTFMonitor("testtask", 1, "TS_ReentryTests#CheckBackgroundTask_REENTRY")
+	RegisterIUTFMonitor("testtask", 1, "TS_ReentryTests#CheckBackgroundTask_REENTRY")
 End
 
 static Function CheckBackgroundTask_REENTRY()

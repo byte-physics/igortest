@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_Checks
+#pragma ModuleName=IUTF_Checks
 
 
 /// @cond HIDDEN_SYMBOL
@@ -235,7 +235,7 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 	if(!result)
 		switch(mode)
 			case WAVE_DATA:
-				waveDataMsg = UTF_Utils#DetermineWaveDataDifference(wv1, wv2, tol)
+				waveDataMsg = IUTF_Utils#DetermineWaveDataDifference(wv1, wv2, tol)
 			case WAVE_DATA_TYPE:
 			case WAVE_SCALING:
 			case DATA_UNITS:
@@ -264,7 +264,7 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 		endswitch
 
 		detailedMsg = waveDataMsg
-		if(!UTF_Utils#IsEmpty(dimLabelMsg))
+		if(!IUTF_Utils#IsEmpty(dimLabelMsg))
 			detailedMsg += "\r" + dimLabelMsg
 		endif
 	else

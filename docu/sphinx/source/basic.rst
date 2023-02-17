@@ -6,18 +6,18 @@ Basic Structure
 ===============
 
 The interface design and naming is inspired by the `Boost Test Library
-<http://www.boost.org/libs/test>`__. Following this naming scheme, the unit
+<http://www.boost.org/libs/test>`__. Following this naming scheme, the universal
 testing package consists of three basic structural elements:
 
 - :ref:`Test Suites <TestSuite>`
 - :ref:`Test Cases <TestCase>`
 - :ref:`Assertions <AssertionTypes>`
 
-The basic building blocks of this unit testing framework are assertions.
-Assertions are used for checking if a condition is true. See
+The basic building blocks of this Igor Pro Universal Testing Framework are
+assertions. Assertions are used for checking if a condition is true. See
 :ref:`AssertionTypes` for a clarification of the difference between the three
-assertion types. Assertions are grouped into single test cases
-and test cases are organized in test suites.
+assertion types. Assertions are grouped into single test cases and test cases
+are organized in test suites.
 
 A :ref:`test suite <TestSuite>` is a group of test cases that live in a single
 procedure file. You can group multiple test suites in a named test environment
@@ -95,7 +95,7 @@ tags, every tag in separate line):
 
 .. code-block:: igor
 
-   // UTF_EXPECTED_FAILURE
+   // IUTF_EXPECTED_FAILURE
    Function TestCase_NotWorkingYet()
 
 All assertions in a test case are marked as expected failures. If the test case

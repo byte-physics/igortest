@@ -4,7 +4,7 @@
 #pragma version=1.09
 #pragma ModuleName=AbortingUserHooks
 
-#include "unit-testing"
+#include "igortest"
 
 Function run()
 	RunTest("aborting-user-hooks.ipf", allowDebug=0, enableJU=0, enableTAP=0)

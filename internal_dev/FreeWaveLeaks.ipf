@@ -4,7 +4,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName=FreeWaveLeaks
 
-#include "unit-testing"
+#include "igortest"
 
 static Function TestProduceWaveLeaks()
 	variable max = WaveMax(GiveMeWave_IGNORE())
@@ -12,7 +12,7 @@ static Function TestProduceWaveLeaks()
 	CHECK_EQUAL_VAR(2.0, max)
 End
 
-// UTF_NO_WAVE_TRACKING
+// IUTF_NO_WAVE_TRACKING
 static Function TestWaveLeaksIgnored()
 	variable max = WaveMax(GiveMeWave_IGNORE())
 

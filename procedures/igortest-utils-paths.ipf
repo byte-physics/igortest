@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_Utils_Paths
+#pragma ModuleName=IUTF_Utils_Paths
 
 ///@cond HIDDEN_SYMBOL
 
@@ -53,9 +53,9 @@ static Function/S AtHome(fileName, [unusedName])
 
 	if(unusedName)
 		result = getUnusedFileName(result)
-		if(UTF_Utils#IsEmpty(result))
+		if(IUTF_Utils#IsEmpty(result))
 			sprintf msg, "Cannot determine unused file for %s at home directory", fileName
-			UTF_Reporting#ReportErrorAndAbort(msg)
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 	endif
 

@@ -2,7 +2,7 @@
 #pragma rtFunctionErrors=1
 #pragma version=1.09
 #pragma TextEncoding="UTF-8"
-#pragma ModuleName=UTF_Wrapper
+#pragma ModuleName=IUTF_Wrapper
 
 
 /// @class INFO_DOCU
@@ -15,16 +15,16 @@ static Function INFO_WRAPPER(format, strings, numbers, flags)
 
 	variable err, index
 	string msg
-	WAVE/T wvInfoMsg = UTF_Reporting#GetInfoMsg()
+	WAVE/T wvInfoMsg = IUTF_Reporting#GetInfoMsg()
 
-	msg = UTF_Utils_Strings#UserPrintF(format, strings, numbers, err)
+	msg = IUTF_Utils_Strings#UserPrintF(format, strings, numbers, err)
 	if(err)
 		sprintf msg, "PrintF error \"%s\"", msg
 		EvaluateResults(0, msg, flags, cleanupInfo = 0)
 		return NaN
 	endif
 
-	index = UTF_Utils_Vector#AddRow(wvInfoMsg)
+	index = IUTF_Utils_Vector#AddRow(wvInfoMsg)
 	wvInfoMsg[index] = msg
 End
 
@@ -37,13 +37,13 @@ static Function CDF_EMPTY_WRAPPER(flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsDataFolderEmpty(":")
+	result = IUTF_Checks#IsDataFolderEmpty(":")
 	EvaluateResults(result, "Assumption that the current data folder is empty is", flags)
 End
 
@@ -57,13 +57,13 @@ static Function TRUE_WRAPPER(var, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsTrue(var)
+	result = IUTF_Checks#IsTrue(var)
 	EvaluateResults(result, num2istr(var), flags)
 End
 
@@ -78,13 +78,13 @@ static Function NULL_STR_WRAPPER(str, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsNullString(str)
+	result = IUTF_Checks#IsNullString(str)
 	EvaluateResults(result, "Assumption that str is null is", flags)
 End
 
@@ -99,13 +99,13 @@ static Function EMPTY_STR_WRAPPER(str, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsEmptyString(str)
+	result = IUTF_Checks#IsEmptyString(str)
 	EvaluateResults(result, "Assumption that the string is empty is", flags)
 End
 
@@ -120,13 +120,13 @@ static Function NON_NULL_STR_WRAPPER(str, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = !UTF_Checks#IsNullString(str)
+	result = !IUTF_Checks#IsNullString(str)
 	EvaluateResults(result, "Assumption of the string being non null is", flags)
 End
 
@@ -141,13 +141,13 @@ static Function NON_EMPTY_STR_WRAPPER(str, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = !UTF_Checks#IsEmptyString(str)
+	result = !IUTF_Checks#IsEmptyString(str)
 	EvaluateResults(result, "Assumption that the string is non empty is", flags)
 End
 
@@ -163,13 +163,13 @@ static Function PROPER_STR_WRAPPER(str, flags)
 
 	variable result
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsProperString(str)
+	result = IUTF_Checks#IsProperString(str)
 	EvaluateResults(result, "Assumption that the string is a proper string is", flags)
 End
 
@@ -185,15 +185,15 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = !UTF_Checks#AreVariablesEqual(var1, var2)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = !IUTF_Checks#AreVariablesEqual(var1, var2)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s != %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
@@ -212,7 +212,7 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -222,9 +222,9 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		case_sensitive = 1
 	endif
 
-	result = !UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
-	tmpStr1 = UTF_Utils#IUTF_PrepareStringForOut(str1)
-	tmpStr2 = UTF_Utils#IUTF_PrepareStringForOut(str2)
+	result = !IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
+	tmpStr1 = IUTF_Utils#IUTF_PrepareStringForOut(str1)
+	tmpStr2 = IUTF_Utils#IUTF_PrepareStringForOut(str2)
 	sprintf str, "\"%s\" != \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
 
 	EvaluateResults(result, str, flags)
@@ -252,7 +252,7 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -266,10 +266,10 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#AreVariablesClose(var1, var2, tol, strong)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
-	tmpStr3 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	result = IUTF_Checks#AreVariablesClose(var1, var2, tol, strong)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
 	sprintf str, "%s ~ %s with %s check and tol %s", tmpStr1, tmpStr2, SelectString(strong, "weak", "strong"), tmpStr3
 	EvaluateResults(result, str, flags)
 End
@@ -287,7 +287,7 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3, tmpStr4, tmpStr5
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -301,12 +301,12 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && UTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(real(var1), isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(imag(var1), isDouble = 1)
-	tmpStr3 = UTF_Utils#GetNiceStringForNumber(real(var2), isDouble = 1)
-	tmpStr4 = UTF_Utils#GetNiceStringForNumber(imag(var2), isDouble = 1)
-	tmpStr5 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	result = IUTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && IUTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(real(var1), isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(imag(var1), isDouble = 1)
+	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(real(var2), isDouble = 1)
+	tmpStr4 = IUTF_Utils#GetNiceStringForNumber(imag(var2), isDouble = 1)
+	tmpStr5 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
 	sprintf str, "(%s, %s) ~ (%s, %s) with %s check and tol %s", tmpStr1, tmpStr2, tmpStr3, tmpStr4, SelectString(strong, "weak", "strong"), tmpStr5
 	EvaluateResults(result, str, flags)
 End
@@ -325,7 +325,7 @@ static Function CLOSE_INT64_WRAPPER(int64 var1, int64 var2, variable flags, [int
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -335,7 +335,7 @@ static Function CLOSE_INT64_WRAPPER(int64 var1, int64 var2, variable flags, [int
 		tol = DEFAULT_TOLERANCE_INT
 	endif
 
-	result = UTF_Checks#AreINT64Close(var1, var2, tol)
+	result = IUTF_Checks#AreINT64Close(var1, var2, tol)
 	sprintf str, "%d ~ %d with tol %d", var1, var2, tol
 	EvaluateResults(result, str, flags)
 End
@@ -350,7 +350,7 @@ static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -360,7 +360,7 @@ static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [
 		tol = DEFAULT_TOLERANCE_INT
 	endif
 
-	result = UTF_Checks#AreUINT64Close(var1, var2, tol)
+	result = IUTF_Checks#AreUINT64Close(var1, var2, tol)
 	sprintf str, "%d ~ %d with tol %d", var1, var2, tol
 	EvaluateResults(result, str, flags)
 End
@@ -382,7 +382,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -392,9 +392,9 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#IsVariableSmall(var, tol)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	result = IUTF_Checks#IsVariableSmall(var, tol)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
 
 	sprintf str, "%s ~ 0 with tol %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
@@ -412,7 +412,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -422,10 +422,10 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = UTF_Checks#IsVariableSmall(cabs(var), tol)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(real(var), isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(imag(var), isDouble = 1)
-	tmpStr3 = UTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
+	result = IUTF_Checks#IsVariableSmall(cabs(var), tol)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(real(var), isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(imag(var), isDouble = 1)
+	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
 	sprintf str, "(%s, %s) ~ 0 with tol %s", tmpStr1, tmpStr2, tmpStr3
 	EvaluateResults(result, str, flags)
 End
@@ -443,7 +443,7 @@ static Function SMALL_INT64_WRAPPER(int64 var, variable flags, [int64 tol])
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -453,7 +453,7 @@ static Function SMALL_INT64_WRAPPER(int64 var, variable flags, [int64 tol])
 		tol = DEFAULT_TOLERANCE_INT
 	endif
 
-	result = UTF_Checks#IsINT64Small(var, tol)
+	result = IUTF_Checks#IsINT64Small(var, tol)
 	sprintf str, "%d ~ 0 with tol %g", var, tol
 	EvaluateResults(result, str, flags)
 End
@@ -467,7 +467,7 @@ static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -477,7 +477,7 @@ static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
 		tol = DEFAULT_TOLERANCE_INT
 	endif
 
-	result = UTF_Checks#IsUINT64Small(var, tol)
+	result = IUTF_Checks#IsUINT64Small(var, tol)
 	sprintf str, "%d ~ 0 with tol %g", var, tol
 	EvaluateResults(result, str, flags)
 End
@@ -501,7 +501,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 	string str, tmpStr1, tmpStr2
 	Struct IUTF_StringDiffResult diffResult
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -511,9 +511,9 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		case_sensitive = 1
 	endif
 
-	result = UTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
+	result = IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
 	if(!result)
-		UTF_Utils#DiffString(str1, str2, diffResult, case_sensitive=case_sensitive)
+		IUTF_Utils#DiffString(str1, str2, diffResult, case_sensitive=case_sensitive)
 		sprintf str, "String mismatch (case %ssensitive):\rstr1: %s\rstr2: %s\r", SelectString(case_sensitive, "in", ""), diffResult.v1, diffResult.v2
 		EvaluateResults(result, str, flags)
 	endif
@@ -538,7 +538,7 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	variable result, type
 	string str, str1, str2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -552,23 +552,23 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 		return NaN
 	endif
 
-	result = UTF_Checks#HasWaveMajorType(wv, majorType)
-	type = UTF_Checks#GetWaveMajorType(wv)
-	str1 = UTF_Checks#GetWaveMajorTypeString(majorType)
-	str2 = UTF_Checks#GetWaveMajorTypeString(type)
+	result = IUTF_Checks#HasWaveMajorType(wv, majorType)
+	type = IUTF_Checks#GetWaveMajorType(wv)
+	str1 = IUTF_Checks#GetWaveMajorTypeString(majorType)
+	str2 = IUTF_Checks#GetWaveMajorTypeString(type)
 	sprintf str, "Expect wave's main type to be '%s' but got '%s'", str1, str2
 	EvaluateResults(result, str, flags, cleanupInfo = 0)
 
 	if(!ParamIsDefault(minorType))
-		result = UTF_Checks#HasWaveMinorType(wv, minorType)
-		type = UTF_Checks#GetWaveMinorType(wv)
-		str1 = UTF_Checks#GetWaveMinorTypeString(minorType)
-		str2 = UTF_Checks#GetWaveMinorTypeString(type)
+		result = IUTF_Checks#HasWaveMinorType(wv, minorType)
+		type = IUTF_Checks#GetWaveMinorType(wv)
+		str1 = IUTF_Checks#GetWaveMinorTypeString(minorType)
+		str2 = IUTF_Checks#GetWaveMinorTypeString(type)
 		sprintf str, "Expect wave's sub type to be '%s' but got '%s'", str1, str2
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endif
 
-	UTF_Reporting#CleanupInfoMsg()
+	IUTF_Reporting#CleanupInfoMsg()
 End
 
 /// @class EQUAL_VAR_DOCU
@@ -587,15 +587,15 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#AreVariablesEqual(var1, var2)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = IUTF_Checks#AreVariablesEqual(var1, var2)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s == %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
@@ -613,13 +613,13 @@ static Function EQUAL_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#AreInt64Equal(var1, var2)
+	result = IUTF_Checks#AreInt64Equal(var1, var2)
 	sprintf str, "%d == %d", var1, var2
 	EvaluateResults(result, str, flags)
 End
@@ -633,13 +633,13 @@ static Function EQUAL_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#AreUInt64Equal(var1, var2)
+	result = IUTF_Checks#AreUInt64Equal(var1, var2)
 	sprintf str, "%u == %u", var1, var2
 	EvaluateResults(result, str, flags)
 End
@@ -653,13 +653,13 @@ static Function NEQ_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = !UTF_Checks#AreInt64Equal(var1, var2)
+	result = !IUTF_Checks#AreInt64Equal(var1, var2)
 	sprintf str, "%d == %d", var1, var2
 	EvaluateResults(result, str, flags)
 End
@@ -673,13 +673,13 @@ static Function NEQ_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
 	string str
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = !UTF_Checks#AreUInt64Equal(var1, var2)
+	result = !IUTF_Checks#AreUInt64Equal(var1, var2)
 	sprintf str, "%u == %u", var1, var2
 	EvaluateResults(result, str, flags)
 End
@@ -711,7 +711,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable i, result
 	string str, detailedMsg, name1, name2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
@@ -736,7 +736,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	if(ParamIsDefault(mode))
 		WAVE modes = validModes
 	else
-		if(!UTF_Utils#IsFinite(mode))
+		if(!IUTF_Utils#IsFinite(mode))
 			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
 			return NaN
 		elseif(!(mode & (WAVE_DATA | WAVE_DATA_TYPE | WAVE_SCALING | DATA_UNITS | DIMENSION_UNITS | DIMENSION_LABELS | WAVE_NOTE | WAVE_LOCK_STATE | DATA_FULL_SCALE | DIMENSION_SIZES)))
@@ -758,7 +758,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 
 	if(ParamIsDefault(tol))
 		tol = 0.0
-	elseif(UTF_Utils#IsNaN(tol))
+	elseif(IUTF_Utils#IsNaN(tol))
 		EvaluateResults(0, "Valid tolerance for EQUAL_WAVE check.", flags)
 		return NaN
 	elseif(tol < 0)
@@ -768,20 +768,20 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 
 	for(i = 0; i < DimSize(modes, 0); i += 1)
 		mode = modes[i]
-		result = UTF_Checks#AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
+		result = IUTF_Checks#AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 
-		name1 = UTF_Utils#GetWaveNameInDFStr(wv1)
-		name2 = UTF_Utils#GetWaveNameInDFStr(wv2)
+		name1 = IUTF_Utils#GetWaveNameInDFStr(wv1)
+		name2 = IUTF_Utils#GetWaveNameInDFStr(wv2)
 		sprintf str, "Assuming equality using mode %s for waves %s and %s", EqualWavesModeToString(mode), name1, name2
 
-		if(!UTF_Utils#IsEmpty(detailedMsg))
+		if(!IUTF_Utils#IsEmpty(detailedMsg))
 			str += "; detailed: " + detailedMsg
 		endif
 
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endfor
 
-	UTF_Reporting#CleanupInfoMsg()
+	IUTF_Reporting#CleanupInfoMsg()
 End
 
 /// @class LESS_EQUAL_VAR_DOCU
@@ -795,15 +795,15 @@ static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsLessOrEqual(var1, var2)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = IUTF_Checks#IsLessOrEqual(var1, var2)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s <= %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
@@ -819,15 +819,15 @@ static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsLess(var1, var2)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = IUTF_Checks#IsLess(var1, var2)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s < %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
@@ -843,15 +843,15 @@ static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsLessOrEqual(var2, var1)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = IUTF_Checks#IsLessOrEqual(var2, var1)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s >= %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
@@ -867,15 +867,15 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 	variable result
 	string str, tmpStr1, tmpStr2
 
-	UTF_Reporting#incrAssert()
+	IUTF_Reporting#incrAssert()
 
 	if(shouldDoAbort())
 		return NaN
 	endif
 
-	result = UTF_Checks#IsLess(var2, var1)
-	tmpStr1 = UTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
-	tmpStr2 = UTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
+	result = IUTF_Checks#IsLess(var2, var1)
+	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
+	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s > %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End

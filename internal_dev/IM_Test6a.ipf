@@ -3,7 +3,7 @@
 #pragma version=1.09
 #pragma IndependentModule=ABCD
 #pragma ModuleName=test6a
-#include "unit-testing"
+#include "igortest"
 
 // RunTest("example5-overridehooks.ipf;example5-overridehooks-otherSuite.ipf")
 

@@ -18,7 +18,7 @@ Create a link from ``tests`` in the ``User Procedures`` subfolder.
 Global Variables
 ----------------
 
-These variables are stored in ``root:Packages:UnitTesting:``.
+These variables are stored in ``root:Packages:igortest:``.
 
 #. Waves
 
