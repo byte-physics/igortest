@@ -189,7 +189,8 @@ static Function AddError(message, type, [incrErrorCounter])
 	string message, type
 	variable incrErrorCounter
 
-	variable length, startIndex
+	string msg
+	variable i, length, startIndex
 
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
@@ -218,6 +219,11 @@ static Function AddError(message, type, [incrErrorCounter])
 		IUTF_Utils_Vector#AddRows(wvInfo, length)
 		UpdateChildRange(wvAssertion, wvInfo)
 		wvInfo[startIndex, startIndex + length - 1][%MESSAGE] = wvInfoMsg[p - startIndex]
+
+		for(i = 0; i < length; i += 1)
+			msg = "  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i]
+			wvTestCase[%CURRENT][%STDERR] = AddListItem(msg, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
+		endfor
 	endif
 End
 
