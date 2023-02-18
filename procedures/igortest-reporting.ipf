@@ -201,8 +201,8 @@ static Function AddError(message, type, [incrErrorCounter])
 
 	WAVE/T wvTestCase = GetTestCaseWave()
 	UpdateChildRange(wvTestCase, wvAssertion)
-	wvTestCase[%CURRENT][%STATUS] = type
 	if(incrErrorCounter)
+		wvTestCase[%CURRENT][%STATUS] = type
 		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
 	if(strlen(message))

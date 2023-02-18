@@ -153,6 +153,11 @@ static Function InfoInErrorOutput_Verify()
 	INFO("Bug: test case not found")
 	REQUIRE(WaveExists(tc))
 
+	INFO("Check if status is success")
+	expect = IUTF_STATUS_SUCCESS
+	result = tc[0][%STATUS]
+	CHECK_EQUAL_STR(expect, result)
+
 	INFO("Check if the information is included in the error output")
 	expect = "find this info"
 	result = tc[0][%STDERR]
