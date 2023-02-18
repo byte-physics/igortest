@@ -171,3 +171,19 @@ use cases. Comparing two variables, for example, can be done with
 Assertions with only one variant are :cpp:func:`PASS` and :cpp:func:`FAIL`.
 If you want to know more about how to use these two special assertions, take a
 look at :ref:`example7`.
+
+.. _AbortingTestRun:
+
+Aborting the test run
+---------------------
+
+You can abort the execution of the test run by clicking the Abort button in the
+status bar or pressing the following user abort key combinations:
+
++--------------+----------------+
+| Command-dot  | Macintosh only |
++--------------+----------------+
+| Ctrl+Break   | Windows only   |
++--------------+----------------+
+| Shift+Escape | All Platforms  |
++--------------+----------------+
