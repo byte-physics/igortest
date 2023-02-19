@@ -139,3 +139,27 @@ static Function ExpectedFailures_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+static Function InfoInErrorOutput()
+	INFO("find this info")
+	WARN(0)
+End
+
+static Function InfoInErrorOutput_Verify()
+	string expect, result
+	variable childStart, childEnd, startTime, endTime
+
+	WAVE/T/Z tc = Utils#LastTestCase()
+	INFO("Bug: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	INFO("Check if status is success")
+	expect = IUTF_STATUS_SUCCESS
+	result = tc[0][%STATUS]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the information is included in the error output")
+	expect = "find this info"
+	result = tc[0][%STDERR]
+	CHECK(strsearch(result, expect, 0) > -1)
+End
