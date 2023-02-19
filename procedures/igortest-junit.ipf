@@ -79,6 +79,42 @@ static Function/S JU_GetISO8601TimeStamp(localtime)
 	return (Secs2Date(localtime, -2) + "T" + Secs2Time(localtime, 3))
 End
 
+static Function/S JU_AssertionOut(assertionIndex)
+	variable assertionIndex
+
+	string out, message, type, context
+	variable i, startIndex, endIndex
+
+	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
+	WAVE/T wvInfo = IUTF_Reporting#GetTestInfoWave()
+
+	startIndex = str2num(wvAssertion[assertionIndex][%CHILD_START])
+	endIndex = str2num(wvAssertion[assertionIndex][%CHILD_END])
+	context = ""
+	for(i = startIndex; i < endIndex; i += 1)
+		context += "\t\t\t\tInfo: " + wvInfo[i][%MESSAGE] + "\n"
+	endfor
+
+	message = JU_ToXMLCharacters(wvAssertion[i][%MESSAGE])
+	type = JU_ToXMLCharacters(wvAssertion[i][%TYPE])
+	// we are outputing everything as error to keep the same behavior as older versions of IUTF
+
+	// strswitch(wvAssertion[i][%TYPE])
+	// 	case IUTF_STATUS_FAIL:
+	// 		s += "\t\t\t<failure message=\"" + message + "\" type=\"" + type + "\"></failure>\n"
+	// 		break
+	// 	case IUTF_STATUS_ERROR:
+			out = "\t\t\t<error message=\"" + message + "\" type=\"" + type + "\">\n"
+			out += context
+			out += "\t\t\t</error>\n"
+	// 		break
+	// 	default:
+	// 		break
+	// endswitch
+
+	return out
+End
+
 /// Evaluates last Test Case and returns JUNIT XML Output from Test Case
 static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	variable testSuiteIndex, testCaseIndex
@@ -103,20 +139,7 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	startIndex = str2num(wvTestCase[testCaseIndex][%CHILD_START])
 	endIndex = str2num(wvTestCase[testCaseIndex][%CHILD_END])
 	for(i = startIndex; i < endIndex; i += 1)
-		message = JU_ToXMLCharacters(wvAssertion[i][%MESSAGE])
-		type = JU_ToXMLCharacters(wvAssertion[i][%TYPE])
-		// we are outputing everything as error to keep the same behavior as older versions of IUTF
-
-		// strswitch(wvAssertion[i][%TYPE])
-		// 	case IUTF_STATUS_FAIL:
-		// 		s += "\t\t\t<failure message=\"" + message + "\" type=\"" + type + "\"></failure>\n"
-		// 		break
-		// 	case IUTF_STATUS_ERROR:
-				out += "\t\t\t<error message=\"" + message + "\" type=\"" + type + "\"></error>\n"
-		// 		break
-		// 	default:
-		// 		break
-		// endswitch
+		out += JU_AssertionOut(i)
 	endfor
 
 	message = wvTestCase[testCaseIndex][%STDOUT]
