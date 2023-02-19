@@ -1273,6 +1273,9 @@ End
 
 /// @brief Main function to execute test suites with the universal testing framework.
 ///
+/// You can abort the test run using Command-dot on Macintosh, Ctrl+Break on Windows or Shift+Escape
+/// on all platforms.
+///
 /// @verbatim embed:rst:leading-slashes
 ///     .. code-block:: igor
 ///        :caption: usage example
