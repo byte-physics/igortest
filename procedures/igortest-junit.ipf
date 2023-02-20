@@ -4,52 +4,6 @@
 #pragma version=1.09
 #pragma ModuleName=IUTF_JUnit
 
-
-/// XML properties
-/// New Line is \n
-/// The xs:int signed 32 bit Integer
-/// The xs:decimal generic fp with max. 18 digits, exponential or scientific notation not supported.
-/// The xs:string data type can contain characters, line feeds, carriage returns, and tab characters, needs also entity escapes.
-/// The xs:token data type also contains characters, but the XML processor will remove
-/// line feeds, carriage returns, tabs, leading and trailing spaces, and multiple spaces.
-/// it is a subtype of xs:string, entity escapes apply here
-/// XML: Reduces a string to a xs:token
-static Function/S JU_ToXMLToken(str)
-	string str
-	variable i
-
-	str = ReplaceString("\n", str, "")
-	str = ReplaceString("\r", str, "")
-	str = ReplaceString("\t", str, "")
-#if (IgorVersion() >= 7.0)
-	return (TrimString(str, 1))
-#else
-	for(i = 0; strsearch(str, "  ", 0) >= 0;)
-		str = ReplaceString("  ", str, " ")
-	endfor
-	return (TrimString(str))
-#endif
-End
-
-/// entity references
-/// &lt;    <  less than
-/// &gt;    >  greater than
-/// &amp;   &  ampersand
-/// &apos;  '  apostrophe
-/// &quot;  "  quotation mark
-/// XML: Escape Entity Replacer for strings
-static Function/S JU_ToXMLCharacters(str)
-	string str
-
-	str = ReplaceString("&", str, "&amp;")
-	str = ReplaceString("<", str, "&lt;")
-	str = ReplaceString(">", str, "&gt;")
-	str = ReplaceString("'", str, "&apos;")
-	str = ReplaceString("\"", str, "&quot;")
-
-	return str
-End
-
 /// trim leading and trailing white spaces from
 /// every line of the given string
 static Function/S JU_TrimSOUT(input, [listSepStr])
@@ -95,8 +49,8 @@ static Function/S JU_AssertionOut(assertionIndex)
 		context += "\t\t\t\tInfo: " + wvInfo[i][%MESSAGE] + "\n"
 	endfor
 
-	message = JU_ToXMLCharacters(wvAssertion[i][%MESSAGE])
-	type = JU_ToXMLCharacters(wvAssertion[i][%TYPE])
+	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%MESSAGE])
+	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%TYPE])
 	// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 	// strswitch(wvAssertion[i][%TYPE])
@@ -128,8 +82,8 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 
-	classname = JU_ToXMLToken(JU_ToXMLCharacters(wvTestCase[testCaseIndex][%NAME]))
-	name = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	classname = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestCase[testCaseIndex][%NAME]))
+	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
 	sprintf name, "%s in %s (%d)", classname, name, testCaseIndex
 	timeTaken = str2num(wvTestCase[testCaseIndex][%ENDTIME]) - str2num(wvTestCase[testCaseIndex][%STARTTIME])
 
@@ -153,11 +107,11 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 
 	message = wvTestCase[testCaseIndex][%STDOUT]
 	if(!IUTF_Utils#IsEmpty(message))
-		out += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(message)) + "</system-out>\n"
+		out += "\t\t<system-out>" + IUTF_Utils_XML#ToXMLCharacters(JU_TrimSOUT(message)) + "</system-out>\n"
 	endif
 	message = wvTestCase[testCaseIndex][%STDERR]
 	if(!IUTF_Utils#IsEmpty(message))
-		out += "\t\t<system-err>" + JU_ToXMLCharacters(message) + "</system-err>\n"
+		out += "\t\t<system-err>" + IUTF_Utils_XML#ToXMLCharacters(message) + "</system-err>\n"
 	endif
 
 	return (out + "\t\t</testcase>\n")
@@ -194,10 +148,10 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 
-	package = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
-	name = JU_ToXMLToken(JU_ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	package = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
 	timestamp = JU_GetISO8601TimeStamp(JU_ToAbsoluteTime(wvTestSuite[testSuiteIndex][%STARTTIME]))
-	hostname = JU_ToXMLToken(JU_ToXMLCharacters(wvTestRun[testRunIndex][%HOSTNAME]))
+	hostname = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestRun[testRunIndex][%HOSTNAME]))
 	tests = wvTestSuite[testSuiteIndex][%NUM_TESTS]
 	failures = "0" // the number of failures are not tracked right now
 	errors = wvTestSuite[testSuiteIndex][%NUM_ERROR]
@@ -223,11 +177,11 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 
 	s = wvTestSuite[testSuiteIndex][%STDOUT]
 	if(!IUTF_Utils#IsEmpty(s))
-		out += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(s)) + "</system-out>\n"
+		out += "\t\t<system-out>" + IUTF_Utils_XML#ToXMLCharacters(JU_TrimSOUT(s)) + "</system-out>\n"
 	endif
 	s = wvTestSuite[testSuiteIndex][%STDERR]
 	if(!IUTF_Utils#IsEmpty(s))
-		out += "\t\t<system-err>" + JU_ToXMLCharacters(s) + "</system-err>\n"
+		out += "\t\t<system-err>" + IUTF_Utils_XML#ToXMLCharacters(s) + "</system-err>\n"
 	endif
 
 	return (out + "\t</testsuite>\n")
@@ -242,8 +196,8 @@ static Function/S JU_ToPropertyString(name, value)
 		return ""
 	endif
 
-	name = JU_ToXMLToken(JU_ToXMLCharacters(name))
-	value = JU_ToXMLCharacters(value)
+	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(name))
+	value = IUTF_Utils_XML#ToXMLCharacters(value)
 	sprintf s, "\t\t\t<property name=\"%s\" value=\"%s\"/>\n", name, value
 
 	return s
@@ -287,16 +241,8 @@ static Function JU_WriteOutput()
 #else
 	out = JU_UTF8Filter(out)
 #endif
-	juFileName = IUTF_Utils_Paths#AtHome("JU_" + GetBaseFilename() + ".xml", unusedName = 1)
 
-	open/Z fnum as juFileName
-	if(!V_flag)
-		fBinWrite fnum, out
-		close fnum
-	else
-		sprintf msg, "Error: Could not create JUNIT output file at %s", juFileName
-		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
-	endif
+	IUTF_Utils_XML#WriteXML("JU_", out)
 End
 
 /// Add a EOL (`\r`) after every element of a `;` separated list.

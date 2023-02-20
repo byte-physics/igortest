@@ -26,6 +26,7 @@
 #include "igortest-utils-textgrid"
 #include "igortest-utils-vector"
 #include "igortest-utils-waves"
+#include "igortest-utils-xml"
 #include "igortest-test-md-gen"
 #include "igortest-test-md-mmd"
 #include "igortest-test-md"
