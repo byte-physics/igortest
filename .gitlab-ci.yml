@@ -64,6 +64,7 @@ testing:
         EXPERIMENT:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
+          - UnitTests/UnitTests.pxp
           - IMTest.pxp
           - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
@@ -92,10 +93,14 @@ testing:
     when: always
     reports:
       junit: tests/**/JU_*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/**/Cobertura_*.xml
     paths:
       - tests/**/*.htm
       - tests/**/*.log
       - tests/**/JU_*.xml
+      - tests/**/Cobertura_*.xml
       - screenshot/**/*.png
 
 testing_nightly:
@@ -111,6 +116,7 @@ testing_nightly:
         EXPERIMENT:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
+          - UnitTests/UnitTests.pxp
           - Tracing.pxp
           - IMTest.pxp
           - TestResultsTests/ResultsTest.pxp
@@ -140,10 +146,14 @@ testing_nightly:
     when: always
     reports:
       junit: tests/**/JU_*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/**/Cobertura_*.xml
     paths:
       - tests/**/*.htm
       - tests/**/*.log
       - tests/**/JU_*.xml
+      - tests/**/Cobertura_*.xml
       - screenshot/**/*.png
 
 xml_verification:

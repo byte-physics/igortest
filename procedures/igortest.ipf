@@ -33,4 +33,5 @@
 #include "igortest-test-proto"
 #include "igortest-tracing"
 #include "igortest-tracing-analytics"
+#include "igortest-tracing-cobertura"
 #include "igortest-tracing-tracer"

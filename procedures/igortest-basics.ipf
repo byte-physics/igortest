@@ -940,6 +940,9 @@ static Function SaveState(dfr, s)
 	variable/G dfr:StracingEnabled = s.tracingEnabled
 	variable/G dfr:ShtmlCreation = s.htmlCreation
 	variable/G dfr:Sshuffle = s.shuffle
+	variable/G dfr:Scobertura = s.cobertura
+	string/G dfr:ScoberturaSources = s.coberturaSources
+	string/G dfr:ScoberturaOut = s.coberturaOut
 	string/G dfr:StcSuffix = s.tcSuffix
 	variable/G dfr:SretryMode = s.retryMode
 	variable/G dfr:SretryCount = s.retryCount
@@ -988,6 +991,12 @@ static Function RestoreState(dfr, s)
 	s.htmlCreation = var
 	NVAR var = dfr:Sshuffle
 	s.shuffle = var
+	NVAR var = dfr:Scobertura
+	s.cobertura = var
+	SVAR str = dfr:ScoberturaSources
+	s.coberturaSources = str
+	SVAR str = dfr:ScoberturaOut
+	s.coberturaOut = str
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
 
@@ -1198,6 +1207,9 @@ static Structure strRunTest
 	variable tracingEnabled
 	variable htmlCreation
 	variable shuffle
+	variable cobertura
+	string coberturaSources
+	string coberturaOut
 	string tcSuffix
 	STRUCT IUTF_TestHooks hooks
 	STRUCT IUTF_TestHooks procHooks
@@ -1495,6 +1507,13 @@ End
 ///                         INSTRUMENTONLY:boolean When set, run instrumentation only and return. No tests are executed.
 ///                         HTMLCREATION:boolean When set to zero, no htm result files are created at the end of the run
 ///                         REGEXP:boolean When set, traceWinList is interpreted as regular expression
+///                         COBERTURA:boolean When set, it will export the tracing results in Cobertura format
+///                         COBERTURA_SOURCES:string A comma (,) delimited list of directory paths that should be used
+///                             as source paths for the procedure files. If this list is empty or this option not set it
+///                             will use the current home directory of this experiment as the source path for all procedure
+///                             files.
+///                         COBERTURA_OUT:string The output directory to locate the generated cobertura files. The default
+///                             is to use the current home directory.
 ///
 /// @param   fixLogName     (optional) default 0 disabled, enabled when set to 1: @n
 ///                         If enabled the output files that will be generated after an autorun will have predictable names like
@@ -1687,6 +1706,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 				var = NumberByKey(UTF_KEY_HTMLCREATION, traceOptions)
 				s.htmlCreation = IUTF_Utils#IsNaN(var) ? 1 : var
+
+				var = NumberByKey(UTF_KEY_COBERTURA, traceOptions)
+				s.cobertura = IUTF_Utils#IsNaN(var) ? 0 : !!var
+				s.coberturaSources = StringByKey(UTF_KEY_COBERTURA_SOURCES, traceOptions)
+				s.coberturaOut = StringByKey(UTF_KEY_COBERTURA_OUT, traceOptions)
 
 				NewDataFolder $PKG_FOLDER_SAVE
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -1964,6 +1988,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 	if(s.htmlCreation)
 		IUTF_Tracing#AnalyzeTracingResult()
+	endif
+	if(s.cobertura)
+		IUTF_Tracing_Cobertura#PrintReport(s.coberturaSources, s.coberturaOut)
 	endif
 #endif
 

@@ -226,6 +226,9 @@ StrConstant UTF_FTAG_RETRY_FAILED      = "IUTF_RETRY_FAILED"
 StrConstant UTF_KEY_INSTRUMENTATIONONLY  = "INSTRUMENTONLY"
 StrConstant UTF_KEY_HTMLCREATION         = "HTMLCREATION"
 StrConstant UTF_KEY_REGEXP               = "REGEXP"
+StrConstant UTF_KEY_COBERTURA            = "COBERTURA"
+StrConstant UTF_KEY_COBERTURA_SOURCES    = "COBERTURA_SOURCES"
+StrConstant UTF_KEY_COBERTURA_OUT        = "COBERTURA_OUT"
 /// @}
 
 /// @name Maximum number of procedure lines allowed for code coverage tracing

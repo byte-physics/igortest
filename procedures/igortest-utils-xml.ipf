@@ -55,13 +55,26 @@ End
 ///
 /// @param prefix   The name of the prefix which is prepended to the file name
 /// @param content  The XML content that should be written
-static Function WriteXML(prefix, content)
+/// @param outDir   (optional, default: home directory) The output directory. It will use the home
+///                 directory if this string is empty.
+static Function WriteXML(prefix, content, [outDir])
 	string prefix, content
+	string outDir
 
 	string fileName, msg
 	variable fnum
 
-	fileName = IUTF_Utils_Paths#AtHome(prefix + GetBaseFilename() + ".xml", unusedName = 1)
+	if(ParamIsDefault(outDir) || IUTF_Utils#IsEmpty(outDir))
+		fileName = IUTF_Utils_Paths#AtHome(prefix + GetBaseFilename() + ".xml", unusedName = 1)
+	else
+		fileName = outDir + prefix + GetBaseFilename() + ".xml"
+		fileName = IUTF_Utils_Paths#getUnusedFileName(fileName)
+		if(IUTF_Utils#IsEmpty(fileName))
+			sprintf msg, "Cannot determine unused file for %s at %s", fileName, outDir
+			IUTF_Reporting#ReportErrorAndAbort(msg)
+		endif
+	endif
+
 	Open/Z fnum as fileName
 	if(!V_flag)
 		FBinWrite fnum, content
