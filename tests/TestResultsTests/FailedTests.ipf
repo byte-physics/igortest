@@ -138,3 +138,39 @@ static Function EmptyExpected_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+static Function NullStringAccess()
+	string nullstr
+
+	CHECK_EQUAL_STR(nullstr, nullstr)
+End
+
+static Function NullStringAccess_Verify()
+	string expect, result, stdErr
+	variable childStart, childEnd
+
+	WAVE/T/Z tc = Utils#LastTestCase()
+	INFO("Bug: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_FAIL)
+
+	childStart = str2num(tc[0][%CHILD_START])
+	childEnd = str2num(tc[0][%CHILD_END])
+	INFO("Check if exactly one assertion was thrown")
+	CHECK_EQUAL_VAR(1, childEnd - childStart)
+
+	stdErr = tc[0][%STDERR]
+	INFO("Check if stderr is not empty")
+	CHECK_NON_EMPTY_STR(stdErr)
+
+	INFO("Check if one assertion errors is set")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the assertion counter is correct")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End

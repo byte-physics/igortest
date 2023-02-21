@@ -4,6 +4,7 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Wrapper
 
+static Constant RTE_NULL_STRING = 185
 
 /// @class INFO_DOCU
 /// Append information to the next assertion to print if failed
@@ -201,6 +202,10 @@ End
 /// @class NEQ_STR_DOCU
 /// Compares two strings for unequality
 ///
+/// This doesn't check if one of the two string are null. If this function is called with a null
+/// string this will throw a check assertion error. The same will happen if you call this function
+/// and there is a pending code 185 runtime error.
+///
 /// @param str1            first string
 /// @param str2            second string
 /// @param case_sensitive  (optional) should the comparison be done case sensitive (1) or case insensitive (0, the default)
@@ -220,6 +225,13 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	if(ParamIsDefault(case_sensitive))
 		case_sensitive = 1
+	endif
+
+	if(GetRTError(0) == RTE_NULL_STRING)
+		IUTF_Basics#ClearRTError()
+		str = "Null string error: One of the provided arguments could be an unsupported null string."
+		EvaluateResults(0, str, CHECK_MODE)
+		return NaN
 	endif
 
 	result = !IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
@@ -487,7 +499,11 @@ End
 /// @endcond
 
 /// @class EQUAL_STR_DOCU
-/// Compares two strings for byte-wise equality. (no encoding considered, no unicode normalization)
+/// Compares two strings for byte-wise equality. (no encoding considered, no unicode normalization).
+///
+/// This doesn't check if one of the two string are null. If this function is called with a null
+/// string this will throw a check assertion error. The same will happen if you call this function
+/// and there is a pending code 185 runtime error.
 ///
 /// @param str1           first string
 /// @param str2           second string
@@ -509,6 +525,13 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	if(ParamIsDefault(case_sensitive))
 		case_sensitive = 1
+	endif
+
+	if(GetRTError(0) == RTE_NULL_STRING)
+		IUTF_Basics#ClearRTError()
+		str = "Null string error: One of the provided arguments could be an unsupported null string."
+		EvaluateResults(0, str, CHECK_MODE)
+		return NaN
 	endif
 
 	result = IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
