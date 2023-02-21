@@ -25,9 +25,41 @@ static Function/WAVE GetMMDataState()
 		return wv
 	endif
 
-	Make/WAVE/N=0 dfr:$name/WAVE=wv
+	Make/WAVE/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	IUTF_Utils_Vector#SetLength(wv, 0)
 
 	return wv
+End
+
+/// @brief Returns a global wave that stores the full function names at the same position as in
+/// MMDataState. This is used to reference full function names and their data.
+static Function/WAVE GetMMDataStateRefs()
+
+	string name = "MMDataStateRefs"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	IUTF_Utils_Vector#SetLength(wv, 0)
+
+	return wv
+End
+
+/// @brief Find the current index in the global MMDataState wave.
+///
+/// @param fullFuncName the full function name
+///
+/// @returns The index inside MMDataState or -1 if not found.
+static Function GetMMDataStateRef(fullFuncName)
+	string fullFuncName
+
+	WAVE/T wvRefs = GetMMDataStateRefs()
+
+	return IUTF_Utils_Vector#FindText(wvRefs, fullFuncName)
 End
 
 /// Creates a global with the allowed variable names for mmd data tests and returns the value
@@ -85,12 +117,13 @@ static Function AddMMDTestCaseData(fullFuncName, dgen, varName, genSize)
 	variable varPos, vSize
 
 	WAVE/WAVE mdState = GetMMDataState()
-	funPos = FindDimLabel(mdState, UTF_ROW, fullFuncName)
-	if(funPos == -2)
-		size = DimSize(mdState, UTF_ROW)
-		Redimension/N=(size + 1) mdState
-		SetDimLabel UTF_ROW, size, $fullFuncName, mdState
-		funPos = size
+	funPos = GetMMDataStateRef(fullFuncName)
+	if(funPos == -1)
+		funPos = IUTF_Utils_Vector#AddRow(mdState)
+		WAVE/T mdStateRefs = GetMMDataStateRefs()
+		IUTF_Utils_Vector#EnsureCapacity(mdStateRefs, funPos)
+		IUTF_Utils_Vector#SetLength(mdStateRefs, IUTF_Utils_Vector#GetLength(mdState))
+		mdStateRefs[funPos] = fullFuncName
 		WAVE/T mdFunState = GetMMDFuncState()
 		varPos = -2
 	else
@@ -114,10 +147,11 @@ End
 static Function IncreaseMMDIndices(fullFuncName)
 	string fullFuncName
 
-	variable i, numVars, index, genSize
+	variable i, numVars, index, genSize, refIndex
 
 	WAVE/WAVE mdState = GetMMDataState()
-	WAVE/T mdFunState = mdState[%$fullFuncName]
+	refIndex = GetMMDataStateRef(fullFuncName)
+	WAVE/T mdFunState = mdState[refIndex]
 	numVars = DimSize(mdFunState, UTF_ROW)
 	for(i = 0; i < numVars; i += 1)
 		index = str2num(mdFunState[i][%INDEX])
@@ -150,7 +184,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 	WAVE/WAVE mdState = GetMMDataState()
 	WAVE/T templates = GetMMDVarTemplates()
 
-	WAVE/T mdFunState = mdState[%$fullFuncName]
+	refIndex = GetMMDataStateRef(fullFuncName)
+	WAVE/T mdFunState = mdState[refIndex]
 
 	numTypes = DimSize(templates, UTF_ROW)
 	for(i = 0; i < numTypes; i += 1)
@@ -406,7 +441,8 @@ static Function/S GetMMDTCSuffix(tdIndex)
 	WAVE/WAVE mdState = GetMMDataState()
 
 	fullFuncName = testRunData[tdIndex][%FULLFUNCNAME]
-	WAVE/T mdFunState = mdState[%$fullFuncName]
+	refIndex = GetMMDataStateRef(fullFuncName)
+	WAVE/T mdFunState = mdState[refIndex]
 
 	numVars = DimSize(mdFunState, UTF_ROW)
 	for(i = 0; i < numVars; i += 1)

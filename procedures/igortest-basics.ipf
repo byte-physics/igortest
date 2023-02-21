@@ -1254,8 +1254,9 @@ static Function ClearTestSetupWaves()
 	WAVE/WAVE ftagWaves = IUTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/WAVE ftagRefs = IUTF_FunctionTags#GetFunctionTagRefs()
 	WAVE/WAVE mdState = IUTF_Test_MD_MMD#GetMMDataState()
+	WAVE/T mdStateRefs = IUTF_Test_MD_MMD#GetMMDataStateRefs()
 
-	KillWaves testRunData, dgenWaves, dgenRefs, ftagWaves, ftagRefs, mdState
+	KillWaves testRunData, dgenWaves, dgenRefs, ftagWaves, ftagRefs, mdState, mdStateRefs
 End
 
 /// @brief Detects if deprecated files are included and prompt a warning.
