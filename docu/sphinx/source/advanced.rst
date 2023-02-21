@@ -79,7 +79,10 @@ cleanup is done afterward. The *next* Test Case then starts with the data the
    By default the Igor debugger is disabled during the execution of a test run.
 
 Assertions can be used in test hooks. However it is enforced by the IUTF that
-the test case itself must contain at least one assertion.
+the test case itself must contain at least one assertion. If a CHECK or WARN
+assertion in a test hook fails the test run is still executed normally. If a
+test hook exits with a pending RTE (runtime exception) or an abort the execution
+of the test run will be cancelled as this is considered an invalid test setup.
 
 .. _JUNITOutput:
 
@@ -345,6 +348,12 @@ For a test case setup with the generic ``WAVE`` the type is not fixed for all
 elements of from the data generator.
 
  See also :ref:`example13`.
+
+Assertions can be used in data generators. If a CHECK or WARN assertion in a
+data generator fails the test run is still executed normally. If a data
+generator exits with a pending RTE (runtime exception) or an abort the
+execution of the test run will be cancelled as this is considered an invalid
+test setup.
 
 Multi Data Test Cases with Background Activity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
