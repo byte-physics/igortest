@@ -129,3 +129,26 @@ static Function AddRows(wv, count)
 
 	return newLength - 1
 End
+
+/// @brief Find the requested string inside the text wave. The full string has to match. If the
+/// requested text is found multiple times in the wave it will return one of them.
+///
+/// @param wv    The text vector to search in
+/// @param text  The string to search
+///
+/// @returns The index if found or -1 if not.
+static Function FindText(wv, text)
+	WAVE/T wv
+	string text
+
+	variable length
+
+	#if (IgorVersion() >= 8.00)
+	length = GetLength(wv)
+	FindValue/Z/TEXT=(text)/TXOP=5/RMD=[0, length - 1] wv
+#else
+	FindValue/Z/TEXT=(text)/TXOP=5 wv
+#endif
+
+	return V_value
+End

@@ -638,7 +638,7 @@ End
 static Function GetTestCaseCount([procWin])
 	string procWin
 
-	variable i, j, size, dgenSize
+	variable i, j, size, dgenSize, index
 	variable tcCount, dgenCount
 	string dgenList, dgen
 
@@ -655,7 +655,8 @@ static Function GetTestCaseCount([procWin])
 		dgenSize = ItemsInList(dgenList)
 		for(j = 0; j < dgenSize; j += 1)
 			dgen = StringFromList(j, dgenList)
-			WAVE wv = dgenWaves[%$dgen]
+			index = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+			WAVE wv = dgenWaves[index]
 			dgenCount *= DimSize(wv, UTF_ROW)
 		endfor
 		tcCount += dgenCount
@@ -959,7 +960,7 @@ static Function CallTestCase(s, reentry)
 
 	STRUCT IUTF_mData mData
 
-	variable wType0, wType1, wRefSubType, err, tcIndex
+	variable wType0, wType1, wRefSubType, err, tcIndex, refIndex
 	string func, msg, dgenFuncName, origTCName, funcInfo
 
 	WAVE/T testRunData = GetTestRunData()
@@ -987,7 +988,8 @@ static Function CallTestCase(s, reentry)
 
 		WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
 		dgenFuncName = StringFromList(0, testRunData[tcIndex][%DGENLIST])
-		WAVE wGenerator = dgenWaves[%$dgenFuncName]
+		refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+		WAVE wGenerator = dgenWaves[refIndex]
 		wType0 = WaveType(wGenerator)
 		wType1 = WaveType(wGenerator, 1)
 		if(wType1 == IUTF_WAVETYPE1_NUM)
@@ -1248,11 +1250,13 @@ static Function ClearTestSetupWaves()
 
 	WAVE/T testRunData = GetTestRunData()
 	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/T dgenRefs = IUTF_Test_MD_Gen#GetDataGeneratorRefs()
 	WAVE/WAVE ftagWaves = IUTF_FunctionTags#GetFunctionTagWaves()
 	WAVE/WAVE ftagRefs = IUTF_FunctionTags#GetFunctionTagRefs()
 	WAVE/WAVE mdState = IUTF_Test_MD_MMD#GetMMDataState()
+	WAVE/T mdStateRefs = IUTF_Test_MD_MMD#GetMMDataStateRefs()
 
-	KillWaves testRunData, dgenWaves, ftagWaves, ftagRefs, mdState
+	KillWaves testRunData, dgenWaves, dgenRefs, ftagWaves, ftagRefs, mdState, mdStateRefs
 End
 
 /// @brief Detects if deprecated files are included and prompt a warning.
@@ -1634,7 +1638,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			else
 				s.mdMode = TC_MODE_MD
 				dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
-				WAVE wGenerator = dgenWaves[%$dgenFuncName]
+				var = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+				WAVE wGenerator = dgenWaves[var]
 				s.dgenSize = DimSize(wGenerator, UTF_ROW)
 			endif
 
@@ -1646,7 +1651,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 				if(s.mdMode == TC_MODE_MD)
 					dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
-					WAVE wGenerator = dgenWaves[%$dgenFuncName]
+					var = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+					WAVE wGenerator = dgenWaves[var]
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
 						s.tcSuffix = IUTF_TC_SUFFIX_SEP + num2istr(s.dgenIndex)
