@@ -23,6 +23,36 @@ static Function/WAVE GetDataGeneratorWaves()
 	return wv
 End
 
+/// @brief Returns a global wave that stores the references for DataGeneratorWaves.
+static Function/WAVE GetDataGeneratorRefs()
+
+	string name = "DataGeneratorRefs"
+
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z/T wv = dfr:$name
+	if(WaveExists(wv))
+		return wv
+	endif
+
+	Make/T/N=(IUTF_WAVECHUNK_SIZE) dfr:$name/WAVE=wv
+	IUTF_Utils_Vector#SetLength(wv, 0)
+
+	return wv
+End
+
+/// @brief Find the current index in the global data generator wave reference wave.
+///
+/// @param fullFuncName  the full function name
+///
+/// @returns The index inside the data generate wave reference wave. -1 if not found.
+static Function GetDataGeneratorRef(fullFuncName)
+	string fullFuncName
+
+	WAVE/T dgRefs = GetDataGeneratorRefs()
+
+	return IUTF_Utils_Vector#FindText(dgRefs, fullFuncName)
+End
+
 /// Returns the functionName of the specified DataGenerator. The priority is first local then ProcGlobal.
 /// If funcName is specified with Module then in all procedures is looked. No ProcGlobal function is returned in that case.
 static Function/S GetDataGeneratorFunctionName(err, funcName, procName)
@@ -235,8 +265,8 @@ static Function/WAVE GetGeneratorWave(dgen)
 	variable dimPos
 
 	WAVE/WAVE wDgen = GetDataGeneratorWaves()
-	dimPos = FindDimlabel(wDgen, UTF_ROW, dgen)
-	if(dimPos == -2)
+	dimPos = GetDataGeneratorRef(dgen)
+	if(dimPos == -1)
 		return $""
 	endif
 	WAVE wGenerator = wDgen[dimPos]
@@ -293,8 +323,8 @@ static Function ExecuteAllDataGenerators(debugMode)
 
 		for(j = 0; j < length; j += 1)
 			dgen = dgenWave[j]
-			dimPos = FindDimLabel(wDgen, UTF_ROW, dgen)
-			if(dimPos != -2)
+			dimPos = GetDataGeneratorRef(dgen)
+			if(dimPos != -1)
 				continue
 			endif
 			procWin = StringByKey("PROCWIN", FunctionInfo(dgen))
@@ -345,7 +375,11 @@ static Function AddDataGeneratorWave(name, generator)
 	variable index
 
 	WAVE/WAVE wv = GetDataGeneratorWaves()
+	WAVE/T wvRefs = GetDataGeneratorRefs()
+
 	index = IUTF_Utils_Vector#AddRow(wv)
 	wv[index] = generator
-	SetDimLabel UTF_ROW, index, $name, wv
+	IUTF_Utils_Vector#EnsureCapacity(wvRefs, index)
+	wvRefs[index] = name
+	IUTF_Utils_Vector#SetLength(wvRefs, IUTF_Utils_Vector#GetLength(wv))
 End

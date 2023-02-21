@@ -139,7 +139,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 	string fullFuncName
 
 	variable i, j, numTypes
-	variable funPos, varPos, index, val
+	variable funPos, varPos, index, val, refIndex
 	variable/C cplx
 	string msg, varName, dgen, str
 #if (IgorVersion() >= 7.0)
@@ -165,7 +165,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 
 			strSwitch(templates[i])
 				case DGEN_VAR_TEMPLATE:
-					WAVE wGenerator = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE wGenerator = dgenWaves[refIndex]
 					val = wGenerator[index]
 
 					switch(j)
@@ -190,7 +191,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 					endswitch
 					break
 				case DGEN_STR_TEMPLATE:
-					WAVE/T wGeneratorT = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE/T wGeneratorT = dgenWaves[refIndex]
 					str = wGeneratorT[index]
 
 					switch(j)
@@ -215,7 +217,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 					endswitch
 					break
 				case DGEN_DFR_TEMPLATE:
-					WAVE/DF wGeneratorDFR = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE/DF wGeneratorDFR = dgenWaves[refIndex]
 					DFREF dfr = wGeneratorDFR[index]
 
 					switch(j)
@@ -240,7 +243,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 					endswitch
 					break
 				case DGEN_WAVE_TEMPLATE:
-					WAVE/WAVE wGeneratorWV = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE/WAVE wGeneratorWV = dgenWaves[refIndex]
 					WAVE wv = wGeneratorWV[index]
 
 					switch(j)
@@ -265,7 +269,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 					endswitch
 					break
 				case DGEN_CMPLX_TEMPLATE:
-					WAVE/C wGeneratorC = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE/C wGeneratorC = dgenWaves[refIndex]
 					cplx = wGeneratorC[index]
 
 					switch(j)
@@ -291,7 +296,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 					break
 #if (IgorVersion() >= 7.0)
 				case DGEN_INT64_TEMPLATE:
-					WAVE wGeneratorI = dgenWaves[%$dgen]
+					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+					WAVE wGeneratorI = dgenWaves[refIndex]
 					i64 = wGeneratorI[index]
 
 					switch(j)
@@ -391,7 +397,7 @@ EndStructure
 static Function/S GetMMDTCSuffix(tdIndex)
 	variable tdIndex
 
-	variable i, numVars, index
+	variable i, numVars, index, refIndex
 	string fullFuncName, dgen, lbl
 	string tcSuffix = ""
 
@@ -406,7 +412,8 @@ static Function/S GetMMDTCSuffix(tdIndex)
 	for(i = 0; i < numVars; i += 1)
 		dgen = mdFunState[i][%DATAGEN]
 		index = str2num(mdFunState[i][%INDEX])
-		WAVE wGenerator = dgenWaves[%$dgen]
+		refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
+		WAVE wGenerator = dgenWaves[refIndex]
 		lbl = GetDimLabel(wGenerator, UTF_ROW, index)
 		if(!IUTF_Utils#IsEmpty(lbl))
 			tcSuffix += IUTF_TC_SUFFIX_SEP + lbl

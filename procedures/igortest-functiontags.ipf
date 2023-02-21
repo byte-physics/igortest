@@ -64,17 +64,9 @@ End
 static Function GetFunctionTagRef(fullFuncName)
 	string fullFuncName
 
-	variable length
 	WAVE/T ftagRefs = GetFunctionTagRefs()
 
-#if (IgorVersion() >= 8.00)
-	length = IUTF_Utils_Vector#GetLength(ftagRefs)
-	FindValue/Z/TEXT=(fullFuncName)/TXOP=5/RMD=[0, length - 1] ftagRefs
-#else
-	FindValue/Z/TEXT=(fullFuncName)/TXOP=5 ftagRefs
-#endif
-
-	return V_value
+	return IUTF_Utils_Vector#FindText(ftagRefs, fullFuncName)
 End
 
 /// @brief returns 1 if the comments above a function contain a certain tag, zero otherwise
