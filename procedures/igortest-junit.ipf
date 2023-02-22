@@ -122,6 +122,8 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	string out, name, classname, message, type
 	variable i, timeTaken, startIndex, endIndex
 
+	variable skip = 0
+
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
@@ -133,14 +135,21 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 
 	sprintf out, "\t\t<testcase name=\"%s\" classname=\"%s\" time=\"%.3f\">\n", name, classname, timeTaken
 	if(!CmpStr(IUTF_STATUS_SKIP, wvTestCase[testCaseIndex][%STATUS]))
-		out += "\t\t\t<skipped/>\n"
+		skip = 1
+	endif
+	if(!CmpStr(IUTF_STATUS_RETRY, wvTestCase[testCaseIndex][%STATUS]))
+		skip = 1
 	endif
 
-	startIndex = str2num(wvTestCase[testCaseIndex][%CHILD_START])
-	endIndex = str2num(wvTestCase[testCaseIndex][%CHILD_END])
-	for(i = startIndex; i < endIndex; i += 1)
-		out += JU_AssertionOut(i)
-	endfor
+	if(skip)
+		out += "\t\t\t<skipped/>\n"
+	else
+		startIndex = str2num(wvTestCase[testCaseIndex][%CHILD_START])
+		endIndex = str2num(wvTestCase[testCaseIndex][%CHILD_END])
+		for(i = startIndex; i < endIndex; i += 1)
+			out += JU_AssertionOut(i)
+		endfor
+	endif
 
 	message = wvTestCase[testCaseIndex][%STDOUT]
 	if(strlen(message))

@@ -53,6 +53,8 @@ StrConstant IUTF_STATUS_FAIL = "FAIL"
 StrConstant IUTF_STATUS_SKIP = "SKIP"
 // Test is finished without any problem
 StrConstant IUTF_STATUS_SUCCESS = "SUCCESS"
+// Test is retried
+StrConstant IUTF_STATUS_RETRY = "RETRY"
 ///@}
 
 Constant IUTF_MICRO_TO_ONE = 1e-06
@@ -214,6 +216,7 @@ StrConstant UTF_FTAG_SKIP              = "IUTF_SKIP"
 StrConstant UTF_FTAG_TAP_DIRECTIVE     = "TAPDirective"
 StrConstant UTF_FTAG_TAP_DESCRIPTION   = "TAPDescription"
 StrConstant UTF_FTAG_NO_WAVE_TRACKING  = "IUTF_NO_WAVE_TRACKING"
+StrConstant UTF_FTAG_RETRY_FAILED      = "IUTF_RETRY_FAILED"
 /// @}
 
 /// @name Keys for traceOptions parameter
@@ -255,3 +258,22 @@ Constant UTF_ANALYTICS_LINES = 0x01
 Constant UTF_ANALYTICS_CALLS = 0x00
 Constant UTF_ANALYTICS_SUM = 0x01
 /// @}
+
+/// @name IUTF Retry modes
+/// @anchor RetryModes
+/// @{
+// no functions will be retried at all
+Constant IUTF_RETRY_NORETRY            = 0x00
+// retry all failed functions until they pass their execution once.
+Constant IUTF_RETRY_FAILED_UNTIL_PASS  = 0x01
+// Allow all tests to be retried. The default is that only test cases with the function
+// tag UTF_FTAG_RETRY_FAILED are retried.
+Constant IUTF_RETRY_MARK_ALL_AS_RETRY  = 0x10
+// Allow failed REQUIREs to be retried which would normally abort the whole test run. This flag has
+// only an effect if IUTF_RETRY_FAILED_UNTIL_PASS is set.
+Constant IUTF_RETRY_REQUIRES           = 0x20
+/// @}
+
+/// @name Maximum number a single test case can be retried. The user can set a lower limit but this
+/// is the maximum supported by IUTF.
+Constant IUTF_MAX_SUPPORTED_RETRY = 10

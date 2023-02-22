@@ -109,7 +109,8 @@ End
 ///   - ENDTIME: time in seconds (since since computer start) when this test case was finished.
 ///     Empty if still running.
 ///   - STATUS: The resulting status of this test case. Its one of IUTF_STATUS_UNKNOWN,
-///     IUTF_STATUS_ERROR, IUTF_STATUS_FAIL, IUTF_STATUS_SKIP or IUTF_STATUS_SUCCESS.
+///     IUTF_STATUS_ERROR, IUTF_STATUS_FAIL, IUTF_STATUS_SKIP, IUTF_STATUS_SUCCESS or
+///     IUTF_STATUS_RETRY.
 ///   - NUM_ASSERT: number of called assertions in this test case
 ///   - NUM_ASSERT_ERROR: number of failed or errored assertions in this test case
 ///   - STDOUT: the copy of the output that was printed to the history during execution of this test
