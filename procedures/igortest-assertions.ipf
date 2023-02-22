@@ -725,7 +725,7 @@ End
 
 /// @copydoc EQUAL_STR_DOCU
 Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
@@ -737,7 +737,7 @@ End
 
 /// @copydoc EQUAL_STR_DOCU
 Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
@@ -749,7 +749,7 @@ End
 
 /// @copydoc EQUAL_STR_DOCU
 Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
@@ -761,7 +761,7 @@ End
 
 /// @copydoc NEQ_STR_DOCU
 Function WARN_NEQ_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
@@ -773,7 +773,7 @@ End
 
 /// @copydoc NEQ_STR_DOCU
 Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
@@ -785,7 +785,7 @@ End
 
 /// @copydoc NEQ_STR_DOCU
 Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
-	string &str1, &str2
+	string str1, str2
 	variable case_sensitive
 
 	if(ParamIsDefault(case_sensitive))
