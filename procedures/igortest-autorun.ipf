@@ -111,11 +111,11 @@ Function/S GetBaseFilename()
 		SVAR/SDFR=dfr baseFilename
 	endif
 
-	if(strlen(baseFilename))
+	if(!IUTF_Utils#IsEmpty(baseFilename))
 		return baseFilename
 	endif
 
-	if(SVAR_Exists(baseFilenameOverwrite) && strlen(baseFilenameOverwrite))
+	if(SVAR_Exists(baseFilenameOverwrite) && !IUTF_Utils#IsEmpty(baseFilenameOverwrite))
 		baseFilename = baseFilenameOverwrite
 	else
 		sprintf baseFilename, "%s_%s_%s", IgorInfo(1), Secs2Date(DateTime, -2), ReplaceString(":", Secs2Time(DateTime, 3), "-")

@@ -118,7 +118,7 @@ static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult 
 		// of the previous function declaration
 		name = ""
 		for(j = 0; j < lineCount; j++)
-			if(!strlen(result.functions[i][j]))
+			if(IUTF_Utils#IsEmpty(result.functions[i][j]))
 				result.functions[i][j] = name
 			else
 				name = result.functions[i][j]

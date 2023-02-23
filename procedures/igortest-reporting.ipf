@@ -205,7 +205,7 @@ static Function AddError(message, type, [incrErrorCounter])
 		wvTestCase[%CURRENT][%STATUS] = type
 		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
-	if(strlen(message))
+	if(!IUTF_Utils#IsEmpty(message))
 		wvTestCase[%CURRENT][%STDERR] = AddListItem(message, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
 	endif
 
@@ -513,10 +513,15 @@ threadsafe static Function IUTF_PrintStatusMessage(msg, [allowEmptyLine])
 	variable allowEmptyLine
 
 	string tmpStr
+	variable len
 
 	allowEmptyLine = ParamIsDefault(allowEmptyLine) ? 0 : !!allowEmptyLine
 
-	if(!allowEmptyLine && strlen(msg) == 0)
+	// Copy of IUTF_Tracing#IsNull() and IUTF_Tracing#IsEmpty().
+	// These functions cannot be used here as in Igor <= 8.0 can no threadsafe function use another
+	// static threadsafe function with the full name when using Independent Modules.
+	len = strlen(msg)
+	if(!allowEmptyLine && (numtype(len) == 2 || len <= 0))
 		return NaN
 	endif
 

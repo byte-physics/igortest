@@ -457,7 +457,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	macroIndexHelper[] = IUTF_FunctionTags#AddFunctionTagWave(wMacroList[p])
 	macroExclusionFlag[] = IUTF_FunctionTags#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
 	for(i = 0; i < numMacros; i += 1)
-		if(IUTF_Utils#isEmpty(procedurePath))
+		if(IUTF_Utils#IsEmpty(procedurePath))
 			procedurePath = MacroPath(wMacroList[i])
 			break
 		endif
@@ -480,12 +480,12 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 		endif
 		IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 		funcExclusionFlag[i] = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
-		if(IUTF_Utils#isEmpty(procedurePath))
+		if(IUTF_Utils#IsEmpty(procedurePath))
 			procedurePath = FunctionPath(fullFuncName)
 		endif
 	endfor
 
-	if(IUTF_Utils#isEmpty(procedurePath))
+	if(IUTF_Utils#IsEmpty(procedurePath))
 		sprintf msg, "Unable to retrieve path of procedure file %s as no macro or function could be resolved.", procWin
 		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
@@ -928,7 +928,7 @@ static Function AnalyzeTracingResult()
 
 		do
 			FReadLine fNum, line
-			if(!strlen(line))
+			if(IUTF_Utils#IsEmpty(line))
 				break
 			endif
 			line = RemoveEnding(line, "\r\n")
