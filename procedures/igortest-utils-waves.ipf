@@ -4,6 +4,12 @@
 #pragma version=1.09
 #pragma ModuleName = IUTF_Utils_Waves
 
+#if (IgorVersion() >= 9.00)
+static Constant RANDOM_NUMBER_GENERATOR = 3 // Xoshiro256
+#else
+static Constant RANDOM_NUMBER_GENERATOR = 2 // Merseene Twister
+#endif
+
 /// @brief Search for the first occurrence of the specified dimension label and remove it. If the
 /// label wasn't found nothing will be changed.
 ///
@@ -44,4 +50,34 @@ static Function MoveDimLabel(wv, dimension, label, newIndex)
 	SetDimLabel dimension, newIndex, $label, wv
 
 	return oldIndex
+End
+
+/// @brief Shuffles the entries in the wave wv in a random order. It will always use the best PRNGs
+/// for the current Igor version.
+///
+/// @param wv          a 1 dimension text wave that need to be shuffled
+/// @param startIndex  (optional, default 0) The inclusive start index where the shuffle should
+///                    start.
+/// @param endIndex    (optional, default DimSize(wv, UTF_ROW)) The exclusive end index where the
+///                    shuffle should stop. This is usefull for vectors.
+static Function InPlaceShuffleText1D(wv, [startIndex, endIndex])
+	WAVE/T wv
+	variable startIndex, endIndex
+
+	variable i1, i2, halfRange
+	string tmp
+
+	startIndex = ParamIsDefault(startIndex) ? 0 : startIndex
+	endIndex = ParamIsDefault(endIndex) ? DimSize(wv, UTF_ROW) : endIndex
+
+	// basic shuffle algorithm
+	for(i1 = startIndex; i1 < endIndex - 1; i1 += 1)
+		// getting second index
+		halfRange = (endIndex - i1) * 0.5
+		i2 = i1 + floor(halfRange + enoise(halfRange, RANDOM_NUMBER_GENERATOR))
+		// triangle swap
+		tmp = wv[i1]
+		wv[i1] = wv[i2]
+		wv[i2] = tmp
+	endfor
 End

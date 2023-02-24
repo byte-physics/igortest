@@ -30,6 +30,8 @@ static Constant TC_MODE_NORMAL = 0
 static Constant TC_MODE_MD = 1
 static Constant TC_MODE_MMD = 2
 
+static Constant MAX_PROCTAGS_SCAN_LINES = 20
+
 /// @brief Returns a global wave that stores data about this testrun
 static Function/WAVE GetTestRunData()
 
@@ -477,6 +479,37 @@ static Function/S SortTestCaseList(procWin, testCaseList)
 	return IUTF_Utils#TextWaveToList(testCaseWave, ";")
 End
 
+/// @brief Checks if the procedure window has the global tag to ban shuffling test cases. This will
+/// keep the test cases in their original order for this single procedure file only.
+///
+/// @param procWin The name of the procedure window. This can include independent module names.
+///
+/// @returns 1 if procedure file has the ban tag, 0 if not
+static Function HasProcedureShuffleBan(procWin)
+	string procWin
+
+	variable i, numLines
+	string fullText, line, tagValue
+
+	fullText = ProcedureText("", 0, procWin + " [" + GetIndependentModuleName() + "]")
+	WAVE/T wv = ListToTextWave(fullText, "\r")
+	numLines = DimSize(wv, UTF_ROW)
+
+	numLines = min(numLines, MAX_PROCTAGS_SCAN_LINES)
+	for(i = 0; i < numLines; i += 1)
+		line = wv[i]
+		if(IUTF_Utils#IsEmpty(line))
+			continue
+		endif
+
+		if(IUTF_FunctionTags#IsTagMatch(IUTF_NO_SHUFFLE_TEST_CASE, line, tagValue))
+			return 1
+		endif
+	endfor
+
+	return 0
+End
+
 /// @brief get test cases matching a certain pattern and fill TesRunSetup wave
 ///
 /// This function searches for test cases in a given list of test suites. The
@@ -492,14 +525,17 @@ End
 ///                         * *one* regular expression without ";" (enableRegExp = 1)
 /// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
 /// @param[out] errMsg error message in case of error
+/// @param[in]  enableTAP   Specify if TAP output is enabled or not
+/// @param[in]  debugMode   The current debug mode
+/// @param[in]  shuffleMode The current test shuffle mode
 ///
 /// @returns Numeric Error Code
-static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP, debugMode)
+static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP, debugMode, shuffleMode)
 	string procWinList
 	string matchStr
 	variable enableRegExp
 	string &errMsg
-	variable enableTAP, debugMode
+	variable enableTAP, debugMode, shuffleMode
 
 	string procWin
 	string funcName
@@ -518,6 +554,10 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 	if(enableRegExp)
 		sprintf matchStr, "^(?i)%s$", matchStr
+	endif
+
+	if(shuffleMode & IUTF_SHUFFLE_TEST_SUITES)
+		procWinList = IUTF_Utils_Strings#ShuffleList(procWinList)
 	endif
 
 	WAVE/T testRunData = GetTestRunData()
@@ -558,6 +598,10 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 				testCaseMatch = AddListItem(testCase, testCaseMatch, ";", Inf)
 				usedTC[j] = 1
 			endfor
+		endif
+
+		if((shuffleMode & IUTF_SHUFFLE_TEST_CASES) && !HasProcedureShuffleBan(procWin))
+			testCaseMatch = IUTF_Utils_Strings#ShuffleList(testCaseMatch)
 		endif
 
 		numFL = ItemsInList(testCaseMatch)
@@ -895,6 +939,7 @@ static Function SaveState(dfr, s)
 	variable/G dfr:SmdMode = s.mdMode
 	variable/G dfr:StracingEnabled = s.tracingEnabled
 	variable/G dfr:ShtmlCreation = s.htmlCreation
+	variable/G dfr:Sshuffle = s.shuffle
 	string/G dfr:StcSuffix = s.tcSuffix
 	variable/G dfr:SretryMode = s.retryMode
 	variable/G dfr:SretryCount = s.retryCount
@@ -941,6 +986,8 @@ static Function RestoreState(dfr, s)
 	s.tracingEnabled = var
 	NVAR var = dfr:ShtmlCreation
 	s.htmlCreation = var
+	NVAR var = dfr:Sshuffle
+	s.shuffle = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
 
@@ -1150,6 +1197,7 @@ static Structure strRunTest
 	variable mdMode
 	variable tracingEnabled
 	variable htmlCreation
+	variable shuffle
 	string tcSuffix
 	STRUCT IUTF_TestHooks hooks
 	STRUCT IUTF_TestHooks procHooks
@@ -1473,14 +1521,23 @@ End
 ///                         Sets the maximum number of retries if rerunning of flaky tests is enabled. Setting this number
 ///                         higher than IUTF_MAX_SUPPORTED_RETRY is not allowed.
 ///
+/// @param   shuffle        (optional) default IUTF_SHUFFLE_NONE
+///                         A combination of flags which specify the current shuffle mode. Supported flags are:
+///                         IUTF_SHUFFLE_NONE: Shuffle nothing. Use a deterministic execution order.
+///                         IUTF_SHUFFLE_TEST_SUITES: Shuffle the order of execution of the test suites
+///                         IUTF_SHUFFLE_TEST_CASES: Shuffle the order of execution of the test cases inside the test suites.
+///                           You can opt-out single procedure files if you place the tag IUTF_NO_SHUFFLE_TEST_CASE somewhere in these
+///                           specific files.
+///                         IUTF_SHUFFLE_ALL: A combination of IUTF_SHUFFLE_TEST_SUITES and IUTF_SHUFFLE_TEST_CASES
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode, retry, retryMaxCount])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode, retry, retryMaxCount, shuffle])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
 	string traceWinList, traceOptions
 	variable fixLogName
-	variable waveTrackingMode, retry, retryMaxCount
+	variable waveTrackingMode, retry, retryMaxCount, shuffle
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -1545,6 +1602,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
 		s.retryMode = ParamIsDefault(retry) ? IUTF_RETRY_NORETRY : retry
 		s.retryCount = ParamIsDefault(retryMaxCount) ? IUTF_MAX_SUPPORTED_RETRY : retryMaxCount
+		s.shuffle = ParamIsDefault(shuffle) ? IUTF_SHUFFLE_NONE : shuffle
 
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !IUTF_Utils#IsEmpty(traceWinList)
 
@@ -1571,6 +1629,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 		if(s.debugMode == 0 && allowDebug > 0)
 			s.debugMode = IUTF_Debug#GetCurrentDebuggerState()
+		endif
+
+		if(shuffle & ~IUTF_SHUFFLE_ALL)
+			sprintf msg, "Invalid shuffle mode %d", shuffle
+			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
 
 #if IgorVersion() < 9.00
@@ -1652,7 +1715,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode)
+		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode, shuffle)
 		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)

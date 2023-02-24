@@ -10,6 +10,7 @@
 #include "TestOrderTestsA"
 #include "TestOrderTestsB"
 #include "TestOrderTestsC"
+#include "TestOrderTestsD"
 
 // These tests the execution of the test case order
 
@@ -18,9 +19,10 @@ static Function TestDefaultTestCaseOrder()
 	string procNames = "TestOrderTestsA.ipf;TestOrderTestsC.ipf;TestOrderTestsB.ipf;"
 	string testCases = ".*"
 	variable regex = 1
+	variable shuffle = IUTF_SHUFFLE_NONE
 	Make/T/FREE expect = { "A4", "A1", "A2", "A3", "C4", "C2", "C1", "C3", "B4", "B1", "B3", "B2" }
 
-	TestHelper(procNames, testCases, regex, expect)
+	TestHelper(procNames, testCases, regex, shuffle, expect)
 End
 
 static Function TestDefinedTestCaseOrder()
@@ -28,14 +30,51 @@ static Function TestDefinedTestCaseOrder()
 	string procNames = "TestOrderTestsA.ipf;TestOrderTestsC.ipf;TestOrderTestsB.ipf;"
 	string testCases = "Test1;Test3;Test2;Test4;"
 	variable regex = 0
+	variable shuffle = IUTF_SHUFFLE_NONE
 	Make/T/FREE expect = { "A1", "A3", "A2", "A4", "C1", "C3", "C2", "C4", "B1", "B3", "B2", "B4" }
 
-	TestHelper(procNames, testCases, regex, expect)
+	TestHelper(procNames, testCases, regex, shuffle, expect)
 End
 
-static Function TestHelper(procNames, testCases, regex, expect)
+static Function TestRandomTestCaseOrder()
+	variable seed
+
+	string procNames = "TestOrderTestsA.ipf;TestOrderTestsC.ipf;TestOrderTestsB.ipf;"
+	string testCases = ".*"
+	variable regex = 1
+	variable shuffle = IUTF_SHUFFLE_ALL
+#if (IgorVersion() >= 7.00) && (IgorVersion() < 9.00)
+	Make/T/FREE expect = { "A2", "A4", "A3", "A1", "B4", "B1", "B2", "B3", "C4", "C3", "C1", "C2" }
+#else
+	Make/T/FREE expect = { "A1", "A2", "A3", "A4", "C2", "C1", "C3", "C4", "B2", "B4", "B3", "B1" }
+#endif
+
+	SetRandomSeed 0
+
+	TestHelper(procNames, testCases, regex, shuffle, expect)
+End
+
+static Function TestRandomTestCaseOrder2()
+	variable seed
+
+	string procNames = "TestOrderTestsA.ipf;TestOrderTestsD.ipf;TestOrderTestsB.ipf;"
+	string testCases = ".*"
+	variable regex = 1
+	variable shuffle = IUTF_SHUFFLE_ALL
+#if (IgorVersion() >= 7.00) && (IgorVersion() < 9.00)
+	Make/T/FREE expect = { "A2", "A4", "A3", "A1", "B4", "B1", "B2", "B3", "D4", "D2", "D1", "D3" }
+#else
+	Make/T/FREE expect = { "A1", "A2", "A3", "A4", "D4", "D2", "D1", "D3", "B1", "B3", "B2", "B4" }
+#endif
+
+	SetRandomSeed 0
+
+	TestHelper(procNames, testCases, regex, shuffle, expect)
+End
+
+static Function TestHelper(procNames, testCases, regex, shuffle, expect)
 	string procNames, testCases
-	variable regex
+	variable regex, shuffle
 	WAVE/T expect
 
 	variable i, length, errCode, rtcode
@@ -45,7 +84,7 @@ static Function TestHelper(procNames, testCases, regex, expect)
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup(procNames, testCases, regex, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup(procNames, testCases, regex, errMsg, 0, IUTF_DEBUG_DISABLE, shuffle)
 		// Cannot use CHECK_NO_RTE() inside Backup-Restore fence as there is no access to current
 		// test results
 		rtmsg = GetRTErrMessage()

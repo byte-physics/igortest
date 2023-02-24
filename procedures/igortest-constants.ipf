@@ -277,3 +277,14 @@ Constant IUTF_RETRY_REQUIRES           = 0x20
 /// @name Maximum number a single test case can be retried. The user can set a lower limit but this
 /// is the maximum supported by IUTF.
 Constant IUTF_MAX_SUPPORTED_RETRY = 10
+
+/// @name IUTF Test shuffle modes
+/// @anchor TestShuffleModes
+/// @{
+Constant IUTF_SHUFFLE_NONE = 0x00
+Constant IUTF_SHUFFLE_TEST_SUITES = 0x01
+Constant IUTF_SHUFFLE_TEST_CASES = 0x02
+Constant IUTF_SHUFFLE_ALL = 0x03 // IUTF_SHUFFLE_TEST_SUITES | IUTF_SHUFFLE_TEST_CASES
+/// @}
+
+StrConstant IUTF_NO_SHUFFLE_TEST_CASE = "IUTF_NO_SHUFFLE_TEST_CASE"
