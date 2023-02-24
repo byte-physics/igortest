@@ -386,4 +386,20 @@ static Function/S GetWaveMinorTypeString(type)
 	return RemoveEnding(str, ", ")
 End
 
+static Function HasRTE(code)
+	variable code
+
+	variable rte = GetRTError(0)
+
+	return rte == code
+End
+
+static Function HasAnyRTE()
+	variable code
+
+	variable rte = GetRTError(0)
+
+	return !!rte
+End
+
 /// @endcond // HIDDEN_SYMBOL

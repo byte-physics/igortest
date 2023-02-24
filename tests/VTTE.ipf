@@ -31,6 +31,7 @@ End
 // This is done so that we don't rely on the IUTF test case discovery logic to work.
 static Function TestIUTF()
 	variable err
+	string str
 
 	PASS()
 
@@ -706,6 +707,52 @@ static Function TestIUTF()
 	CHECK_WAVE($"", NULL_WAVE)
 	CHECK_WAVE({0}, NUMERIC_WAVE, minorType = FLOAT_WAVE)
 
+	// @}
+
+	// HasRTE/HasAnyRTE
+	// @{
+	WAVE/Z nullWave = $""
+	nullWave[0] = 0
+	Ensure(!IUTF_Checks#HasRTE(0))
+	Ensure(IUTF_Checks#HasRTE(330))
+	Ensure(!IUTF_Checks#HasRTE(185))
+	Ensure(IUTF_Checks#HasAnyRTE())
+	err = GetRTError(1)
+
+	str = nullstr[0]
+	Ensure(!IUTF_Checks#HasRTE(0))
+	Ensure(!IUTF_Checks#HasRTE(330))
+	Ensure(IUTF_Checks#HasRTE(185))
+	Ensure(IUTF_Checks#HasAnyRTE())
+	err = GetRTError(1)
+
+	Ensure(IUTF_Checks#HasRTE(0))
+	Ensure(!IUTF_Checks#HasRTE(330))
+	Ensure(!IUTF_Checks#HasRTE(185))
+	Ensure(!IUTF_Checks#HasAnyRTE())
+	// @}
+
+	// CHECK_RTE, CHECK_ANY_RTE, CHECK_NO_RTE
+	// @{
+	CHECK_NO_RTE()
+
+	nullWave[0] = 0
+	CHECK_RTE(330)
+	Ensure(!GetRTError(1))
+
+	str = nullstr[0]
+	CHECK_RTE(185)
+	Ensure(!GetRTError(1))
+
+	nullWave[0] = 0
+	CHECK_ANY_RTE()
+	Ensure(!GetRTError(1))
+
+	str = nullstr[0]
+	CHECK_ANY_RTE()
+	Ensure(!GetRTError(1))
+
+	CHECK_NO_RTE()
 	// @}
 
 	// UserPrintF

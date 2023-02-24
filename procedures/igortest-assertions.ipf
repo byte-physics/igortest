@@ -981,4 +981,52 @@ Function REQUIRE_EMPTY_FOLDER()
 	IUTF_Wrapper#CDF_EMPTY_WRAPPER(REQUIRE_MODE)
 End
 
+/// @copydoc RTE_DOCU
+Function WARN_RTE(code)
+	variable code
+	IUTF_Wrapper#RTE_WRAPPER(code, WARN_MODE)
+End
+
+/// @copydoc RTE_DOCU
+Function CHECK_RTE(code)
+	variable code
+	IUTF_Wrapper#RTE_WRAPPER(code, CHECK_MODE)
+End
+
+/// @copydoc RTE_DOCU
+Function REQUIRE_RTE(code)
+	variable code
+	IUTF_Wrapper#RTE_WRAPPER(code, REQUIRE_MODE)
+End
+
+/// @copydoc ANY_RTE_DOCU
+Function WARN_ANY_RTE()
+	IUTF_Wrapper#ANY_RTE_WRAPPER(WARN_MODE)
+End
+
+/// @copydoc ANY_RTE_DOCU
+Function CHECK_ANY_RTE()
+	IUTF_Wrapper#ANY_RTE_WRAPPER(CHECK_MODE)
+End
+
+/// @copydoc ANY_RTE_DOCU
+Function REQUIRE_ANY_RTE()
+	IUTF_Wrapper#ANY_RTE_WRAPPER(REQUIRE_MODE)
+End
+
+/// @copydoc NO_RTE_DOCU
+Function WARN_NO_RTE()
+	IUTF_Wrapper#NO_RTE_WRAPPER(WARN_MODE)
+End
+
+/// @copydoc NO_RTE_DOCU
+Function CHECK_NO_RTE()
+	IUTF_Wrapper#NO_RTE_WRAPPER(CHECK_MODE)
+End
+
+/// @copydoc NO_RTE_DOCU
+Function REQUIRE_NO_RTE()
+	IUTF_Wrapper#NO_RTE_WRAPPER(REQUIRE_MODE)
+End
+
 ///@}
