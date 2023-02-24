@@ -143,11 +143,11 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	endfor
 
 	message = wvTestCase[testCaseIndex][%STDOUT]
-	if(strlen(message))
+	if(!IUTF_Utils#IsEmpty(message))
 		out += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(message)) + "</system-out>\n"
 	endif
 	message = wvTestCase[testCaseIndex][%STDERR]
-	if(strlen(message))
+	if(!IUTF_Utils#IsEmpty(message))
 		out += "\t\t<system-err>" + JU_ToXMLCharacters(message) + "</system-err>\n"
 	endif
 
@@ -213,11 +213,11 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	endfor
 
 	s = wvTestSuite[testSuiteIndex][%STDOUT]
-	if(strlen(s))
+	if(!IUTF_Utils#IsEmpty(s))
 		out += "\t\t<system-out>" + JU_ToXMLCharacters(JU_TrimSOUT(s)) + "</system-out>\n"
 	endif
 	s = wvTestSuite[testSuiteIndex][%STDERR]
-	if(strlen(s))
+	if(!IUTF_Utils#IsEmpty(s))
 		out += "\t\t<system-err>" + JU_ToXMLCharacters(s) + "</system-err>\n"
 	endif
 

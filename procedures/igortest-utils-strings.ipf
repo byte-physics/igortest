@@ -50,7 +50,7 @@ static Function/S UserPrintF(format, strings, numbers, err)
 		return result
 	endif
 
-	for(; strlen(format);)
+	for(; !IUTF_Utils#IsEmpty(format);)
 		SplitString/E=USER_PRINT_PATTERN format, part1, part2, part3
 		num = V_flag
 

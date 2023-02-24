@@ -73,16 +73,15 @@ threadsafe static Function IsNull(str)
 	return numtype(len) == 2
 End
 
-/// @brief Returns one if str is empty or null, zero otherwise.
-/// @param str must not be a SVAR
+/// @brief Returns one if str is empty, zero otherwise.
+/// @param str any non-null string variable or text wave element
 ///
 /// @hidecallgraph
 /// @hidecallergraph
 threadsafe static Function IsEmpty(str)
-	string& str
+	string str
 
-	variable len = strlen(str)
-	return numtype(len) == 2 || len <= 0
+	return !(strlen(str) > 0)
 End
 
 /// @brief Returns one if var is a nonfinite integer, zero otherwise
