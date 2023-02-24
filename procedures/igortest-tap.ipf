@@ -134,6 +134,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 			ok = "ok"
 			diagnostics = ""
 			break
+		case IUTF_STATUS_RETRY:
 		case IUTF_STATUS_SUCCESS:
 			ok = "ok"
 			diagnostics = TAP_ValidDiagnostic(diagnostics)

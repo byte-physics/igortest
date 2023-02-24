@@ -161,6 +161,7 @@ static Function TestCaseEnd(endTime)
 			WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 			wvTestSuite[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]) + 1)
 			break
+		// IUTF_STATUS_RETRY is not expected at this point so we use the default case
 		default:
 			sprintf msg, "test status \"%s\" is not supported for test case \"%s\".", wvTestCase[%CURRENT][%STATUS], name
 			IUTF_Reporting#ReportError(msg)

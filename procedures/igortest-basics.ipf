@@ -890,6 +890,10 @@ static Function SaveState(dfr, s)
 	variable/G dfr:StracingEnabled = s.tracingEnabled
 	variable/G dfr:ShtmlCreation = s.htmlCreation
 	string/G dfr:StcSuffix = s.tcSuffix
+	variable/G dfr:SretryMode = s.retryMode
+	variable/G dfr:SretryCount = s.retryCount
+	variable/G dfr:SretryIndex = s.retryIndex
+	variable/G dfr:SretryFailedProc = s.retryFailedProc
 
 	variable/G dfr:Si = s.i
 	variable/G dfr:Serr = s.err
@@ -933,6 +937,15 @@ static Function RestoreState(dfr, s)
 	s.htmlCreation = var
 	SVAR str = dfr:StcSuffix
 	s.tcSuffix = str
+
+	NVAR var = dfr:SretryMode
+	s.retryMode = var
+	NVAR var = dfr:SretryCount
+	s.retryCount = var
+	NVAR var = dfr:SretryIndex
+	s.retryIndex = var
+	NVAR var = dfr:SretryFailedProc
+	s.retryFailedProc = var
 
 	NVAR var = dfr:Si
 	s.i = var
@@ -1134,6 +1147,10 @@ static Structure strRunTest
 	string tcSuffix
 	STRUCT IUTF_TestHooks hooks
 	STRUCT IUTF_TestHooks procHooks
+	variable retryMode
+	variable retryCount
+	variable retryIndex
+	variable retryFailedProc
 	variable i
 	variable err
 EndStructure
@@ -1245,6 +1262,61 @@ Function RegisterIUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeou
 
 	CtrlNamedBackground $BACKGROUNDMONTASK, proc=IUTFBackgroundMonitor, period=10, start
 End
+
+// Checks if a test case can be retried with the given conditions. Returns 1 if the test case can be
+// retried and 0 if not.
+static Function CanRetry(skip, s, fullFuncName, tcResultIndex)
+	variable skip, tcResultIndex
+	STRUCT strRunTest &s
+	string fullFuncName
+
+	// if the test case is marked as skipped, the maximum retries are reached the test case will
+	// no longer be retried or if retry is not enabled
+	if(skip || s.retryIndex >= s.retryCount || !(s.retryMode & IUTF_RETRY_FAILED_UNTIL_PASS))
+		return 0
+	endif
+
+	// check if the test run should be aborted and IUTF_RETRY_REQUIRES is not set
+	if(!(s.retryMode & IUTF_RETRY_REQUIRES) && shouldDoAbort())
+		return 0
+	endif
+
+	// check if test case succeeded
+	WAVE/T wvTestCaseResults = IUTF_Reporting#GetTestCaseWave()
+	if(!CmpStr(wvTestCaseResults[tcResultIndex][%STATUS], IUTF_STATUS_SUCCESS))
+		return 0
+	endif
+
+	// check if function is not allowed to be retried
+	if(!((s.retryMode & IUTF_RETRY_MARK_ALL_AS_RETRY) || IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_RETRY_FAILED)))
+		return 0
+	endif
+
+	// function has to be retried!
+	return 1
+End
+
+static Function CleanupRetry(s, tcResultIndex)
+	STRUCT strRunTest &s
+	variable tcResultIndex
+
+	// increment retry counter
+	s.retryIndex += 1
+	// update test case status
+	WAVE/T wvTestCaseResults = IUTF_Reporting#GetTestCaseWave()
+	wvTestCaseResults[tcResultIndex][%STATUS] = IUTF_STATUS_RETRY
+	// remove errors from test suite
+	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
+	wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) - 1)
+	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) - str2num(wvTestCaseResults[tcResultIndex][%NUM_ASSERT_ERROR]))
+	// cleanup test summary
+	WAVE/T wvFailedProc = IUTF_Reporting#GetFailedProcWave()
+	IUTF_Utils_Vector#SetLength(wvFailedProc, s.retryFailedProc)
+	IUTF_Utils_Waves#MoveDimLabel(wvFailedProc, UTF_ROW, "CURRENT", s.retryFailedProc - 1)
+	// cleanup abort flag to allow failed REQUIRE
+	InitAbortFlag()
+End
+
 
 static Function ClearTestSetupWaves()
 
@@ -1382,14 +1454,27 @@ End
 ///                         This uses the flags UTF_WAVE_TRACKING_FREE, UTF_WAVE_TRACKING_LOCAL and UTF_WAVE_TRACKING_ALL.
 ///                         This feature is only available since Igor Pro 9.
 ///
+/// @param   retry          (optional) default IUTF_RETRY_NORETRY
+///                         Set the conditions and options when IUTF should retry a test case. The following flags are allowed:
+///                         IUTF_RETRY_FAILED_UNTIL_PASS: Reruns every failed flaky test up to retryMaxCount. A flaky test case needs
+///                           the IUTF_RETRY_FAILED function tag.
+///                         IUTF_RETRY_MARK_ALL_AS_RETRY: Treats all test cases as flaky. There is no need to use the IUTF_RETRY_FAILED
+///                           function tag. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
+///                         IUTF_RETRY_REQUIRES: Allow to retry failed REQUIRE assertions. This option does nothing if
+///                           IUTF_RETRY_FAILED_UNTIL_PASS is not set.
+///
+/// @param   retryMaxCount  (optional) default IUTF_MAX_SUPPORTED_RETRY
+///                         Sets the maximum number of retries if rerunning of flaky tests is enabled. Setting this number
+///                         higher than IUTF_MAX_SUPPORTED_RETRY is not allowed.
+///
 /// @return                 total number of errors
-Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode])
+Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode, retry, retryMaxCount])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
 	variable allowDebug, debugMode, keepDataFolder
 	string traceWinList, traceOptions
 	variable fixLogName
-	variable waveTrackingMode
+	variable waveTrackingMode, retry, retryMaxCount
 
 	// All variables that are needed to keep the local function state are wrapped in s
 	// new var/str must be added to strRunTest and added in SaveState/RestoreState functions
@@ -1404,7 +1489,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable testSuiteCreated = 0
 	// these use a very local scope where used
 	// loop counter and loop end derived vars
-	variable i, j, tcFuncCount, startNextTS, skip, tcCount, reqSave
+	variable i, j, tcFuncCount, startNextTS, skip, tcCount, reqSave, tcResultIndex
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
 	variable var, err
@@ -1452,6 +1537,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
 		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
+		s.retryMode = ParamIsDefault(retry) ? IUTF_RETRY_NORETRY : retry
+		s.retryCount = ParamIsDefault(retryMaxCount) ? IUTF_MAX_SUPPORTED_RETRY : retryMaxCount
 
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !IUTF_Utils#IsEmpty(traceWinList)
 
@@ -1493,6 +1580,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 		variable/G dfr:waveTrackingMode = waveTrackingMode
 #endif
+
+		if(s.retryMode & ~(IUTF_RETRY_FAILED_UNTIL_PASS | IUTF_RETRY_MARK_ALL_AS_RETRY | IUTF_RETRY_REQUIRES))
+			sprintf msg, "Error: Invalid retry mode %d", s.retryMode
+			IUTF_Reporting#ReportErrorAndAbort(msg)
+		endif
+
+		if(!IUTF_Utils#IsFinite(s.retryCount) || s.retryCount < 0 || s.retryCount > IUTF_MAX_SUPPORTED_RETRY)
+			sprintf msg, "Error: Invalid number of maximum retries: %d (maximum supported: %d)", s.retryCount, IUTF_MAX_SUPPORTED_RETRY
+			IUTF_Reporting#ReportErrorAndAbort(msg)
+		endif
 
 		traceOptions = SelectString(ParamIsDefault(traceOptions), traceOptions, "")
 
@@ -1645,6 +1742,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 		endif
 
+		s.retryIndex = 0
+
 		do
 
 			if(!reentry)
@@ -1679,6 +1778,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 			if(!skip)
 
+				WAVE/T wvFailedProc = IUTF_Reporting#GetFailedProcWave()
+				s.retryFailedProc = IUTF_Utils_Vector#GetLength(wvFailedProc)
+
 				if(GetRTError(0))
 					msg = GetRTErrMessage()
 					err = GetRTError(1)
@@ -1696,6 +1798,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
+						// check if a retry is possible
+						WAVE/T wvTestCaseResults = IUTF_Reporting#GetTestCaseWave()
+						tcResultIndex = FindDimLabel(wvTestCaseResults, UTF_ROW, "CURRENT")
+
+						if(CanRetry(skip, s, fullFuncName, tcResultIndex))
+							IUTF_Hooks#ExecuteHooks(IUTF_TEST_CASE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+							CleanupRetry(s, tcResultIndex)
+							continue
+						endif
+
 						// abort condition is on hold while in catch/endtry, so all cleanup must happen here
 						IUTF_Hooks#ExecuteHooks(IUTF_TEST_CASE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
 
@@ -1739,7 +1851,20 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				return RUNTEST_RET_BCKG
 			endif
 
+			WAVE/T wvTestCaseResults = IUTF_Reporting#GetTestCaseWave()
+			tcResultIndex = FindDimLabel(wvTestCaseResults, UTF_ROW, "CURRENT")
+
 			IUTF_Hooks#ExecuteHooks(IUTF_TEST_CASE_END_CONST, s.procHooks, s.enableTAP, s.enableJU, fullFuncName + s.tcSuffix, procWin, s.i, param = s.keepDataFolder)
+
+			if(CanRetry(skip, s, fullFuncName, tcResultIndex))
+				CleanupRetry(s, tcResultIndex)
+				// retry the the current test case. If this is a multi-data test case or
+				// multi-multi-data test case it will retry the current index which failed and not
+				// all previous runs.
+				continue
+			else
+				s.retryIndex = 0
+			endif
 
 			if(shouldDoAbort())
 				break

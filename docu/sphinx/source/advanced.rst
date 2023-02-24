@@ -608,6 +608,58 @@ Examples
    :dedent:
    :tab-width: 4
 
+.. _flaky_tests:
+
+Flaky Tests
+-----------
+
+Certainly a flaky test is something that needs to be avoided and fixed. Tests
+should always pass and if not they need to be worked on. However we don't live
+in a perfect world and thus it might be helpful to identify tests that fail
+every now and then.
+
+To allow rerun failed flaky tests in the Igor Universal Testing Framework you
+have to call ``RunTest`` with the optional ``retry`` parameter set to
+``IUTF_RETRY_FAILED_UNTIL_PASS``. After that all flaky tests need to be marked
+with the function tag ``IUTF_RETRY_FAILED``. IUTF will now rerun these test
+cases up to 10 times if they exits with a failed CHECK assertion.
+
+You can also set the ``IUTF_RETRY_MARK_ALL_AS_RETRY`` flag in the ``retry``
+parameter of ``RunTest`` to rerun all failed tests in the test run. This treats
+all tests cases as if they are marked with the function tag
+``IUTF_RETRY_FAILED``.
+
+If you want that all failed REQUIRE assertions will be retried as well you have
+to set the ``IUTF_RETRY_REQUIRES`` flag in the ``retry`` parameter of
+``RunTest``. Be careful as this will also retry other cases which would normally
+abort the test run like invalid reentry function signatures. The best thing is
+not to use REQUIRE assertions for conditions that are flaky.
+
+You can also change the maximum number of retries to a lower limit using the
+optional parameter ``retryMaxCount``. However it is not possible to set this
+number to a higher value than 10 (``IUTF_MAX_SUPPORTED_RETRY``).
+
+Rerunning a flaky test case will also re-execute the test case begin and end
+hook each time. If a multi-data testcase or a multi-multi-data testcase is
+marked as flaky and one iteration failed it will retry the single failed
+iteration with the same arguments and not all previous runs.
+
+.. code-block:: igor
+
+   // IUTF_RETRY_FAILED
+   Function FlakyTest()
+      // doing some stuff that can fail for some reasons but will succeed if it
+      // will be retried some times.
+      variable err = SetupTestWhichIsFlaky()
+      CHECK_EQUAL_VAR(err, 0)
+      if(err)
+         return NaN
+      endif
+
+      // perform the real test
+      // ...
+   End
+
 
 .. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
 
