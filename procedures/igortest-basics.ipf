@@ -506,8 +506,8 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 	string funcList
 	string fullFuncName, dgenList
 	string testCase, testCaseMatch
-	variable numTC, numpWL, numFL, numMatches, markSkip
-	variable i,j,k, tdIndex
+	variable numTC, numpWL, numFL, markSkip
+	variable i, j, tdIndex
 	variable err = TC_MATCH_OK
 	variable hasDGen = 0
 
@@ -524,75 +524,81 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 	numTC = ItemsInList(matchStr)
 	numpWL = ItemsInList(procWinList)
-	for(i = 0; i < numTC; i += 1)
-		testCase = StringFromList(i, matchStr)
+	Make/FREE/N=(numTC) usedTC
+	for(i = 0; i < numpWL; i += 1)
+		procWin = StringFromList(i, procWinList)
+		funcList = getTestCaseList(procWin)
 		testCaseMatch = ""
-		numMatches = 0
-		for(j = 0; j < numpWL; j += 1)
-			procWin = StringFromList(j, procWinList)
-			funcList = getTestCaseList(procWin)
 
-			if(enableRegExp)
-				try
-					ClearRTError()
-					testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
-				catch
-					testCaseMatch = ""
-					err = GetRTError(1)
-					switch(err)
-						case 1233:
-							errMsg = "Regular expression error: " + matchStr
-							err = TC_REGEX_INVALID
-							break
-						default:
-							errMsg = GetErrMessage(err)
-							err = GREPLIST_ERROR
-					endswitch
-					sprintf errMsg, "Error executing GrepList: %s", errMsg
-					return err
-				endtry
-			else
+		if(enableRegExp)
+			try
+				ClearRTError()
+				testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
+			catch
+				testCaseMatch = ""
+				err = GetRTError(1)
+				switch(err)
+					case 1233:
+						errMsg = "Regular expression error: " + matchStr
+						err = TC_REGEX_INVALID
+						break
+					default:
+						errMsg = GetErrMessage(err)
+						err = GREPLIST_ERROR
+				endswitch
+				sprintf errMsg, "Error executing GrepList: %s", errMsg
+				return err
+			endtry
+		else
+			for(j = 0; j < numTC; j += 1)
+				testCase = StringFromList(j, matchStr)
 				if(WhichListItem(testCase, funcList, ";", 0, 0) < 0)
 					continue
 				endif
-				testCaseMatch = testCase
+				testCaseMatch = AddListItem(testCase, testCaseMatch, ";", Inf)
+				usedTC[j] = 1
+			endfor
+		endif
+
+		numFL = ItemsInList(testCaseMatch)
+		for(j = 0; j < numFL; j += 1)
+			funcName = StringFromList(j, testCaseMatch)
+			fullFuncName = getFullFunctionName(err, funcName, procWin)
+			if(err)
+				sprintf errMsg, "Could not get full function name: %s", fullFuncName
+				return err
 			endif
 
-			numFL = ItemsInList(testCaseMatch)
-			numMatches += numFL
-			for(k = 0; k < numFL; k += 1)
-				funcName = StringFromList(k, testCaseMatch)
-				fullFuncName = getFullFunctionName(err, funcName, procWin)
-				if(err)
-					sprintf errMsg, "Could not get full function name: %s", fullFuncName
-					return err
-				endif
+			IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 
-				IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
+			if(IUTF_Test_MD#GetDataGeneratorListTC(procWin, fullFuncName, dgenList))
+				continue
+			endif
 
-				if(IUTF_Test_MD#GetDataGeneratorListTC(procWin, fullFuncName, dgenList))
-					continue
-				endif
+			IUTF_Utils_Vector#EnsureCapacity(testRunData, tdIndex)
+			testRunData[tdIndex][%PROCWIN] = procWin
+			testRunData[tdIndex][%TESTCASE] = fullFuncName
+			testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
+			testRunData[tdIndex][%DGENLIST] = dgenList
+			markSkip = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
+			testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(IUTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
+			testRunData[tdIndex][%EXPECTFAIL] = num2istr(IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
+			tdIndex += 1
 
-				IUTF_Utils_Vector#EnsureCapacity(testRunData, tdIndex)
-				testRunData[tdIndex][%PROCWIN] = procWin
-				testRunData[tdIndex][%TESTCASE] = fullFuncName
-				testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
-				testRunData[tdIndex][%DGENLIST] = dgenList
-				markSkip = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
-				testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(IUTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
-				testRunData[tdIndex][%EXPECTFAIL] = num2istr(IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
-				tdIndex += 1
-
-				hasDGen = hasDGen | !IUTF_Utils#IsEmpty(dgenList)
-			endfor
+			hasDGen = hasDGen | !IUTF_Utils#IsEmpty(dgenList)
 		endfor
-
-		if(!numMatches)
-			sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".", testCase, procWinList
-			return TC_NOT_FOUND
-		endif
 	endfor
+
+	if(!enableRegExp)
+		for(i = 0; i < numTC; i += 1)
+			if(!usedTC[i])
+				testCase = StringFromList(i, matchStr)
+				sprintf errMsg, "Could not find test case \"%s\" in procedure list \"%s\".", testCase, procWinList
+				return TC_NOT_FOUND
+			endif
+		endfor
+	endif
+
 	Redimension/N=(tdIndex, -1, -1, -1) testRunData
 
 	if(hasDGen)
