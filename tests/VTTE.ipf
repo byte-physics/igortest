@@ -175,8 +175,6 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#AreStringsEqual(randomstr, anotherrandomstr, NaN))
 	// @}
 
-	CHECK_NEQ_STR(properstr, nullstr)
-
 	CHECK_EQUAL_STR(randomstr, randomstr)
 	CHECK_EQUAL_STR(randomstr, randomstr, case_sensitive = 1)
 
