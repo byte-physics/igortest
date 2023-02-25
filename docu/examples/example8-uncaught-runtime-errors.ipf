@@ -7,12 +7,12 @@
 
 Function TestWaveOp()
 
-		Wave wv = $""
-		print wv[0]
-		print "This will be printed, even if a RTE occurs."
+	Wave wv = $""
+	print wv[0]
+	print "This will be printed, even if a RTE occurs."
 
-		WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
-		print "This will not be printed, as AbortOnRTE aborts the test case."
+	WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
+	print "This will not be printed, as AbortOnRTE aborts the test case."
 End
 
 Function TestWaveOpSelfCatch()
