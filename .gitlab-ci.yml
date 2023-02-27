@@ -168,6 +168,7 @@ xml_verification:
     - ./check-junit-xml-files.sh
   needs:
     - testing
+    - testing_nightly
 
 deployment_staging:
   when: manual

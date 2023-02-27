@@ -738,3 +738,18 @@ Example XML reference file.
    :language: xml
    :dedent:
    :tab-width: 4
+
+.. _cobertura_reference:
+
+Cobertura Reference
+-------------------
+
+The Cobertura implementation in the IUTF is based on the DTD scheme definition
+`coverage-04.dtd <https://cobertura.sourceforge.net/xml/coverage-04.dtd>`_.
+
+.. literalinclude:: coverage-04.dtd
+   :caption: Cobertura DTD schema ``coverage-04.dtd``
+   :name: COBERTURA_DTD
+   :language: dtd
+   :dedent:
+   :tab-width: 4

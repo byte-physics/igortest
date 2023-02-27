@@ -35,6 +35,10 @@ Files: docu/sphinx/source/junit.xsd
 Copyright: 2014 Gregory Boissinot
 License: MIT
 
+Files: docu/sphinx/source/coverage-04.dtd
+Copyright: 2000 Chr. Clemens Lee
+License: GPL-2.0-only
+
 # Proprietary XOPs
 Files: xop/*
 Copyright: 2021 - 2023 byte physics e. K.
