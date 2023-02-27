@@ -311,22 +311,27 @@ every RTE at its correct line you can open the debugger with:
    RunTest(..., debugMode = IUTF_DEBUG_ON_ERROR)
 
 
-There might be situations where the user wants to catch a runtime error
-himself. In line 17 :code:`TestWaveOpSelfCatch` shows how to catch the RTE
-before the test environment handles it. Do not use :code:`GetRTError(1)`,
-as it clears the RTE and thereby masks it from the Test environment.
+There might be situations when the user wants to check if certain functions or
+statements return a runtime error and handle it. For this exists
+:code:`CHECK_RTE`, :code:`CHECK_ANY_RTE` and :code:`CHECK_NO_RTE` that can help
+in this situation. These assertions check the current RTE state and create an
+error if the current state is unexpected. They will also clear any pending RTE
+so its safe to continue execution.
 
-In the second function, if :code:`AbortOnRTE` is activated the execution jumps
-to :code:`catch`. Here the user can generate additional information on the RTE,
-before :cpp:func:`FAIL` increases the error counter and aborts the test run.
-So TestWaveOpSelfCatch reports two errors, one from FAIL and one from the
-uncaught RTE.
+These assertions are shown in the second function. This function also includes
+an example how the user can check for RTEs and aborts at the same time.
+
+When using :code:`CHECK_RTE`, :code:`CHECK_ANY_RTE` or :code:`CHECK_NO_RTE` the
+user has to keep in mind that any :code:`INFO` has to be called before the
+critical statement as :code:`INFO` does nothing when a pending RTE exists to
+keep the error state unchanged.
+
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
    :caption: example8-uncaught-runtime-errors
    :tab-width: 4
    :linenos:
-   :emphasize-lines: 10,13,20
+   :emphasize-lines: 10,14,21,25,34
 
 .. code-block:: igor
    :caption: command

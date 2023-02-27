@@ -902,3 +902,83 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 	sprintf str, "%s > %s", tmpStr1, tmpStr2
 	EvaluateResults(result, str, flags)
 End
+
+static Function/S RTE2String(code, [msg])
+	variable code
+	string msg
+
+	string result
+
+	if(code)
+		if(ParamIsDefault(msg))
+			sprintf result, "RTE %d", code
+		else
+			sprintf result, "RTE %d \"%s\"", code, msg
+		endif
+		return result
+	else
+		return "no RTE"
+	endif
+End
+
+/// @class RTE_DOCU
+/// Tests if a RTE with the specified code was thrown. This assertion will clear any pending RTEs.
+///
+/// Hint: You have to add INFO() statements before the statement that is tested. INFO() won't do
+/// something if a pending RTE exists.
+///
+/// @param code the code that is expected to be thrown
+static Function RTE_WRAPPER(code, flags)
+	variable code, flags
+
+	variable result, err
+	string str, msg
+
+	IUTF_Reporting#incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = IUTF_Checks#HasRTE(code)
+	msg = GetRTErrMessage()
+	err = GetRTError(1)
+
+	sprintf str, "Expecting %s but got %s", RTE2String(code), RTE2String(err, msg = msg)
+	EvaluateResults(result, str, flags)
+End
+
+/// @class ANY_RTE_DOCU
+/// Tests if any RTE was thrown. This assertion will clear any pending RTEs.
+///
+/// Hint: You have to add INFO() statements before the statement that is tested. INFO() won't do
+/// something if a pending RTE exists.
+static Function ANY_RTE_WRAPPER(flags)
+	variable flags
+
+	variable result, err
+	string str
+
+	IUTF_Reporting#incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	result = IUTF_Checks#HasAnyRTE()
+	err = GetRTError(1)
+
+	sprintf str, "Expecting any RTE but got nothing"
+	EvaluateResults(result, str, flags)
+End
+
+/// @class NO_RTE_DOCU
+/// Tests if no RTEs are thrown. This assertion will clear any pending RTEs.
+///
+/// Hint: You have to add INFO() statements before the statement that is tested. INFO() won't do
+/// something if a pending RTE exists.
+static Function NO_RTE_WRAPPER(flags)
+	variable flags
+
+	RTE_WRAPPER(0, flags)
+End

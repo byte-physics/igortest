@@ -7,25 +7,38 @@
 
 Function TestWaveOp()
 
-		Wave wv = $""
-		print wv[0]
-		print "This will be printed, even if a RTE occurs."
+	Wave wv = $""
+	print wv[0]
+	print "This will be printed, even if a RTE occurs."
 
-		WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
-		print "This will not be printed, as AbortOnRTE aborts the test case."
+	WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
+	print "This will not be printed, as AbortOnRTE aborts the test case."
 End
 
-Function TestWaveOpSelfCatch()
+Function CheckForRTEs()
 
+	Wave wv = $""
+	print wv[0]
+	// Check if any RTE occurs. If no RTE exists at this point it will create an assertion error.
+	CHECK_ANY_RTE()
+
+	WAVE/SDFR=$"I dont exist" wv
+	// Check for a specific error code. If a different RTE or no RTE exists at this point it will
+	// create an assertion error.
+	CHECK_RTE(394)
+
+	print "This will always be printed and at this point there a no active RTE as all of them are handled."
+
+	// If you want to test for RTEs and aborts at the same time you can do this doing this:
 	try
-		WAVE/Z/SDFR=$"I dont exist" wv; AbortOnRTE
-		// If an RTE happens, the execution will jump to catch.
-		PASS()
+		// info has to be set before the function call
+		INFO("checks if CustomUserFunction returns with no RTE or aborts")
+		CustomUserFunction()
+		CHECK_NO_RTE()
 	catch
-		print "Here you can print additional info to understand the RTE."
-		// There is no need to clear the RTE (e.g. with GetRTError(1) )
-		// RunTest will take care and print the error message.
+		INFO("CustomUserFunction returned with an abort")
 		FAIL()
 	endtry
-	print "I only get printed when no RTE occurs"
+
+	// more tests ...
 End
