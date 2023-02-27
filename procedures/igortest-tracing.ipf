@@ -11,7 +11,6 @@ static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"
 static StrConstant GLOBAL_IPROCLIST = "instrumentedProcWins"
 static StrConstant GLOBAL_PROCINFO = "TracedProcedureInfo"
 static StrConstant GLOBAL_INSTR_MARKER = "InstrMarker"
-static StrConstant INSTRUDATA_FILENAME = "iutf_instrumentation_data.txt"
 static Constant TABSIZE = 4
 
 static Constant STAT_LINES = 0
@@ -232,22 +231,19 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	DFREF dfr = GetPackageFolder()
 	Make/WAVE/N=(numProcs)/O dfr:$GLOBAL_INSTR_MARKER/WAVE=instrMarker
 
-	Make/FREE/D/N=(UTF_MAX_PROC_LINES, numProcs) markLinesProc
 	InitFuncLocations(numProcs)
 	InitProcSizes(numProcs)
 	WAVE/Z/T procText
-	WAVE/Z markLines
 	WAVE/Z marker
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
-		[procText, funcPath, markLines, marker] = AddTraceFunctions(procWin, i)
+		[procText, funcPath, marker] = AddTraceFunctions(procWin, i)
 		gridIndex = IUTF_Utils_Vector#AddRow(procTextGrid)
 		procTextGrid[gridIndex][%NAME] = procWin
 		procTextGrid[gridIndex][%PATH] = funcPath
 		instrMarker[i] = marker
 
 		if(!IUTF_Utils#IsEmpty(funcPath))
-			markLinesProc[0, DimSize(markLines, UTF_ROW) - 1][i] = markLines[p]
 
 			Open/R/Z fNum as funcPath
 			if(V_flag)
@@ -285,8 +281,6 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			iProcList = AddListItem(procWin, iProcList)
 		endif
 	endfor
-
-	Save/O/M="\n"/J markLinesProc as (IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME))
 
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
@@ -412,7 +406,7 @@ static Function HasFunctionSignature(WAVE/T signatures, string line)
 End
 
 /// @brief Add code coverage tracing to all functions in procWin
-static Function [WAVE/T w, string funcPath_, WAVE lineMark, WAVE marker_] AddTraceFunctions(string procWin, variable procNum)
+static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(string procWin, variable procNum)
 
 	string allProcWins, errMsg
 	string funcList, fullFuncName, funcName, procedurePath
@@ -457,13 +451,13 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark, WAVE marker_] AddTra
 	if(WhichListItem(procWin, allProcWins) == -1)
 		sprintf errMsg, "Procedure window %s not found.", procWin
 		print errMsg
-		return [$"", "", $"", $""]
+		return [$"", "", $""]
 	endif
 
 	allMacrosList = MacroList("*", ";", "KIND:7,WIN:" + procWin)
 	funcList = FunctionList("*", ";", "KIND:18,WIN:" + procWin)
 	if(IUTF_Utils#IsEmpty(funcList) && IUTF_Utils#IsEmpty(allMacrosList))
-		return [$"", "", $"", $""]
+		return [$"", "", $""]
 	endif
 
 	WAVE/T wMacroList = ListToTextWave(allMacrosList, ";")
@@ -651,7 +645,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark, WAVE marker_] AddTra
 	DeletePoints 0, maxFuncLine, wProcText
 	newProcCode += IUTF_Utils#TextWaveToList(wProcText, "\r")
 
-	return [ListToTextWave(newProcCode, "\r"), procedurePath, betweenLineHelper, marker]
+	return [ListToTextWave(newProcCode, "\r"), procedurePath, marker]
 End
 
 /// @brief Adds the Z_ function for function line
@@ -882,10 +876,10 @@ static Function AnalyzeTracingResult()
 
 	variable numThreads, numProcs, i, j, err, fNum, numProcLines, countProcLine
 	variable execC, branchC, nobranchC
-	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace, statOut
+	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, procLine, NBSpace, tabReplace, statOut
 	string procLineFormat
 	variable colR, colG, colB
-	string msg, instruDataPath
+	string msg
 
 	IUTF_Reporting#IUTF_PrintStatusMessage("Generating coverage output.")
 
@@ -905,20 +899,9 @@ static Function AnalyzeTracingResult()
 		MultiThread logdata += logdataThread[p][q][r]
 	endfor
 
-	instruDataPath = IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME)
-	GetFileFolderInfo/Z/Q instruDataPath
-	if(V_flag || !V_IsFile)
-		IUTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
-	endif
-
-	LoadWave/J/K=1/O/Q/M/N=iutf_instrumented_data instruDataPath
-	if(V_flag != 1)
-		IUTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
-	endif
-	wName = StringFromList(0, S_waveNames)
-	WAVE instrData = $wName
-	if(DimSize(instrData, UTF_ROW) != UTF_MAX_PROC_LINES || DimSize(instrData, UTF_COLUMN) != numProcs)
-		IUTF_Reporting#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
+	WAVE/WAVE instrMarker = GetInstrumentedMarker()
+	if(DimSize(instrMarker, UTF_ROW) != numProcs)
+		IUTF_Reporting#ReportErrorAndAbort("Current stored marker wave has an invalid size.")
 	endif
 
 	tabReplace = ""
@@ -973,6 +956,11 @@ static Function AnalyzeTracingResult()
 
 		sprintf procLineFormat, "%%0%dd", strlen(num2istr(numProcLines))
 
+		WAVE/Z marker = instrMarker[i]
+		if(!WaveExists(marker))
+			Make/FREE=1/N=(numProcLines) marker
+		endif
+
 		for(j = 0; j < numProcLines; j += 1)
 
 			procLine = ReplaceString("\t", wProcText[j], tabReplace)
@@ -985,7 +973,7 @@ static Function AnalyzeTracingResult()
 				sprintf prefix, procLineFormat + "|________|________|________|", j
 				prefix += procLine + "\r"
 				Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
-				if(!instrData[j][i])
+				if(!marker[j])
 					colR = 0xc0
 					colG = 0xc0
 					colB = 0xc0
