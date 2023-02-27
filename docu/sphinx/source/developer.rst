@@ -13,6 +13,18 @@ Installation steps for running the tests
 
 Create a link from ``tests`` in the ``User Procedures`` subfolder.
 
+.. _Coverage:
+
+Current Test Coverage
+---------------------
+
+`Coverage Test Report <report/>`_
+
+.. attention::
+   The current coverage test report does only include the results of some tests
+   but not all. We intent to migrate existing tests to generate a coverage
+   report but it is very unlikely to reach 100% coverage.
+
 .. _GlobalVariables:
 
 Global Variables

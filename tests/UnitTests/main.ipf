@@ -20,6 +20,10 @@ Function run()
 	tracingOp = ReplaceNumberByKey(UTF_KEY_COBERTURA, tracingOp, 1)
 	tracingOp = ReplaceNumberByKey(UTF_KEY_REGEXP, tracingOp, 1)
 
+	string testVars = ReadTestVars()
+	tracingOp = ReplaceStringByKey(UTF_KEY_COBERTURA_SOURCES, tracingOp, TrimString(StringByKey("COBERTURA_SOURCES", testVars, "=", "\n")))
+	tracingOp = ReplaceStringByKey(UTF_KEY_COBERTURA_OUT, tracingOp, TrimString(StringByKey("COBERTURA_OUT", testVars, "=", "\n")))
+
 	// traceProcedures = ""
 
 	RunTest(procedures, name = "Unit Tests", enableJU = 1, enableRegExp = 1, debugMode = debugMode, traceWinList = traceProcedures, traceOptions = tracingOp, waveTrackingMode = waveTracking)
@@ -31,4 +35,26 @@ Function cleanup()
 	IUTF_RestoreTracing()
 #endif
 
+End
+
+static Function/S ReadTestVars()
+	string path, input
+	variable fNum
+
+	path = IUTF_Utils_Paths#AtHome("TEST_VARS.TXT")
+	GetFileFolderInfo/Z/Q path
+	if(V_flag || !V_IsFile)
+		return ""
+	endif
+
+	Open/R/Z fNum as path
+	if(V_flag)
+		return ""
+	endif
+	FStatus fNum
+	input = PadString("", V_logEOF, 0x20)
+	FBinRead fnum, input
+	Close fNum
+
+	return input
 End
