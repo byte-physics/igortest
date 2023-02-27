@@ -68,5 +68,14 @@ static Function TracingTest2()
 	endfor
 
 	CHECK_EQUAL_WAVES(logSimple, logRef)
+
+	WAVE/WAVE instrMarker = IUTF_Tracing#GetInstrumentedMarker()
+	WAVE marker = instrMarker[0]
+
+	Make/FREE markerRef = { \
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, \
+		1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0 }
+
+	CHECK_EQUAL_WAVES(marker, markerRef)
 End
 #endif
