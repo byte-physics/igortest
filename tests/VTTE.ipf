@@ -822,7 +822,7 @@ static Function TestIUTFSetup()
 	variable tmpVar1
 	string thisProcName, tmpStr
 	thisProcName = ParseFilePath(0, FunctionPath("TestCaseNameTest2"), ":", 1, 0)
-	Ensure(IUTF_Basics#CreateTestRunSetup(thisProcName, ".*", 1, tmpStr, 0, IUTF_DEBUG_DISABLE) == 0)
+	Ensure(IUTF_Basics#CreateTestRunSetup(thisProcName, ".*", 1, tmpStr, 0, IUTF_DEBUG_DISABLE, 0) == 0)
 	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
 	tmpVar1 = FindDimLabel(testRunData, UTF_COLUMN, "TESTCASE")
 	Duplicate/FREE/R=[][tmpVar1, tmpVar1] testRunData, tcCol

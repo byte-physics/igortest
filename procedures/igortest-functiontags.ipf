@@ -140,6 +140,39 @@ static Function/WAVE GetTagConstants()
 	return tagConstants
 End
 
+/// @brief Checks if the line has the specified function/procedure tag.
+///
+/// @param tag         The function/procedure tag to check
+/// @param line        The line to search tag
+/// @param[out] value  The value of the tag if found, otherwise an empty string
+///
+/// @returns 1 if tag matched, 0 if not
+static Function IsTagMatch(tag, line, value)
+	string tag, line
+	string &value
+
+	string expr, tagValue
+
+	value = ""
+
+	if(CmpStr("IUTF_", tag[0, 4]))
+		// function tags that do not use the IUTF_ prefix
+		expr = "\/{2,}[[:space:]]*\\Q" + tag + "\\E(?::)?(.*)$"
+	else
+		// compatibility layer to allow the deprecated UTF_ and the new IUTF_ prefix for
+		// function tags
+		expr = "\/{2,}[[:space:]]*I?\\Q" + tag[1, Inf] + "\\E(?::)?(.*)$"
+	endif
+
+	SplitString/E=expr line, tagValue
+	if(V_flag != 1)
+		return 0
+	endif
+
+	value = tagValue
+	return 1
+End
+
 /// @brief Reads the function tags in the comments preceding the function keyword
 /// returns a wave containing the tag values with their tag names as dimLabel
 /// see FunctionTagStrings for possible tags
@@ -173,17 +206,7 @@ static Function/WAVE GetFunctionTagWave(funcName)
 
 		for(j = 0; j < numUniqueTags; j += 1 )
 			tagName = tag_constants[j]
-			if(CmpStr("IUTF_", tagName[0, 4]))
-				// function tags that do not use the IUTF_ prefix
-				expr = "\/{2,}[[:space:]]*\\Q" + tagName + "\\E(?::)?(.*)$"
-			else
-				// compatibility layer to allow the deprecated UTF_ and the new IUTF_ prefix for
-				// function tags
-				expr = "\/{2,}[[:space:]]*I?\\Q" + tagName[1, Inf] + "\\E(?::)?(.*)$"
-			endif
-
-			SplitString/E=expr funcLine, tagValue
-			if(V_flag != 1)
+			if(!IsTagMatch(tagName, funcLine, tagValue))
 				continue
 			endif
 

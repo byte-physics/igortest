@@ -116,7 +116,7 @@ static Function TestGenAbort()
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCAbort;", 0, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCAbort;", 0, errMsg, 0, IUTF_DEBUG_DISABLE, 0)
 	catch
 		aborted = 1
 	endtry
@@ -133,7 +133,7 @@ static Function TestGenRTE()
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCRTE;", 0, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCRTE;", 0, errMsg, 0, IUTF_DEBUG_DISABLE, 0)
 	catch
 		aborted = 1
 	endtry
@@ -150,7 +150,7 @@ static Function TestGenNull()
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCNull;", 0, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCNull;", 0, errMsg, 0, IUTF_DEBUG_DISABLE, 0)
 	catch
 		aborted = 1
 	endtry
@@ -167,7 +167,7 @@ static Function TestGen2D()
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TC2D;", 0, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TC2D;", 0, errMsg, 0, IUTF_DEBUG_DISABLE, 0)
 	catch
 		aborted = 1
 	endtry
@@ -184,7 +184,7 @@ static Function TestGenSignature()
 
 	Utils#Backup()
 	try
-		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCSignature;", 0, errMsg, 0, IUTF_DEBUG_DISABLE)
+		errCode = IUTF_Basics#CreateTestRunSetup("GeneratorTestsExtra.ipf", "TCSignature;", 0, errMsg, 0, IUTF_DEBUG_DISABLE, 0)
 	catch
 		aborted = 1
 	endtry

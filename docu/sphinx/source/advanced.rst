@@ -660,6 +660,35 @@ iteration with the same arguments and not all previous runs.
       // ...
    End
 
+.. _shuffle_test_case_order:
+
+Shuffle test case order
+-----------------------
+
+The Igor universal testing framework executes all test suites one by one by
+their appearance in the ``RunTest`` call. If the optional parameter
+``enableRegExp`` was set it will execute the found test suites alphabetically.
+If you want a random order each time you execute ``RunTest`` you have to set the
+flag ``IUTF_SHUFFLE_TEST_SUITES`` of the optional parameter ``shuffle`` in the
+``RunTest`` call.
+
+When a test suite is executed it will execute all of its test cases. There is no
+interleaving with other test suites. By default are all test cases executed in
+order of their line number in the procedure file. To randomize the order of the
+execution of test cases you have to set the flag ``IUTF_SHUFFLE_TEST_CASES`` of
+the optional parameter ``shuffle`` in the ``RunTest`` call. This will shuffle
+all test cases for each test suite. If this is not intended for single test
+suites (e.g. the test cases depend on each other) you can opt-out these test
+suites by setting the procedure tag ``// IUTF_NO_SHUFFLE_TEST_CASE`` somewhere
+in the file.
+
+.. caution::
+   Procedure tags can only be placed in the first 20 lines of a file. They are
+   one-line comments like function tags (e.g. ``// IUTF_SKIP``) and ignore any
+   conditional compilation with ``#if``.
+
+If you want to shuffle everything you can set the optional parameter ``shuffle``
+to ``IUTF_SHUFFLE_ALL``.
 
 .. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
 

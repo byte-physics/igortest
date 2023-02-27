@@ -163,3 +163,23 @@ static Function/S UserPrintF(format, strings, numbers, err)
 
 	return result
 End
+
+/// @brief Shuffles the contents of a list with the best PRNG for the current Igor version.
+///
+/// @param list       The list that is requested to be shuffled
+/// @param separator  (optional, default ";") the separator of the list elements
+///
+/// @returns The shuffled list
+static Function/S ShuffleList(list, [separator])
+	string list, separator
+
+	string result
+
+	separator = SelectString(ParamIsDefault(separator), separator, ";")
+
+	Wave/T wv = ListToTextWave(list, separator)
+	IUTF_Utils_Waves#InPlaceShuffleText1D(wv)
+	wfprintf result, "%s" + separator, wv
+
+	return result
+End
