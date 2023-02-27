@@ -1510,11 +1510,11 @@ End
 ///
 /// @param   retry          (optional) default IUTF_RETRY_NORETRY
 ///                         Set the conditions and options when IUTF should retry a test case. The following flags are allowed:
-///                         IUTF_RETRY_FAILED_UNTIL_PASS: Reruns every failed flaky test up to retryMaxCount. A flaky test case needs
+///                         - IUTF_RETRY_FAILED_UNTIL_PASS: Reruns every failed flaky test up to retryMaxCount. A flaky test case needs
 ///                           the IUTF_RETRY_FAILED function tag.
-///                         IUTF_RETRY_MARK_ALL_AS_RETRY: Treats all test cases as flaky. There is no need to use the IUTF_RETRY_FAILED
+///                         - IUTF_RETRY_MARK_ALL_AS_RETRY: Treats all test cases as flaky. There is no need to use the IUTF_RETRY_FAILED
 ///                           function tag. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
-///                         IUTF_RETRY_REQUIRES: Allow to retry failed REQUIRE assertions. This option does nothing if
+///                         - IUTF_RETRY_REQUIRES: Allow to retry failed REQUIRE assertions. This option does nothing if
 ///                           IUTF_RETRY_FAILED_UNTIL_PASS is not set.
 ///
 /// @param   retryMaxCount  (optional) default IUTF_MAX_SUPPORTED_RETRY
