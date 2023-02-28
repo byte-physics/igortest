@@ -239,7 +239,7 @@ deployment:
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
-    - mv report build/html/
+    - mv report docu/sphinx/build/html/
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
   needs:
