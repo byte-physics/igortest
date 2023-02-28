@@ -183,3 +183,17 @@ static Function/S ShuffleList(list, [separator])
 
 	return result
 End
+
+/// Returns 1 if text starts with prefix, 0 otherwise.
+static Function IsPrefix(text, prefix)
+	string text, prefix
+
+	variable textLength = strlen(text)
+	variable prefixLength = strlen(prefix)
+
+	if(textLength < prefixLength)
+		return 0
+	endif
+
+	return !CmpStr(text[0, prefixLength - 1], prefix)
+End

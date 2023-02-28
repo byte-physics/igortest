@@ -531,6 +531,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		IUTF_Basics#ClearRTError()
 		str = "Null string error: One of the provided arguments could be an unsupported null string."
 		EvaluateResults(0, str, CHECK_MODE)
+		IUTF_Reporting#CleanupInfoMsg()
 		return NaN
 	endif
 
@@ -540,6 +541,8 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		sprintf str, "String mismatch (case %ssensitive):\rstr1: %s\rstr2: %s\r", SelectString(case_sensitive, "in", ""), diffResult.v1, diffResult.v2
 		EvaluateResults(result, str, flags)
 	endif
+
+	IUTF_Reporting#CleanupInfoMsg()
 End
 
 /// @class WAVE_DOCU

@@ -95,4 +95,18 @@ static Function/S getUnusedFileName(fname)
 	return fn
 End
 
+// Get the directory part of a file with a trailing back-slash
+//
+// Examples:
+// C:\foo\bar\baz.txt  ->  C:\foo\bar\
+// C:\foo\bar\baz\     ->  C:\foo\bar\
+static Function/S GetDirPathOfFile(path)
+	string path
+
+	path = ParseFilePath(5, path, "\\", 0, 0)
+	path = ParseFilePath(1, path, "\\", 1, 0)
+
+	return path
+End
+
 ///@endcond // HIDDEN_SYMBOL

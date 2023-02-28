@@ -10,7 +10,7 @@ static StrConstant PROC_BACKUP_ENDING = ".backup"
 static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"
 static StrConstant GLOBAL_IPROCLIST = "instrumentedProcWins"
 static StrConstant GLOBAL_PROCINFO = "TracedProcedureInfo"
-static StrConstant INSTRUDATA_FILENAME = "iutf_instrumentation_data.txt"
+static StrConstant GLOBAL_INSTR_MARKER = "InstrMarker"
 static Constant TABSIZE = 4
 
 static Constant STAT_LINES = 0
@@ -198,6 +198,19 @@ threadsafe static Function/WAVE GetTracedProcedureNames()
 	return wv
 End
 
+/// @brief Get the global wave reference wave that holds a marker wave for each instrumented
+/// procedure file. In a marker wave is each instrumented line with a Z_ function marked with a 1.
+static Function/WAVE GetInstrumentedMarker()
+	DFREF dfr = GetPackageFolder()
+	WAVE/Z wv = dfr:$GLOBAL_INSTR_MARKER
+
+	if(!WaveExists(wv))
+		IUTF_Reporting#ReportErrorAndAbort("Bug: Cannot find stored instrumentation marker. Did you execute tracing setup before?")
+	endif
+
+	return wv
+End
+
 /// @brief Sets up procedure files for code coverage tracing and writes them back
 static Function SetupTraceProcedures(string procWinList, string traceOptions)
 
@@ -215,21 +228,22 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 	numProcs = ItemsInList(procWinList)
 
 	WAVE/T procTextGrid = IUTF_Utils_TextGrid#Create("NAME;PATH;")
+	DFREF dfr = GetPackageFolder()
+	Make/WAVE/N=(numProcs)/O dfr:$GLOBAL_INSTR_MARKER/WAVE=instrMarker
 
-	Make/FREE/D/N=(UTF_MAX_PROC_LINES, numProcs) markLinesProc
 	InitFuncLocations(numProcs)
 	InitProcSizes(numProcs)
 	WAVE/Z/T procText
-	WAVE/Z markLines
+	WAVE/Z marker
 	for(i = 0; i < numProcs; i += 1)
 		procWin = StringFromList(i, procWinList)
-		[procText, funcPath, markLines] = AddTraceFunctions(procWin, i)
+		[procText, funcPath, marker] = AddTraceFunctions(procWin, i)
 		gridIndex = IUTF_Utils_Vector#AddRow(procTextGrid)
 		procTextGrid[gridIndex][%NAME] = procWin
 		procTextGrid[gridIndex][%PATH] = funcPath
+		instrMarker[i] = marker
 
 		if(!IUTF_Utils#IsEmpty(funcPath))
-			markLinesProc[0, DimSize(markLines, UTF_ROW) - 1][i] = markLines[p]
 
 			Open/R/Z fNum as funcPath
 			if(V_flag)
@@ -267,8 +281,6 @@ static Function SetupTraceProcedures(string procWinList, string traceOptions)
 			iProcList = AddListItem(procWin, iProcList)
 		endif
 	endfor
-
-	Save/O/M="\n"/J markLinesProc as (IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME))
 
 	DFREF dfr = GetPackageFolder()
 	string/G dfr:$GLOBAL_IPROCLIST = iProcList
@@ -394,7 +406,7 @@ static Function HasFunctionSignature(WAVE/T signatures, string line)
 End
 
 /// @brief Add code coverage tracing to all functions in procWin
-static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(string procWin, variable procNum)
+static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(string procWin, variable procNum)
 
 	string allProcWins, errMsg
 	string funcList, fullFuncName, funcName, procedurePath
@@ -457,7 +469,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	macroIndexHelper[] = IUTF_FunctionTags#AddFunctionTagWave(wMacroList[p])
 	macroExclusionFlag[] = IUTF_FunctionTags#HasFunctionTag(wMacroList[p], UTF_FTAG_NOINSTRUMENTATION)
 	for(i = 0; i < numMacros; i += 1)
-		if(IUTF_Utils#IsEmpty(procedurePath))
+		if(IUTF_Utils#IsNull(procedurePath) || IUTF_Utils#IsEmpty(procedurePath))
 			procedurePath = MacroPath(wMacroList[i])
 			break
 		endif
@@ -480,12 +492,12 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 		endif
 		IUTF_FunctionTags#AddFunctionTagWave(fullFuncName)
 		funcExclusionFlag[i] = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_NOINSTRUMENTATION)
-		if(IUTF_Utils#IsEmpty(procedurePath))
+		if(IUTF_Utils#IsNull(procedurePath) || IUTF_Utils#IsEmpty(procedurePath))
 			procedurePath = FunctionPath(fullFuncName)
 		endif
 	endfor
 
-	if(IUTF_Utils#IsEmpty(procedurePath))
+	if(IUTF_Utils#IsNull(procedurePath) || IUTF_Utils#IsEmpty(procedurePath))
 		sprintf msg, "Unable to retrieve path of procedure file %s as no macro or function could be resolved.", procWin
 		IUTF_Reporting#ReportErrorAndAbort(msg)
 	endif
@@ -506,6 +518,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	numProcLines = DimSize(wProcText, UTF_ROW)
 	WAVE procSizes = GetProcSizes()
 	procSizes[procNum] = numProcLines
+	Make/FREE=1/N=(numProcLines) marker
 
 	// Mark code lines
 	Make/FREE/N=(numProcLines) betweenLineHelper
@@ -568,7 +581,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 				if(IUTF_Utils#IsEmpty(sTmp))
 					newProcCode += AddNoZ(origLines, lineCnt)
 				else
-					newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum)
+					newProcCode += AddZ(marker, origLines, currProcLineNum, lineCnt, procNum)
 				endif
 				continue
 			endif
@@ -582,7 +595,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 				functionLineCnt = lineCnt
 
 				if(!inDeclLines)
-					newProcCode += AddZForFunctionLine(funcLineStart[i], funcLineStart[i] + funcLines - 1, functionLineCnt, procNum)
+					newProcCode += AddZForFunctionLine(marker, funcLineStart[i], funcLineStart[i] + funcLines - 1, functionLineCnt, procNum)
 				endif
 
 				continue
@@ -594,7 +607,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 					newProcCode += AddNoZ(origLines, lineCnt)
 					continue
 				endif
-				newProcCode += AddZForFunctionLine(funcLineStart[i], funcLineStart[i] + funcLines - 1, functionLineCnt, procNum)
+				newProcCode += AddZForFunctionLine(marker, funcLineStart[i], funcLineStart[i] + funcLines - 1, functionLineCnt, procNum)
 			endif
 
 			if(j == funcLines - 1)
@@ -604,7 +617,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 			for(k = 0; k < numLineStartZReplaceKeys; k += 1)
 				if(strsearch(line, lineStartZReplaceKeys[k], 0) == 0)
-					newProcCode += ReplaceWithZ(origLines, currProcLineNum, lineCnt, procNum)
+					newProcCode += ReplaceWithZ(marker, origLines, currProcLineNum, lineCnt, procNum)
 					doNextLine = 1
 					break
 				endif
@@ -615,7 +628,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 
 			for(k = 0; k < numLineStartZAfterKeys; k += 1)
 				if(strsearch(line, lineStartZAfterKeys[k], 0) == 0)
-					newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum, addAfter=1)
+					newProcCode += AddZ(marker, origLines, currProcLineNum, lineCnt, procNum, addAfter=1)
 					doNextLine = 1
 					break
 				endif
@@ -624,7 +637,7 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 				continue
 			endif
 
-			newProcCode += AddZ(origLines, currProcLineNum, lineCnt, procNum)
+			newProcCode += AddZ(marker, origLines, currProcLineNum, lineCnt, procNum)
 		endfor
 	endfor
 
@@ -632,19 +645,21 @@ static Function [WAVE/T w, string funcPath_, WAVE lineMark] AddTraceFunctions(st
 	DeletePoints 0, maxFuncLine, wProcText
 	newProcCode += IUTF_Utils#TextWaveToList(wProcText, "\r")
 
-	return [ListToTextWave(newProcCode, "\r"), procedurePath, betweenLineHelper]
+	return [ListToTextWave(newProcCode, "\r"), procedurePath, marker]
 End
 
 /// @brief Adds the Z_ function for function line
-static Function/T AddZForFunctionLine(variable funcLineNum, variable endLineNum, variable &lineCnt, variable procNum)
+static Function/T AddZForFunctionLine(WAVE marker, variable funcLineNum, variable endLineNum, variable &lineCnt, variable procNum)
 
 	string funcCall1, funcCall2
 
+	marker[funcLineNum, funcLineNum + lineCnt - 1] = 1
 	if(lineCnt > 1)
 		sprintf funcCall1, "Z_(%d, %d, l=%d)\r", procNum, funcLineNum, lineCnt
 	else
 		sprintf funcCall1, "Z_(%d, %d)\r", procNum, funcLineNum
 	endif
+	marker[endLineNum] = 1
 	sprintf funcCall2, "Z_(%d, %d)\r", procNum, endLineNum
 
 	lineCnt = 1
@@ -653,7 +668,7 @@ static Function/T AddZForFunctionLine(variable funcLineNum, variable endLineNum,
 End
 
 /// @brief Replaces the condition in a code line with e.g. "if(...)" with a Z_ function call
-Function/T ReplaceWithZ(string &origLines, variable currLineNum, variable &lineCnt, variable procNum)
+Function/T ReplaceWithZ(Wave marker, string &origLines, variable currLineNum, variable &lineCnt, variable procNum)
 
 	string tmpLine, cond, cmd, newcode
 	variable b1, b2
@@ -668,6 +683,7 @@ Function/T ReplaceWithZ(string &origLines, variable currLineNum, variable &lineC
 	cmd = tmpLine[0, b1 - 1]
 	cond = tmpLine[b1 + 1, b2 - 1]
 
+	marker[currLineNum, currLineNum + lineCnt - 1] = 1
 	newCode = cmd + "(Z_(" + num2istr(procNum) + ", " + num2istr(currLineNum)
 	if(lineCnt > 1)
 		newCode += ", l=" + num2istr(lineCnt)
@@ -692,12 +708,13 @@ static Function/T AddNoZ(string &origLines, variable &lineCnt)
 End
 
 /// @brief Adds the Z_ function before or after a code line
-static Function/T AddZ(string &origLines, variable currLineNum, variable &lineCnt, variable procNum[, variable addAfter])
+static Function/T AddZ(Wave marker, string &origLines, variable currLineNum, variable &lineCnt, variable procNum[, variable addAfter])
 
 	string funcCall, newCode
 
 	addAfter = ParamIsDefault(addAfter) ? 0 : !!addAfter
 
+	marker[currLineNum, currLineNum + lineCnt - 1] = 1
 	if(lineCnt > 1)
 		sprintf funcCall, "Z_(%d, %d, l=%d)\r", procNum, currLineNum, lineCnt
 	else
@@ -859,10 +876,10 @@ static Function AnalyzeTracingResult()
 
 	variable numThreads, numProcs, i, j, err, fNum, numProcLines, countProcLine
 	variable execC, branchC, nobranchC
-	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, wName, procLine, NBSpace, tabReplace, statOut
+	string funcList, fullFuncName, procWin, funcPath, procText, prefix, line, fName, procLine, NBSpace, tabReplace, statOut
 	string procLineFormat
 	variable colR, colG, colB
-	string msg, instruDataPath
+	string msg
 
 	IUTF_Reporting#IUTF_PrintStatusMessage("Generating coverage output.")
 
@@ -882,20 +899,9 @@ static Function AnalyzeTracingResult()
 		MultiThread logdata += logdataThread[p][q][r]
 	endfor
 
-	instruDataPath = IUTF_Utils_Paths#AtHome(INSTRUDATA_FILENAME)
-	GetFileFolderInfo/Z/Q instruDataPath
-	if(V_flag || !V_IsFile)
-		IUTF_Reporting#ReportErrorAndAbort("Error as the instrumentation data does not exist anymore.")
-	endif
-
-	LoadWave/J/K=1/O/Q/M/N=iutf_instrumented_data instruDataPath
-	if(V_flag != 1)
-		IUTF_Reporting#ReportErrorAndAbort("Error when loading instrumentation data.")
-	endif
-	wName = StringFromList(0, S_waveNames)
-	WAVE instrData = $wName
-	if(DimSize(instrData, UTF_ROW) != UTF_MAX_PROC_LINES || DimSize(instrData, UTF_COLUMN) != numProcs)
-		IUTF_Reporting#ReportErrorAndAbort("Loaded instrumentation data has incompatible format for current gathered data.")
+	WAVE/WAVE instrMarker = GetInstrumentedMarker()
+	if(DimSize(instrMarker, UTF_ROW) != numProcs)
+		IUTF_Reporting#ReportErrorAndAbort("Current stored marker wave has an invalid size.")
 	endif
 
 	tabReplace = ""
@@ -950,6 +956,11 @@ static Function AnalyzeTracingResult()
 
 		sprintf procLineFormat, "%%0%dd", strlen(num2istr(numProcLines))
 
+		WAVE/Z marker = instrMarker[i]
+		if(!WaveExists(marker))
+			Make/FREE=1/N=(numProcLines) marker
+		endif
+
 		for(j = 0; j < numProcLines; j += 1)
 
 			procLine = ReplaceString("\t", wProcText[j], tabReplace)
@@ -962,7 +973,7 @@ static Function AnalyzeTracingResult()
 				sprintf prefix, procLineFormat + "|________|________|________|", j
 				prefix += procLine + "\r"
 				Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
-				if(!instrData[j][i])
+				if(!marker[j])
 					colR = 0xc0
 					colG = 0xc0
 					colB = 0xc0

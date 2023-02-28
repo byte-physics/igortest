@@ -519,6 +519,9 @@ The code is prefixed with three columns where the number in the first column is 
 In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
 the execution for the case the condition was ``true`` and the third column counts when the condition was ``false`` respectively.
 
+IUTF does also support the output in `Cobertura format <https://cobertura.github.io/cobertura/>`_. To do this you have to add
+``COBERTURA:1`` to ``traceOptions`` in ``RunTest``. This will output an xml file for each instrumented procedure file.
+
 Details
 ^^^^^^^
 
@@ -530,6 +533,17 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 * ``UTF_KEY_HTMLCREATION`` (``HTMLCREATION:boolean``) When set to zero no HTML files are created after the test run.
   HTML files can be created by calling ``IUTF_Tracing#AnalyzeTracingResult()`` manually after a test run.
 * ``UTF_KEY_INSTRUMENTATIONONLY`` (``INSTRUMENTONLY:boolean``) When set the IUTF will only do the code instrumentation and then return. No tests get executed.
+* ``UTF_KEY_COBERTURA``(``COBERTURA:boolean``) When set IUTF will additionally output the reports in Cobertura format.
+* ``UTF_KEY_COBERTURA_SOURCES`` (``COBERTURA_SOURCES:string``) A comma ``,`` delimited
+  list of directory paths that should be used as source paths for the procedure files. If this list
+  is empty or this option not set IUTF will use the current home directory of the experiment as the
+  source path for all procedure files.
+* ``UTF_KEY_COBERTURA_OUT`` (``COBERTURA_OUT:string``) The output directory where all generated
+  cobertura file should be written to. This helps to organize your project directory. You have to
+  provide the absolute path to the directory with a trailing directory delimiter (``\`` in Windows,
+  ``:`` with Macintosh). If this option is not defined or empty IUTF will store all generated files
+  in the home directory at the start of ``RunTest`` which is usually the same directory as your
+  experiment file.
 
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// IUTF_NOINSTRUMENTATION`` before the first line of the function.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
@@ -605,6 +619,15 @@ Examples
    :language: igor
    :start-after: // IUTF_Coverage_example2_begin
    :end-before: // IUTF_Coverage_example2_end
+   :dedent:
+   :tab-width: 4
+
+.. literalinclude:: ../../examples/CoverageDemoCode.ipf
+   :caption: Output the results of coverage determination as Cobertura and disables the HTML output. Only the test suite will be instrumented.
+   :name: IUTF_Coverage_example3
+   :language: igor
+   :start-after: // IUTF_Coverage_example3_begin
+   :end-before: // IUTF_Coverage_example3_end
    :dedent:
    :tab-width: 4
 
@@ -713,5 +736,20 @@ Example XML reference file.
    :caption: XSD (XML scheme definition) file for JUNIT
    :name: JUNIT_XSD
    :language: xml
+   :dedent:
+   :tab-width: 4
+
+.. _cobertura_reference:
+
+Cobertura Reference
+-------------------
+
+The Cobertura implementation in the IUTF is based on the DTD scheme definition
+`coverage-04.dtd <https://cobertura.sourceforge.net/xml/coverage-04.dtd>`_.
+
+.. literalinclude:: coverage-04.dtd
+   :caption: Cobertura DTD schema ``coverage-04.dtd``
+   :name: COBERTURA_DTD
+   :language: dtd
    :dedent:
    :tab-width: 4

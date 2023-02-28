@@ -29,3 +29,18 @@ Function Run2()
 	RunTest(testsuite, traceWinList="CODE_.*\.ipf", traceOptions=traceOptions)
 End
 // IUTF_Coverage_example2_end
+
+
+// IUTF_Coverage_example3_begin
+Function Run3()
+	string traceOptions = ""
+	string testsuite = "myTests.ipf"
+
+	// Enables the output of Cobertura files
+	traceOptions = ReplaceNumberByKey(UTF_KEY_COBERTURA, traceOptions, 1)
+	// Disables the output of HTML files
+	traceOptions = ReplaceNumberByKey(UTF_KEY_HTMLCREATION, traceOptions, 0)
+
+	RunTest(testsuite, traceWinList=testsuite, traceOptions=traceOptions)
+End
+// IUTF_Coverage_example3_end

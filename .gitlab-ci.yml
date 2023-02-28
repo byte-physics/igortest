@@ -64,6 +64,7 @@ testing:
         EXPERIMENT:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
+          - UnitTests/UnitTests.pxp
           - IMTest.pxp
           - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
@@ -86,16 +87,23 @@ testing:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
+    - |
+      echo "COBERTURA_SOURCES=C:\\users\\igor\\My Documents\\WaveMetrics\\Igor Pro ${IGOR_VERSION} User Files\\User Procedures\\" \
+        > "$(dirname "tests/$EXPERIMENT")/TEST_VARS.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
     - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
       junit: tests/**/JU_*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/**/Cobertura_*.xml
     paths:
       - tests/**/*.htm
       - tests/**/*.log
       - tests/**/JU_*.xml
+      - tests/**/Cobertura_*.xml
       - screenshot/**/*.png
 
 testing_nightly:
@@ -111,6 +119,7 @@ testing_nightly:
         EXPERIMENT:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
+          - UnitTests/UnitTests.pxp
           - Tracing.pxp
           - IMTest.pxp
           - TestResultsTests/ResultsTest.pxp
@@ -134,16 +143,23 @@ testing_nightly:
     - ln -rs procedures "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
     - ln -rs tests "/home/igor/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
     - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
+    - |
+      echo "COBERTURA_SOURCES=C:\\users\\igor\\My Documents\\WaveMetrics\\Igor Pro ${IGOR_VERSION} User Files\\User Procedures\\" \
+        > "$(dirname "tests/$EXPERIMENT")/TEST_VARS.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
     - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
     reports:
       junit: tests/**/JU_*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/**/Cobertura_*.xml
     paths:
       - tests/**/*.htm
       - tests/**/*.log
       - tests/**/JU_*.xml
+      - tests/**/Cobertura_*.xml
       - screenshot/**/*.png
 
 xml_verification:
@@ -158,6 +174,39 @@ xml_verification:
     - ./check-junit-xml-files.sh
   needs:
     - testing
+    - testing_nightly
+
+generate_reports:
+  tags:
+    - debian, docker
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
+  variables:
+    DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
+  script:
+    - report_tag="$(git tag --points-at HEAD | head -n 1)"
+    - if [ -z "$report_tag" ]; then report_tag="$(git rev-parse --abbrev-ref HEAD)"; fi
+    - if [ -z "$report_tag" ] || [[ "$report_tag" == "HEAD" ]]; then report_tag="$(git rev-parse --short HEAD)"; fi
+    - |
+      for file in $(find . -name "Cobertura_*.xml"); do
+        sed -i -r "s@<source>.*</source>@<source>$(pwd)/</source>@" "$file"
+        sed -i 's@name="iutf@name="procedures@g' "$file"
+      done
+    - |
+      /root/.dotnet/tools/reportgenerator \
+        -reports:**/Cobertura_*.xml \
+        -targetdir:report \
+        "-reporttypes:Html;Badges" \
+        -verbosity:Info \
+        "-title:Igor Pro Universal Testing Framework" \
+        "-tag:$report_tag"
+  needs:
+    - testing
+    - testing_nightly
+  artifacts:
+    when: always
+    paths:
+      - report/**/*
 
 deployment_staging:
   when: manual
@@ -169,10 +218,12 @@ deployment_staging:
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
+    - mv report docu/sphinx/build/html/
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
   needs:
     - documentation
+    - generate_reports
 
 deployment:
   rules:
@@ -188,6 +239,7 @@ deployment:
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
   script:
+    - mv report build/html/
     - cd docu/sphinx
     - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
   needs:
@@ -198,3 +250,4 @@ deployment:
       artifacts: false
     - job: pre-commit
       artifacts: false
+    - generate_reports

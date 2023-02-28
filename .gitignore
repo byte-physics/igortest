@@ -1,1 +1,3 @@
 .cache
+# build output of the Cobertura reports
+report
