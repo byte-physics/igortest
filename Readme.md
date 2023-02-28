@@ -4,6 +4,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/byte-physics/igortest?style=plastic)](https://github.com/byte-physics/igortest/releases)
 [![License](https://img.shields.io/github/license/byte-physics/igortest?style=plastic)](https://github.com/byte-physics/igortest/blob/main/License.txt)
 [![REUSE status](https://api.reuse.software/badge/github.com/byte-physics/igortest)](https://api.reuse.software/info/github.com/byte-physics/igortest)
+[![Line/Branch/Method Coverage](https://docs.byte-physics.de/igortest/report/badge_combined.svg)](https://docs.byte-physics.de/igortest/report/)
 
 The **Igor Pro Universal Testing Framework** (IUTF) is a versatile tool to write and run tests for [Igor Pro](https://www.wavemetrics.com/products/igorpro) code.
 The results of the tests is outputted in standardized formats that can be parsed by common
