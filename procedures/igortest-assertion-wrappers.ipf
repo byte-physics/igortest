@@ -985,3 +985,107 @@ static Function NO_RTE_WRAPPER(flags)
 
 	RTE_WRAPPER(0, flags)
 End
+
+/// @class COMPILATION_DOCU
+/// Tests if the specified Igor Pro file can be compiled with the list of defines. This assertion
+/// can only be used if IUTF is located inside an independent module. This assertion needs to be the
+/// last assertion of the current test case. If you want to continue your test case after this
+/// assertion try to split your test case into multiple functions and specify the next part in the
+/// optional parameter reentry.
+///
+/// It is recommended to start Igor with the <tt>/CompErrNoDialog</tt> (alternatively
+/// <tt>/UNATTENDED</tt> since Igor 9) command line argument to prevent error pop-ups when a single
+/// compilation failed.
+///
+/// @param file     The Igor Pro procedure file that should be tested. This must be a valid path
+///                 that can be used in the <tt>\#include "file"</tt> syntax.
+/// @param defines  (optional) A text wave which contains globally defined flags that are
+///                 used for conditional compilation. If this parameter is not set it will be
+///                 treated as if an empty wave was provided and won't set any flags.
+/// @param reentry  (optional) The full function name of the reentry function that will be executed
+///                 after this assertion finished. If this parameter is not used the test case will
+//                  be finished after this assertion.
+static Function COMPILATION_WRAPPER(file, flags, [defines, reentry, noCompile])
+	string file
+	variable flags
+	WAVE/T/Z defines
+	string reentry
+	variable noCompile
+
+	variable tmpVar
+
+	noCompile = ParamIsDefault(noCompile) ? 0 : !!noCompile
+
+	IUTF_Reporting#incrAssert()
+
+	if(shouldDoAbort())
+		return NaN
+	endif
+
+	if(!CmpStr(GetIndependentModuleName(), "ProcGlobal"))
+		IUTF_Reporting#ReportErrorAndAbort("This assertion is only allowed to be called in an independent module")
+	endif
+
+	if(!ParamIsDefault(reentry))
+		if(IUTF_Utils#IsEmpty(reentry))
+			IUTF_Reporting#ReportErrorAndAbort("Reentry parameter is an empty string")
+		endif
+
+		if(GrepString(reentry, PROCNAME_NOT_REENTRY))
+			IUTF_Reporting#ReportErrorAndAbort("Name of Reentry function must end with _REENTRY")
+		endif
+		FUNCREF TEST_CASE_PROTO rFuncRef = $reentry
+		FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentry
+		if(!IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !IUTF_Test_MD#GetFunctionSignatureTCMD(reentry, tmpVar, tmpVar, tmpVar))
+			IUTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
+		endif
+	else
+		reentry = ""
+	endif
+
+	if(ParamIsDefault(defines) || !WaveExists(defines))
+		Make/FREE/N=0/T defines
+	endif
+
+	IUTF_Test_Compilation#TestCompilation(file, flags, defines, reentry, noCompile)
+End
+
+/// @class NO_COMPILATION_DOCU
+/// Tests if the specified Igor Pro file cannot be compiled with the list of defines. This assertion
+/// can only be used if IUTF is located inside an independent module. This assertion needs to be the
+/// last assertion of the current test case. If you want to continue your test case after this
+/// assertion try to split your test case into multiple functions and specify the next part in the
+/// optional parameter reentry.
+///
+/// It is recommended to start Igor with the <tt>/CompErrNoDialog</tt> (alternatively
+/// <tt>/UNATTENDED</tt> since Igor 9) command line argument to prevent error pop-ups when a single
+/// compilation failed.
+///
+/// @param file     The Igor Pro procedure file that should be tested. This must be a valid path
+///                 that can be used in the <tt>\#include "file"</tt> syntax.
+/// @param defines  (optional) A text wave which contains globally defined flags that are
+///                 used for conditional compilation. If this parameter is not set it will be
+///                 treated as if an empty wave was provided and won't set any flags.
+/// @param reentry  (optional) The full function name of the reentry function that will be executed
+///                 after this assertion finished. If this parameter is not used the test case will
+//                  be finished after this assertion.
+static Function NO_COMPILATION_WRAPPER(file, flags, [defines, reentry])
+	string file
+	variable flags
+	WAVE/T/Z defines
+	string reentry
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			COMPILATION_WRAPPER(file, flags, noCompile = 1)
+		else
+			COMPILATION_WRAPPER(file, flags, reentry = reentry, noCompile = 1)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			COMPILATION_WRAPPER(file, flags, defines = defines, noCompile = 1)
+		else
+			COMPILATION_WRAPPER(file, flags, defines = defines, reentry = reentry, noCompile = 1)
+		endif
+	endif
+End

@@ -249,15 +249,22 @@ End
 /// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
 ///               any assertion info message at the end of this function.
 ///               Cleanup is enforced if flags contains the ABORT_FUNCTION flag.
-Function EvaluateResults(result, str, flags, [cleanupInfo])
+/// @param callStack       [optional, default current callStack] Can be used to set the callStack
+///                        to a previous recorded callStack (GetRTStackInfo(3)).
+Function EvaluateResults(result, str, flags, [cleanupInfo, callStack])
 	variable result, flags
 	string str
 	variable cleanupInfo
+	string callStack
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
 	IUTF_Debug#DebugFailedAssertion(result)
-	IUTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
+	if(ParamIsDefault(callStack))
+		IUTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo)
+	else
+		IUTF_Reporting#ReportResults(result, str, flags, cleanupInfo = cleanupInfo, callStack = callStack)
+	endif
 End
 
 /// Returns 1 if the abortFlag is set and zero otherwise
@@ -1043,6 +1050,17 @@ static Function CallTestCase(s, reentry)
 
 	if(reentry)
 		DFREF dfr = GetPackageFolder()
+		NVAR/Z compMode = dfr:COMP_Mode
+
+		if(NVAR_Exists(compMode))
+			if(compMode == 1)
+				IUTF_Test_Compilation#TestCompilationReentry()
+				return NaN
+			else
+				KillVariables/Z dfr:COMP_Mode
+			endif
+		endif
+
 		SVAR reentryFuncName = dfr:BCKG_ReentryFunc
 		func = reentryFuncName
 
@@ -1590,8 +1608,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(!DataFolderExists(PKG_FOLDER_SAVE))
 			IUTF_Reporting#ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterIUTFMonitor in an End Hook?)")
 		endif
-	  // check if the reentry call originates from our own background monitor
-		if(CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
+		DFREF dfr = GetPackageFolder()
+		NVAR/Z compMode = dfr:COMP_Mode
+		// check if the reentry call originates from our own background monitor or compilation tester
+		if(!NVAR_Exists(compMode) && CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
 			ClearReentrytoIUTF()
 			IUTF_Reporting#ReportErrorAndAbort("RunTest was called by user after background monitoring was registered. This is not supported.")
 		endif

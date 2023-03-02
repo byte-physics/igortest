@@ -62,7 +62,7 @@ static Function CallRun2()
 	PASS()
 	// run2() must be executed after the current RunTest. Otherwise they are some problems with the
 	// autorun feature.
-	Execute/P "TEST_Main#run2()"
+	Execute/P/Q "TEST_Main#run2()"
 End
 
 static Function run2()
@@ -91,17 +91,16 @@ static Function run2()
 	string/G root:cobSource = TrimString(StringByKey("COBERTURA_SOURCES", testVars, "=", "\n"))
 	string/G root:cobOut = TrimString(StringByKey("COBERTURA_OUT", testVars, "=", "\n"))
 
-	Execute/P "INSERTINCLUDE \"im-main\""
-	Execute/P "SetIgorOption IndependentModuleDev=1"
-	Execute/P "COMPILEPROCEDURES "
+	Execute/P/Q "INSERTINCLUDE \"im-main\""
+	Execute/P/Q "SetIgorOption IndependentModuleDev=1"
+	Execute/P/Q "COMPILEPROCEDURES "
 
 	// Command: IM_TEST#run(".*-.*Tests(?:\\.ipf)?", 1, 1)
 	string command = "IM_TEST#run(\""
 	command += ReplaceString("\\", procedures, "\\\\")
 	command += "\", " + num2istr(allowDebug) + ", " + num2istr(waveTrackingMode) +  ")"
 
-	Execute/P command
-	Execute/P "ProcGlobal#cleanup()"
+	Execute/P/Q command
 End
 
 Function cleanup()

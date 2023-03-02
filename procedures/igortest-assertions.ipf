@@ -1029,4 +1029,124 @@ Function REQUIRE_NO_RTE()
 	IUTF_Wrapper#NO_RTE_WRAPPER(REQUIRE_MODE)
 End
 
+/// @copydoc COMPILATION_DOCU
+Function WARN_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, WARN_MODE)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, WARN_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, WARN_MODE, defines = defines)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, WARN_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
+/// @copydoc COMPILATION_DOCU
+Function CHECK_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, CHECK_MODE)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, CHECK_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, CHECK_MODE, defines = defines)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, CHECK_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
+/// @copydoc COMPILATION_DOCU
+Function REQUIRE_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, REQUIRE_MODE)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, REQUIRE_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, REQUIRE_MODE, defines = defines)
+		else
+			IUTF_Wrapper#COMPILATION_WRAPPER(file, REQUIRE_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
+/// @copydoc NO_COMPILATION_DOCU
+Function WARN_NO_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, WARN_MODE)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, WARN_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, WARN_MODE, defines = defines)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, WARN_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
+/// @copydoc NO_COMPILATION_DOCU
+Function CHECK_NO_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, CHECK_MODE)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, CHECK_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, CHECK_MODE, defines = defines)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, CHECK_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
+/// @copydoc NO_COMPILATION_DOCU
+Function REQUIRE_NO_COMPILATION(file, [defines, reentry])
+	string file, reentry
+	WAVE/T/Z defines
+
+	if(ParamIsDefault(defines))
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, REQUIRE_MODE)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, REQUIRE_MODE, reentry = reentry)
+		endif
+	else
+		if(ParamIsDefault(reentry))
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, REQUIRE_MODE, defines = defines)
+		else
+			IUTF_Wrapper#NO_COMPILATION_WRAPPER(file, REQUIRE_MODE, defines = defines, reentry = reentry)
+		endif
+	endif
+End
+
 ///@}

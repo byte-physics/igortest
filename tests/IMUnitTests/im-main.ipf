@@ -7,6 +7,7 @@
 
 #include "igortest"
 #include "Test-ExecTests"
+#include "Test-CompilationTests"
 
 Function run(procedures, allowDebug, waveTrackingMode)
 	string procedures
@@ -26,6 +27,8 @@ Function TEST_END_OVERRIDE(name)
 	SVAR cobOut = root:cobOut
 
 	IUTF_Tracing_Cobertura#PrintReport(cobSource, cobOut)
+
+	Execute "ProcGlobal#cleanup()"
 End
 
 #endif
