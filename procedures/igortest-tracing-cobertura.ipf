@@ -11,9 +11,8 @@
 // this will show the warning a bit early to leave the user some room to take some preparation.
 static Constant FILESIZE_WARNING_LIMIT = 8000000
 
-// Constant for output of cyclomatic complexity. As long as there is no method to calculate the
-// cyclomatic complexity of Igor code this value is set to an invalid number.
-static StrConstant INVALID_COMPLEXITY = "0.0"
+// Empty function signature without any arguments.
+static StrConstant EMPTY_FUNC_SIGNATURE = "()"
 
 /// @brief The Cobertura information for one procedure file. This is needed to generate a valid
 /// Cobertura file.
@@ -200,7 +199,7 @@ static Function/S GetFunctionReport(string funcName, variable funcStart, variabl
 		fullFuncName = funcName
 	endif
 
-	sprintf line, "\t\t\t\t\t\t<method name=\"%s\" signature=\"%s\" line-rate=\"%f\" branch-rate=\"%f\" complexity=\"%s\">\n", IUTF_Utils_Xml#ToXmlToken(funcName), IUTF_Utils_Xml#ToXmlToken(fullFuncName), metrics.lineRate, metrics.branchRate, INVALID_COMPLEXITY
+	sprintf line, "\t\t\t\t\t\t<method name=\"%s\" signature=\"%s\" line-rate=\"%f\" branch-rate=\"%f\" complexity=\"%s\">\n", IUTF_Utils_Xml#ToXmlToken(fullFuncName), EMPTY_FUNC_SIGNATURE, metrics.lineRate, metrics.branchRate, INVALID_COMPLEXITY
 	report = line
 
 	report += linesReport
