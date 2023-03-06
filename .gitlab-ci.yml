@@ -199,7 +199,8 @@ generate_reports:
         "-reporttypes:Html;Badges" \
         -verbosity:Info \
         "-title:Igor Pro Universal Testing Framework" \
-        "-tag:$report_tag"
+        "-tag:$report_tag" \
+        --riskHotspotsAnalysisThresholds:metricThresholdForCyclomaticComplexity=20
   needs:
     - testing
     - testing_nightly
