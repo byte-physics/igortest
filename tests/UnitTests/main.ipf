@@ -10,7 +10,7 @@
 #include "Utils-StringsTests"
 
 Function run()
-	variable debugMode = 0
+	variable allowDebug = 0
 	string procedures = ".*-.*Tests\\.ipf"
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"
 	variable waveTracking = UTF_WAVE_TRACKING_ALL
@@ -26,7 +26,13 @@ Function run()
 
 	// traceProcedures = ""
 
-	RunTest(procedures, name = "Unit Tests", enableJU = 1, enableRegExp = 1, debugMode = debugMode, traceWinList = traceProcedures, traceOptions = tracingOp, waveTrackingMode = waveTracking)
+	RunTest(procedures, name = "Unit Tests", enableJU = 1, enableRegExp = 1, allowDebug = allowDebug, traceWinList = traceProcedures, traceOptions = tracingOp, waveTrackingMode = waveTracking)
+End
+
+Function TEST_END_OVERRIDE(name)
+	string name
+
+	Execute/P "cleanup()"
 End
 
 Function cleanup()
