@@ -197,3 +197,59 @@ static Function IsPrefix(text, prefix)
 
 	return !CmpStr(text[0, prefixLength - 1], prefix)
 End
+
+/// @brief Search for all matches of the specified regex in the text and replaces it with the
+/// replacement
+///
+/// @param regex        The regular string that is used to find the text to replace. This string is
+///                     not allowed to contain capture groups
+/// @param text         The text to search in
+/// @param replacement  The text that should be placed for all matches
+///
+/// @return The new text with all matches replaced
+static Function/S ReplaceAllRegex(regex, text, replacement)
+	string regex, text, replacement
+
+	string part1, part2, part3
+	string result = ""
+
+	for(; !IUTF_Utils#IsEmpty(text);)
+		SplitString/E=("^(.*?)(" + regex + ")(.*)$") text, part1, part2, part3
+
+		if(!V_flag)
+			return result + text
+		endif
+
+		result += part1 + replacement
+		text = part3
+	endfor
+
+	return result
+End
+
+/// @brief Count the number of matches of a regex in the specified text.
+///
+/// @param regex        The regular string that is used to count matches. This string is not allowed
+///                     to contain capture groups
+/// @param text         The text to search in
+///
+/// @return The number of matches
+static Function CountRegex(regex, text)
+	string regex, text
+
+	string part1, part2, part3
+	variable count
+
+	for(; !IUTF_Utils#IsEmpty(text);)
+		SplitString/E=("^(.*?)(" + regex + ")(.*)$") text, part1, part2, part3
+
+		if(!V_flag)
+			return count
+		endif
+
+		count += 1
+		text = part3
+	endfor
+
+	return count
+End
