@@ -36,14 +36,14 @@ static StrConstant STRING_PATTERN = "(?<=\")(?:[^\"\\\\]|\\\\.)*(?=\")"
 // The pattern consists of the following constructs:
 //
 // - (?i)(?:   |   |   )                    Building block for global pattern
-// - (?<!\w)(?:Function|if|while|for|case|SelectString|SelectNumber|catch)(?!\w)
+// - (?<!\w)(?:Function|if|elseif|while|for|case|SelectString|SelectNumber|catch)(?!\w)
 //                                          All keywords that increase the cyclomatic complexity
 // - &&                                     and operator
 // - \|\|                                   or operator
 // - \?                                     ternary statement
 //
 // Remember to escape \ into \\!
-static StrConstant COMPLEX_PATTERN = "(?i)(?:(?<!\\w)(?:Function|if|while|for|case|SelectString|SelectNumber|catch)(?!\\w)|&&|\\|\\||\\?)"
+static StrConstant COMPLEX_PATTERN = "(?i)(?:(?<!\\w)(?:Function|if|elseif|while|for|case|SelectString|SelectNumber|catch)(?!\\w)|&&|\\|\\||\\?)"
 
 static Function SetupTracing(string procWinList, string traceOptions)
 
