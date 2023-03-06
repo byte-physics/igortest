@@ -16,6 +16,35 @@ static Constant TABSIZE = 4
 static Constant STAT_LINES = 0
 static Constant STAT_COVERED = 1
 
+// THe pattern for compiler directives
+static StrConstant COMPILER_DIRECTIVE_PATTERN = "^\\s*#.*$"
+
+// The pattern for comments
+static StrConstant COMMENT_PATTERN = "//.*$"
+
+// The pattern to find strings in the code line. This pattern consists of the following parts:
+//
+// - (?<=")                                 The start of the string. This is not counted as part of
+//                                          the string.
+// - (?:[^"\\]|\\.)*                        Any characters that are no " or \ and if \ the next
+//                                          character will also treated as part of the string.
+// - (?=")                                  The end of the string. This is not counted as part of
+//                                          the string
+static StrConstant STRING_PATTERN = "(?<=\")(?:[^\"\\\\]|\\\\.)*(?=\")"
+
+// The pattern for the cyclomatic complexity. Each match increases the cyclomatic complexity by 1.
+// The pattern consists of the following constructs:
+//
+// - (?i)(?:   |   |   )                    Building block for global pattern
+// - (?<!\w)(?:Function|if|while|for|case|SelectString|SelectNumber|catch)(?!\w)
+//                                          All keywords that increase the cyclomatic complexity
+// - &&                                     and operator
+// - \|\|                                   or operator
+// - \?                                     ternary statement
+//
+// Remember to escape \ into \\!
+static StrConstant COMPLEX_PATTERN = "(?i)(?:(?<!\\w)(?:Function|if|while|for|case|SelectString|SelectNumber|catch)(?!\\w)|&&|\\|\\||\\?)"
+
 static Function SetupTracing(string procWinList, string traceOptions)
 
 	variable instrumentOnly
@@ -198,8 +227,11 @@ threadsafe static Function/WAVE GetTracedProcedureNames()
 	return wv
 End
 
-/// @brief Get the global wave reference wave that holds a marker wave for each instrumented
-/// procedure file. In a marker wave is each instrumented line with a Z_ function marked with a 1.
+/// @brief Get the global wave reference wave that holds meta data waves for each instrumented
+/// procedure file. The meta data wave has the same number of rows as the procedure has lines and
+/// the following columns with meta data for each line:
+/// - %INSTR: Is 1 if the line is instrumented with a Z_ function, otherwise 0.
+/// - %COMPLEX: The cyclomatic complexity of this single line
 static Function/WAVE GetInstrumentedMarker()
 	DFREF dfr = GetPackageFolder()
 	WAVE/Z wv = dfr:$GLOBAL_INSTR_MARKER
@@ -208,6 +240,18 @@ static Function/WAVE GetInstrumentedMarker()
 		IUTF_Reporting#ReportErrorAndAbort("Bug: Cannot find stored instrumentation marker. Did you execute tracing setup before?")
 	endif
 
+	return wv
+End
+
+/// @brief Creates a new marker wave that can be used for GetInstrumentedMarker()
+///
+/// @param size The number of rows the marker wave should have
+///
+/// @returns The new marker wave
+static Function/WAVE GetNewMarkerWave(variable size)
+	Make/FREE=1/N=(size, 2) wv
+	SetDimLabel UTF_COLUMN, 0, INSTR, wv
+	SetDimLabel UTF_COLUMN, 1, COMPLEX, wv
 	return wv
 End
 
@@ -518,7 +562,8 @@ static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(str
 	numProcLines = DimSize(wProcText, UTF_ROW)
 	WAVE procSizes = GetProcSizes()
 	procSizes[procNum] = numProcLines
-	Make/FREE=1/N=(numProcLines) marker
+	WAVE marker = GetNewMarkerWave(numProcLines)
+	marker[][%COMPLEX] = GetCyclomaticComplexity(wProcText[p])
 
 	// Mark code lines
 	Make/FREE/N=(numProcLines) betweenLineHelper
@@ -645,6 +690,9 @@ static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(str
 	DeletePoints 0, maxFuncLine, wProcText
 	newProcCode += IUTF_Utils#TextWaveToList(wProcText, "\r")
 
+	// ingoring un-instrumented lines
+	marker[][%COMPLEX] *= marker[p][%INSTR]
+
 	return [ListToTextWave(newProcCode, "\r"), procedurePath, marker]
 End
 
@@ -653,13 +701,13 @@ static Function/T AddZForFunctionLine(WAVE marker, variable funcLineNum, variabl
 
 	string funcCall1, funcCall2
 
-	marker[funcLineNum, funcLineNum + lineCnt - 1] = 1
+	marker[funcLineNum, funcLineNum + lineCnt - 1][%INSTR] = 1
 	if(lineCnt > 1)
 		sprintf funcCall1, "Z_(%d, %d, l=%d)\r", procNum, funcLineNum, lineCnt
 	else
 		sprintf funcCall1, "Z_(%d, %d)\r", procNum, funcLineNum
 	endif
-	marker[endLineNum] = 1
+	marker[endLineNum][%INSTR] = 1
 	sprintf funcCall2, "Z_(%d, %d)\r", procNum, endLineNum
 
 	lineCnt = 1
@@ -683,7 +731,7 @@ Function/T ReplaceWithZ(Wave marker, string &origLines, variable currLineNum, va
 	cmd = tmpLine[0, b1 - 1]
 	cond = tmpLine[b1 + 1, b2 - 1]
 
-	marker[currLineNum, currLineNum + lineCnt - 1] = 1
+	marker[currLineNum, currLineNum + lineCnt - 1][%INSTR] = 1
 	newCode = cmd + "(Z_(" + num2istr(procNum) + ", " + num2istr(currLineNum)
 	if(lineCnt > 1)
 		newCode += ", l=" + num2istr(lineCnt)
@@ -714,7 +762,7 @@ static Function/T AddZ(Wave marker, string &origLines, variable currLineNum, var
 
 	addAfter = ParamIsDefault(addAfter) ? 0 : !!addAfter
 
-	marker[currLineNum, currLineNum + lineCnt - 1] = 1
+	marker[currLineNum, currLineNum + lineCnt - 1][%INSTR] = 1
 	if(lineCnt > 1)
 		sprintf funcCall, "Z_(%d, %d, l=%d)\r", procNum, currLineNum, lineCnt
 	else
@@ -958,7 +1006,7 @@ static Function AnalyzeTracingResult()
 
 		WAVE/Z marker = instrMarker[i]
 		if(!WaveExists(marker))
-			Make/FREE=1/N=(numProcLines) marker
+			WAVE marker = GetNewMarkerWave(numProcLines)
 		endif
 
 		for(j = 0; j < numProcLines; j += 1)
@@ -973,7 +1021,7 @@ static Function AnalyzeTracingResult()
 				sprintf prefix, procLineFormat + "|________|________|________|", j
 				prefix += procLine + "\r"
 				Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
-				if(!marker[j])
+				if(!marker[j][%INSTR])
 					colR = 0xc0
 					colG = 0xc0
 					colB = 0xc0
@@ -1055,6 +1103,25 @@ Function IUTF_RestoreTracing()
 
 	IUTF_Reporting#IUTF_PrintStatusMessage("Restoring procedure files from backup completed.")
 	CompileAndRestart()
+End
+
+/// @brief Calculates the cyclomatic complexity of the given code line.
+///
+/// @param codeLine The code line to analyse
+///
+/// @returns The calculated cyclomatic complexity
+static Function GetCyclomaticComplexity(string codeLine)
+	variable complexity
+
+	// cleanup the code line
+	codeLine = IUTF_Utils_Strings#ReplaceAllRegex(COMPILER_DIRECTIVE_PATTERN, codeLine, "")
+	codeLine = IUTF_Utils_Strings#ReplaceAllRegex(COMMENT_PATTERN, codeLine, "")
+	codeLine = IUTF_Utils_Strings#ReplaceAllRegex(STRING_PATTERN, codeLine, "")
+
+	// count
+	complexity = IUTF_Utils_Strings#CountRegex(COMPLEX_PATTERN, codeLine)
+
+	return complexity
 End
 
 #endif

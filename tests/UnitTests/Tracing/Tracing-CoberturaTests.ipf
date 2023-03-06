@@ -99,8 +99,8 @@ static Function Test_GetLinesReport_NoBranch()
 	Make/FREE=1/N=(3, 3, 2) totals
 	totals[][0][procIndex] = p + 1
 
-	Make/FREE=1/N=3 marker
-	marker[] = 1
+	WAVE marker = IUTF_Tracing#GetNewMarkerWave(3)
+	marker[][%INSTR] = 1
 
 	[result, metrics] = IUTF_Tracing_Cobertura#GetLinesReport(indent, lineStart, lineEnd, procIndex, totals, marker)
 
@@ -139,8 +139,8 @@ static Function Test_GetLinesReport_SingleBranch()
 	totals[2][0][procIndex] = 0
 	totals[1][1][procIndex] = 1
 
-	Make/FREE=1/N=5 marker
-	marker[] = 1
+	WAVE marker = IUTF_Tracing#GetNewMarkerWave(5)
+	marker[][%INSTR] = 1
 
 	[result, metrics] = IUTF_Tracing_Cobertura#GetLinesReport(indent, lineStart, lineEnd, procIndex, totals, marker)
 
@@ -169,8 +169,8 @@ static Function Test_GetLinesReport_Empty()
 	Make/FREE=1/N=(3, 3, 2) totals
 	totals[][0][procIndex] = p + 1
 
-	Make/FREE=1/N=3 marker
-	marker[] = 0
+	WAVE marker = IUTF_Tracing#GetNewMarkerWave(3)
+	marker[][%INSTR] = 0
 
 	[result, metrics] = IUTF_Tracing_Cobertura#GetLinesReport(indent, lineStart, lineEnd, procIndex, totals, marker)
 

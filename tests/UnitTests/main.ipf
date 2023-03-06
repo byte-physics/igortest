@@ -6,6 +6,7 @@
 
 #include "igortest"
 #include "Tracing-CoberturaTests"
+#include "Tracing-ComplexityTests"
 #include "Utils-PathsTests"
 #include "Utils-StringsTests"
 
