@@ -162,6 +162,60 @@ testing_nightly:
       - tests/**/Cobertura_*.xml
       - screenshot/**/*.png
 
+testing_macosx:
+  tags:
+    - macosx, igorpro, catalina
+  variables:
+    GIT_SUBMODULE_STRATEGY: "recursive"
+  parallel:
+    matrix:
+      - IGOR_VERSION:
+          - 8
+          - 9
+        EXPERIMENT:
+          - VeryTinyTestEnvironment.pxp
+          - Various.pxp
+          - UnitTests/UnitTests.pxp
+          - IMUnitTests/IMUnitTests.pxp
+          - Tracing.pxp
+          - TestResultsTests/ResultsTest.pxp
+          - DebugModeTests.pxp
+  script:
+    - |
+      if [[ "$IGOR_VERSION" = "8" ]] && [[ "$EXPERIMENT" == "Tracing.pxp" ]]; then
+        echo "SKIP UNSUPPORTED TEST"
+        exit 0
+      fi
+    - rm -rf "$HOME/Documents/WaveMetrics"
+    - mkdir -p "$HOME/Documents/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/Igor Extensions (64-bit)"
+    - ln -s $(pwd)/xop/*.xop "$HOME/Documents/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/Igor Extensions (64-bit)"
+    - mkdir -p "$HOME/Documents/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures"
+    - ln -s $(pwd)/procedures "$HOME/Documents/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/iutf"
+    - ln -s $(pwd)/tests "$HOME/Documents/WaveMetrics/Igor Pro ${IGOR_VERSION} User Files/User Procedures/tests"
+    - touch "$(dirname "tests/$EXPERIMENT")/DO_AUTORUN.TXT"
+    - |
+      echo "COBERTURA_SOURCES=Macintosh HD$(pwd | sed "s@/@:@g")" \
+        > "$(dirname "tests/$EXPERIMENT")/TEST_VARS.TXT"
+    - pwd
+    - /Applications/Igor\ Pro\ ${IGOR_VERSION}\ Folder/Igor64.app/Contents/MacOS/Igor64 /CompErrNoDialog /I tests/${EXPERIMENT}
+    - cd $(dirname "tests/$EXPERIMENT")
+    - junit2html JU_*.xml report.html
+      # generate a proper exit value
+    - exit $(grep "errors\|failures=\"[0-9]\+\"" JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
+  artifacts:
+    when: always
+    reports:
+      junit: tests/**/JU_*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/**/Cobertura_*.xml
+    paths:
+      - tests/**/*.htm
+      - tests/**/*.log
+      - tests/**/JU_*.xml
+      - tests/**/Cobertura_*.xml
+      - screenshot/**/*.png
+
 xml_verification:
   tags:
     - debian, docker
@@ -175,6 +229,7 @@ xml_verification:
   needs:
     - testing
     - testing_nightly
+    - testing_macosx
 
 generate_reports:
   tags:
@@ -204,6 +259,7 @@ generate_reports:
   needs:
     - testing
     - testing_nightly
+    - testing_macosx
   artifacts:
     when: always
     paths:
@@ -248,6 +304,8 @@ deployment:
     - job: testing
       artifacts: false
     - job: testing_nightly
+      artifacts: false
+    - job: testing_macosx
       artifacts: false
     - job: pre-commit
       artifacts: false
