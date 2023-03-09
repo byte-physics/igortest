@@ -65,7 +65,7 @@ testing:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
           - UnitTests/UnitTests.pxp
-          - IMTest.pxp
+          - IMUnitTests/IMUnitTests.pxp
           - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
   variables:
@@ -120,8 +120,8 @@ testing_nightly:
           - VeryTinyTestEnvironment.pxp
           - Various.pxp
           - UnitTests/UnitTests.pxp
+          - IMUnitTests/IMUnitTests.pxp
           - Tracing.pxp
-          - IMTest.pxp
           - TestResultsTests/ResultsTest.pxp
           - DebugModeTests.pxp
   variables:

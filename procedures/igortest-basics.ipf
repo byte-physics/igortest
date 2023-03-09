@@ -1183,6 +1183,8 @@ static Function InitStrRunTest(s)
 	s.name = ""
 	s.testCase = ""
 
+	s.coberturaSources = ""
+	s.coberturaOut = ""
 	s.tcSuffix = ""
 
 	IUTF_Hooks#InitHooks(s.hooks)
