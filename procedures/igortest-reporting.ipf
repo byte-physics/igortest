@@ -453,7 +453,7 @@ static Function/S getInfo(result, partialStack)
 		moduleName = " [" + GetIndependentModuleName() + "]"
 	endif
 
-	contents = ProcedureText("", -1, procedure)
+	contents = ProcedureText("", -1, procedure + moduleName)
 	text = StringFromList(assertLine, contents, "\r")
 
 	cleanText = trimstring(text)
