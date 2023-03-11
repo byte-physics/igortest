@@ -72,10 +72,22 @@ static Function TracingTest2()
 	WAVE/WAVE instrMarker = IUTF_Tracing#GetInstrumentedMarker()
 	WAVE marker = instrMarker[0]
 
+	// verify instrumentation marker
+	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%INSTR]
+
 	Make/FREE markerRef = { \
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, \
 		1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0 }
 
-	CHECK_EQUAL_WAVES(marker, markerRef)
+	CHECK_EQUAL_WAVES(markerValues, markerRef)
+
+	// verify complexity marker
+	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%COMPLEX]
+
+	Make/FREE markerRef = { \
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, \
+		0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+
+	CHECK_EQUAL_WAVES(markerValues, markerRef)
 End
 #endif
