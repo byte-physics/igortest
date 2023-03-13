@@ -1609,6 +1609,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		IUTF_Reporting#ClearTestResultWaves()
 		ClearBaseFilename()
 		CreateHistoryLog()
+		InitAbortFlag()
 		IUTF_Reporting_Control#SetupTestRun()
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
