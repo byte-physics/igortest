@@ -43,7 +43,7 @@ static Function TestRandomTestCaseOrder()
 	string testCases = ".*"
 	variable regex = 1
 	variable shuffle = IUTF_SHUFFLE_ALL
-#if (IgorVersion() >= 7.00) && (IgorVersion() < 9.00)
+#if (IgorVersion() < 9.00)
 	Make/T/FREE expect = { "A2", "A4", "A3", "A1", "B4", "B1", "B2", "B3", "C4", "C3", "C1", "C2" }
 #else
 	Make/T/FREE expect = { "A1", "A2", "A3", "A4", "C2", "C1", "C3", "C4", "B2", "B4", "B3", "B1" }
@@ -61,7 +61,7 @@ static Function TestRandomTestCaseOrder2()
 	string testCases = ".*"
 	variable regex = 1
 	variable shuffle = IUTF_SHUFFLE_ALL
-#if (IgorVersion() >= 7.00) && (IgorVersion() < 9.00)
+#if (IgorVersion() < 9.00)
 	Make/T/FREE expect = { "A2", "A4", "A3", "A1", "B4", "B1", "B2", "B3", "D4", "D2", "D1", "D3" }
 #else
 	Make/T/FREE expect = { "A1", "A2", "A3", "A4", "D4", "D2", "D1", "D3", "B1", "B3", "B2", "B4" }
