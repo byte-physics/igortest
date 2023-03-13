@@ -91,6 +91,7 @@ testing:
       echo "COBERTURA_SOURCES=C:\\users\\igor\\My Documents\\WaveMetrics\\Igor Pro ${IGOR_VERSION} User Files\\User Procedures\\" \
         > "$(dirname "tests/$EXPERIMENT")/TEST_VARS.TXT"
     - igorpro execute ${IGORTARGET} --screenshot "tests/${EXPERIMENT}"
+    - if [[ "$(find tests -name "JU_*.xml" | wc -l)" == "0" ]]; then exit 1; fi
     - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
@@ -147,6 +148,7 @@ testing_nightly:
       echo "COBERTURA_SOURCES=C:\\users\\igor\\My Documents\\WaveMetrics\\Igor Pro ${IGOR_VERSION} User Files\\User Procedures\\" \
         > "$(dirname "tests/$EXPERIMENT")/TEST_VARS.TXT"
     - igorpro execute ${IGORTARGET} --screenshot --verbose "tests/${EXPERIMENT}"
+    - if [[ "$(find tests -name "JU_*.xml" | wc -l)" == "0" ]]; then exit 1; fi
     - exit $(grep -e "errors=\"[0-9]\+\"" -e "failures=\"[0-9]\+\"" tests/**/JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
@@ -200,7 +202,7 @@ testing_macosx:
     - /Applications/Igor\ Pro\ ${IGOR_VERSION}\ Folder/Igor64.app/Contents/MacOS/Igor64 /CompErrNoDialog /I tests/${EXPERIMENT}
     - cd $(dirname "tests/$EXPERIMENT")
     - junit2html JU_*.xml report.html
-      # generate a proper exit value
+    - if [[ "$(find . -name "JU_*.xml" | wc -l)" == "0" ]]; then exit 1; fi
     - exit $(grep "errors\|failures=\"[0-9]\+\"" JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
     when: always
