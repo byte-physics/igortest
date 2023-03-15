@@ -48,6 +48,8 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 	string funcList, cmd
 	variable autorunMode, err
 
+	string context = GetIndependentModuleName()
+
 	// do nothing if the opened file was not an Igor packed/unpacked experiment
 	if(kind != 1 && kind != 2)
 		return 0
@@ -63,7 +65,11 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		CreateHistoryLog()
 	endif
 
-	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[ProcGlobal]")
+	if(CmpStr("ProcGlobal", context, 1))
+		Execute "SetIgorOption IndependentModuleDev=1"
+	endif
+
+	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[" + context + "]")
 	if(ItemsInList(funcList) >= 1)
 		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
@@ -80,7 +86,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 			print "The run() function has an invalid signature."
 		endif
 	else
-		print "The requested autorun mode is not possible because the function run() does not exist in ProcGlobal context."
+		print "The requested autorun mode is not possible because the function run() does not exist in " + context + " context."
 	endif
 End
 

@@ -171,9 +171,10 @@ the command line.
 
 Steps to do that include:
 
-- Implement a function called `run()` in `ProcGlobal` context taking no
-  parameters. This function must perform all necessary steps for test
-  execution, which is at least one call to :cpp:func:`RunTest`.
+- Implement a function called `run()` in `ProcGlobal` context (or an independent
+  module with IUTF included) taking no parameters. This function must perform
+  all necessary steps for test execution, which is at least one call to
+  :cpp:func:`RunTest`.
 
 - Put the test experiment together with your :ref:`Test Suites<TestSuite>` and
   the script `helper/autorun-test.bat` into its own folder.
