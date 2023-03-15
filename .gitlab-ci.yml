@@ -10,7 +10,7 @@ default:
 
 pre-commit:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_UTILS}"
     PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
@@ -24,7 +24,7 @@ pre-commit:
 
 documentation:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   variables:
     DOCKER_AUTH_CONFIG: "${DOCKER_AUTH_CONFIG_SPHINX}"
     GIT_SUBMODULE_STRATEGY: "recursive"
@@ -50,7 +50,7 @@ documentation:
 
 testing:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   parallel:
     matrix:
       - IGOR_VERSION:
@@ -109,7 +109,7 @@ testing:
 
 testing_nightly:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   parallel:
     matrix:
       - IGOR_VERSION:
@@ -166,7 +166,7 @@ testing_nightly:
 
 testing_macosx:
   tags:
-    - macosx, igorpro, catalina
+    - macosx, igorpro, catalina, amd64
   variables:
     GIT_SUBMODULE_STRATEGY: "recursive"
   parallel:
@@ -220,7 +220,7 @@ testing_macosx:
 
 xml_verification:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   variables:
@@ -235,7 +235,7 @@ xml_verification:
 
 generate_reports:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   variables:
@@ -270,7 +270,7 @@ generate_reports:
 deployment_staging:
   when: manual
   tags:
-    - debian, docker
+    - debian, docker, amd64
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   timeout: 10 minutes
@@ -291,7 +291,7 @@ deployment:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
   tags:
-    - debian, docker
+    - debian, docker, amd64
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   timeout: 10 minutes
