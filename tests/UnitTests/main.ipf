@@ -13,8 +13,18 @@
 Function run()
 	variable allowDebug = 0
 	string procedures = ".*-.*Tests\\.ipf"
+
+#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"
-	variable waveTracking = UTF_WAVE_TRACKING_ALL
+#else
+	string traceProcedures = ""
+#endif
+
+#if IgorVersion() >= 9.00
+	variable waveTrackingMode = UTF_WAVE_TRACKING_ALL
+#else
+	variable waveTrackingMode = UTF_WAVE_TRACKING_NONE
+#endif
 
 	string tracingOp = ""
 	tracingOp = ReplaceNumberByKey(UTF_KEY_HTMLCREATION, tracingOp, 0)
@@ -27,7 +37,7 @@ Function run()
 
 	// traceProcedures = ""
 
-	RunTest(procedures, name = "Unit Tests", enableJU = 1, enableRegExp = 1, allowDebug = allowDebug, traceWinList = traceProcedures, traceOptions = tracingOp, waveTrackingMode = waveTracking)
+	RunTest(procedures, name = "Unit Tests", enableJU = 1, enableRegExp = 1, allowDebug = allowDebug, traceWinList = traceProcedures, traceOptions = tracingOp, waveTrackingMode = waveTrackingMode)
 End
 
 Function TEST_END_OVERRIDE(name)

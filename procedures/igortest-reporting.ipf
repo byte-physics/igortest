@@ -350,14 +350,21 @@ End
 /// @param incrErrorCounter if set to non zero the assertion error counter for the current test case
 ///                         will be updated. This setting is ignored if expectedFailure is set to
 ///                         non zero
-static Function PrintFailInfo(message, expectedFailure, incrErrorCounter)
+/// @param callStack        [optional, default current callStack] Can be used to set the callStack
+///                         to a previous recorded callStack (GetRTStackInfo(3)).
+static Function PrintFailInfo(message, expectedFailure, incrErrorCounter, [callStack])
 	string message
 	variable expectedFailure, incrErrorCounter
+	string callStack
 
 	string str, partialStack
 	string prefix = SelectString(expectedFailure, "", "Expected Failure: ")
 
-	str = getInfo(0, partialStack)
+	if(ParamIsDefault(callStack))
+		str = getInfo(0, partialStack)
+	else
+		str = getInfo(0, partialStack, callStack = callStack)
+	endif
 	message = prefix + message + " " + str
 
 	TestCaseFail(message, summaryMsg = str, isFailure = 1, incrErrorCounter = incrErrorCounter)
@@ -373,19 +380,22 @@ End
 /// @param result            Assertion states: 0 failed, 1 succeeded
 /// @param[out] partialStack The partial stacktrace between the entry of the test case and the call
 ///                          of the assertion.
+/// @param callStack         [optional, default current callStack] Can be used to set the callStack
+///                          to a previous recorded callStack (GetRTStackInfo(3)).
 ///
 /// @returns The informative message
-static Function/S getInfo(result, partialStack)
+static Function/S getInfo(result, partialStack, [callStack])
 	variable result
 	string &partialStack
+	string callStack
 
-	string caller, func, procedure, callStack, contents, moduleName
+	string caller, func, procedure, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr
 	variable numCallers, i, assertLine, err
 	variable callerIndex = NaN
 	variable testCaseIndex
 
-	callStack = GetRTStackInfo(3)
+	callStack = SelectString(ParamIsDefault(callStack), callStack, GetRTStackInfo(3))
 	numCallers = ItemsInList(callStack)
 	moduleName = ""
 	partialStack = ""
@@ -472,10 +482,13 @@ End
 /// @param cleanupInfo [optional, default enabled] If set different to zero it will cleanup
 ///               any assertion info message at the end of this function.
 ///               Cleanup is enforced if flags contains the ABORT_FUNCTION flag.
-static Function ReportResults(result, str, flags, [cleanupInfo])
+/// @param callStack [optional, default current callStack] Can be used to set the callStack
+///               to a previous recorded callStack (GetRTStackInfo(3)).
+static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 	variable result, flags
 	string str
 	variable cleanupInfo
+	string callStack
 
 	variable expectedFailure
 
@@ -487,7 +500,11 @@ static Function ReportResults(result, str, flags, [cleanupInfo])
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)
-			PrintFailInfo(str, expectedFailure, flags & INCREASE_ERROR)
+			if(ParamIsDefault(callStack))
+				PrintFailInfo(str, expectedFailure, flags & INCREASE_ERROR)
+			else
+				PrintFailInfo(str, expectedFailure, flags & INCREASE_ERROR, callStack = callStack)
+			endif
 		endif
 
 		if(!expectedFailure && (flags & ABORT_FUNCTION))

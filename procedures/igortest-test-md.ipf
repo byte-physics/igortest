@@ -16,6 +16,15 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	wType0 = NaN
 	wType1 = NaN
 	wrefSubType = NaN
+
+#if (IgorVersion() < 7.00)
+	string funcInfo = FunctionInfo(testCase)
+	if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+		// test cases are required to have only optional parameter.
+		return 0
+	endif
+#endif
+
 	// Check function signature
 	FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $testCase
