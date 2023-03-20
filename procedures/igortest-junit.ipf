@@ -49,8 +49,8 @@ static Function/S JU_AssertionOut(assertionIndex)
 		context += "\t\t\t\tInfo: " + wvInfo[i][%MESSAGE] + "\n"
 	endfor
 
-	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%MESSAGE])
-	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%TYPE])
+	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%MESSAGE])
+	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%TYPE])
 	// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 	// strswitch(wvAssertion[i][%TYPE])
