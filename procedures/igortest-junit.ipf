@@ -36,11 +36,16 @@ End
 static Function/S JU_AssertionOut(assertionIndex)
 	variable assertionIndex
 
-	string out, message, type, context
+	string out, message, type, context, severity
 	variable i, startIndex, endIndex
 
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 	WAVE/T wvInfo = IUTF_Reporting#GetTestInfoWave()
+
+	if(!CmpStr(IUTF_SEVERITY_WARN, wvAssertion[assertionIndex][%SEVERITY]))
+		// skip JUnit output for warning severity
+		return ""
+	endif
 
 	startIndex = str2num(wvAssertion[assertionIndex][%CHILD_START])
 	endIndex = str2num(wvAssertion[assertionIndex][%CHILD_END])

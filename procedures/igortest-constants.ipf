@@ -57,6 +57,14 @@ StrConstant IUTF_STATUS_SUCCESS = "SUCCESS"
 StrConstant IUTF_STATUS_RETRY = "RETRY"
 ///@}
 
+/// Test assertion severity flags
+///@{
+// This assertion is just a informational warning and has no influence to the test result
+StrConstant IUTF_SEVERITY_WARN = "WARN"
+// This assertion is an error and should fail the test case in some way.
+StrConstant IUTF_SEVERITY_ERROR = "ERROR"
+///@}
+
 Constant IUTF_MICRO_TO_ONE = 1e-06
 
 /// @name Constants for WaveTypes
