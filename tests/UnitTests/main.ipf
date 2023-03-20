@@ -5,14 +5,15 @@
 #pragma ModuleName = TEST_Main
 
 #include "igortest"
-#include "Tracing-CoberturaTests"
-#include "Tracing-ComplexityTests"
-#include "Utils-PathsTests"
-#include "Utils-StringsTests"
+#include ":Reporting:WarnTests"
+#include ":Tracing:CoberturaTests"
+#include ":Tracing:ComplexityTests"
+#include ":Utils:PathsTests"
+#include ":Utils:StringsTests"
 
 Function run()
 	variable allowDebug = 0
-	string procedures = ".*-.*Tests\\.ipf"
+	string procedures = ".*Tests\\.ipf"
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"

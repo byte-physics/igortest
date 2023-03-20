@@ -36,11 +36,16 @@ End
 static Function/S JU_AssertionOut(assertionIndex)
 	variable assertionIndex
 
-	string out, message, type, context
+	string out, message, type, context, severity
 	variable i, startIndex, endIndex
 
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 	WAVE/T wvInfo = IUTF_Reporting#GetTestInfoWave()
+
+	if(!CmpStr(IUTF_SEVERITY_WARN, wvAssertion[assertionIndex][%SEVERITY]))
+		// skip JUnit output for warning severity
+		return ""
+	endif
 
 	startIndex = str2num(wvAssertion[assertionIndex][%CHILD_START])
 	endIndex = str2num(wvAssertion[assertionIndex][%CHILD_END])
@@ -49,8 +54,8 @@ static Function/S JU_AssertionOut(assertionIndex)
 		context += "\t\t\t\tInfo: " + wvInfo[i][%MESSAGE] + "\n"
 	endfor
 
-	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%MESSAGE])
-	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[i][%TYPE])
+	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%MESSAGE])
+	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%TYPE])
 	// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 	// strswitch(wvAssertion[i][%TYPE])

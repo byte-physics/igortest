@@ -136,6 +136,8 @@ End
 /// dimension labels:
 ///   - MESSAGE: the full message of this assertion
 ///   - TYPE: the type of this assertion. Currently used are IUTF_STATUS_ERROR and IUTF_STATUS_FAIL.
+///   - SEVERITY: the severity of this assertion. Currently used are IUTF_SEVERITY_WARN and
+///     IUTF_SEVERITY_ERROR.
 ///   - STACKTRACE: the partial stack trace between the entry of the test case and the call of the
 ///     assertion
 ///   - CHILD_START: the start index (inclusive) for all information that belong to this assertion
@@ -148,7 +150,7 @@ static Function/WAVE GetTestAssertionWave()
 		return wv
 	endif
 
-	WAVE/T wv = IUTF_Utils_TextGrid#Create("MESSAGE;TYPE;STACKTRACE;CHILD_START;CHILD_END;")
+	WAVE/T wv = IUTF_Utils_TextGrid#Create("MESSAGE;TYPE;SEVERITY;STACKTRACE;CHILD_START;CHILD_END;")
 	MoveWave wv, dfr:$name
 
 	return wv
@@ -199,6 +201,7 @@ static Function AddError(message, type, [incrErrorCounter])
 	IUTF_Utils_Vector#AddRow(wvAssertion)
 	wvAssertion[%CURRENT][%MESSAGE] = message
 	wvAssertion[%CURRENT][%TYPE] = type
+	wvAssertion[%CURRENT][%SEVERITY] = SelectString(incrErrorCounter, IUTF_SEVERITY_WARN, IUTF_SEVERITY_ERROR)
 
 	WAVE/T wvTestCase = GetTestCaseWave()
 	UpdateChildRange(wvTestCase, wvAssertion)
