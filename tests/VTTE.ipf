@@ -459,6 +459,14 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#AreWavesEqual(wvDP, wvSP, WAVE_LOCK_STATE, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(!IUTF_Checks#AreWavesEqual(wvDP, wvSP, DATA_FULL_SCALE, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(!IUTF_Checks#AreWavesEqual(wvDP, wvSP, DIMENSION_SIZES, DEFAULT_TOLERANCE, detailedMsg))
+
+	Make/FREE dimLabel1, dimLabel2
+
+	SetDimLabel 0, 0, abcd, dimLabel1
+	SetDimLabel 0, 0, abcD, dimLabel2
+	Ensure(!IUTF_Checks#AreWavesEqual(dimLabel1, dimLabel2, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(IUTF_Checks#IsProperString(detailedMsg))
+	Ensure(strsearch(detailedMsg, "abcD", 0) >= 0)
 	// @}
 
 	// HasWaveMajorType

@@ -50,6 +50,8 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
   and the `original article page 36 <https://web.archive.org/web/20220329072759/http://www.mccabe.com/ppt/SoftwareQualityMetricsToIdentifyRisk.ppt>`__
 - Fixed a bug where when running IUTF in an independent module, the ``run`` function was searched in ``ProcGlobal``
   instead of the independent module.
+- Fixed a bug where generating the detailed message for failed wave equality assertions did not ignore the case for
+  comparing dimension labels.
 
 Test assertions
 ~~~~~~~~~~~~~~~

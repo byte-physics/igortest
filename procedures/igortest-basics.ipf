@@ -206,7 +206,7 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 
 			numEntries = DimSize(label1, i)
 			for(j = 0; j < numEntries; j += 1)
-				if(!cmpstr(label1[j], label2[j]))
+				if(!cmpstr(label1[j], label2[j], 1))
 					continue
 				endif
 				str1 = label1[j]
