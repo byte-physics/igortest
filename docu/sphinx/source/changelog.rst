@@ -7,6 +7,62 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+1.10 (03/21/2023)
+-----------------
+
+- Rename the project to **Igor Pro Universal Testing Framework** (IUTF). This also renamed all procedure files.
+  Although the old main procedure file ``unit-testing.ipf`` still exists, users are advised to switch to
+  ``igortest.ipf``. This change is fully backward compatible as all, now deprecated, names are kept until the next
+  major release.
+- Add a flag to allow shuffling the test suite and test case order, see :ref:`here <shuffle_test_case_order>`
+- Fix the order of test case execution: IUTF now always executes the test cases from the same test suite together
+- Add support for rerunning "flaky" tests on failure, see :ref:`here <flaky_tests>`
+- Document behaviour of runtime errors and aborts in data generators and hooks
+- Support test case and data generator names longer than 255 bytes
+- Document how the user can abort a test run
+- Add :cpp:func:`IUTF_RestoreTracing` for restoring the procedure files from before tracing
+- Adopt `reuse <https://api.reuse.software/info/github.com/byte-physics/igortest>`__ specification
+- Add data generators as virtual test cases. This allows to use all test assertions inside data generators and failing
+  test assertions are then attributed to the corresponding data generator. Before they were attributed to the very
+  first test case being run.
+- Also treat user hooks as virtual test cases.
+- Support tracing with tests which save the Igor Pro experiment in a different folder
+- Be stricter when checking for compatible reentry functions (Igor Pro 6 only)
+- Skip test case end user hook as well if the test case was skipped
+- Skip test suite end hook when we did not call the test suite begin hook at all
+- Require that test cases marked as ``UTF_EXPECTED_FAILURE`` have failing test assertions
+- Fix ``UTF_FTAG_TAP_DIRECTIVE``/``UTF_FTAG_TAP_DESCRIPTION`` in Igor Pro 9 due to now illegal characters in dimension
+  labels
+- Completely revise Readme.md
+- Copy all history output also to stdin/stderr (Igor Pro 8 and higher)
+- Enhance the output on failed assertions to include the full test case name
+- Add the test case name on failure for TAP output
+- Allow creating TAP and JUNIT output simultaneously
+- Introduce the test result wave from which TAP and JUNIT output is generated from
+- Fixed code coverage instrumentation to track non-instrumented lines correctly
+- Add support for outputting code coverage results into the standard Cobertura format
+- Fix testcase discovery for multi-multi data test cases (Igor Pro 6 only)
+- Add testing on MacOSX Catalina for Igor Pro 8/9
+- Ensure that the abort flag is always cleared on test begin
+- Add test to showcase how tracing works in an independent module
+- Fix call stack traversing in an independent module
+- Add complexity calculation for cobertura output, see `wikipedia <https://en.wikipedia.org/wiki/Cyclomatic_complexity#Interpretation>`__
+  and the `original article page 36 <https://web.archive.org/web/20220329072759/http://www.mccabe.com/ppt/SoftwareQualityMetricsToIdentifyRisk.ppt>`__
+- Fixed a bug where when running IUTF in an independent module, the ``run`` function was searched in ``ProcGlobal``
+  instead of the independent module.
+
+Test assertions
+~~~~~~~~~~~~~~~
+
+- Added assertions for checking runtime errors, see :cpp:func:`*_RTE <CHECK_RTE>`, :cpp:func:`*_ANY_RTE <CHECK_ANY_RTE>` and
+  :cpp:func:`*_NO_RTE <CHECK_NO_RTE>`
+- Changed parameter types of :cpp:func:`*_EQUAL_STR <CHECK_EQUAL_STR>` and :cpp:func:`*_NEQ_STR <CHECK_NEQ_STR>` to be
+  bass-by-value. This might break cases where a null string was passed. For null strings the test assertions
+  :cpp:func:`*_NULL_STR <CHECK_NULL_STR>` and :cpp:func:`*_PROPER_STR <CHECK_PROPER_STR>` should be used.
+- Output messages from :cpp:func:`INFO` also on stderr and in JUNIT
+- Added assertions for compilation testing, see :cpp:func:`*_COMPILATION <CHECK_COMPILATION>` and
+  :cpp:func:`*_COMPILATION <CHECK_NO_COMPILATION>`
+
 1.09 (01/04/2023)
 -----------------
 

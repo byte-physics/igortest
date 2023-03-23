@@ -41,7 +41,7 @@ The framework itself combines numerous features:
 * Test cases can be grouped in test suites, run with multiple inputs, run in independent modules and contain background activity
 * Support of standard output formats like [JUNIT](https://junit.org/junit4) and [TAP](https://testanything.org/tap-version-13-specification.html)
 * Support for automated execution as part of a CI pipeline
-* Optional code coverage determination
+* Optional code coverage determination with Cobertura output support
 * Optional memory leak tracking
 * Fully documented and comes with lots of examples
 * Easily expandable and adaptable
