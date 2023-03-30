@@ -1,6 +1,6 @@
 #pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3		// Use modern global access method and strict wave access.
-#pragma version=1.09
+#pragma version=1.10
 #pragma rtFunctionErrors=1
 
 #include "igortest"

@@ -1,6 +1,6 @@
 #pragma rtGlobals=3
 #pragma ModuleName=TAPExample1a
-#pragma version=1.09
+#pragma version=1.10
 
 #include "igortest"
 

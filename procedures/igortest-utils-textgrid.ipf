@@ -1,7 +1,7 @@
 #pragma rtGlobals = 3
 #pragma TextEncoding = "UTF-8"
 #pragma rtFunctionErrors = 1
-#pragma version=1.09
+#pragma version=1.10
 #pragma ModuleName = IUTF_Utils_TextGrid
 
 // TextGrid is a special case of a vector. A TextGrid is basically a 2 dimensional text wave. Each

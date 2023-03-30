@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
-1.10 (03/21/2023)
+1.10 (03/30/2023)
 -----------------
 
 - Rename the project to **Igor Pro Universal Testing Framework** (IUTF). This also renamed all procedure files.

@@ -1,6 +1,6 @@
 #pragma rtGlobals=3
 #pragma rtFunctionErrors=1
-#pragma version=1.09
+#pragma version=1.10
 #pragma ModuleName=Example6a
 
 #include "igortest"

@@ -2,12 +2,12 @@
 
 set -e
 
-newVersion=1.09
-revision=igortest-v$newVersion
+newVersion=1.10
+revision=v$newVersion
 
 filesToWatch="procedures docu helper INSTALL.txt"
 
-for i in `ls procedures/*.ipf`; do
+for i in `find . -iname "*.ipf"`; do
   sed -i "s/#pragma version=.*/#pragma version=$newVersion/" $i
   sed -i "s/PKG_VERSION =.*$/PKG_VERSION = $newVersion/" $i
 done
@@ -19,7 +19,7 @@ if [ ! -z "$(git status -s --untracked-files=no $filesToWatch)" ]; then
 	exit 0
 fi
 
-basename=$revision
+basename=igortest-$revision
 zipFile=$basename.zip
 folder=releases/$basename
 

@@ -1,6 +1,6 @@
 #pragma rtGlobals=3
 #pragma TextEncoding="UTF-8"
-#pragma version=1.09
+#pragma version=1.10
 #pragma ModuleName=Example5
 
 #include "igortest"
