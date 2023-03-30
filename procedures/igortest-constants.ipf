@@ -1,13 +1,13 @@
 #pragma rtGlobals=3
 #pragma rtFunctionErrors=1
-#pragma version=1.09
+#pragma version=1.10
 #pragma TextEncoding="UTF-8"
 
 
 ///@cond HIDDEN_SYMBOL
 
 // Package Version
-Constant PKG_VERSION = 1.09
+Constant PKG_VERSION = 1.10
 
 /// Settings folder
 StrConstant PKG_FOLDER = "root:Packages:igortest"
