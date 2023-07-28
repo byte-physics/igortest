@@ -29,7 +29,7 @@
 /// @param l       [optional, default = 1] The number of consecutive original code lines associated with the statement in the original code.
 ///                A statement in the original code can span multiple lines if line continuation is used.
 /// @return returns the value of c
-threadsafe Function Z_(variable procNum, variable lineNum[, variable c, variable l])
+threadsafe Function Z_(variable procNum, variable lineNum, [variable c, variable l])
 
 	variable i, logLines, condition, err
 	variable result, numProcs

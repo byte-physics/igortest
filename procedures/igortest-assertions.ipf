@@ -375,7 +375,7 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong])
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong])
+Function WARN_CLOSE_CMPLX(var1, var2, [tol, strong])
 	variable/C var1, var2
 	variable tol, strong
 
@@ -391,7 +391,7 @@ Function WARN_CLOSE_CMPLX(var1, var2 [tol, strong])
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong])
+Function CHECK_CLOSE_CMPLX(var1, var2, [tol, strong])
 	variable/C var1, var2
 	variable tol, strong
 
@@ -407,7 +407,7 @@ Function CHECK_CLOSE_CMPLX(var1, var2 [tol, strong])
 End
 
 /// @copydoc CLOSE_CMPLX_DOCU
-Function REQUIRE_CLOSE_CMPLX(var1, var2 [tol, strong])
+Function REQUIRE_CLOSE_CMPLX(var1, var2, [tol, strong])
 	variable/C var1, var2
 	variable tol, strong
 
