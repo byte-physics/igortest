@@ -756,7 +756,7 @@ static Function/T AddNoZ(string &origLines, variable &lineCnt)
 End
 
 /// @brief Adds the Z_ function before or after a code line
-static Function/T AddZ(Wave marker, string &origLines, variable currLineNum, variable &lineCnt, variable procNum[, variable addAfter])
+static Function/T AddZ(Wave marker, string &origLines, variable currLineNum, variable &lineCnt, variable procNum, [variable addAfter])
 
 	string funcCall, newCode
 
@@ -885,7 +885,7 @@ End
 
 /// @brief Determine first line ending found in given string
 ///        If a default defEndL is given then it is returned if line ending could not be determined from line
-static Function/S GetLineEnding(string line[, string defEndL])
+static Function/S GetLineEnding(string line, [string defEndL])
 
 	string endL = ""
 	variable len, i, c, e
