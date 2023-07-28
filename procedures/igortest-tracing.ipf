@@ -1020,7 +1020,7 @@ static Function AnalyzeTracingResult()
 			if(!(execC + nobranchC + branchC))
 				sprintf prefix, procLineFormat + "|________|________|________|", j
 				prefix += procLine + "\r"
-				Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
+				Notebook NBTracedData, selection={endOfFile, endOfFile}, text=prefix
 				if(!marker[j][%INSTR])
 					colR = 0xc0
 					colG = 0xc0
@@ -1031,7 +1031,7 @@ static Function AnalyzeTracingResult()
 					colG = 0x40
 					colB = 0x40
 				endif
-				Notebook NBTracedData selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(colR * 0xff, colG * 0xff, colB * 0xff)
+				Notebook NBTracedData, selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(colR * 0xff, colG * 0xff, colB * 0xff)
 				continue
 			endif
 
@@ -1043,8 +1043,8 @@ static Function AnalyzeTracingResult()
 				sprintf prefix, procLineFormat + "|%.8#d|%.8#d|%.8#d|", j, execC, branchC, nobranchC
 			endif
 			prefix +=  procLine + "\r"
-			Notebook NBTracedData selection={endOfFile, endOfFile}, text=prefix
-			Notebook NBTracedData selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(0 * 0xff, 32  * 0xff, 128  * 0xff)
+			Notebook NBTracedData, selection={endOfFile, endOfFile}, text=prefix
+			Notebook NBTracedData, selection={startOfPrevParagraph, endOfPrevParagraph}, textRGB=(0 * 0xff, 32  * 0xff, 128  * 0xff)
 		endfor
 		fName = procWin[0, strlen(procWin) - 5] + ".htm"
 		SaveNotebook/O/S=5/H={"UTF-8", 0xFFFF, 0xFFFF, 0, 0, 32} NBTracedData as (IUTF_Utils_Paths#AtHome(fName))
