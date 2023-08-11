@@ -55,6 +55,11 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 		return 0
 	endif
 
+	// Clear previous stored home path before checking the autorun mode. The previous stored home
+	// path is unlikely the current home path of this experiment and it won't hurt to clear it at
+	// load time of this experiment.
+	IUTF_Utils_Paths#ClearHomePath()
+
 	autorunMode = GetAutorunMode()
 
 	if(autorunMode == AUTORUN_OFF)
