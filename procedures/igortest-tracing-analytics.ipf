@@ -41,7 +41,7 @@ static Function/WAVE GetTotals()
 		endif
 		WAVE entry = entryOuter[0]
 		if(WaveExists(totals))
-			totals += entry
+			FastOp totals += entry
 		else
 			Duplicate/FREE=1 entry, totals
 		endif
