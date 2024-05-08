@@ -242,6 +242,12 @@ background tasks that should be monitored. The mode parameter sets if all or one
 task has to finish to continue test execution. Optional a timeout can be set
 after the test continues independently of the user task(s) state.
 
+It might happen that while a test case executes it turns out that a previously
+registered background monitor is not needed any more, e.g. if requirements for
+further parts of the test case are not met. Then an already registered background
+monitor can be unregistered by calling :cpp:func:`UnRegisterIUTFMonitor()` from
+the test case or BEGIN hook. The function takes no arguments.
+
 See also :ref:`flags_IUTFBackgroundMonModes`.
 
 Function definition of RegisterIUTFMonitor

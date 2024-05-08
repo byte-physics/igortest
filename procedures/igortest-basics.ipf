@@ -1349,6 +1349,15 @@ Function RegisterIUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeou
 	CtrlNamedBackground $BACKGROUNDMONTASK, proc=IUTFBackgroundMonitor, period=10, start
 End
 
+/// @brief Unregisters the IUTF background monitor task
+Function UnRegisterIUTFMonitor()
+
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:BCKG_Registered = 0
+
+	CtrlNamedBackground $BACKGROUNDMONTASK stop
+End
+
 // Checks if a test case can be retried with the given conditions. Returns 1 if the test case can be
 // retried and 0 if not.
 static Function CanRetry(skip, s, fullFuncName, tcResultIndex)
