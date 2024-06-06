@@ -289,6 +289,28 @@ static Function InitAbortFlag()
 	variable/G dfr:abortFlag = 0
 End
 
+/// Returns 1 if the abortFromSkipFlag is set and zero otherwise
+static Function IsAbortFromSkip()
+	NVAR/Z/SDFR=GetPackageFolder() abortFromSkipFlag
+	if(NVAR_Exists(abortFromSkipFlag) && abortFromSkipFlag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+/// Sets the abortFromSkipFlag flag
+static Function SetAbortFromSkipFlag()
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:abortFromSkipFlag = 1
+End
+
+/// Resets the abortFromSkipFlag flag
+static Function InitAbortFromSkipFlag()
+	DFREF dfr = GetPackageFolder()
+	variable/G dfr:abortFromSkipFlag = 0
+End
+
 /// @brief returns 1 if the current testcase is marked as expected failure, zero otherwise
 ///
 /// @returns 1 if the current testcase is marked as expected failure, zero otherwise
@@ -1639,6 +1661,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		ClearBaseFilename()
 		CreateHistoryLog()
 		InitAbortFlag()
+		InitAbortFromSkipFlag()
 		IUTF_Reporting_Control#SetupTestRun()
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
@@ -1919,7 +1942,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					msg = GetRTErrMessage()
 					s.err = GetRTError(1)
 					// clear the abort code from setAbortFlag()
-					V_AbortCode = shouldDoAbort() ? 0 : V_AbortCode
+					V_AbortCode = shouldDoAbort()  || IsAbortFromSkip() ? 0 : V_AbortCode
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
@@ -1946,6 +1969,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 						return str2num(wvTestRun[%CURRENT][%NUM_ERROR])
 					endif
+
+					InitAbortFromSkipFlag()
 				endtry
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)

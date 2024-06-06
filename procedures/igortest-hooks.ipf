@@ -451,7 +451,9 @@ static Function AfterTestCase(name, skip)
 		else
 			// reset the assertion error counter as all previous errors are intended
 			wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = "0"
-			wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
+			if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_FAIL))
+				wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_RUNNING
+			endif
 		endif
 	else
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT]) == 0)
