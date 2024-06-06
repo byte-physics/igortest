@@ -326,8 +326,6 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, incrErrorCounter])
 	string summaryMsg
 	variable isFailure, incrErrorCounter
 
-	variable i, length
-
 	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
 	isFailure = ParamIsDefault(isFailure) ? 0 : !!isFailure
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
@@ -337,13 +335,21 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, incrErrorCounter])
 	// We are increasing the local error counter so there is no need to increase the global error
 	// counter.
 	ReportError(message, incrGlobalErrorCounter = 0)
+	ShowInfoMsg()
+
+	AddFailedSummaryInfo(summaryMsg)
+End
+
+/// Prints message that was stored through the INFO assertion
+static Function ShowInfoMsg()
+
+	variable i, length
+
 	WAVE/T wvInfoMsg = GetInfoMsg()
 	length = IUTF_Utils_Vector#GetLength(wvInfoMsg)
 	for(i = 0; i < length; i += 1)
 		ReportError("  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i], incrGlobalErrorCounter = 0)
 	endfor
-
-	AddFailedSummaryInfo(summaryMsg)
 End
 
 /// Prints an informative message that the test case failed
