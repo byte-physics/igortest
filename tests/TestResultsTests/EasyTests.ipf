@@ -163,3 +163,28 @@ static Function InfoInErrorOutput_Verify()
 	result = tc[0][%STDERR]
 	CHECK(strsearch(result, expect, 0) > -1)
 End
+
+// The following 4 tests rely on consecutive execution in the order of appearance
+static Function TC_SkipTC()
+
+	SKIP_TESTCASE()
+End
+
+static Function TC_SkipTC_Check()
+
+	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
+	CHECK_EQUAL_STR(wvSuite[%CURRENT][%NUM_SKIPPED], "1")
+End
+
+
+static Function TC_SkipTCFail()
+
+	CHECK(0)
+	SKIP_TESTCASE_EXPECT_FAILS()
+End
+
+static Function TC_SkipTCFail_Check()
+
+	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
+	CHECK_EQUAL_STR(wvSuite[%CURRENT][%NUM_SKIPPED], "2")
+End

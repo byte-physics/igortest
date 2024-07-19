@@ -30,6 +30,40 @@ Function FAIL()
 	IUTF_Wrapper#TRUE_WRAPPER(0, REQUIRE_MODE)
 End
 
+/// Skips current test case
+///
+/// The test case is aborted.
+/// Already failed assertions are treated as expected failure.
+/// Any registered reentry is automatically unregistered.
+Function SKIP_TESTCASE_EXPECT_FAILS()
+	IUTF_Basics#SetExpectedFailure(1)
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SKIP
+	SKIP_TESTCASE()
+End
+
+/// Skips current test case
+///
+/// The test case is aborted.
+/// Any registered reentry is automatically unregistered.
+Function SKIP_TESTCASE()
+	IUTF_Reporting#IUTF_PrintStatusMessage("Skipping test case")
+	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	if(!CmpStr(wvTestCase[%CURRENT][%STATUS], IUTF_STATUS_RUNNING))
+		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SKIP
+	endif
+
+	IUTF_Reporting#incrAssert()
+
+	IUTF_Reporting#ShowInfoMsg()
+	IUTF_Reporting#CleanupInfoMsg()
+
+	UnRegisterIUTFMonitor()
+
+	IUTF_Basics#SetAbortFromSkipFlag()
+	Abort
+End
+
 /// Append information to the next assertion to print if failed
 Function INFO(format, [s, n, s0, s1, s2, s3, s4, n0, n1, n2, n3, n4])
 	string format
