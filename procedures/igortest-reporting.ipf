@@ -268,7 +268,6 @@ static Function CleanupInfoMsg()
 	WAVE/T wv = GetInfoMsg()
 
 	IUTF_Utils_Vector#SetLength(wv, 0)
-	wv[] = ""
 End
 
 /// Get or create the wave that contains the failed procedures
