@@ -735,7 +735,8 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	variable mode, tol
 
 	variable i, result
-	string str, detailedMsg, name1, name2
+	string detailedMsg, name1, name2
+	string str = ""
 
 	IUTF_Reporting#incrAssert()
 
@@ -796,12 +797,14 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		mode = modes[i]
 		result = IUTF_Checks#AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 
-		name1 = IUTF_Utils#GetWaveNameInDFStr(wv1)
-		name2 = IUTF_Utils#GetWaveNameInDFStr(wv2)
-		sprintf str, "Assuming equality using mode %s for waves %s and %s", EqualWavesModeToString(mode), name1, name2
+		if(!result)
+			name1 = IUTF_Utils#GetWaveNameInDFStr(wv1)
+			name2 = IUTF_Utils#GetWaveNameInDFStr(wv2)
+			sprintf str, "Assuming equality using mode %s for waves %s and %s", EqualWavesModeToString(mode), name1, name2
 
-		if(!IUTF_Utils#IsEmpty(detailedMsg))
-			str += "; detailed: " + detailedMsg
+			if(!IUTF_Utils#IsEmpty(detailedMsg))
+				str += "; detailed: " + detailedMsg
+			endif
 		endif
 
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
