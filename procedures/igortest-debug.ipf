@@ -98,9 +98,11 @@ static Function DebugOutput(str, booleanValue)
 	string &str
 	variable booleanValue
 
-	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 	if(EnabledDebug())
+		str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
 		IUTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
+	elseif(!booleanValue)
+		str = str + ": is false."
 	endif
 End
 
