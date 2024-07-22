@@ -502,9 +502,9 @@ static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	IUTF_Debug#DebugOutput(str, result)
-
 	if(!result)
+
+		str = str + ": is false."
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)
