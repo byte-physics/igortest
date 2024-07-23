@@ -9,5 +9,4 @@ converted for `sphinx <http://www.sphinx-doc.org>`__ using `breathe
    :maxdepth: 2
 
    assertions
-   helpers
    flags

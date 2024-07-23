@@ -231,12 +231,14 @@ End
 
 /// Returns the package folder
 Function/DF GetPackageFolder()
-	if(!DataFolderExists(PKG_FOLDER))
-		NewDataFolder/O root:Packages
-		NewDataFolder/O root:Packages:igortest
-	endif
 
 	DFREF dfr = $PKG_FOLDER
+	if(!DataFolderRefStatus(dfr))
+		NewDataFolder/O root:Packages
+		NewDataFolder/O root:Packages:igortest
+		DFREF dfr = $PKG_FOLDER
+	endif
+
 	return dfr
 End
 

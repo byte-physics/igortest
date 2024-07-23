@@ -268,7 +268,6 @@ static Function CleanupInfoMsg()
 	WAVE/T wv = GetInfoMsg()
 
 	IUTF_Utils_Vector#SetLength(wv, 0)
-	wv[] = ""
 End
 
 /// Get or create the wave that contains the failed procedures
@@ -503,9 +502,9 @@ static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
-	IUTF_Debug#DebugOutput(str, result)
-
 	if(!result)
+
+		str = str + ": is false."
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)

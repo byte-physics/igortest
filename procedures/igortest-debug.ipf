@@ -79,46 +79,4 @@ static Function GetCurrentDebuggerState()
 	return (!!V_enable) * IUTF_DEBUG_ENABLE | (!!V_debugOnError) * IUTF_DEBUG_ON_ERROR | (!!V_NVAR_SVAR_WAVE_Checking) * IUTF_DEBUG_NVAR_SVAR_WAVE
 End
 
-/// Returns 1 if debug output is enabled and zero otherwise
-static Function EnabledDebug()
-	DFREF dfr = GetPackageFolder()
-	NVAR/Z/SDFR=dfr verbose
-
-	if(NVAR_EXISTS(verbose) && verbose == 1)
-		return 1
-	endif
-
-	return 0
-End
-
-/// Output debug string in assertions
-/// @param str            debug string
-/// @param booleanValue   assertion state
-static Function DebugOutput(str, booleanValue)
-	string &str
-	variable booleanValue
-
-	str = str + ": is " + SelectString(booleanValue, "false", "true") + "."
-	if(EnabledDebug())
-		IUTF_Reporting#ReportError(str, incrGlobalErrorCounter = 0)
-	endif
-End
-
 ///@endcond // HIDDEN_SYMBOL
-
-///@addtogroup Helpers
-///@{
-
-/// Turns debug output on
-Function EnableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 1
-End
-
-/// Turns debug output off
-Function DisableDebugOutput()
-	DFREF dfr = GetPackageFolder()
-	variable/G dfr:verbose = 0
-End
-
-///@}
