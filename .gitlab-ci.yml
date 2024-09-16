@@ -166,7 +166,7 @@ testing_nightly:
 
 testing_macosx:
   tags:
-    - macosx, igorpro, catalina, amd64
+    - macosx, igorpro, sonoma, arm64
   variables:
     GIT_SUBMODULE_STRATEGY: "recursive"
   parallel:
