@@ -248,7 +248,7 @@ generate_reports:
         sed -i 's@name="iutf@name="procedures@g' "$file"
       done
     - |
-      /root/.dotnet/tools/reportgenerator \
+      reportgenerator \
         -reports:**/Cobertura_*.xml \
         -targetdir:report \
         "-reporttypes:Html;Badges" \
