@@ -166,7 +166,7 @@ testing_nightly:
 
 testing_macosx:
   tags:
-    - macosx, igorpro, catalina, amd64
+    - macosx, igorpro, sonoma, arm64
   variables:
     GIT_SUBMODULE_STRATEGY: "recursive"
   parallel:
@@ -201,7 +201,6 @@ testing_macosx:
     - pwd
     - /Applications/Igor\ Pro\ ${IGOR_VERSION}\ Folder/Igor64.app/Contents/MacOS/Igor64 /CompErrNoDialog /I tests/${EXPERIMENT}
     - cd $(dirname "tests/$EXPERIMENT")
-    - junit2html JU_*.xml report.html
     - if [[ "$(find . -name "JU_*.xml" | wc -l)" == "0" ]]; then exit 1; fi
     - exit $(grep "errors\|failures=\"[0-9]\+\"" JU_*.xml | grep -cv "failures=\"0\" errors=\"0\"")
   artifacts:
@@ -212,7 +211,6 @@ testing_macosx:
         coverage_format: cobertura
         path: tests/**/Cobertura_*.xml
     paths:
-      - tests/**/*.htm
       - tests/**/*.log
       - tests/**/JU_*.xml
       - tests/**/Cobertura_*.xml
@@ -250,7 +248,7 @@ generate_reports:
         sed -i 's@name="iutf@name="procedures@g' "$file"
       done
     - |
-      /root/.dotnet/tools/reportgenerator \
+      reportgenerator \
         -reports:**/Cobertura_*.xml \
         -targetdir:report \
         "-reporttypes:Html;Badges" \
