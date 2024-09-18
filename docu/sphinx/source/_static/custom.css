@@ -1,3 +1,16 @@
 dl.function:not(:last-child) {
   margin-bottom: 3em;
 }
+
+@media screen and (max-width: 940px) {
+  div.document {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  div.document div.sphinxsidebar {
+    margin: -20px -30px 20px -30px;
+    width: unset;
+    left: 0;
+  }
+}
