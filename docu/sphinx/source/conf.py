@@ -109,7 +109,6 @@ html_theme_options = {
     'github_repo': 'igortest',
     'github_banner': True,
     'show_powered_by': False,
-    'page_width' : '90%',
 }
 
 html_context = {
