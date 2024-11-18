@@ -10,6 +10,6 @@ Function TestAbs()
 	CHECK_EQUAL_VAR(abs(-1.5), 1.5)
 	CHECK_EQUAL_VAR(abs(NaN), NaN)
 	WARN(abs(NaN) == NaN)
-	CHECK_EQUAL_VAR(abs(INF), INF)
-	CHECK_EQUAL_VAR(abs(-INF), INF)
+	CHECK_EQUAL_VAR(abs(Inf), Inf)
+	CHECK_EQUAL_VAR(abs(-Inf), Inf)
 End

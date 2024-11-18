@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = TEST_Main
+#pragma ModuleName=TEST_Main
 
 #include "igortest"
 #include ":Reporting:WarnTests"
@@ -13,7 +13,7 @@
 
 Function run()
 	variable allowDebug = 0
-	string procedures = ".*Tests\\.ipf"
+	string   procedures = ".*Tests\\.ipf"
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"

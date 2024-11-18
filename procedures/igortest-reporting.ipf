@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Reporting
+#pragma ModuleName=IUTF_Reporting
 
 static Constant IP8_PRINTF_STR_MAX_LENGTH = 2400
 
@@ -59,9 +59,9 @@ End
 /// before its first usage. This should usually be done at the start of IUTF_Basics#RunTest() after
 /// clearing the waves.
 static Function/WAVE GetTestRunWave()
-	DFREF dfr = GetPackageFolder()
-	string name = "TestRunResult"
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "TestRunResult"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -89,9 +89,9 @@ End
 ///   - CHILD_START: the start index (inclusive) for all test cases that belong to this test suite
 ///   - CHILD_END: the end index (exclusive) for all test cases that belong to this test suite
 static Function/WAVE GetTestSuiteWave()
-	DFREF dfr = GetPackageFolder()
-	string name = "TestSuiteResult"
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "TestSuiteResult"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -119,9 +119,9 @@ End
 ///   - CHILD_START: the start index (inclusive) for all assertion that belong to this test case
 ///   - CHILD_END: the end index (exclusive) for all assertion that belong to this test case
 static Function/WAVE GetTestCaseWave()
-	DFREF dfr = GetPackageFolder()
-	string name = "TestCaseResult"
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "TestCaseResult"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -143,9 +143,9 @@ End
 ///   - CHILD_START: the start index (inclusive) for all information that belong to this assertion
 ///   - CHILD_END: the end index (exclusive) for all information that belong to this assertion
 static Function/WAVE GetTestAssertionWave()
-	DFREF dfr = GetPackageFolder()
-	string name = "TestAssertionResult"
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "TestAssertionResult"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -160,9 +160,9 @@ End
 /// dimension labels:
 ///   - MESSAGE: the full information text for the parent assertion
 static Function/WAVE GetTestInfoWave()
-	DFREF dfr = GetPackageFolder()
-	string name = "TestInfoResult"
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "TestInfoResult"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -174,11 +174,11 @@ static Function/WAVE GetTestInfoWave()
 End
 
 static Function ClearTestResultWaves()
-	WAVE/T wvTestRun = GetTestRunWave()
+	WAVE/T wvTestRun   = GetTestRunWave()
 	WAVE/T wvTestSuite = GetTestSuiteWave()
-	WAVE/T wvTestCase = GetTestCaseWave()
+	WAVE/T wvTestCase  = GetTestCaseWave()
 	WAVE/T wvAssertion = GetTestAssertionWave()
-	WAVE/T wvInfo = GetTestInfoWave()
+	WAVE/T wvInfo      = GetTestInfoWave()
 
 	KillWaves wvTestRun, wvTestSuite, wvTestCase, wvAssertion, wvInfo
 End
@@ -199,14 +199,14 @@ static Function AddError(message, type, [incrErrorCounter])
 
 	WAVE/T wvAssertion = GetTestAssertionWave()
 	IUTF_Utils_Vector#AddRow(wvAssertion)
-	wvAssertion[%CURRENT][%MESSAGE] = message
-	wvAssertion[%CURRENT][%TYPE] = type
+	wvAssertion[%CURRENT][%MESSAGE]  = message
+	wvAssertion[%CURRENT][%TYPE]     = type
 	wvAssertion[%CURRENT][%SEVERITY] = SelectString(incrErrorCounter, IUTF_SEVERITY_WARN, IUTF_SEVERITY_ERROR)
 
 	WAVE/T wvTestCase = GetTestCaseWave()
 	UpdateChildRange(wvTestCase, wvAssertion)
 	if(incrErrorCounter)
-		wvTestCase[%CURRENT][%STATUS] = type
+		wvTestCase[%CURRENT][%STATUS]           = type
 		wvTestCase[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) + 1)
 	endif
 	if(!IUTF_Utils#IsEmpty(message))
@@ -225,7 +225,7 @@ static Function AddError(message, type, [incrErrorCounter])
 		wvInfo[startIndex, startIndex + length - 1][%MESSAGE] = wvInfoMsg[p - startIndex]
 
 		for(i = 0; i < length; i += 1)
-			msg = "  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i]
+			msg                           = "  " + TC_ASSERTION_INFO_INDICATOR + " " + wvInfoMsg[i]
 			wvTestCase[%CURRENT][%STDERR] = AddListItem(msg, wvTestCase[%CURRENT][%STDERR], "\n", Inf)
 		endfor
 	endif
@@ -248,9 +248,9 @@ End
 /// automatically at the end of the test case or assertion. This wave is considered as a list. Use
 /// IUTF_Utils_Waves#GetListLength to retrieve its length.
 static Function/WAVE GetInfoMsg()
-	DFREF dfr = GetPackageFolder()
-	string name = "InfoMsg"
-	WAVE/T/Z wv = dfr:$name
+	DFREF    dfr  = GetPackageFolder()
+	string   name = "InfoMsg"
+	WAVE/Z/T wv   = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -274,8 +274,8 @@ End
 static Function/WAVE GetFailedProcWave()
 	string name = "FailedProcWave"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr = GetPackageFolder()
+	WAVE/Z/T wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -325,8 +325,8 @@ static Function TestCaseFail(message, [summaryMsg, isFailure, incrErrorCounter])
 	string summaryMsg
 	variable isFailure, incrErrorCounter
 
-	summaryMsg = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
-	isFailure = ParamIsDefault(isFailure) ? 0 : !!isFailure
+	summaryMsg       = SelectString(ParamIsDefault(summaryMsg), summaryMsg, message)
+	isFailure        = ParamIsDefault(isFailure) ? 0 : !!isFailure
 	incrErrorCounter = ParamIsDefault(incrErrorCounter) ? 1 : !!incrErrorCounter
 
 	AddError(message, SelectString(isFailure, IUTF_STATUS_ERROR, IUTF_STATUS_FAIL), incrErrorCounter = incrErrorCounter)
@@ -394,8 +394,8 @@ End
 /// @returns The informative message
 static Function/S getInfo(result, partialStack, [callStack])
 	variable result
-	string &partialStack
-	string callStack
+	string  &partialStack
+	string   callStack
 
 	string caller, func, procedure, contents, moduleName
 	string text, cleanText, line, callerTestCase, tmpStr
@@ -403,9 +403,9 @@ static Function/S getInfo(result, partialStack, [callStack])
 	variable callerIndex = NaN
 	variable testCaseIndex
 
-	callStack = SelectString(ParamIsDefault(callStack), callStack, GetRTStackInfo(3))
-	numCallers = ItemsInList(callStack)
-	moduleName = ""
+	callStack    = SelectString(ParamIsDefault(callStack), callStack, GetRTStackInfo(3))
+	numCallers   = ItemsInList(callStack)
+	moduleName   = ""
 	partialStack = ""
 
 	// traverse the callstack from bottom up,
@@ -454,7 +454,7 @@ static Function/S getInfo(result, partialStack, [callStack])
 
 	if(callerIndex != testcaseIndex)
 		tmpStr = StringFromList(0, callerTestCase, ",")
-		text = IUTF_Basics#getFullFunctionName(err, tmpStr, StringFromList(1, callerTestCase, ","))
+		text   = IUTF_Basics#getFullFunctionName(err, tmpStr, StringFromList(1, callerTestCase, ","))
 		if(!err)
 			tmpStr = text
 		endif
@@ -472,7 +472,7 @@ static Function/S getInfo(result, partialStack, [callStack])
 	endif
 
 	contents = ProcedureText("", -1, procedure + moduleName)
-	text = StringFromList(assertLine, contents, "\r")
+	text     = StringFromList(assertLine, contents, "\r")
 
 	cleanText = trimstring(text)
 
@@ -494,9 +494,9 @@ End
 ///               to a previous recorded callStack (GetRTStackInfo(3)).
 static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 	variable result, flags
-	string str
+	string   str
 	variable cleanupInfo
-	string callStack
+	string   callStack
 
 	variable expectedFailure
 
@@ -504,7 +504,7 @@ static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 
 	if(!result)
 
-		str = str + ": is false."
+		str             = str + ": is false."
 		expectedFailure = IsExpectedFailure()
 
 		if(flags & OUTPUT_MESSAGE)
@@ -535,10 +535,10 @@ End
 /// @param allowEmptyLine (optional, default 0 disabled) If set to 1 it will allow to print empty
 ///            strings to the output. The default behavior is to skip printing empty strings.
 threadsafe static Function IUTF_PrintStatusMessage(msg, [allowEmptyLine])
-	string msg
+	string   msg
 	variable allowEmptyLine
 
-	string tmpStr
+	string   tmpStr
 	variable len
 
 	allowEmptyLine = ParamIsDefault(allowEmptyLine) ? 0 : !!allowEmptyLine
@@ -553,15 +553,15 @@ threadsafe static Function IUTF_PrintStatusMessage(msg, [allowEmptyLine])
 
 #if (IgorVersion() >= 9.0)
 	printf "%s\r", msg
-#elif  (IgorVersion() >= 8.0)
+#elif (IgorVersion() >= 8.0)
 	print/LEN=2500 msg
-#elif  (IgorVersion() >= 7.0)
+#elif (IgorVersion() >= 7.0)
 	print/LEN=1000 msg
-#elif  (IgorVersion() >= 6.0)
+#elif (IgorVersion() >= 6.0)
 	print/LEN=400 msg
 #endif
 
-#if	(IgorVersion() >= 9.0)
+#if (IgorVersion() >= 9.0)
 	fprintf -1, "%s\r\n", msg
 #elif (IgorVersion() >= 8.0)
 	tmpStr = IUTF_PrepareStringForOut(msg, maxLen = IP8_PRINTF_STR_MAX_LENGTH - 2)
@@ -576,7 +576,7 @@ End
 /// @param  incrGlobalErrorCounter (optional, default enabled) Enabled if set to a value different
 ///                     to 0. Increases the global error counter.
 static Function ReportError(message, [incrGlobalErrorCounter])
-	string message
+	string   message
 	variable incrGlobalErrorCounter
 
 	variable currentIndex
@@ -604,7 +604,7 @@ End
 ///                     the execution. If set to something different to zero it will only set
 ///                     the abort flag.
 static Function ReportErrorAndAbort(message, [setFlagOnly])
-	string message
+	string   message
 	variable setFlagOnly
 
 	setFlagOnly = ParamIsDefault(setFlagOnly) ? 0 : !!setFlagOnly

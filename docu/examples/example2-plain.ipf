@@ -10,19 +10,19 @@ Function run_IGNORE()
 	// executes all test cases of this file
 	RunTest("example2-plain.ipf")
 	// execute only one test case at a time
-	RunTest("example2-plain.ipf", testCase="VerifyStringComparison")
+	RunTest("example2-plain.ipf", testCase = "VerifyStringComparison")
 	// explicitly specify both tests
-	RunTest("example2-plain.ipf", testCase="VerifyStringComparison;VerfifyEmptyString")
+	RunTest("example2-plain.ipf", testCase = "VerifyStringComparison;VerfifyEmptyString")
 	// specify with regular expression
-	RunTest("example2-plain.ipf", testCase="Verify.*", enableRegExp = 1)
+	RunTest("example2-plain.ipf", testCase = "Verify.*", enableRegExp = 1)
 	// Give the test a descriptive name
-	RunTest("example2-plain.ipf", name="My first test")
+	RunTest("example2-plain.ipf", name = "My first test")
 End
 
 static Function VerifyStringComparison()
 
-	string strLow      = "123abc"
-	string strUP       = "123ABC"
+	string strLow = "123abc"
+	string strUP  = "123ABC"
 
 	// by default string comparison is done case sensitive
 	// so the following would fail with CHECK/REQUIRE
@@ -38,7 +38,7 @@ End
 static Function VerfifyEmptyString()
 
 	string nullString
-	string emptyString = ""
+	string emptyString  = ""
 	string filledString = "filled"
 
 	// an uninitialized string is not equal to an empty string.

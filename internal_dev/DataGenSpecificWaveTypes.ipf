@@ -12,8 +12,8 @@ Function/WAVE myMDGeneratorMulti()
 	Make/FREE/T wt = {"1"}
 	Make/FREE/D wNum
 
-// Including the following line in favor to the next has to result in a type error report
-//	Make/FREE/WAVE wref = {wt, wt, wNum}
+	// Including the following line in favor to the next has to result in a type error report
+	//	Make/FREE/WAVE wref = {wt, wt, wNum}
 	Make/FREE/WAVE wref = {wt, wt}
 
 	return wref
@@ -50,7 +50,7 @@ Function myMDTestText([textWave])
 
 	Make/FREE/T w1 = {"1"}
 
-	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
+	CHECK_EQUAL_WAVES(w1, textWave, mode = WAVE_DATA)
 End
 
 // IUTF_TD_GENERATOR myMDGeneratorText
@@ -60,7 +60,7 @@ Function myMDTestGeneric([wv])
 	WAVE/T textWave = wv
 	Make/FREE/T w1 = {"1"}
 
-	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
+	CHECK_EQUAL_WAVES(w1, textWave, mode = WAVE_DATA)
 End
 
 // IUTF_TD_GENERATOR myMDGeneratorDFR
@@ -76,7 +76,7 @@ Function myMDTestMulti([textWave])
 
 	Make/FREE/T w1 = {"1"}
 
-	CHECK_EQUAL_WAVES(w1, textWave, mode=WAVE_DATA)
+	CHECK_EQUAL_WAVES(w1, textWave, mode = WAVE_DATA)
 End
 
 // IUTF_TD_GENERATOR myMDGeneratorWAVE

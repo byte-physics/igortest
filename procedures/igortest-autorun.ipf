@@ -4,13 +4,12 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_AutoRun
 
-
 /// Creates a notebook with the special name "HistoryCarbonCopy"
 /// which will hold a copy of the history
 Function CreateHistoryLog()
 
 	DoWindow/K HistoryCarbonCopy
-	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+	NewNotebook/V=0/F=0/N=HistoryCarbonCopy
 End
 
 /// Return the type of autorun mode we are in
@@ -76,7 +75,7 @@ static Function AfterFileOpenHook(refNum, file, pathName, type, creator, kind)
 
 	funcList = FunctionList("run", ";", "KIND:2,NPARAMS:0,WIN:[" + context + "]")
 	if(ItemsInList(funcList) >= 1)
-		FuncRef AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
+		FUNCREF AUTORUN_MODE_PROTO f = $StringFromList(0, funcList)
 
 		if(IUTF_FuncRefIsAssigned(FuncRefInfo(f)))
 			try
@@ -107,7 +106,7 @@ End
 
 /// resets a global filename template string for output
 Function ClearBaseFilename()
-	DFREF dfr = GetPackageFolder()
+	DFREF    dfr              = GetPackageFolder()
 	string/G dfr:baseFilename = ""
 End
 

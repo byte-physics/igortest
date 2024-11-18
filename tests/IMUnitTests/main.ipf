@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = TEST_Main
+#pragma ModuleName=TEST_Main
 
 #include "igortest"
 
@@ -35,7 +35,7 @@ Function run()
 
 #else
 	string traceProcedures = ""
-	string tracingOp = ""
+	string tracingOp       = ""
 #endif
 
 	// backup and clear autorun state to prevent the first RunTest closing Igor
@@ -67,7 +67,7 @@ End
 
 static Function run2()
 	variable allowDebug = 0
-	string procedures = ".*-.*Tests(?:\\.ipf)?"
+	string   procedures = ".*-.*Tests(?:\\.ipf)?"
 
 #if IgorVersion() >= 9.00
 	variable waveTrackingMode = UTF_WAVE_TRACKING_ALL
@@ -87,9 +87,9 @@ static Function run2()
 		endif
 	endif
 
-	string testVars = ReadTestVars()
+	string   testVars       = ReadTestVars()
 	string/G root:cobSource = TrimString(StringByKey("COBERTURA_SOURCES", testVars, "=", "\n"))
-	string/G root:cobOut = TrimString(StringByKey("COBERTURA_OUT", testVars, "=", "\n"))
+	string/G root:cobOut    = TrimString(StringByKey("COBERTURA_OUT", testVars, "=", "\n"))
 
 	Execute/P/Q "INSERTINCLUDE \"im-main\""
 	Execute/P/Q "SetIgorOption IndependentModuleDev=1"
@@ -98,7 +98,7 @@ static Function run2()
 	// Command: IM_TEST#run(".*-.*Tests(?:\\.ipf)?", 1, 1)
 	string command = "IM_TEST#run(\""
 	command += ReplaceString("\\", procedures, "\\\\")
-	command += "\", " + num2istr(allowDebug) + ", " + num2istr(waveTrackingMode) +  ")"
+	command += "\", " + num2istr(allowDebug) + ", " + num2istr(waveTrackingMode) + ")"
 
 	Execute/P/Q command
 End

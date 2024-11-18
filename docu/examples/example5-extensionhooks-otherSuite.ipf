@@ -36,5 +36,5 @@ End
 
 Function CheckBasicMath()
 
-	CHECK_EQUAL_VAR(1+2,3)
+	CHECK_EQUAL_VAR(1 + 2, 3)
 End

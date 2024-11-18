@@ -1,9 +1,9 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = TEST_Exec
-#pragma IndependentModule = IM_TEST
+#pragma ModuleName=TEST_Exec
+#pragma IndependentModule=IM_TEST
 
 // This is just a test to showcase that Tracings works with IMs.
 

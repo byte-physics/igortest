@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = TEST_Tracing_Complexity
+#pragma ModuleName=TEST_Tracing_Complexity
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 

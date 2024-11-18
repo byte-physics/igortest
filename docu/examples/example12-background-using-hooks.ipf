@@ -29,7 +29,7 @@ End
 // of this test case later.
 Function MonitorInHookTest()
 
-	string infoText = "Entering example test case"
+	string infoText      = "Entering example test case"
 	string badComparison = "in MonitorInHookTest()"
 	// the warning will generate output to history
 	WARN_EQUAL_STR(infoText, badComparison)
@@ -40,7 +40,7 @@ End
 // We generate some history output with a warning.
 Function TestCase_reentry()
 
-	string infoText = "Continuing example test case in reentry function..."
+	string infoText      = "Continuing example test case in reentry function..."
 	string badComparison = "in TestCase_reentry()"
 	// the warning will generate output to history
 	WARN_EQUAL_STR(infoText, badComparison)

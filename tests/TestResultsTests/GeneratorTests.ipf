@@ -1,8 +1,8 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma version=1.10
-#pragma ModuleName = TS_GeneratorTests
+#pragma ModuleName=TS_GeneratorTests
 
 #include "igortest"
 #include "TestUtils"
@@ -10,7 +10,7 @@
 // These are some tests that test the behavior of data generator
 
 static Function/WAVE GeneratorEmpty()
-	Make/FREE data = { 1337 }
+	Make/FREE data = {1337}
 
 	return data
 End
@@ -24,7 +24,7 @@ static Function GeneratorEmpty_Verify([var])
 
 	CHECK_EQUAL_VAR(1337, var)
 
-	WAVE/T/Z tc = Utils#LastTestCase(tcName = "TS_GeneratorTests#GeneratorEmpty", globalSearch = 1)
+	WAVE/Z/T tc = Utils#LastTestCase(tcName = "TS_GeneratorTests#GeneratorEmpty", globalSearch = 1)
 	INFO("Bug: test case not found")
 	REQUIRE_WAVE(tc, TEXT_WAVE)
 
@@ -34,12 +34,12 @@ static Function GeneratorEmpty_Verify([var])
 	CHECK_EQUAL_STR(expect, result)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if no children are defined")
 	CHECK_EQUAL_VAR(childStart, childEnd)
 
 	startTime = str2num(tc[0][%STARTTIME])
-	endTime = str2num(tc[0][%ENDTIME])
+	endTime   = str2num(tc[0][%ENDTIME])
 	INFO("Check if endtime is not before the starttime")
 	CHECK_LE_VAR(startTime, endTime)
 
@@ -59,7 +59,7 @@ static Function GeneratorEmpty_Verify([var])
 End
 
 static Function/WAVE GeneratorSucceed()
-	Make/FREE data = { 1337 }
+	Make/FREE data = {1337}
 
 	PASS()
 
@@ -75,7 +75,7 @@ static Function GeneratorSucceed_Verify([var])
 
 	CHECK_EQUAL_VAR(1337, var)
 
-	WAVE/T/Z tc = Utils#LastTestCase(tcName = "TS_GeneratorTests#GeneratorSucceed", globalSearch = 1)
+	WAVE/Z/T tc = Utils#LastTestCase(tcName = "TS_GeneratorTests#GeneratorSucceed", globalSearch = 1)
 	INFO("Bug: test case not found")
 	REQUIRE_WAVE(tc, TEXT_WAVE)
 
@@ -85,12 +85,12 @@ static Function GeneratorSucceed_Verify([var])
 	CHECK_EQUAL_STR(expect, result)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if no children are defined")
 	CHECK_EQUAL_VAR(childStart, childEnd)
 
 	startTime = str2num(tc[0][%STARTTIME])
-	endTime = str2num(tc[0][%ENDTIME])
+	endTime   = str2num(tc[0][%ENDTIME])
 	INFO("Check if endtime is not before the starttime")
 	CHECK_LE_VAR(startTime, endTime)
 
@@ -110,7 +110,7 @@ static Function GeneratorSucceed_Verify([var])
 End
 
 static Function TestGenAbort()
-	string errMsg
+	string   errMsg
 	variable errCode
 	variable aborted = 0
 
@@ -127,7 +127,7 @@ static Function TestGenAbort()
 End
 
 static Function TestGenRTE()
-	string errMsg
+	string   errMsg
 	variable errCode
 	variable aborted = 0
 
@@ -144,7 +144,7 @@ static Function TestGenRTE()
 End
 
 static Function TestGenNull()
-	string errMsg
+	string   errMsg
 	variable errCode
 	variable aborted = 0
 
@@ -161,7 +161,7 @@ static Function TestGenNull()
 End
 
 static Function TestGen2D()
-	string errMsg
+	string   errMsg
 	variable errCode
 	variable aborted = 0
 
@@ -178,7 +178,7 @@ static Function TestGen2D()
 End
 
 static Function TestGenSignature()
-	string errMsg
+	string   errMsg
 	variable errCode
 	variable aborted = 0
 

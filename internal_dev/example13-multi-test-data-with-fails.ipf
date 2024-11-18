@@ -28,13 +28,13 @@ End
 
 // IUTF_TD_GENERATOR tcDataGenInt
 static Function MDTestCaseInt([int])
-	Int64 int
+	int64 int
 
 	CHECK(int == 1 || int == 5)
 End
 
 static Function/WAVE tcDataGenCmpl()
-	Make/FREE/C data = {cmplx(5,1), 1}
+	Make/FREE/C data = {cmplx(5, 1), 1}
 	return data
 End
 
@@ -76,7 +76,7 @@ static Function MDTestCaseWv([wv])
 End
 
 static Function/WAVE tcDataGenDFR()
-	DFREF dfr = NewFreeDataFolder()
+	DFREF    dfr      = NewFreeDataFolder()
 	string/G dfr:data = "Damn it, Steve!"
 	Make/FREE/DF w = {dfr}
 	return w
@@ -89,7 +89,6 @@ static Function MDTestCaseDFR([dfr])
 	SVAR/Z s = dfr:data
 	CHECK(strsearch(s, "Steve!", 0) >= 0)
 End
-
 
 // FAILS
 // NO_GENERATOR
@@ -130,14 +129,14 @@ End
 // wrong generator
 // IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail6([cmpl])
-	Complex cmpl
+	complex cmpl
 
 End
 
 // wrong generator
 // IUTF_TD_GENERATOR tcDataGenVar
 static Function MultiTestCaseFail7([int])
-	Int64 int
+	int64 int
 
 End
 

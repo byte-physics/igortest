@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Tracing_Analytics
+#pragma ModuleName=IUTF_Tracing_Analytics
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
@@ -16,7 +16,7 @@ EndStructure
 
 static Function GetMaxFuncCount()
 	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
-	variable size = DimSize(funcLocations, UTF_ROW)
+	variable  size          = DimSize(funcLocations, UTF_ROW)
 
 	Make/FREE=1/N=(size) helper = DimSize(funcLocations[p][%FUNCLIST], UTF_ROW)
 	return WaveMax(helper)
@@ -35,7 +35,7 @@ static Function/WAVE GetTotals()
 	numWaves = DimSize(storage, UTF_ROW)
 	WAVE/ZZ totals
 	for(i = 0; i < numWaves; i++)
-		WAVE/WAVE/Z entryOuter = storage[i]
+		WAVE/Z/WAVE entryOuter = storage[i]
 		if(!WaveExists(entryOuter))
 			continue
 		endif
@@ -56,19 +56,19 @@ End
 
 static Function CollectFunctions(WAVE totals, WAVE/T procs, STRUCT CollectionResult &result)
 	variable i, j, startIndex, endIndex, funcCount
-	variable procCount = DimSize(procs, UTF_ROW)
-	variable maxFuncCount = GetMaxFuncCount()
-	DFREF dfr = GetPackageFolder()
+	variable  procCount     = DimSize(procs, UTF_ROW)
+	variable  maxFuncCount  = GetMaxFuncCount()
+	DFREF     dfr           = GetPackageFolder()
 	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
-	variable lbFuncList = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
-	variable lbFuncStart = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
+	variable  lbFuncList    = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
+	variable  lbFuncStart   = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
 
 	Make/FREE=1/N=(procCount, maxFuncCount)/T result.functions
 	Make/FREE=1/N=(procCount, maxFuncCount) result.lines, result.calls, result.sums
 
 	for(i = 0; i < procCount; i++)
 		WAVE/T procFuncNames = funcLocations[i][lbFuncList]
-		WAVE procFuncLines = funcLocations[i][lbFuncStart]
+		WAVE   procFuncLines = funcLocations[i][lbFuncStart]
 		funcCount = DimSize(procFuncNames, UTF_ROW)
 		if(!funcCount)
 			continue
@@ -76,11 +76,11 @@ static Function CollectFunctions(WAVE totals, WAVE/T procs, STRUCT CollectionRes
 		result.count += funcCount
 
 		result.functions[i][0, funcCount - 1] = procFuncNames[q]
-		result.lines[i][0, funcCount - 1] = procFuncLines[q]
-		result.calls[i][0, funcCount - 1] = totals[procFuncLines[q]][0][i]
+		result.lines[i][0, funcCount - 1]     = procFuncLines[q]
+		result.calls[i][0, funcCount - 1]     = totals[procFuncLines[q]][0][i]
 		for(j = 0; j < funcCount; j++)
 			startIndex = procFuncLines[j]
-			endIndex = j + 1 < funcCount ? procFuncLines[j + 1] : DimSize(totals, UTF_ROW)
+			endIndex   = j + 1 < funcCount ? procFuncLines[j + 1] : DimSize(totals, UTF_ROW)
 			WaveStats/M=1/Q/RMD=[startIndex, endIndex - 1][0, 0][i, i] totals
 			result.sums[i][j] = V_sum
 		endfor
@@ -90,12 +90,12 @@ End
 static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult &result)
 	variable i, j, funcCount
 	string name
-	variable procCount = DimSize(procs, UTF_ROW)
-	variable lineCount = GetMaxProcLineCount()
-	DFREF dfr = GetPackageFolder()
+	variable  procCount     = DimSize(procs, UTF_ROW)
+	variable  lineCount     = GetMaxProcLineCount()
+	DFREF     dfr           = GetPackageFolder()
 	WAVE/WAVE funcLocations = IUTF_Tracing#GetFuncLocations()
-	variable lbFuncList = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
-	variable lbFuncStart = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
+	variable  lbFuncList    = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCLIST")
+	variable  lbFuncStart   = FindDimLabel(funcLocations, UTF_COLUMN, "FUNCSTART")
 
 	Make/FREE=1/N=(procCount, lineCount)/T result.functions = ""
 	Make/FREE=1/N=(procCount, lineCount) result.lines = q
@@ -104,8 +104,8 @@ static Function CollectLines(WAVE totals, WAVE/T procs, STRUCT CollectionResult 
 	WAVE procSizes = IUTF_Tracing#GetProcSizes()
 	for(i = 0; i < procCount; i++)
 		WAVE/T procFuncNames = funcLocations[i][lbFuncList]
-		WAVE procFuncLines = funcLocations[i][lbFuncStart]
-		lineCount = procSizes[i]
+		WAVE   procFuncLines = funcLocations[i][lbFuncStart]
+		lineCount     = procSizes[i]
 		result.count += lineCount
 
 		// insert the function names at the lines of their declaration.
@@ -160,11 +160,11 @@ static Function/WAVE SearchHighestWithMeta(WAVE/T procs, STRUCT CollectionResult
 			Redimension/N=(i, -1) result
 			return result
 		endif
-		result[i][searchIndex] = num2istr(V_max)
-		result[i][metaIndex] = num2istr(metaWave[V_maxRowLoc][V_maxColLoc])
-		result[i][2] = procs[V_maxRowLoc]
-		result[i][3] = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
-		result[i][4] = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
+		result[i][searchIndex]               = num2istr(V_max)
+		result[i][metaIndex]                 = num2istr(metaWave[V_maxRowLoc][V_maxColLoc])
+		result[i][2]                         = procs[V_maxRowLoc]
+		result[i][3]                         = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
+		result[i][4]                         = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
 		searchWave[V_maxRowLoc][V_maxColLoc] = NaN
 	endfor
 
@@ -173,7 +173,7 @@ End
 
 static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collectionResult, variable sorting)
 	variable i
-	string msg
+	string   msg
 
 	Make/FREE=1/N=(collectionResult.count, 4)/T result
 	SetDimLabel UTF_COLUMN, 0, Calls, result
@@ -195,10 +195,10 @@ static Function/WAVE SearchHighest(WAVE/T procs, STRUCT CollectionResult &collec
 			Redimension/N=(i, -1) result
 			return result
 		endif
-		result[i][0] = num2istr(V_max)
-		result[i][1] = procs[V_maxRowLoc]
-		result[i][2] = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
-		result[i][3] = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
+		result[i][0]                         = num2istr(V_max)
+		result[i][1]                         = procs[V_maxRowLoc]
+		result[i][2]                         = collectionResult.functions[V_maxRowLoc][V_maxColLoc]
+		result[i][3]                         = num2istr(collectionResult.lines[V_maxRowLoc][V_maxColLoc])
 		searchWave[V_maxRowLoc][V_maxColLoc] = NaN
 	endfor
 
@@ -207,8 +207,8 @@ End
 
 static Function/S GetWaveHeader(WAVE wv)
 	variable i
-	string header = ""
-	variable size = DimSize(wv, UTF_COLUMN)
+	string   header = ""
+	variable size   = DimSize(wv, UTF_COLUMN)
 
 	for(i = size - 1; i >= 0; i--)
 		header = AddListItem(GetDimLabel(wv, UTF_COLUMN, i), header)
@@ -245,9 +245,9 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	STRUCT CollectionResult collectionResult
 	string msg, header
 	WAVE/T procs = IUTF_Tracing#GetTracedProcedureNames()
-	DFREF dfr = GetPackageFolder()
+	DFREF  dfr   = GetPackageFolder()
 
-	mode = ParamIsDefault(mode) ? UTF_ANALYTICS_FUNCTIONS : mode
+	mode    = ParamIsDefault(mode) ? UTF_ANALYTICS_FUNCTIONS : mode
 	sorting = ParamIsDefault(sorting) ? UTF_ANALYTICS_CALLS : sorting
 
 	if(mode != UTF_ANALYTICS_FUNCTIONS && mode != UTF_ANALYTICS_LINES)
@@ -307,7 +307,7 @@ Function ShowTopFunctions(variable count, [variable mode, variable sorting])
 	Duplicate/O result, dfr:TracingAnalyticResult
 
 	header = GetWaveHeader(result)
-	msg = IUTF_Utils#NicifyTableText(result, header)
+	msg    = IUTF_Utils#NicifyTableText(result, header)
 	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 

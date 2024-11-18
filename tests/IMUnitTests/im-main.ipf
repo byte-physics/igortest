@@ -1,9 +1,9 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IM_TEST_Main
-#pragma IndependentModule = IM_TEST
+#pragma ModuleName=IM_TEST_Main
+#pragma IndependentModule=IM_TEST
 
 #include "igortest"
 #include "Test-ExecTests"
@@ -24,7 +24,7 @@ Function TEST_END_OVERRIDE(name)
 	printf "IM END: %s\n", name
 
 	SVAR cobSource = root:cobSource
-	SVAR cobOut = root:cobOut
+	SVAR cobOut    = root:cobOut
 
 	IUTF_Tracing_Cobertura#PrintReport(cobSource, cobOut)
 

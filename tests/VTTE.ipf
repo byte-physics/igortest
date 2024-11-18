@@ -1,9 +1,8 @@
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=UTF_Tests
-
 
 /// VTTE is short for "Very Tiny Test Environment" and is a testing framework
 /// for our testing framework. It has only one assertion, and aborts if the
@@ -31,17 +30,17 @@ End
 // This is done so that we don't rely on the IUTF test case discovery logic to work.
 static Function TestIUTF()
 	variable err
-	string str
+	string   str
 
 	PASS()
 
 	// test VTEE's Ensure
 	Ensure(1)
 	Ensure(1e-14)
-	Ensure(inf)
+	Ensure(Inf)
 	Ensure(-1)
 	Ensure(-1e-14)
-	Ensure(-inf)
+	Ensure(-Inf)
 
 	try
 		Ensure(NaN, quiet = 1); AbortOnRTE
@@ -102,8 +101,8 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#IsTrue(1))
 	Ensure(IUTF_Checks#IsTrue(-1))
 	Ensure(IUTF_Checks#IsTrue(1e-15))
-	Ensure(IUTF_Checks#IsTrue(inf))
-	Ensure(IUTF_Checks#IsTrue(-inf))
+	Ensure(IUTF_Checks#IsTrue(Inf))
+	Ensure(IUTF_Checks#IsTrue(-Inf))
 	Ensure(!IUTF_Checks#IsTrue(NaN))
 	Ensure(!IUTF_Checks#IsTrue(0))
 	// @}
@@ -169,7 +168,7 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#AreStringsEqual(properstr, properstr, 1))
 	Ensure(IUTF_Checks#AreStringsEqual(properstr, properstr, NaN))
 
-	randomstr = "abcd"
+	randomstr        = "abcd"
 	anotherrandomstr = "ABCD"
 	Ensure(IUTF_Checks#AreStringsEqual(randomstr, anotherrandomstr, 0))
 	Ensure(!IUTF_Checks#AreStringsEqual(randomstr, anotherrandomstr, 1))
@@ -184,9 +183,9 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#AreVariablesEqual(0, 0))
 	Ensure(IUTF_Checks#AreVariablesEqual(0, -0))
 	Ensure(IUTF_Checks#AreVariablesEqual(1, 1))
-	Ensure(IUTF_Checks#AreVariablesEqual(inf, inf))
-	Ensure(IUTF_Checks#AreVariablesEqual(-inf, -inf))
-	Ensure(!IUTF_Checks#AreVariablesEqual(-inf, inf))
+	Ensure(IUTF_Checks#AreVariablesEqual(Inf, Inf))
+	Ensure(IUTF_Checks#AreVariablesEqual(-Inf, -Inf))
+	Ensure(!IUTF_Checks#AreVariablesEqual(-Inf, Inf))
 	Ensure(IUTF_Checks#AreVariablesEqual(NaN, NaN))
 	Ensure(IUTF_Checks#AreVariablesEqual(1, 1 + 1e-16))
 	Ensure(!IUTF_Checks#AreVariablesEqual(1, 1 + 1e-15))
@@ -200,10 +199,10 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#IsLessOrEqual(0, 0))
 	Ensure(IUTF_Checks#IsLessOrEqual(0, -0))
 	Ensure(IUTF_Checks#IsLessOrEqual(0, 0.1))
-	Ensure(IUTF_Checks#IsLessOrEqual(inf, inf))
-	Ensure(IUTF_Checks#IsLessOrEqual(-inf, -inf))
-	Ensure(IUTF_Checks#IsLessOrEqual(-inf, inf))
-	Ensure(!IUTF_Checks#IsLessOrEqual(inf, -inf))
+	Ensure(IUTF_Checks#IsLessOrEqual(Inf, Inf))
+	Ensure(IUTF_Checks#IsLessOrEqual(-Inf, -Inf))
+	Ensure(IUTF_Checks#IsLessOrEqual(-Inf, Inf))
+	Ensure(!IUTF_Checks#IsLessOrEqual(Inf, -Inf))
 	Ensure(IUTF_Checks#IsLessOrEqual(NaN, NaN))
 	Ensure(IUTF_Checks#IsLessOrEqual(1, 1 + 1e-16))
 	Ensure(IUTF_Checks#IsLessOrEqual(1, 1 + 1e-15))
@@ -221,10 +220,10 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#IsLess(0, 1))
 	Ensure(!IUTF_Checks#IsLess(0, 0))
 	Ensure(IUTF_Checks#IsLess(-1, 0))
-	Ensure(!IUTF_Checks#IsLess(inf, inf))
-	Ensure(!IUTF_Checks#IsLess(-inf, -inf))
-	Ensure(IUTF_Checks#IsLess(-inf, inf))
-	Ensure(!IUTF_Checks#IsLess(inf, -inf))
+	Ensure(!IUTF_Checks#IsLess(Inf, Inf))
+	Ensure(!IUTF_Checks#IsLess(-Inf, -Inf))
+	Ensure(IUTF_Checks#IsLess(-Inf, Inf))
+	Ensure(!IUTF_Checks#IsLess(Inf, -Inf))
 	Ensure(!IUTF_Checks#IsLess(NaN, NaN))
 	Ensure(!IUTF_Checks#IsLess(1, 1 + 1e-16))
 	Ensure(IUTF_Checks#IsLess(1, 1 + 1e-15))
@@ -294,14 +293,14 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#AreVariablesClose(1, -Inf, DEFAULT_TOLERANCE, WEAK_CLOSENESS))
 
 	// singularity (one of both sides is zero)
-	Ensure(IUTF_Checks#AreVariablesClose( 0,   0.5, 1,    STRONG_CLOSENESS))
-	Ensure(IUTF_Checks#AreVariablesClose( 0,   0.5, 1,    WEAK_CLOSENESS))
-	Ensure(IUTF_Checks#AreVariablesClose( 0.5, 0,   1,    STRONG_CLOSENESS))
-	Ensure(IUTF_Checks#AreVariablesClose( 0.5, 0,   1,    WEAK_CLOSENESS))
-	Ensure(!IUTF_Checks#AreVariablesClose(0,   0.5, 0.25, STRONG_CLOSENESS))
-	Ensure(!IUTF_Checks#AreVariablesClose(0,   0.5, 0.25, WEAK_CLOSENESS))
-	Ensure(!IUTF_Checks#AreVariablesClose(0.5, 0,   0.25, STRONG_CLOSENESS))
-	Ensure(!IUTF_Checks#AreVariablesClose(0.5, 0,   0.25, WEAK_CLOSENESS))
+	Ensure(IUTF_Checks#AreVariablesClose(0, 0.5, 1, STRONG_CLOSENESS))
+	Ensure(IUTF_Checks#AreVariablesClose(0, 0.5, 1, WEAK_CLOSENESS))
+	Ensure(IUTF_Checks#AreVariablesClose(0.5, 0, 1, STRONG_CLOSENESS))
+	Ensure(IUTF_Checks#AreVariablesClose(0.5, 0, 1, WEAK_CLOSENESS))
+	Ensure(!IUTF_Checks#AreVariablesClose(0, 0.5, 0.25, STRONG_CLOSENESS))
+	Ensure(!IUTF_Checks#AreVariablesClose(0, 0.5, 0.25, WEAK_CLOSENESS))
+	Ensure(!IUTF_Checks#AreVariablesClose(0.5, 0, 0.25, STRONG_CLOSENESS))
+	Ensure(!IUTF_Checks#AreVariablesClose(0.5, 0, 0.25, WEAK_CLOSENESS))
 
 	Ensure(!IUTF_Checks#AreVariablesClose(NaN, 0, DEFAULT_TOLERANCE, WEAK_CLOSENESS))
 	Ensure(!IUTF_Checks#AreVariablesClose(NaN, 0, DEFAULT_TOLERANCE, STRONG_CLOSENESS))
@@ -329,21 +328,21 @@ static Function TestIUTF()
 
 	// CHECK_CLOSE
 	// @{
-	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong=1)
-	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong=0)
+	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong = 1)
+	CHECK_CLOSE_VAR(1e-8, 1e-8 + 1e-17, strong = 0)
 
-	CHECK_CLOSE_VAR(1, 2, tol = 1, strong=1)
-	CHECK_CLOSE_VAR(1, 2, tol = 1, strong=0)
+	CHECK_CLOSE_VAR(1, 2, tol = 1, strong = 1)
+	CHECK_CLOSE_VAR(1, 2, tol = 1, strong = 0)
 	// @}
 
 	// CHECK_CLOSE_CMPLX
 	// @{
 
-	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong=STRONG_CLOSENESS)
-	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong=WEAK_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong = STRONG_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1e-8, 1e-8), cmplx(1e-8 + 1e-17, 1e-8 + 1e-17), strong = WEAK_CLOSENESS)
 
-	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong=STRONG_CLOSENESS)
-	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong=WEAK_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong = STRONG_CLOSENESS)
+	CHECK_CLOSE_CMPLX(cmplx(1, 1), cmplx(2, 2), tol = 1, strong = WEAK_CLOSENESS)
 	// @}
 
 	// AreWavesEqual
@@ -430,8 +429,8 @@ static Function TestIUTF()
 	Ensure(IUTF_Checks#AreWavesEqual(wvSP, wvTEXT, DATA_FULL_SCALE, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(IUTF_Checks#AreWavesEqual(wvSP, wvTEXT, DIMENSION_SIZES, DEFAULT_TOLERANCE, detailedMsg))
 
-	Make/FREE/N=(4,3,2,1) wvSP
-	Make/FREE/N=(4,3,2,1)/T wvTEXT
+	Make/FREE/N=(4, 3, 2, 1) wvSP
+	Make/FREE/N=(4, 3, 2, 1)/T wvTEXT
 	Ensure(!IUTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(!IUTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_DATA_TYPE, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(IUTF_Checks#AreWavesEqual(wvSP, wvTEXT, WAVE_SCALING, DEFAULT_TOLERANCE, detailedMsg))
@@ -498,7 +497,7 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#HasWaveMajorType(wvDFR, WAVE_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMajorType(wvDFR, NULL_WAVE))
 
-	Make/FREE/Wave wvWave
+	Make/FREE/WAVE wvWave
 	Ensure(IUTF_Checks#HasWaveMajorType(wvWave, FREE_WAVE | WAVE_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMajorType(wvWave, NUMERIC_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMajorType(wvWave, NORMAL_WAVE))
@@ -515,72 +514,72 @@ static Function TestIUTF()
 
 	Make/FREE/D wvDouble
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, NON_NUMERIC_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvDouble,  DOUBLE_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvDouble, DOUBLE_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, FLOAT_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvDouble, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W wvInt16
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, NON_NUMERIC_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16,  DOUBLE_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, DOUBLE_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, FLOAT_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE))
 	Ensure(IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvInt16, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W/U wvUInt16
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, NON_NUMERIC_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16,  DOUBLE_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, DOUBLE_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, FLOAT_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE))
 	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 	Make/FREE/W/U/C wvUInt16Complex
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, NON_NUMERIC_WAVE))
@@ -591,19 +590,19 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUInt16Complex, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 #if IgorVersion() >= 7.0
 
@@ -616,19 +615,19 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE))
 	Ensure(IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvUint64, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 #endif
 
@@ -641,19 +640,19 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE))
 	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, DOUBLE_WAVE | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, FLOAT_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE  | COMPLEX_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE   | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE   | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
-	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE  | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, FLOAT_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE | COMPLEX_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT8_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT16_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT32_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
+	Ensure(!IUTF_Checks#HasWaveMinorType(wvText, INT64_WAVE | COMPLEX_WAVE | UNSIGNED_WAVE))
 
 #if IgorVersion() >= 7.0
 
@@ -685,10 +684,10 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#IsINT64Small(i64one, i64zero))
 	Ensure(IUTF_Checks#IsINT64Small(i64one, i64minustwo))
 
-	uint64 ui64zero     = 0
-	uint64 ui64one      = 1
-	uint64 ui64big      = 0xFFFFFFFFFFFFFFFE
-	uint64 ui64biggest  = 0xFFFFFFFFFFFFFFFF
+	uint64 ui64zero    = 0
+	uint64 ui64one     = 1
+	uint64 ui64big     = 0xFFFFFFFFFFFFFFFE
+	uint64 ui64biggest = 0xFFFFFFFFFFFFFFFF
 	Ensure(IUTF_Checks#AreUINT64Equal(ui64zero, ui64zero))
 	Ensure(IUTF_Checks#AreUINT64Equal(ui64big, ui64big))
 	Ensure(!IUTF_Checks#AreUINT64Equal(ui64zero, ui64one))
@@ -771,51 +770,51 @@ static Function TestIUTF()
 	Ensure(CheckUserPrintF("", "", emptyText, emptyVars))
 	Ensure(CheckUserPrintF("abc", "abc", emptyText, emptyVars))
 	Ensure(CheckUserPrintF("a%f", "a%%f", emptyText, emptyVars))
-	Ensure(!CheckUserPrintF("", "%s", emptyText, emptyVars, onlyErr=1))
-	Ensure(!CheckUserPrintF("", "%d", emptyText, emptyVars, onlyErr=1))
+	Ensure(!CheckUserPrintF("", "%s", emptyText, emptyVars, onlyErr = 1))
+	Ensure(!CheckUserPrintF("", "%d", emptyText, emptyVars, onlyErr = 1))
 
-	Ensure(CheckUserPrintF("a foo b", "a %s b", { "foo" }, emptyVars))
-	Ensure(CheckUserPrintF("a foo bbarc", "a %s b%sc", { "foo", "bar" }, emptyVars))
-	Ensure(CheckUserPrintF("a {foo, bar} b", "a @%s b", { "foo", "bar" }, emptyVars))
-	Ensure(CheckUserPrintF("a @{foo} b", "a @@%s b", { "foo" }, emptyVars))
-	Ensure(CheckUserPrintF("a @@ foo b", "a @@ %s b", { "foo" }, emptyVars))
-	Ensure(!CheckUserPrintF("", "%s %s", { "foo" }, emptyVars, onlyErr=1))
+	Ensure(CheckUserPrintF("a foo b", "a %s b", {"foo"}, emptyVars))
+	Ensure(CheckUserPrintF("a foo bbarc", "a %s b%sc", {"foo", "bar"}, emptyVars))
+	Ensure(CheckUserPrintF("a {foo, bar} b", "a @%s b", {"foo", "bar"}, emptyVars))
+	Ensure(CheckUserPrintF("a @{foo} b", "a @@%s b", {"foo"}, emptyVars))
+	Ensure(CheckUserPrintF("a @@ foo b", "a @@ %s b", {"foo"}, emptyVars))
+	Ensure(!CheckUserPrintF("", "%s %s", {"foo"}, emptyVars, onlyErr = 1))
 
-	Ensure(CheckUserPrintF("a 1 b", "a %d b", emptyText, { 1 }))
-	Ensure(CheckUserPrintF("a 1 b2c", "a %d b%dc", emptyText, { 1, 2 }))
-	Ensure(CheckUserPrintF("a {1, 2} b", "a @%d b", emptyText, { 1, 2 }))
-	Ensure(CheckUserPrintF("a @{1} b", "a @@%d b", emptyText, { 1 }))
-	Ensure(CheckUserPrintF("a @@ 1 b", "a @@ %d b", emptyText, { 1 }))
-	Ensure(!CheckUserPrintF("", "%d %d", emptyText, { 1 }, onlyErr=1))
+	Ensure(CheckUserPrintF("a 1 b", "a %d b", emptyText, {1}))
+	Ensure(CheckUserPrintF("a 1 b2c", "a %d b%dc", emptyText, {1, 2}))
+	Ensure(CheckUserPrintF("a {1, 2} b", "a @%d b", emptyText, {1, 2}))
+	Ensure(CheckUserPrintF("a @{1} b", "a @@%d b", emptyText, {1}))
+	Ensure(CheckUserPrintF("a @@ 1 b", "a @@ %d b", emptyText, {1}))
+	Ensure(!CheckUserPrintF("", "%d %d", emptyText, {1}, onlyErr = 1))
 
-	Ensure(CheckUserPrintF("foo 2", "%s %d", { "foo" }, { 2 }))
-	Ensure(CheckUserPrintF("2 foo", "%d %s", { "foo" }, { 2 }))
-	Ensure(CheckUserPrintF("foo bar 2", "%s %s %d", { "foo", "bar" }, { 2 }))
-	Ensure(CheckUserPrintF("foo 2 bar", "%s %d %s", { "foo", "bar" }, { 2 }))
-	Ensure(CheckUserPrintF("2 foo bar", "%d %s %s", { "foo", "bar" }, { 2 }))
-	Ensure(CheckUserPrintF("2 3 foo", "%d %d %s", { "foo" }, { 2, 3 }))
-	Ensure(CheckUserPrintF("2 foo 3", "%d %s %d", { "foo" }, { 2, 3 }))
-	Ensure(CheckUserPrintF("foo 2 3", "%s %d %d", { "foo" }, { 2, 3 }))
+	Ensure(CheckUserPrintF("foo 2", "%s %d", {"foo"}, {2}))
+	Ensure(CheckUserPrintF("2 foo", "%d %s", {"foo"}, {2}))
+	Ensure(CheckUserPrintF("foo bar 2", "%s %s %d", {"foo", "bar"}, {2}))
+	Ensure(CheckUserPrintF("foo 2 bar", "%s %d %s", {"foo", "bar"}, {2}))
+	Ensure(CheckUserPrintF("2 foo bar", "%d %s %s", {"foo", "bar"}, {2}))
+	Ensure(CheckUserPrintF("2 3 foo", "%d %d %s", {"foo"}, {2, 3}))
+	Ensure(CheckUserPrintF("2 foo 3", "%d %s %d", {"foo"}, {2, 3}))
+	Ensure(CheckUserPrintF("foo 2 3", "%s %d %d", {"foo"}, {2, 3}))
 
-	Ensure(CheckUserPrintF("foo {2}", "%s @%d", { "foo" }, { 2 }))
-	Ensure(CheckUserPrintF("{foo} 2", "@%s %d", { "foo" }, { 2 }))
-	Ensure(CheckUserPrintF("{foo} {2}", "@%s @%d", { "foo" }, { 2 }))
+	Ensure(CheckUserPrintF("foo {2}", "%s @%d", {"foo"}, {2}))
+	Ensure(CheckUserPrintF("{foo} 2", "@%s %d", {"foo"}, {2}))
+	Ensure(CheckUserPrintF("{foo} {2}", "@%s @%d", {"foo"}, {2}))
 
-	Ensure(CheckUserPrintF("1.235", "%.3f", emptyText, { 1.23456789 }))
-	Ensure(CheckUserPrintF("1.234568", "%.6f", emptyText, { 1.23456789 }))
-	Ensure(CheckUserPrintF("1.0MHz", "%.1W0PHz", emptyText, { 1e6 }))
+	Ensure(CheckUserPrintF("1.235", "%.3f", emptyText, {1.23456789}))
+	Ensure(CheckUserPrintF("1.234568", "%.6f", emptyText, {1.23456789}))
+	Ensure(CheckUserPrintF("1.0MHz", "%.1W0PHz", emptyText, {1e6}))
 
 #if IgorVersion() > 8.00
-	Ensure(!CheckUserPrintF("", "%~d", emptyText, { 1 }, onlyErr=1))
-	Ensure(!CheckUserPrintF("", "%~", emptyText, emptyVars, onlyErr=1))
+	Ensure(!CheckUserPrintF("", "%~d", emptyText, {1}, onlyErr = 1))
+	Ensure(!CheckUserPrintF("", "%~", emptyText, emptyVars, onlyErr = 1))
 #else
-	Ensure(CheckUserPrintF("~lld", "%~d", emptyText, { 1 }))
+	Ensure(CheckUserPrintF("~lld", "%~d", emptyText, {1}))
 #endif
-	Ensure(!CheckUserPrintF("", "@%%d", emptyText, { 1 }, onlyErr=1))
+	Ensure(!CheckUserPrintF("", "@%%d", emptyText, {1}, onlyErr = 1))
 
-	WAVE/Z nullWave = $""
-	variable val = nullWave[0]
-	Ensure(!CheckUserPrintF("", "", emptyText, emptyVars, onlyErr=1))
+	WAVE/Z   nullWave = $""
+	variable val      = nullWave[0]
+	Ensure(!CheckUserPrintF("", "", emptyText, emptyVars, onlyErr = 1))
 	err = GetRTError(1)
 
 	// @}
@@ -846,11 +845,11 @@ End
 
 static Function CheckUserPrintF(expected, format, strings, numbers, [onlyErr])
 	string expected, format
-	WAVE/T strings
-	WAVE numbers
+	WAVE/T   strings
+	WAVE     numbers
 	variable onlyErr
 
-	string result
+	string   result
 	variable err
 
 	onlyErr = ParamIsDefault(onlyErr) ? 0 : !!onlyErr

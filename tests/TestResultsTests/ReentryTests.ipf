@@ -1,8 +1,8 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma version=1.10
-#pragma ModuleName = TS_ReentryTests
+#pragma ModuleName=TS_ReentryTests
 
 #include "igortest"
 #include "TestUtils"
@@ -33,14 +33,14 @@ static Function CheckBackgroundTask_Verify()
 	string expect, result, stdErr
 	variable childStart, childEnd
 
-	WAVE/T/Z tc = Utils#LastTestCase()
+	WAVE/Z/T tc = Utils#LastTestCase()
 	INFO("BUG: test case not found")
 	REQUIRE(WaveExists(tc))
 
 	Utils#ExpectTestCaseStatus(IUTF_STATUS_SUCCESS)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if no assertion was thrown")
 	CHECK_EQUAL_VAR(0, childEnd - childStart)
 

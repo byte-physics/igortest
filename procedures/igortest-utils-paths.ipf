@@ -42,7 +42,7 @@ End
 ///
 /// @returns The full file path
 static Function/S AtHome(fileName, [unusedName])
-	string fileName
+	string   fileName
 	variable unusedName
 
 	string result, msg
@@ -77,12 +77,12 @@ static Function/S getUnusedFileName(fname)
 	variable count
 	string fn, fnext, fnn
 
-	if (FileNotExists(fname))
+	if(FileNotExists(fname))
 		return fname
 	endif
 	fname = ParseFilePath(5, fname, "\\", 0, 0)
 	fnext = "." + ParseFilePath(4, fname, "\\", 0, 0)
-	fnn = RemoveEnding(fname, fnext)
+	fnn   = RemoveEnding(fname, fnext)
 
 	count = -1
 	do

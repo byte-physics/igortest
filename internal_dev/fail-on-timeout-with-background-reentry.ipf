@@ -16,7 +16,7 @@ End
 
 Function First()
 
-	CtrlNamedBackGround testtask, proc=ReEntryTask, period = 1, start
+	CtrlNamedBackGround testtask, proc=ReEntryTask, period=1, start
 	RegisterIUTFMonitor("testtask", 1, "Second_reentry", timeout = 1, failOntimeout = 1)
 End
 

@@ -10,7 +10,6 @@
 // This example shows the usage of ModuleName for static function in combination with
 // an IndependentModule. Please note how the functions are referenced in BackgroundTest()
 
-
 // A task that is run by the test, could be data acquisition
 // but to keep it simple this task runs until the current seconds
 // are dividable by 5 with a remainder of 0
@@ -28,7 +27,6 @@ Function BackgroundTest()
 	CtrlNamedBackGround testtask, proc=Example14#MyModule#ReEntryTask, period=1, start
 	RegisterIUTFMonitor("testtask", 1, "MyModule#FirstReentry_reentry")
 End
-
 
 // The registered reentry function from BackgroundTest()
 // This does not has to be the end of this test case, so lets assume there is more work to do

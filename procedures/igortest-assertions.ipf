@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Assertion
 
-
 /// Steps for adding new test assertions:
 /// - Add the test you want to perform to `igortest-assertion-checks.ipf`, these
 ///   functions must return 0/1 from their input parameters. No access of globals
@@ -68,7 +67,7 @@ End
 Function INFO(format, [s, n, s0, s1, s2, s3, s4, n0, n1, n2, n3, n4])
 	string format
 	WAVE/T s
-	WAVE n
+	WAVE   n
 	string s0, s1, s2, s3, s4
 	variable n0, n1, n2, n3, n4
 
@@ -80,23 +79,23 @@ Function INFO(format, [s, n, s0, s1, s2, s3, s4, n0, n1, n2, n3, n4])
 		WAVE/T s = wv
 		if(!ParamIsDefault(s0))
 			s[stringLength] = s0
-			stringLength += 1
+			stringLength   += 1
 		endif
 		if(!ParamIsDefault(s1))
 			s[stringLength] = s1
-			stringLength += 1
+			stringLength   += 1
 		endif
 		if(!ParamIsDefault(s2))
 			s[stringLength] = s2
-			stringLength += 1
+			stringLength   += 1
 		endif
 		if(!ParamIsDefault(s3))
 			s[stringLength] = s3
-			stringLength += 1
+			stringLength   += 1
 		endif
 		if(!ParamIsDefault(s4))
 			s[stringLength] = s4
-			stringLength += 1
+			stringLength   += 1
 		endif
 		Redimension/N=(stringLength) s
 	elseif(!ParamIsDefault(s0) || !ParamIsDefault(s1) || !ParamIsDefault(s2) || !ParamIsDefault(s3) || !ParamIsDefault(s4))
@@ -108,23 +107,23 @@ Function INFO(format, [s, n, s0, s1, s2, s3, s4, n0, n1, n2, n3, n4])
 		WAVE n = numbers
 		if(!ParamIsDefault(n0))
 			numbers[numberLength] = n0
-			numberLength += 1
+			numberLength         += 1
 		endif
 		if(!ParamIsDefault(n1))
 			numbers[numberLength] = n1
-			numberLength += 1
+			numberLength         += 1
 		endif
 		if(!ParamIsDefault(n2))
 			numbers[numberLength] = n2
-			numberLength += 1
+			numberLength         += 1
 		endif
 		if(!ParamIsDefault(n3))
 			numbers[numberLength] = n3
-			numberLength += 1
+			numberLength         += 1
 		endif
 		if(!ParamIsDefault(n4))
 			numbers[numberLength] = n4
-			numberLength += 1
+			numberLength         += 1
 		endif
 		Redimension/N=(numberLength) numbers
 	elseif(!ParamIsDefault(n0) || !ParamIsDefault(n1) || !ParamIsDefault(n2) || !ParamIsDefault(n3) || !ParamIsDefault(n4))
@@ -366,11 +365,11 @@ Function WARN_CLOSE_VAR(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, WARN_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -383,11 +382,11 @@ Function CHECK_CLOSE_VAR(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, CHECK_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -400,11 +399,11 @@ Function REQUIRE_CLOSE_VAR(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_VAR_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -416,11 +415,11 @@ Function WARN_CLOSE_CMPLX(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, WARN_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -432,11 +431,11 @@ Function CHECK_CLOSE_CMPLX(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, CHECK_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -448,11 +447,11 @@ Function REQUIRE_CLOSE_CMPLX(var1, var2, [tol, strong])
 	if(ParamIsDefault(tol) && ParamIsDefault(strong))
 		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, strong = strong)
 	elseif(ParamIsDefault(strong))
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol)
 	else
-		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol, strong=strong)
+		IUTF_Wrapper#CLOSE_CMPLX_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol, strong = strong)
 	endif
 End
 
@@ -465,7 +464,7 @@ Function WARN_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, WARN_MODE)
 	else
-		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, WARN_MODE, tol = tol)
 	endif
 End
 
@@ -474,7 +473,7 @@ Function CHECK_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, CHECK_MODE)
 	else
-		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, CHECK_MODE, tol = tol)
 	endif
 End
 
@@ -483,7 +482,7 @@ Function REQUIRE_CLOSE_INT64(int64 var1, int64 var2, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_INT64_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol)
 	endif
 End
 
@@ -492,7 +491,7 @@ Function WARN_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, WARN_MODE)
 	else
-		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, WARN_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, WARN_MODE, tol = tol)
 	endif
 End
 
@@ -501,7 +500,7 @@ Function CHECK_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, CHECK_MODE)
 	else
-		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, CHECK_MODE, tol = tol)
 	endif
 End
 
@@ -510,7 +509,7 @@ Function REQUIRE_CLOSE_UINT64(uint64 var1, uint64 var2, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#CLOSE_UINT64_WRAPPER(var1, var2, REQUIRE_MODE, tol = tol)
 	endif
 End
 
@@ -526,7 +525,7 @@ Function WARN_SMALL_VAR(var, [tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, WARN_MODE)
 	else
-		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, WARN_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, WARN_MODE, tol = tol)
 	endif
 End
 
@@ -538,7 +537,7 @@ Function CHECK_SMALL_VAR(var, [tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, CHECK_MODE)
 	else
-		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, CHECK_MODE, tol = tol)
 	endif
 End
 
@@ -550,43 +549,43 @@ Function REQUIRE_SMALL_VAR(var, [tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_VAR_WRAPPER(var, REQUIRE_MODE, tol = tol)
 	endif
 End
 
 /// @copydoc SMALL_CMPLX_DOCU
 Function WARN_SMALL_CMPLX(var, [tol])
 	variable/C var
-	variable tol
+	variable   tol
 
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, WARN_MODE)
 	else
-		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, WARN_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, WARN_MODE, tol = tol)
 	endif
 End
 
 /// @copydoc SMALL_CMPLX_DOCU
 Function CHECK_SMALL_CMPLX(var, [tol])
 	variable/C var
-	variable tol
+	variable   tol
 
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, CHECK_MODE)
 	else
-		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, CHECK_MODE, tol = tol)
 	endif
 End
 
 /// @copydoc SMALL_CMPLX_DOCU
 Function REQUIRE_SMALL_CMPLX(var, [tol])
 	variable/C var
-	variable tol
+	variable   tol
 
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_CMPLX_WRAPPER(var, REQUIRE_MODE, tol = tol)
 	endif
 End
 
@@ -599,7 +598,7 @@ Function WARN_SMALL_INT64(int64 var, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, WARN_MODE)
 	else
-		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, WARN_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, WARN_MODE, tol = tol)
 	endif
 End
 
@@ -608,7 +607,7 @@ Function CHECK_SMALL_INT64(int64 var, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, CHECK_MODE)
 	else
-		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, CHECK_MODE, tol = tol)
 	endif
 End
 
@@ -617,7 +616,7 @@ Function REQUIRE_SMALL_INT64(int64 var, [int64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_INT64_WRAPPER(var, REQUIRE_MODE, tol = tol)
 	endif
 End
 
@@ -626,7 +625,7 @@ Function WARN_SMALL_UINT64(uint64 var, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, WARN_MODE)
 	else
-		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, WARN_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, WARN_MODE, tol = tol)
 	endif
 End
 
@@ -635,7 +634,7 @@ Function CHECK_SMALL_UINT64(uint64 var, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, CHECK_MODE)
 	else
-		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, CHECK_MODE, tol = tol)
 	endif
 End
 
@@ -644,7 +643,7 @@ Function REQUIRE_SMALL_UINT64(uint64 var, [uint64 tol])
 	if(ParamIsDefault(tol))
 		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#SMALL_UINT64_WRAPPER(var, REQUIRE_MODE, tol = tol)
 	endif
 End
 
@@ -765,7 +764,7 @@ Function WARN_EQUAL_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, WARN_MODE)
 	else
-		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -777,7 +776,7 @@ Function CHECK_EQUAL_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE)
 	else
-		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -789,7 +788,7 @@ Function REQUIRE_EQUAL_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#EQUAL_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -801,7 +800,7 @@ Function WARN_NEQ_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, WARN_MODE)
 	else
-		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, WARN_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -813,7 +812,7 @@ Function CHECK_NEQ_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, CHECK_MODE)
 	else
-		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, CHECK_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -825,126 +824,126 @@ Function REQUIRE_NEQ_STR(str1, str2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive=case_sensitive)
+		IUTF_Wrapper#NEQ_STR_WRAPPER(str1, str2, REQUIRE_MODE, case_sensitive = case_sensitive)
 	endif
 End
 
 /// @copydoc WAVE_DOCU
 Function WARN_WAVE(wv, majorType, [minorType])
-	Wave/Z wv
+	WAVE/Z wv
 	variable majorType, minorType
 
 	if(ParamIsDefault(minorType))
 		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, WARN_MODE)
 	else
-		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, WARN_MODE, minorType=minorType)
+		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, WARN_MODE, minorType = minorType)
 	endif
 End
 
 /// @copydoc WAVE_DOCU
 Function CHECK_WAVE(wv, majorType, [minorType])
-	Wave/Z wv
+	WAVE/Z wv
 	variable majorType, minorType
 
 	if(ParamIsDefault(minorType))
 		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, CHECK_MODE)
 	else
-		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, CHECK_MODE, minorType=minorType)
+		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, CHECK_MODE, minorType = minorType)
 	endif
 End
 
 /// @copydoc WAVE_DOCU
 Function REQUIRE_WAVE(wv, majorType, [minorType])
-	Wave/Z wv
+	WAVE/Z wv
 	variable majorType, minorType
 
 	if(ParamIsDefault(minorType))
 		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, REQUIRE_MODE, minorType=minorType)
+		IUTF_Wrapper#TEST_WAVE_WRAPPER(wv, majorType, REQUIRE_MODE, minorType = minorType)
 	endif
 End
 
 /// @copydoc EQUAL_WAVE_DOCU
 Function WARN_EQUAL_WAVES(wv1, wv2, [mode, tol])
-	Wave/Z wv1, wv2
+	WAVE/Z wv1, wv2
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
-			IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode = mode)
 	elseif(ParamIsDefault(mode))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol = tol)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol=tol, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, tol = tol, mode = mode)
 	endif
 End
 
 /// @copydoc EQUAL_WAVE_DOCU
 Function CHECK_EQUAL_WAVES(wv1, wv2, [mode, tol])
-	Wave/Z wv1, wv2
+	WAVE/Z wv1, wv2
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode = mode)
 	elseif(ParamIsDefault(mode))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol = tol)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol=tol, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, tol = tol, mode = mode)
 	endif
 End
 
 /// @copydoc EQUAL_WAVE_DOCU
 Function REQUIRE_EQUAL_WAVES(wv1, wv2, [mode, tol])
-	Wave/Z wv1, wv2
+	WAVE/Z wv1, wv2
 	variable mode, tol
 
 	if(ParamIsDefault(mode) && ParamIsDefault(tol))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE)
 	elseif(ParamIsDefault(tol))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode = mode)
 	elseif(ParamIsDefault(mode))
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, tol=tol)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, tol = tol)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, tol=tol, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, tol = tol, mode = mode)
 	endif
 End
 
 #if (IgorVersion() >= 7.00)
 
 Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/Z/T wv1, wv2
+	WAVE/Z/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode = mode)
 	endif
 End
 
 Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/Z/T wv1, wv2
+	WAVE/Z/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode = mode)
 	endif
 End
 
 Function REQUIRE_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/Z/T wv1, wv2
+	WAVE/Z/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode = mode)
 	endif
 End
 
@@ -964,37 +963,37 @@ End
 
 /// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function WARN_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/T wv1, wv2
+	WAVE/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, WARN_MODE, mode = mode)
 	endif
 End
 
 /// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function CHECK_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/T wv1, wv2
+	WAVE/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, CHECK_MODE, mode = mode)
 	endif
 End
 
 /// @copydoc TEXT_WAVE_EQUAL_DOCU
 Function REQUIRE_EQUAL_TEXTWAVES(wv1, wv2, [mode])
-	Wave/T wv1, wv2
+	WAVE/T wv1, wv2
 	variable mode
 
 	if(ParamIsDefault(mode))
 		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE)
 	else
-		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode=mode)
+		IUTF_Wrapper#EQUAL_WAVE_WRAPPER(wv1, wv2, REQUIRE_MODE, mode = mode)
 	endif
 End
 
@@ -1066,7 +1065,7 @@ End
 /// @copydoc COMPILATION_DOCU
 Function WARN_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))
@@ -1086,7 +1085,7 @@ End
 /// @copydoc COMPILATION_DOCU
 Function CHECK_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))
@@ -1106,7 +1105,7 @@ End
 /// @copydoc COMPILATION_DOCU
 Function REQUIRE_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))
@@ -1126,7 +1125,7 @@ End
 /// @copydoc NO_COMPILATION_DOCU
 Function WARN_NO_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))
@@ -1146,7 +1145,7 @@ End
 /// @copydoc NO_COMPILATION_DOCU
 Function CHECK_NO_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))
@@ -1166,7 +1165,7 @@ End
 /// @copydoc NO_COMPILATION_DOCU
 Function REQUIRE_NO_COMPILATION(file, [defines, reentry])
 	string file, reentry
-	WAVE/T/Z defines
+	WAVE/Z/T defines
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))

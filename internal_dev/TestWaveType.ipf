@@ -1,12 +1,12 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3		// Use modern global access method and strict wave access.
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 
 #include "igortest"
 
 Function run_IGNORE()
-	RunTest("TestWaveType.ipf", name="Test different Wave Types", testCase="testWaveTypes;testNullType")
+	RunTest("TestWaveType.ipf", name = "Test different Wave Types", testCase = "testWaveTypes;testNullType")
 End
 
 Function testWaveTypes()
@@ -49,11 +49,11 @@ End
 Function printWaveType(wv)
 	WAVE/Z wv
 
-	Variable type2 = WaveType(wv, 2)
-	Variable type1 = WaveType(wv, 1)
-	Variable type0 = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
+	variable type2 = WaveType(wv, 2)
+	variable type1 = WaveType(wv, 1)
+	variable type0 = WaveExists(wv) ? WaveType(wv, 0) : NULL_WAVE
 
-	Variable myType = type0
+	variable myType = type0
 	myType = myType | (type1 == NULL_WAVE ? NULL_WAVE : 2^(type1 + 7))
 	myType = myType | (type2 == NULL_WAVE ? NULL_WAVE : 2^(type2 + 11))
 
@@ -87,7 +87,7 @@ Function printWaveType(wv)
 	print myType & NUMERIC_WAVE && myType & NORMAL_WAVE, "normal and numeric"
 	print myType & TEXT_WAVE && myType & FREE_WAVE, "free and text"
 
-	Variable mask = NUMERIC_WAVE  | NORMAL_WAVE | INT32_WAVE | UNSIGNED_WAVE
+	variable mask = NUMERIC_WAVE | NORMAL_WAVE | INT32_WAVE | UNSIGNED_WAVE
 	printf "%016b mask\r", mask
 	printf "%016b type\r", myType
 	printf "%016b result\r", (myType & mask) == mask

@@ -9,9 +9,9 @@ static Constant RTE_NULL_STRING = 185
 /// @class INFO_DOCU
 /// Append information to the next assertion to print if failed
 static Function INFO_WRAPPER(format, strings, numbers, flags)
-	string format
-	WAVE/T strings
-	WAVE numbers
+	string   format
+	WAVE/T   strings
+	WAVE     numbers
 	variable flags
 
 	variable err, index
@@ -25,7 +25,7 @@ static Function INFO_WRAPPER(format, strings, numbers, flags)
 		return NaN
 	endif
 
-	index = IUTF_Utils_Vector#AddRow(wvInfoMsg)
+	index            = IUTF_Utils_Vector#AddRow(wvInfoMsg)
 	wvInfoMsg[index] = msg
 End
 
@@ -74,7 +74,7 @@ End
 /// An empty string is never null.
 /// @param str    string to test
 static Function NULL_STR_WRAPPER(str, flags)
-	string &str
+	string  &str
 	variable flags
 
 	variable result
@@ -95,7 +95,7 @@ End
 /// A null string is never empty.
 /// @param str  string to test
 static Function EMPTY_STR_WRAPPER(str, flags)
-	string &str
+	string  &str
 	variable flags
 
 	variable result
@@ -116,7 +116,7 @@ End
 /// An empty string is always non null.
 /// @param str    string to test
 static Function NON_NULL_STR_WRAPPER(str, flags)
-	string &str
+	string  &str
 	variable flags
 
 	variable result
@@ -137,7 +137,7 @@ End
 /// A null string is a non empty string too.
 /// @param str  string to test
 static Function NON_EMPTY_STR_WRAPPER(str, flags)
-	string &str
+	string  &str
 	variable flags
 
 	variable result
@@ -159,7 +159,7 @@ End
 /// Neither null strings nor empty strings are proper strings.
 /// @param str  string to test
 static Function PROPER_STR_WRAPPER(str, flags)
-	string &str
+	string  &str
 	variable flags
 
 	variable result
@@ -192,7 +192,7 @@ static Function NEQ_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = !IUTF_Checks#AreVariablesEqual(var1, var2)
+	result  = !IUTF_Checks#AreVariablesEqual(var1, var2)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s != %s", tmpStr1, tmpStr2
@@ -234,7 +234,7 @@ static Function NEQ_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 		return NaN
 	endif
 
-	result = !IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
+	result  = !IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
 	tmpStr1 = IUTF_Utils#IUTF_PrepareStringForOut(str1)
 	tmpStr2 = IUTF_Utils#IUTF_PrepareStringForOut(str2)
 	sprintf str, "\"%s\" != \"%s\" %s case", tmpStr1, tmpStr2, SelectString(case_sensitive, "not respecting", "respecting")
@@ -271,14 +271,14 @@ static Function CLOSE_VAR_WRAPPER(var1, var2, flags, [tol, strong])
 	endif
 
 	if(ParamIsDefault(strong))
-		strong  = CLOSE_COMPARE_STRONG
+		strong = CLOSE_COMPARE_STRONG
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = IUTF_Checks#AreVariablesClose(var1, var2, tol, strong)
+	result  = IUTF_Checks#AreVariablesClose(var1, var2, tol, strong)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
@@ -306,14 +306,14 @@ static Function CLOSE_CMPLX_WRAPPER(var1, var2, flags, [tol, strong])
 	endif
 
 	if(ParamIsDefault(strong))
-		strong  = CLOSE_COMPARE_STRONG
+		strong = CLOSE_COMPARE_STRONG
 	endif
 
 	if(ParamIsDefault(tol))
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = IUTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && IUTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
+	result  = IUTF_Checks#AreVariablesClose(real(var1), real(var2), tol, strong) && IUTF_Checks#AreVariablesClose(imag(var1), imag(var2), tol, strong)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(real(var1), isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(imag(var1), isDouble = 1)
 	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(real(var2), isDouble = 1)
@@ -335,7 +335,7 @@ End
 /// @param tol    (optional) int64 tolerance, defaults to 16
 static Function CLOSE_INT64_WRAPPER(int64 var1, int64 var2, variable flags, [int64 tol])
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -360,7 +360,7 @@ End
 /// @param tol    (optional) uint64 tolerance, defaults to 16
 static Function CLOSE_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags, [uint64 tol])
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -404,7 +404,7 @@ static Function SMALL_VAR_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = IUTF_Checks#IsVariableSmall(var, tol)
+	result  = IUTF_Checks#IsVariableSmall(var, tol)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
 
@@ -418,8 +418,8 @@ End
 /// Variant for complex numbers
 static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 	variable/C var
-	variable flags
-	variable tol
+	variable   flags
+	variable   tol
 
 	variable result
 	string str, tmpStr1, tmpStr2, tmpStr3
@@ -434,7 +434,7 @@ static Function SMALL_CMPLX_WRAPPER(var, flags, [tol])
 		tol = DEFAULT_TOLERANCE
 	endif
 
-	result = IUTF_Checks#IsVariableSmall(cabs(var), tol)
+	result  = IUTF_Checks#IsVariableSmall(cabs(var), tol)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(real(var), isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(imag(var), isDouble = 1)
 	tmpStr3 = IUTF_Utils#GetNiceStringForNumber(tol, isDouble = 1)
@@ -453,7 +453,7 @@ End
 /// @param tol        (optional) int64 tolerance, defaults to 16
 static Function SMALL_INT64_WRAPPER(int64 var, variable flags, [int64 tol])
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -477,7 +477,7 @@ End
 /// @param tol        (optional) uint64 tolerance, defaults to 16
 static Function SMALL_UINT64_WRAPPER(uint64 var, variable flags, [uint64 tol])
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -515,7 +515,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	variable result
 	string str, tmpStr1, tmpStr2
-	Struct IUTF_StringDiffResult diffResult
+	STRUCT IUTF_StringDiffResult diffResult
 
 	IUTF_Reporting#incrAssert()
 
@@ -537,7 +537,7 @@ static Function EQUAL_STR_WRAPPER(str1, str2, flags, [case_sensitive])
 
 	result = IUTF_Checks#AreStringsEqual(str1, str2, case_sensitive)
 	if(!result)
-		IUTF_Utils#DiffString(str1, str2, diffResult, case_sensitive=case_sensitive)
+		IUTF_Utils#DiffString(str1, str2, diffResult, case_sensitive = case_sensitive)
 		sprintf str, "String mismatch (case %ssensitive):\rstr1: %s\rstr2: %s\r", SelectString(case_sensitive, "in", ""), diffResult.v1, diffResult.v2
 		EvaluateResults(result, str, flags)
 	endif
@@ -557,7 +557,7 @@ End
 /// @endverbatim
 ///
 static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
-	Wave/Z wv
+	WAVE/Z wv
 	variable majorType, minorType
 	variable flags
 
@@ -579,17 +579,17 @@ static Function TEST_WAVE_WRAPPER(wv, majorType, flags, [minorType])
 	endif
 
 	result = IUTF_Checks#HasWaveMajorType(wv, majorType)
-	type = IUTF_Checks#GetWaveMajorType(wv)
-	str1 = IUTF_Checks#GetWaveMajorTypeString(majorType)
-	str2 = IUTF_Checks#GetWaveMajorTypeString(type)
+	type   = IUTF_Checks#GetWaveMajorType(wv)
+	str1   = IUTF_Checks#GetWaveMajorTypeString(majorType)
+	str2   = IUTF_Checks#GetWaveMajorTypeString(type)
 	sprintf str, "Expect wave's main type to be '%s' but got '%s'", str1, str2
 	EvaluateResults(result, str, flags, cleanupInfo = 0)
 
 	if(!ParamIsDefault(minorType))
 		result = IUTF_Checks#HasWaveMinorType(wv, minorType)
-		type = IUTF_Checks#GetWaveMinorType(wv)
-		str1 = IUTF_Checks#GetWaveMinorTypeString(minorType)
-		str2 = IUTF_Checks#GetWaveMinorTypeString(type)
+		type   = IUTF_Checks#GetWaveMinorType(wv)
+		str1   = IUTF_Checks#GetWaveMinorTypeString(minorType)
+		str2   = IUTF_Checks#GetWaveMinorTypeString(type)
 		sprintf str, "Expect wave's sub type to be '%s' but got '%s'", str1, str2
 		EvaluateResults(result, str, flags, cleanupInfo = 0)
 	endif
@@ -619,7 +619,7 @@ static Function EQUAL_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = IUTF_Checks#AreVariablesEqual(var1, var2)
+	result  = IUTF_Checks#AreVariablesEqual(var1, var2)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s == %s", tmpStr1, tmpStr2
@@ -637,7 +637,7 @@ End
 /// @param var2   second variable
 static Function EQUAL_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -657,7 +657,7 @@ End
 /// @param var2   second variable
 static Function EQUAL_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -677,7 +677,7 @@ End
 /// @param var2   second variable
 static Function NEQ_INT64_WRAPPER(int64 var1, int64 var2, variable flags)
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -697,7 +697,7 @@ End
 /// @param var2   second variable
 static Function NEQ_UINT64_WRAPPER(uint64 var1, uint64 var2, variable flags)
 	variable result
-	string str
+	string   str
 
 	IUTF_Reporting#incrAssert()
 
@@ -730,7 +730,7 @@ End
 /// @endverbatim
 ///
 static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
-	Wave/Z wv1, wv2
+	WAVE/Z wv1, wv2
 	variable flags
 	variable mode, tol
 
@@ -758,7 +758,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		return NaN
 	endif
 
-	Make/FREE validModes = { WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
+	Make/FREE validModes = {WAVE_DATA, WAVE_DATA_TYPE, WAVE_SCALING, DATA_UNITS, DIMENSION_UNITS, DIMENSION_LABELS, WAVE_NOTE, WAVE_LOCK_STATE, DATA_FULL_SCALE, DIMENSION_SIZES}
 
 	if(ParamIsDefault(mode))
 		WAVE modes = validModes
@@ -775,7 +775,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 		Duplicate/FREE validModes, modes
 
 		modes[] = (validModes[p] == (validModes[p] & mode)) ? validModes[p] : NaN
-		WaveTransform/O zapNaNs modes
+		WaveTransform/O zapNaNs, modes
 
 		if(!DimSize(modes, 0))
 			EvaluateResults(0, "Valid mode for EQUAL_WAVE check.", flags)
@@ -794,7 +794,7 @@ static Function EQUAL_WAVE_WRAPPER(wv1, wv2, flags, [mode, tol])
 	endif
 
 	for(i = 0; i < DimSize(modes, 0); i += 1)
-		mode = modes[i]
+		mode   = modes[i]
 		result = IUTF_Checks#AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 
 		if(!result)
@@ -830,7 +830,7 @@ static Function LESS_EQUAL_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = IUTF_Checks#IsLessOrEqual(var1, var2)
+	result  = IUTF_Checks#IsLessOrEqual(var1, var2)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s <= %s", tmpStr1, tmpStr2
@@ -854,7 +854,7 @@ static Function LESS_THAN_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = IUTF_Checks#IsLess(var1, var2)
+	result  = IUTF_Checks#IsLess(var1, var2)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s < %s", tmpStr1, tmpStr2
@@ -878,7 +878,7 @@ static Function GREATER_EQUAL_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = IUTF_Checks#IsLessOrEqual(var2, var1)
+	result  = IUTF_Checks#IsLessOrEqual(var2, var1)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s >= %s", tmpStr1, tmpStr2
@@ -902,7 +902,7 @@ static Function GREATER_THAN_VAR_WRAPPER(var1, var2, flags)
 		return NaN
 	endif
 
-	result = IUTF_Checks#IsLess(var2, var1)
+	result  = IUTF_Checks#IsLess(var2, var1)
 	tmpStr1 = IUTF_Utils#GetNiceStringForNumber(var1, isDouble = 1)
 	tmpStr2 = IUTF_Utils#GetNiceStringForNumber(var2, isDouble = 1)
 	sprintf str, "%s > %s", tmpStr1, tmpStr2
@@ -911,7 +911,7 @@ End
 
 static Function/S RTE2String(code, [msg])
 	variable code
-	string msg
+	string   msg
 
 	string result
 
@@ -947,8 +947,8 @@ static Function RTE_WRAPPER(code, flags)
 	endif
 
 	result = IUTF_Checks#HasRTE(code)
-	msg = GetRTErrMessage()
-	err = GetRTError(1)
+	msg    = GetRTErrMessage()
+	err    = GetRTError(1)
 
 	sprintf str, "Expecting %s but got %s", RTE2String(code), RTE2String(err, msg = msg)
 	EvaluateResults(result, str, flags)
@@ -972,7 +972,7 @@ static Function ANY_RTE_WRAPPER(flags)
 	endif
 
 	result = IUTF_Checks#HasAnyRTE()
-	err = GetRTError(1)
+	err    = GetRTError(1)
 
 	sprintf str, "Expecting any RTE but got nothing"
 	EvaluateResults(result, str, flags)
@@ -1009,10 +1009,10 @@ End
 ///                 after this assertion finished. If this parameter is not used the test case will
 //                  be finished after this assertion.
 static Function COMPILATION_WRAPPER(file, flags, [defines, reentry, noCompile])
-	string file
+	string   file
 	variable flags
-	WAVE/T/Z defines
-	string reentry
+	WAVE/Z/T defines
+	string   reentry
 	variable noCompile
 
 	variable tmpVar
@@ -1037,7 +1037,7 @@ static Function COMPILATION_WRAPPER(file, flags, [defines, reentry, noCompile])
 		if(GrepString(reentry, PROCNAME_NOT_REENTRY))
 			IUTF_Reporting#ReportErrorAndAbort("Name of Reentry function must end with _REENTRY")
 		endif
-		FUNCREF TEST_CASE_PROTO rFuncRef = $reentry
+		FUNCREF TEST_CASE_PROTO    rFuncRef    = $reentry
 		FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentry
 		if(!IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !IUTF_Test_MD#GetFunctionSignatureTCMD(reentry, tmpVar, tmpVar, tmpVar))
 			IUTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
@@ -1073,10 +1073,10 @@ End
 ///                 after this assertion finished. If this parameter is not used the test case will
 //                  be finished after this assertion.
 static Function NO_COMPILATION_WRAPPER(file, flags, [defines, reentry])
-	string file
+	string   file
 	variable flags
-	WAVE/T/Z defines
-	string reentry
+	WAVE/Z/T defines
+	string   reentry
 
 	if(ParamIsDefault(defines))
 		if(ParamIsDefault(reentry))

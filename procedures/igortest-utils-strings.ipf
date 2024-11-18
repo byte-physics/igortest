@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Utils_Strings
 
-
 // This pattern is used to find all placeholder in the string. This pattern consists of multiple parts:
 // #1: ^#2#(?:3#5)?$
 //     The full pattern.
@@ -31,16 +30,16 @@ static StrConstant USER_PRINT_PATTERN = "^(.*?)(?:(@?(?<!%)%[^a-zA-Z%]*(?:[feEgG
 /// @param[out] err      Set different to 0 if an error during conversion happens. Set to 0 if the conversion succeeds.
 /// @returns             The formated message if succeeds. The error message if failed.
 static Function/S UserPrintF(format, strings, numbers, err)
-	string format
-	WAVE/T strings
-	WAVE numbers
+	string    format
+	WAVE/T    strings
+	WAVE      numbers
 	variable &err
 
 	string part1, part2, part3, str
 	variable num, i, stringIndex, numberIndex
 	variable stringLength = DimSize(strings, UTF_ROW)
 	variable numberLength = DimSize(numbers, UTF_ROW)
-	string result = ""
+	string   result       = ""
 
 	err = 0
 
@@ -123,7 +122,7 @@ static Function/S UserPrintF(format, strings, numbers, err)
 					return str
 				endif
 
-				result += strings[stringIndex]
+				result      += strings[stringIndex]
 				stringIndex += 1
 
 			else
@@ -140,7 +139,7 @@ static Function/S UserPrintF(format, strings, numbers, err)
 					return str
 				endif
 
-				result += str
+				result      += str
 				numberIndex += 1
 
 			endif
@@ -177,7 +176,7 @@ static Function/S ShuffleList(list, [separator])
 
 	separator = SelectString(ParamIsDefault(separator), separator, ";")
 
-	Wave/T wv = ListToTextWave(list, separator)
+	WAVE/T wv = ListToTextWave(list, separator)
 	IUTF_Utils_Waves#InPlaceShuffleText1D(wv)
 	wfprintf result, "%s" + separator, wv
 
@@ -188,7 +187,7 @@ End
 static Function IsPrefix(text, prefix)
 	string text, prefix
 
-	variable textLength = strlen(text)
+	variable textLength   = strlen(text)
 	variable prefixLength = strlen(prefix)
 
 	if(textLength < prefixLength)
@@ -221,7 +220,7 @@ static Function/S ReplaceAllRegex(regex, text, replacement)
 		endif
 
 		result += part1 + replacement
-		text = part3
+		text    = part3
 	endfor
 
 	return result
@@ -248,7 +247,7 @@ static Function CountRegex(regex, text)
 		endif
 
 		count += 1
-		text = part3
+		text   = part3
 	endfor
 
 	return count

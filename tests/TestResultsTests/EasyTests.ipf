@@ -1,8 +1,8 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma version=1.10
-#pragma ModuleName = TS_EasyTests
+#pragma ModuleName=TS_EasyTests
 
 #include "igortest"
 #include "TestUtils"
@@ -18,7 +18,7 @@ static Function StatusSuccess_Verify()
 	string expect, result
 	variable childStart, childEnd, startTime, endTime
 
-	WAVE/T/Z tc = Utils#LastTestCase()
+	WAVE/Z/T tc = Utils#LastTestCase()
 	INFO("Bug: test case not found")
 	REQUIRE(WaveExists(tc))
 
@@ -28,12 +28,12 @@ static Function StatusSuccess_Verify()
 	CHECK_EQUAL_STR(expect, result)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if no children are defined")
 	CHECK_EQUAL_VAR(childStart, childEnd)
 
 	startTime = str2num(tc[0][%STARTTIME])
-	endTime = str2num(tc[0][%ENDTIME])
+	endTime   = str2num(tc[0][%ENDTIME])
 	INFO("Check if endtime is not before the starttime")
 	CHECK_LE_VAR(startTime, endTime)
 
@@ -61,7 +61,7 @@ static Function StatusSkip_Verify()
 	string expect, result
 	variable childStart, childEnd, startTime, endTime
 
-	WAVE/T/Z tc = Utils#LastTestCase()
+	WAVE/Z/T tc = Utils#LastTestCase()
 	INFO("Bug: test case not found")
 	REQUIRE(WaveExists(tc))
 
@@ -71,12 +71,12 @@ static Function StatusSkip_Verify()
 	CHECK_EQUAL_STR(expect, result)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if no children are defined")
 	CHECK_EQUAL_VAR(childStart, childEnd)
 
 	startTime = str2num(tc[0][%STARTTIME])
-	endTime = str2num(tc[0][%ENDTIME])
+	endTime   = str2num(tc[0][%ENDTIME])
 	INFO("Check if start time is 0")
 	CHECK_EQUAL_VAR(0, startTime)
 	INFO("Check if end time is 0")
@@ -106,7 +106,7 @@ static Function ExpectedFailures_Verify()
 	string expect, result
 	variable childStart, childEnd, startTime, endTime
 
-	WAVE/T/Z tc = Utils#LastTestCase()
+	WAVE/Z/T tc = Utils#LastTestCase()
 	INFO("Bug: test case not found")
 	REQUIRE(WaveExists(tc))
 
@@ -116,12 +116,12 @@ static Function ExpectedFailures_Verify()
 	CHECK_EQUAL_STR(expect, result)
 
 	childStart = str2num(tc[0][%CHILD_START])
-	childEnd = str2num(tc[0][%CHILD_END])
+	childEnd   = str2num(tc[0][%CHILD_END])
 	INFO("Check if some children are defined")
 	CHECK_EQUAL_VAR(childStart + 1, childEnd)
 
 	startTime = str2num(tc[0][%STARTTIME])
-	endTime = str2num(tc[0][%ENDTIME])
+	endTime   = str2num(tc[0][%ENDTIME])
 	INFO("Check if endtime is not before the starttime")
 	CHECK_LE_VAR(startTime, endTime)
 
@@ -149,7 +149,7 @@ static Function InfoInErrorOutput_Verify()
 	string expect, result
 	variable childStart, childEnd, startTime, endTime
 
-	WAVE/T/Z tc = Utils#LastTestCase()
+	WAVE/Z/T tc = Utils#LastTestCase()
 	INFO("Bug: test case not found")
 	REQUIRE(WaveExists(tc))
 
@@ -175,7 +175,6 @@ static Function TC_SkipTC_Check()
 	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
 	CHECK_EQUAL_STR(wvSuite[%CURRENT][%NUM_SKIPPED], "1")
 End
-
 
 static Function TC_SkipTCFail()
 

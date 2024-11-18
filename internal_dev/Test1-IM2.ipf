@@ -1,5 +1,5 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3		// Use modern global access method and strict wave access.
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma IndependentModule=ABCD
@@ -19,9 +19,9 @@ End
 
 static Function run_IGNORE()
 
-	RunTest("Test1-IM2.ipf", allowDebug=1)
-	RunTest("Test1-IM2.ipf", allowDebug=1, enableJU = 1)
-	RunTest("Test1-IM2.ipf", allowDebug=1, enableTAP = 1, testCase="TestMe2")
+	RunTest("Test1-IM2.ipf", allowDebug = 1)
+	RunTest("Test1-IM2.ipf", allowDebug = 1, enableJU = 1)
+	RunTest("Test1-IM2.ipf", allowDebug = 1, enableTAP = 1, testCase = "TestMe2")
 End
 
 static Function TestMe1()

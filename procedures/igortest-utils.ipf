@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Utils
 
-
 static Constant UTF_MAXDIFFCOUNT = 10
 
 ///@cond HIDDEN_SYMBOL
@@ -21,7 +20,7 @@ static Constant UTF_DECIMAL_DIGITS_FP64 = 16
 
 // The range of printable ASCII characters.
 static Constant ASCII_PRINTABLE_START = 32
-static Constant ASCII_PRINTABLE_END = 126
+static Constant ASCII_PRINTABLE_END   = 126
 
 // The maximum amount of bytes that should be printed as context before the difference in
 // a string diff
@@ -67,7 +66,7 @@ End
 /// @hidecallgraph
 /// @hidecallergraph
 threadsafe static Function IsNull(str)
-	string& str
+	string &str
 
 	variable len = strlen(str)
 	return numtype(len) == 2
@@ -105,7 +104,7 @@ static Function/S TextWaveToList(txtWave, sep)
 
 	numRows = DimSize(txtWave, 0)
 	for(i = 0; i < numRows; i += 1)
-		list = AddListItem(txtWave[i], list, sep, inf)
+		list = AddListItem(txtWave[i], list, sep, Inf)
 	endfor
 
 	return list
@@ -117,11 +116,11 @@ End
 /// "%s". We also do that for IP9, where this limit does not exist anymore, to have a consistent output across all IP
 /// versions.
 threadsafe Function/S IUTF_PrepareStringForOut(str, [maxLen])
-	string &str
+	string  &str
 	variable maxLen
 
 	variable length
-	string suffix
+	string   suffix
 
 	if(IsNull(str))
 		return "(null)"
@@ -144,7 +143,7 @@ End
 /// @brief Returns 1 if all wave elements in wave reference wave wv are of type subType, 0 otherwise
 static Function HasConstantWaveTypes(wv, subType)
 	WAVE/WAVE wv
-	variable subType
+	variable  subType
 
 	Make/FREE/N=(DimSize(wv, UTF_ROW)) matches
 	MultiThread matches = WaveType(wv[p], 1) == subType
@@ -226,11 +225,11 @@ static Function/S DetermineWaveDataDifference(wv1, wv2, tol)
 	Make/FREE/D wv2Dims = {DimSize(wv2, UTF_ROW), DimSize(wv2, UTF_COLUMN), DimSize(wv2, UTF_LAYER), DimSize(wv2, UTF_CHUNK)}
 	if(!EqualWaves(wv1Dims, wv2Dims, WAVE_DATA, 0))
 		Make/FREE/T/N=(2, 1) table
-		wfprintf tmpStr1,"[%d]", wv1Dims
-		wfprintf tmpStr2,"[%d]", wv2Dims
+		wfprintf tmpStr1, "[%d]", wv1Dims
+		wfprintf tmpStr2, "[%d]", wv2Dims
 		table[0][0] = tmpStr1
 		table[1][0] = tmpStr2
-		msg = NicifyTableText(table, "Dimension Sizes;")
+		msg         = NicifyTableText(table, "Dimension Sizes;")
 		sprintf msg, "Waves differ in dimension sizes\r%s%s", wvNamePrefix, msg
 		return msg
 	endif
@@ -242,7 +241,7 @@ static Function/S DetermineWaveDataDifference(wv1, wv2, tol)
 		Make/FREE/T/N=(2, 1) table
 		table[0][0] = GetTypeStrFromWaveType(wv1)
 		table[1][0] = GetTypeStrFromWaveType(wv2)
-		msg = NicifyTableText(table, "Wave Types;")
+		msg         = NicifyTableText(table, "Wave Types;")
 		sprintf msg, "Waves differ in complex number type\r%s%s", wvNamePrefix, msg
 		return msg
 	endif
@@ -328,7 +327,7 @@ threadsafe static Function/S GetWavePointer_Impl(wv)
 	WAVE wv
 
 	variable err
-	string str
+	string   str
 
 	Make/FREE/WAVE refWave = {wv}
 
@@ -431,7 +430,7 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 			elseif(minorType & IUTF_WAVETYPE0_INT64)
 #if IgorVersion() >= 7.00
 				if(minorType & IUTF_WAVETYPE0_USGN)
-					WAVE/C/L/U wCLU = w
+					WAVE/C/U/L wCLU = w
 					Make/FREE/N=1/C/L/U wTmpCLU
 					wTmpCLU[0] = wCLU[row][col][layer][chunk]
 					wfprintf str, "(%u, %u)", wTmpCLU
@@ -443,9 +442,9 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 				endif
 #endif
 			elseif(minorType & IUTF_WAVETYPE0_FP64)
-				str = "("  + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble=1) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble=1) + ")"
+				str = "(" + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble = 1) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble = 1) + ")"
 			else
-				str = "("  + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble=0) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble=0) + ")"
+				str = "(" + GetNiceStringForNumber(real(w[row][col][layer][chunk]), isDouble = 0) + ", " + GetNiceStringForNumber(imag(w[row][col][layer][chunk]), isDouble = 0) + ")"
 			endif
 		else
 			if(minorType & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32))
@@ -457,7 +456,7 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 			elseif(minorType & IUTF_WAVETYPE0_INT64)
 #if IgorVersion() >= 7.00
 				if(minorType & IUTF_WAVETYPE0_USGN)
-					WAVE/L/U wLU = w
+					WAVE/U/L wLU = w
 					sprintf str, "%u", wLU[row][col][layer][chunk]
 				else
 					WAVE/L wLS = w
@@ -465,9 +464,9 @@ static Function/S SPrintWaveElement(w, row, col, layer, chunk)
 				endif
 #endif
 			elseif(minorType & IUTF_WAVETYPE0_FP64)
-				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble=1)
+				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble = 1)
 			else
-				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble=0)
+				str = GetNiceStringForNumber(w[row][col][layer][chunk], isDouble = 0)
 			endif
 		endif
 	elseif(majorType == IUTF_WAVETYPE1_TEXT)
@@ -519,7 +518,7 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 	variable &locCount
 	variable row, col, layer, chunk, dimensions
 	variable &runTol
-	variable tol
+	variable  tol
 
 	variable type1, type2, baseType1, baseType2
 	variable isInt1, isInt2, isInt641, isInt642, isComplex, v1, v2, isText1
@@ -527,19 +526,19 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 	variable curTol
 	variable/C c1, c2
 	string s1, s2, str
-	Struct IUTF_StringDiffResult strDiffResult
+	STRUCT IUTF_StringDiffResult strDiffResult
 #if IgorVersion() >= 7.0
-	INT64 cmpI64R
+	int64 cmpI64R
 #endif
 
 	baseType1 = WaveType(wv1, 1)
 	baseType2 = WaveType(wv2, 1)
-	type1 = WaveType(wv1)
-	type2 = WaveType(wv2)
+	type1     = WaveType(wv1)
+	type2     = WaveType(wv2)
 
-	bothWref = (baseType1 == IUTF_WAVETYPE1_WREF) && (baseType2 == IUTF_WAVETYPE1_WREF)
+	bothWref  = (baseType1 == IUTF_WAVETYPE1_WREF) && (baseType2 == IUTF_WAVETYPE1_WREF)
 	bothDFref = (baseType1 == IUTF_WAVETYPE1_DFR) && (baseType2 == IUTF_WAVETYPE1_DFR)
-	isText1 = baseType1 == IUTF_WAVETYPE1_TEXT
+	isText1   = baseType1 == IUTF_WAVETYPE1_TEXT
 	if(istext1)
 		WAVE/T wv1t = wv1
 		WAVE/T wv2t = wv2
@@ -572,10 +571,10 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 			return NaN
 		endif
 	else
-		isInt1 = type1 & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32 | IUTF_WAVETYPE0_INT64)
-		isInt2 = type2 & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32 | IUTF_WAVETYPE0_INT64)
-		isInt641 = type1 & IUTF_WAVETYPE0_INT64
-		isInt642 = type2 & IUTF_WAVETYPE0_INT64
+		isInt1    = type1 & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32 | IUTF_WAVETYPE0_INT64)
+		isInt2    = type2 & (IUTF_WAVETYPE0_INT8 | IUTF_WAVETYPE0_INT16 | IUTF_WAVETYPE0_INT32 | IUTF_WAVETYPE0_INT64)
+		isInt641  = type1 & IUTF_WAVETYPE0_INT64
+		isInt642  = type2 & IUTF_WAVETYPE0_INT64
 		isComplex = type1 & IUTF_WAVETYPE0_CMPL
 
 		if(isInt1 && isInt2)
@@ -585,8 +584,8 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 				if(isComplex)
 					Make/FREE/C/L/N=1 wInt64Diff
 					wInt64Diff[0] = wv2[row][col][layer][chunk] - wv1[row][col][layer][chunk]
-					v1 = real(wInt64Diff[0])
-					v2 = imag(wInt64Diff[0])
+					v1            = real(wInt64Diff[0])
+					v2            = imag(wInt64Diff[0])
 					if(!v1 && !v2)
 						return NaN
 					elseif(tol != 0)
@@ -629,10 +628,10 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 				if(ValueEqualInclNaN(real(c1), real(c2)) && ValueEqualInclNaN(imag(c1), imag(c2)))
 					return NaN
 				elseif(tol != 0)
-					v1 = GetToleranceValues(real(c1), real(c2))
-					v1 = IsFinite(v1) ? real(c1) - real(c2) : Inf
-					v2 = GetToleranceValues(imag(c1), imag(c2))
-					v2 = IsFinite(v1) ? imag(c1) - imag(c2) : Inf
+					v1     = GetToleranceValues(real(c1), real(c2))
+					v1     = IsFinite(v1) ? real(c1) - real(c2) : Inf
+					v2     = GetToleranceValues(imag(c1), imag(c2))
+					v2     = IsFinite(v1) ? imag(c1) - imag(c2) : Inf
 					curTol = v1 * v1 + v2 * v2
 				endif
 			else
@@ -672,29 +671,29 @@ static Function AddValueDiffImpl(table, wv1, wv2, locCount, row, col, layer, chu
 			break
 	endswitch
 	table[2 * locCount][%DIMS] = str
-	Make/FREE/T wDL1 = {GetDimLabel(wv1, UTF_ROW, row), GetDimLabel(wv1, UTF_COLUMN, col), GetDimLabel(wv1, UTF_LAYER,layer), GetDimLabel(wv1, UTF_CHUNK, chunk)}
+	Make/FREE/T wDL1 = {GetDimLabel(wv1, UTF_ROW, row), GetDimLabel(wv1, UTF_COLUMN, col), GetDimLabel(wv1, UTF_LAYER, layer), GetDimLabel(wv1, UTF_CHUNK, chunk)}
 	str = wDL1[0] + wDL1[1] + wDL1[2] + wDL1[3]
 	if(!IsEmpty(str))
 		sprintf str, "%s;%s;%s;%s;", wDL1[0], wDL1[1], wDL1[2], wDL1[3]
 		table[2 * locCount][%DIMLABEL] = str
 	endif
-	Make/FREE/T wDL2 = {GetDimLabel(wv2, UTF_ROW, row), GetDimLabel(wv2, UTF_COLUMN, col), GetDimLabel(wv2, UTF_LAYER,layer), GetDimLabel(wv2, UTF_CHUNK, chunk)}
+	Make/FREE/T wDL2 = {GetDimLabel(wv2, UTF_ROW, row), GetDimLabel(wv2, UTF_COLUMN, col), GetDimLabel(wv2, UTF_LAYER, layer), GetDimLabel(wv2, UTF_CHUNK, chunk)}
 	str = wDL2[0] + wDL2[1] + wDL2[2] + wDL2[3]
 	if(!IsEmpty(str))
 		sprintf str, "%s;%s;%s;%s;", wDL2[0], wDL2[1], wDL2[2], wDL2[3]
 		table[2 * locCount + 1][%DIMLABEL] = str
 	endif
 
-	if (istext1)
+	if(istext1)
 		WAVE/T wtext1 = wv1
 		WAVE/T wtext2 = wv2
-		string text1 = wtext1[row][col][layer][chunk]
-		string text2 = wtext2[row][col][layer][chunk]
+		string text1  = wtext1[row][col][layer][chunk]
+		string text2  = wtext2[row][col][layer][chunk]
 		DiffString(text1, text2, strDiffResult)
-		table[2 * locCount][%ELEMENT] = strDiffResult.v1
+		table[2 * locCount][%ELEMENT]     = strDiffResult.v1
 		table[2 * locCount + 1][%ELEMENT] = strDiffResult.v2
 	else
-		table[2 * locCount][%ELEMENT] = SPrintWaveElement(wv1, row, col, layer, chunk)
+		table[2 * locCount][%ELEMENT]     = SPrintWaveElement(wv1, row, col, layer, chunk)
 		table[2 * locCount + 1][%ELEMENT] = SPrintWaveElement(wv2, row, col, layer, chunk)
 	endif
 
@@ -706,7 +705,7 @@ static Function/S GetNiceStringForNumber(n, [isDouble])
 	variable n, isDouble
 
 	variable precision
-	string str
+	string   str
 
 	isDouble = ParamIsDefault(isDouble) ? 0 : !!isDouble;
 
@@ -788,7 +787,7 @@ End
 
 /// @brief Based on DisplayHelpTopic "Character-by-Character Operations"
 static Function NumBytesInUTF8Character(str, byteOffset)
-	string str
+	string   str
 	variable byteOffset
 
 	variable firstByte
@@ -828,19 +827,19 @@ End
 /// @param[out] result the diff of both strings
 /// @param[in] case_sensitive (default: true) respecting the case during the diff
 static Function DiffString(str1, str2, result, [case_sensitive])
-	string &str1
-	string &str2
-	Struct IUTF_StringDiffResult &result
-	variable case_sensitive
+	string                       &str1
+	string                       &str2
+	STRUCT IUTF_StringDiffResult &result
+	variable                      case_sensitive
 
 	variable start, line, end1, end2, endmin, diffpos
 	variable str1len, str2len
 	string lineEnding1, lineEnding2, prefix
 
-	start = 0
-	line = 0
-	str1len = strlen(str1)
-	str2len = strlen(str2)
+	start          = 0
+	line           = 0
+	str1len        = strlen(str1)
+	str2len        = strlen(str2)
 	case_sensitive = ParamIsDefault(case_sensitive) ? 1 : case_sensitive
 
 	// handle null strings
@@ -850,11 +849,11 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 		endif
 
 		result.v1 = "-:-:-> <NULL STRING>"
-		end2 = DetectEndOfLine(str2, 0, lineEnding2)
+		end2      = DetectEndOfLine(str2, 0, lineEnding2)
 		result.v2 = "0:0:0>" + GetStringWithContext(str2, 0, 0, end2 - 1)
 		return NaN
 	elseif(IsNull(str2))
-		end1 = DetectEndOfLine(str1, 0, lineEnding2)
+		end1      = DetectEndOfLine(str1, 0, lineEnding2)
 		result.v1 = "0:0:0>" + GetStringWithContext(str1, 0, 0, end1 - 1)
 		result.v2 = "-:-:-> <NULL STRING>"
 		return NaN
@@ -867,8 +866,8 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 	// 4. no differences in the current line
 	// 5. one string is larger than the other one
 	do
-		end1 = DetectEndOfLine(str1, start, lineEnding1)
-		end2 = DetectEndOfLine(str2, start, lineEnding2)
+		end1   = DetectEndOfLine(str1, start, lineEnding1)
+		end2   = DetectEndOfLine(str2, start, lineEnding2)
 		endmin = min(end1, end2)
 
 		diffpos = GetTextDiffPos(str1[start, endmin - 1], str2[start, endmin - 1], case_sensitive)
@@ -909,13 +908,13 @@ static Function DiffString(str1, str2, result, [case_sensitive])
 		if(str1len <= start)
 			result.v1 = prefix
 		else
-			end1 = DetectEndOfLine(str1, start, lineEnding1)
+			end1      = DetectEndOfLine(str1, start, lineEnding1)
 			result.v1 = prefix + EscapeString(str1[start, end1])
 		endif
 		if(str2len <= start)
 			result.v2 = prefix
 		else
-			end2 = DetectEndOfLine(str2, start, lineEnding2)
+			end2      = DetectEndOfLine(str2, start, lineEnding2)
 			result.v2 = prefix + EscapeString(str2[start, end2])
 		endif
 		return NaN
@@ -938,7 +937,7 @@ static Function/S GetStringWithContext(str, start, diffpos, endpos)
 
 	string strOut
 
-	strOut = EscapeString(str[max(start, diffpos - MAX_STRING_DIFF_CONTEXT), diffpos - 1])
+	strOut  = EscapeString(str[max(start, diffpos - MAX_STRING_DIFF_CONTEXT), diffpos - 1])
 	strOut += EscapeString(str[diffpos, min(endpos, diffpos + MAX_STRING_DIFF_CONTEXT)])
 
 	return strOut
@@ -959,7 +958,7 @@ static Function GetTextDiffPos(str1, str2, case_sensitive)
 
 	variable i
 	variable length = strlen(str1)
-	variable mode = case_sensitive ? UTF_CMPSTR_MODE : 0
+	variable mode   = case_sensitive ? UTF_CMPSTR_MODE : 0
 
 	for(i = 0; i < length; i += 1)
 		if(CmpStr(str1[i], str2[i], mode))
@@ -980,8 +979,8 @@ End
 /// returns the position where the line ending starts
 static Function DetectEndOfLine(str, start, lineEnding)
 	variable start
-	string str
-	string &lineEnding
+	string   str
+	string  &lineEnding
 
 	variable i
 	variable length = strlen(str)
@@ -989,15 +988,15 @@ static Function DetectEndOfLine(str, start, lineEnding)
 	lineEnding = ""
 
 	for(i = start; i < length; i += 1)
-		if (!CmpStr(str[i], "\r"))
-			if (i + 1 < length && !CmpStr(str[i + 1], "\n"))
+		if(!CmpStr(str[i], "\r"))
+			if(i + 1 < length && !CmpStr(str[i + 1], "\n"))
 				lineEnding = "\r\n"
 			else
 				lineEnding = "\r"
 			endif
 			return i
 		endif
-		if (!CmpStr(str[i], "\n"))
+		if(!CmpStr(str[i], "\n"))
 			lineEnding = "\n"
 			return i
 		endif
@@ -1024,9 +1023,9 @@ static Function/S EscapeString(str)
 
 	for(i = 0; i < length; i += 1)
 		result += " "
-		char = str[i]
+		char    = str[i]
 		charnum = char2num(char)
-		if (charnum < 0)
+		if(charnum < 0)
 			charnum += 256
 		endif
 		if(charnum >= ASCII_PRINTABLE_START && charnum <= ASCII_PRINTABLE_END)

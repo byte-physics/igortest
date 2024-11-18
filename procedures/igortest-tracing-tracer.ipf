@@ -1,5 +1,5 @@
 #pragma rtGlobals=3
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracer
@@ -52,7 +52,7 @@ threadsafe Function Z_(variable procNum, variable lineNum, [variable c, variable
 			Make/FREE/T/N=1 data
 			wvStorage[0] = data
 		else
-			Wave/T data = wvStorage[0]
+			WAVE/T data = wvStorage[0]
 		endif
 		sprintf msg, "Cannot store tracing data (Error: %d).", err
 		data[0] = msg
@@ -65,13 +65,13 @@ threadsafe Function Z_(variable procNum, variable lineNum, [variable c, variable
 		endif
 	endif
 
-	logLines = ParamIsDefault(l) ? 1 : l
+	logLines  = ParamIsDefault(l) ? 1 : l
 	condition = !ParamIsDefault(c)
 	if(condition && numType(c) != 2)
 		result = !!c
 	endif
 
-	WAVE/D/Z logData = wref[0]
+	WAVE/Z/D logData = wref[0]
 	if(!WaveExists(logData))
 		WAVE/T wProcNames = IUTF_Tracing#GetTracedProcedureNames()
 		numProcs = DimSize(wProcNames, UTF_ROW)

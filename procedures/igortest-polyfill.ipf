@@ -24,7 +24,7 @@ End
 #endif
 
 #if (IgorVersion() >= 7.0)
-    // ListToTextWave is available
+// ListToTextWave is available
 #else
 /// @brief Convert a string list to a text wave
 ///
@@ -32,10 +32,10 @@ End
 /// @param[in] sep separator string
 /// @returns wave reference to free wave
 Function/WAVE ListToTextWave(list, sep)
-    string list, sep
+	string list, sep
 
-    Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
+	Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
 
-    return result
+	return result
 End
 #endif

@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Debug
+#pragma ModuleName=IUTF_Debug
 
 ///@cond HIDDEN_SYMBOL
 
@@ -20,7 +20,7 @@ static Function SetDebugger(debugMode)
 	endif
 	if(debugMode & (IUTF_DEBUG_ENABLE | IUTF_DEBUG_ON_ERROR | IUTF_DEBUG_NVAR_SVAR_WAVE | IUTF_DEBUG_FAILED_ASSERTION))
 		igor_debug_assertion = !!(debugMode & IUTF_DEBUG_FAILED_ASSERTION)
-		igor_debug_state = SetIgorDebugger(debugMode | IUTF_DEBUG_ENABLE)
+		igor_debug_state     = SetIgorDebugger(debugMode | IUTF_DEBUG_ENABLE)
 	endif
 End
 
@@ -34,9 +34,9 @@ End
 /// Create the variables igor_debug_state and igor_debug_assertion
 /// in PKG_FOLDER and initialize it to zero
 static Function InitIgorDebugVariables()
-	DFREF dfr = GetPackageFolder()
-	Variable/G dfr:igor_debug_state = 0
-	Variable/G dfr:igor_debug_assertion = 0
+	DFREF      dfr                      = GetPackageFolder()
+	variable/G dfr:igor_debug_state     = 0
+	variable/G dfr:igor_debug_assertion = 0
 End
 
 /// Set the Igor Debugger, returns the previous state
@@ -51,7 +51,7 @@ static Function SetIgorDebugger(state)
 
 	prevState = GetCurrentDebuggerState()
 
-	enable = !!(state & IUTF_DEBUG_ENABLE)
+	enable       = !!(state & IUTF_DEBUG_ENABLE)
 	debugOnError = !!(state & IUTF_DEBUG_ON_ERROR)
 	nvarSvarWave = !!(state & IUTF_DEBUG_NVAR_SVAR_WAVE)
 

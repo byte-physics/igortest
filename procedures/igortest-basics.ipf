@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Basics
 
-
 ///@cond HIDDEN_SYMBOL
 
 static Constant FFNAME_OK        = 0x00
@@ -22,13 +21,13 @@ static StrConstant FIXED_LOG_FILENAME = "IUTF_Test"
 
 static StrConstant NO_SOURCE_PROCEDURE = "No source procedure"
 
-static StrConstant BACKGROUNDMONTASK   = "IUTFBackgroundMonitor"
-static StrConstant BACKGROUNDMONFUNC   = "IUTFBackgroundMonitor"
-static StrConstant BACKGROUNDINFOSTR   = ":UNUSED_FOR_REENTRY:"
+static StrConstant BACKGROUNDMONTASK = "IUTFBackgroundMonitor"
+static StrConstant BACKGROUNDMONFUNC = "IUTFBackgroundMonitor"
+static StrConstant BACKGROUNDINFOSTR = ":UNUSED_FOR_REENTRY:"
 
 static Constant TC_MODE_NORMAL = 0
-static Constant TC_MODE_MD = 1
-static Constant TC_MODE_MMD = 2
+static Constant TC_MODE_MD     = 1
+static Constant TC_MODE_MMD    = 2
 
 static Constant MAX_PROCTAGS_SCAN_LINES = 20
 
@@ -37,8 +36,8 @@ static Function/WAVE GetTestRunData()
 
 	string name = "TestRunData"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr = GetPackageFolder()
+	WAVE/Z/T wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -131,7 +130,7 @@ End
 /// @brief Return a free text wave with the dimension labels of the
 ///        given dimension of the wave
 static Function/WAVE GetDimLabels(wv, dim)
-	WAVE/Z wv
+	WAVE/Z   wv
 	variable dim
 
 	variable size
@@ -170,8 +169,8 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 
 	for(i = 0; i < IGOR_MAX_DIMENSIONS; i += 1)
 
-		WAVE/T/Z label1 = GetDimLabels(wv1, i)
-		WAVE/T/Z label2 = GetDimLabels(wv2, i)
+		WAVE/Z/T label1 = GetDimLabels(wv1, i)
+		WAVE/Z/T label2 = GetDimLabels(wv2, i)
 
 		if(!WaveExists(label1) && !WaveExists(label2))
 			break
@@ -184,7 +183,7 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 			sprintf msg, "Non-empty dimension vs empty dimension"
 			return 0
 		else
-			 // both exist but differ
+			// both exist but differ
 			str1 = GetDimLabel(wv1, i, -1)
 			str2 = GetDimLabel(wv2, i, -1)
 
@@ -209,8 +208,8 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 				if(!cmpstr(label1[j], label2[j], 1))
 					continue
 				endif
-				str1 = label1[j]
-				str2 = label2[j]
+				str1    = label1[j]
+				str2    = label2[j]
 				tmpStr1 = IUTF_Utils#IUTF_PrepareStringForOut(str1)
 				tmpStr2 = IUTF_Utils#IUTF_PrepareStringForOut(str2)
 				sprintf msg, "Differing dimension label in dimension %d at index %d: %s vs %s", i, j, tmpStr1, tmpStr2
@@ -255,9 +254,9 @@ End
 ///                        to a previous recorded callStack (GetRTStackInfo(3)).
 Function EvaluateResults(result, str, flags, [cleanupInfo, callStack])
 	variable result, flags
-	string str
+	string   str
 	variable cleanupInfo
-	string callStack
+	string   callStack
 
 	cleanupInfo = ParamIsDefault(cleanupInfo) ? 1 : !!cleanupInfo
 
@@ -281,13 +280,13 @@ End
 
 /// Sets the abort flag
 static Function setAbortFlag()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr           = GetPackageFolder()
 	variable/G dfr:abortFlag = 1
 End
 
 /// Resets the abort flag
 static Function InitAbortFlag()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr           = GetPackageFolder()
 	variable/G dfr:abortFlag = 0
 End
 
@@ -303,13 +302,13 @@ End
 
 /// Sets the abortFromSkipFlag flag
 static Function SetAbortFromSkipFlag()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr                   = GetPackageFolder()
 	variable/G dfr:abortFromSkipFlag = 1
 End
 
 /// Resets the abortFromSkipFlag flag
 static Function InitAbortFromSkipFlag()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr                   = GetPackageFolder()
 	variable/G dfr:abortFromSkipFlag = 0
 End
 
@@ -334,7 +333,7 @@ static Function SetExpectedFailure(val)
 	NVAR/Z/SDFR=dfr expected_failure_flag
 
 	if(!NVAR_Exists(expected_failure_flag))
-		Variable/G dfr:expected_failure_flag
+		variable/G    dfr:expected_failure_flag
 		NVAR/SDFR=dfr expected_failure_flag
 	endif
 
@@ -389,12 +388,12 @@ End
 /// Evaluates an RTE and puts a composite error message into message/type
 static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, procWin)
 	variable err
-	string errmessage
+	string   errmessage
 	variable abortCode, funcType
 	string funcName
 	string procWin
 
-	DFREF dfr = GetPackageFolder()
+	DFREF  dfr     = GetPackageFolder()
 	string message = ""
 	string str, funcTypeString
 	variable i, length
@@ -479,10 +478,10 @@ End
 static Function/S GetTestCaseList(procWin)
 	string procWin
 
-	string testCaseList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,VALTYPE:1,WIN:" + procWin)
+	string testCaseList   = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:0,VALTYPE:1,WIN:" + procWin)
 	string testCaseMDList = FunctionList("!*_IGNORE", ";", "KIND:18,NPARAMS:1,VALTYPE:1,WIN:" + procWin)
 
-	testCaseList = GrepList(testCaseList, PROCNAME_NOT_REENTRY)
+	testCaseList   = GrepList(testCaseList, PROCNAME_NOT_REENTRY)
 	testCaseMDList = GrepList(testCaseMDList, PROCNAME_NOT_REENTRY)
 
 	if(!IUTF_Utils#IsEmpty(testCaseMDList))
@@ -500,7 +499,7 @@ static Function/S SortTestCaseList(procWin, testCaseList)
 		return ""
 	endif
 
-	Wave/T testCaseWave = ListToTextWave(testCaseList, ";")
+	WAVE/T testCaseWave = ListToTextWave(testCaseList, ";")
 
 	Make/FREE/N=(ItemsInList(testCaseList)) lineNumberWave
 	lineNumberWave[] = str2num(StringByKey("PROCLINE", FunctionInfo(testCaseWave[p], procWin)))
@@ -562,10 +561,10 @@ End
 ///
 /// @returns Numeric Error Code
 static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, enableTAP, debugMode, shuffleMode)
-	string procWinList
-	string matchStr
+	string   procWinList
+	string   matchStr
 	variable enableRegExp
-	string &errMsg
+	string  &errMsg
 	variable enableTAP, debugMode, shuffleMode
 
 	string procWin
@@ -575,7 +574,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 	string testCase, testCaseMatch
 	variable numTC, numpWL, numFL, markSkip
 	variable i, j, tdIndex
-	variable err = TC_MATCH_OK
+	variable err     = TC_MATCH_OK
 	variable hasDGen = 0
 
 	if(enableRegExp && !(strsearch(matchStr, ";", 0) < 0))
@@ -593,12 +592,12 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 	WAVE/T testRunData = GetTestRunData()
 
-	numTC = ItemsInList(matchStr)
+	numTC  = ItemsInList(matchStr)
 	numpWL = ItemsInList(procWinList)
 	Make/FREE/N=(numTC) usedTC
 	for(i = 0; i < numpWL; i += 1)
-		procWin = StringFromList(i, procWinList)
-		funcList = getTestCaseList(procWin)
+		procWin       = StringFromList(i, procWinList)
+		funcList      = getTestCaseList(procWin)
 		testCaseMatch = ""
 
 		if(enableRegExp)
@@ -607,15 +606,15 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 				testCaseMatch = GrepList(funcList, matchStr, 0, ";"); AbortOnRTE
 			catch
 				testCaseMatch = ""
-				err = GetRTError(1)
+				err           = GetRTError(1)
 				switch(err)
 					case 1233:
 						errMsg = "Regular expression error: " + matchStr
-						err = TC_REGEX_INVALID
+						err    = TC_REGEX_INVALID
 						break
 					default:
 						errMsg = GetErrMessage(err)
-						err = GREPLIST_ERROR
+						err    = GREPLIST_ERROR
 				endswitch
 				sprintf errMsg, "Error executing GrepList: %s", errMsg
 				return err
@@ -627,7 +626,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 					continue
 				endif
 				testCaseMatch = AddListItem(testCase, testCaseMatch, ";", Inf)
-				usedTC[j] = 1
+				usedTC[j]     = 1
 			endfor
 		endif
 
@@ -637,7 +636,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 
 		numFL = ItemsInList(testCaseMatch)
 		for(j = 0; j < numFL; j += 1)
-			funcName = StringFromList(j, testCaseMatch)
+			funcName     = StringFromList(j, testCaseMatch)
 			fullFuncName = getFullFunctionName(err, funcName, procWin)
 			if(err)
 				sprintf errMsg, "Could not get full function name: %s", fullFuncName
@@ -651,14 +650,14 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 			endif
 
 			IUTF_Utils_Vector#EnsureCapacity(testRunData, tdIndex)
-			testRunData[tdIndex][%PROCWIN] = procWin
-			testRunData[tdIndex][%TESTCASE] = fullFuncName
+			testRunData[tdIndex][%PROCWIN]      = procWin
+			testRunData[tdIndex][%TESTCASE]     = fullFuncName
 			testRunData[tdIndex][%FULLFUNCNAME] = fullFuncName
-			testRunData[tdIndex][%DGENLIST] = dgenList
-			markSkip = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
-			testRunData[tdIndex][%SKIP] = SelectString(enableTAP, num2istr(markSkip), num2istr(IUTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
-			testRunData[tdIndex][%EXPECTFAIL] = num2istr(IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
-			tdIndex += 1
+			testRunData[tdIndex][%DGENLIST]     = dgenList
+			markSkip                            = IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_SKIP)
+			testRunData[tdIndex][%SKIP]         = SelectString(enableTAP, num2istr(markSkip), num2istr(IUTF_TAP#TAP_IsFunctionSkip(fullFuncName) | markSkip))
+			testRunData[tdIndex][%EXPECTFAIL]   = num2istr(IUTF_FunctionTags#HasFunctionTag(fullFuncName, UTF_FTAG_EXPECTED_FAILURE))
+			tdIndex                            += 1
 
 			hasDGen = hasDGen | !IUTF_Utils#IsEmpty(dgenList)
 		endfor
@@ -687,7 +686,7 @@ static Function CreateTestRunSetup(procWinList, matchStr, enableRegExp, errMsg, 
 			continue
 		endif
 
-		procWin = testRunData[i][%PROCWIN]
+		procWin      = testRunData[i][%PROCWIN]
 		fullFuncName = testRunData[i][%FULLFUNCNAME]
 
 		if(IUTF_Test_MD#CheckFunctionSignatureTC(procWin, fullFuncName, markSkip))
@@ -723,8 +722,8 @@ static Function GetTestCaseCount([procWin])
 	variable tcCount, dgenCount
 	string dgenList, dgen
 
-	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
-	WAVE/T testRunData = GetTestRunData()
+	WAVE/WAVE dgenWaves   = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/T    testRunData = GetTestRunData()
 	size = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < size; i += 1)
 		if(!ParamIsDefault(procWin) && CmpStr(procWin, testRunData[i][%PROCWIN]))
@@ -732,10 +731,10 @@ static Function GetTestCaseCount([procWin])
 		endif
 
 		dgenCount = 1
-		dgenList = testRunData[i][%DGENLIST]
-		dgenSize = ItemsInList(dgenList)
+		dgenList  = testRunData[i][%DGENLIST]
+		dgenSize  = ItemsInList(dgenList)
 		for(j = 0; j < dgenSize; j += 1)
-			dgen = StringFromList(j, dgenList)
+			dgen  = StringFromList(j, dgenList)
 			index = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
 			WAVE wv = dgenWaves[index]
 			dgenCount *= DimSize(wv, UTF_ROW)
@@ -763,7 +762,7 @@ End
 
 /// Add an IM specification to every procedure name if running in an IM
 static Function/S AdaptProcWinList(procWinList, enableRegExp)
-	string procWinList
+	string   procWinList
 	variable enableRegExp
 
 	variable i, numEntries
@@ -781,7 +780,7 @@ static Function/S AdaptProcWinList(procWinList, enableRegExp)
 		else
 			str = StringFromList(i, procWinList) + " [" + GetIndependentModuleName() + "]"
 		endif
-		list = AddListItem(str, list, ";", INF)
+		list = AddListItem(str, list, ";", Inf)
 	endfor
 
 	return list
@@ -809,7 +808,7 @@ End
 /// @param enableRegExp  treat list items as regular expressions
 /// @returns parsed list of procedures
 static Function/S FindProcedures(procWinListIn, enableRegExp)
-	string procWinListIn
+	string   procWinListIn
 	variable enableRegExp
 
 	string procWin
@@ -828,7 +827,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 	endif
 
 	allProcWindows = GetProcedureList()
-	numItemsPW = ItemsInList(procWinListIn)
+	numItemsPW     = ItemsInList(procWinListIn)
 	for(i = 0; i < numItemsPW; i += 1)
 		procWin = StringFromList(i, procWinListIn)
 		if(enableRegExp)
@@ -838,7 +837,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 				procWinMatch = GrepList(allProcWindows, procWin, 0, ";"); AbortOnRTE
 			catch
 				procWinMatch = ""
-				err = GetRTError(1)
+				err          = GetRTError(1)
 				switch(err)
 					case 1233:
 						errMsg = "Regular expression error"
@@ -863,7 +862,7 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 		for(j = 0; j < numMatches; j += 1)
 			procWin = StringFromList(j, procWinMatch)
 			if(FindListItem(procWin, procWinListOut, ";", 0, 0) == -1)
-				procWinListOut = AddListItem(procWin, procWinListOut, ";", INF)
+				procWinListOut = AddListItem(procWin, procWinListOut, ";", Inf)
 			else
 				sprintf msg, "Error: The procedure window named \"%s\" is a duplicate entry in the input list of procedures.", procWin
 				IUTF_Reporting#ReportError(msg)
@@ -891,11 +890,11 @@ Function IUTFBackgroundMonitor(s)
 	variable i, numTasks, result, stopState
 	string task
 
-	DFREF df = GetPackageFolder()
-	SVAR/Z tList = df:BCKG_TaskList
-	SVAR/Z rFunc = df:BCKG_ReentryFunc
-	NVAR/Z timeout = df:BCKG_EndTime
-	NVAR/Z mode = df:BCKG_Mode
+	DFREF  df            = GetPackageFolder()
+	SVAR/Z tList         = df:BCKG_TaskList
+	SVAR/Z rFunc         = df:BCKG_ReentryFunc
+	NVAR/Z timeout       = df:BCKG_EndTime
+	NVAR/Z mode          = df:BCKG_Mode
 	NVAR/Z failOnTimeout = df:BCKG_failOnTimeout
 
 	if(!SVAR_Exists(tList) || !SVAR_Exists(rFunc) || !NVAR_Exists(mode) || !NVAR_Exists(timeout) || !NVAR_Exists(failOnTimeout))
@@ -952,35 +951,35 @@ End
 
 /// @brief Saves the variable state of RunTest from a strRunTest structure to a dfr
 static Function SaveState(dfr, s)
-	DFREF dfr
+	DFREF              dfr
 	STRUCT strRunTest &s
 
 	// save all local vars
-	string/G dfr:SprocWinList = s.procWinList
-	string/G dfr:Sname = s.name
-	string/G dfr:StestCase = s.testCase
-	variable/G dfr:SenableJU = s.enableJU
-	variable/G dfr:SenableTAP = s.enableTAP
-	variable/G dfr:SenableRegExp = s.enableRegExp
-	variable/G dfr:SkeepDataFolder = s.keepDataFolder
-	variable/G dfr:SenableRegExpTC = s.enableRegExpTC
-	variable/G dfr:SenableRegExpTS = s.enableRegExpTS
-	variable/G dfr:SdgenIndex = s.dgenIndex
-	variable/G dfr:SdgenSize = s.dgenSize
-	variable/G dfr:SmdMode = s.mdMode
-	variable/G dfr:StracingEnabled = s.tracingEnabled
-	variable/G dfr:ShtmlCreation = s.htmlCreation
-	variable/G dfr:Sshuffle = s.shuffle
-	variable/G dfr:Scobertura = s.cobertura
-	string/G dfr:ScoberturaSources = s.coberturaSources
-	string/G dfr:ScoberturaOut = s.coberturaOut
-	string/G dfr:StcSuffix = s.tcSuffix
-	variable/G dfr:SretryMode = s.retryMode
-	variable/G dfr:SretryCount = s.retryCount
-	variable/G dfr:SretryIndex = s.retryIndex
-	variable/G dfr:SretryFailedProc = s.retryFailedProc
+	string/G   dfr:SprocWinList      = s.procWinList
+	string/G   dfr:Sname             = s.name
+	string/G   dfr:StestCase         = s.testCase
+	variable/G dfr:SenableJU         = s.enableJU
+	variable/G dfr:SenableTAP        = s.enableTAP
+	variable/G dfr:SenableRegExp     = s.enableRegExp
+	variable/G dfr:SkeepDataFolder   = s.keepDataFolder
+	variable/G dfr:SenableRegExpTC   = s.enableRegExpTC
+	variable/G dfr:SenableRegExpTS   = s.enableRegExpTS
+	variable/G dfr:SdgenIndex        = s.dgenIndex
+	variable/G dfr:SdgenSize         = s.dgenSize
+	variable/G dfr:SmdMode           = s.mdMode
+	variable/G dfr:StracingEnabled   = s.tracingEnabled
+	variable/G dfr:ShtmlCreation     = s.htmlCreation
+	variable/G dfr:Sshuffle          = s.shuffle
+	variable/G dfr:Scobertura        = s.cobertura
+	string/G   dfr:ScoberturaSources = s.coberturaSources
+	string/G   dfr:ScoberturaOut     = s.coberturaOut
+	string/G   dfr:StcSuffix         = s.tcSuffix
+	variable/G dfr:SretryMode        = s.retryMode
+	variable/G dfr:SretryCount       = s.retryCount
+	variable/G dfr:SretryIndex       = s.retryIndex
+	variable/G dfr:SretryFailedProc  = s.retryFailedProc
 
-	variable/G dfr:Si = s.i
+	variable/G dfr:Si   = s.i
 	variable/G dfr:Serr = s.err
 	IUTF_Hooks#StoreHooks(dfr, s.hooks, "TH")
 	IUTF_Hooks#StoreHooks(dfr, s.procHooks, "PH")
@@ -988,7 +987,7 @@ End
 
 /// @brief Restores the variable state of RunTest from dfr to a strRunTest structure
 static Function RestoreState(dfr, s)
-	DFREF dfr
+	DFREF              dfr
 	STRUCT strRunTest &s
 
 	SVAR str = dfr:SprocWinList
@@ -1050,19 +1049,19 @@ static Function RestoreState(dfr, s)
 End
 
 static Function IsBckgRegistered()
-	DFREF dfr = GetPackageFolder()
+	DFREF  dfr            = GetPackageFolder()
 	NVAR/Z bckgRegistered = dfr:BCKG_Registered
 	return NVAR_Exists(bckgRegistered) && bckgRegistered == 1
 End
 
 static Function ResetBckgRegistered()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr                 = GetPackageFolder()
 	variable/G dfr:BCKG_Registered = 0
 End
 
 static Function CallTestCase(s, reentry)
 	STRUCT strRunTest &s
-	variable reentry
+	variable           reentry
 
 	STRUCT IUTF_mData mData
 
@@ -1073,7 +1072,7 @@ static Function CallTestCase(s, reentry)
 	tcIndex = s.i
 
 	if(reentry)
-		DFREF dfr = GetPackageFolder()
+		DFREF  dfr      = GetPackageFolder()
 		NVAR/Z compMode = dfr:COMP_Mode
 
 		if(NVAR_Exists(compMode))
@@ -1090,7 +1089,7 @@ static Function CallTestCase(s, reentry)
 
 		// Require only optional parameter
 		funcInfo = FunctionInfo(func)
-		if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+		if(NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
 			sprintf msg, "Reentry functions require all its parameter as optional: \"%s\"", func
 			IUTF_Reporting#ReportErrorAndAbort(msg)
 		endif
@@ -1101,11 +1100,11 @@ static Function CallTestCase(s, reentry)
 		func = testRunData[tcIndex][%FULLFUNCNAME]
 	endif
 
-	if(s.mdMode  == TC_MODE_MD)
+	if(s.mdMode == TC_MODE_MD)
 
 		WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
 		dgenFuncName = StringFromList(0, testRunData[tcIndex][%DGENLIST])
-		refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+		refIndex     = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
 		WAVE wGenerator = dgenWaves[refIndex]
 		wType0 = WaveType(wGenerator)
 		wType1 = WaveType(wGenerator, 1)
@@ -1117,7 +1116,7 @@ static Function CallTestCase(s, reentry)
 					sprintf msg, "Reentry function %s does not meet required format for Complex argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
-				fTCMD_CMPL(cmpl=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_CMPL(cmpl = wGenerator[s.dgenIndex]); AbortOnRTE
 
 			elseif(wType0 & IUTF_WAVETYPE0_INT64)
 
@@ -1126,7 +1125,7 @@ static Function CallTestCase(s, reentry)
 					sprintf msg, "Reentry function %s does not meet required format for INT64 argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
-				fTCMD_INT(int=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_INT(int = wGenerator[s.dgenIndex]); AbortOnRTE
 
 			else
 
@@ -1135,55 +1134,55 @@ static Function CallTestCase(s, reentry)
 					sprintf msg, "Reentry function %s does not meet required format for numeric argument.", func
 					IUTF_Reporting#ReportErrorAndAbort(msg)
 				endif
-				fTCMD_VAR(var=wGenerator[s.dgenIndex]); AbortOnRTE
+				fTCMD_VAR(var = wGenerator[s.dgenIndex]); AbortOnRTE
 
 			endif
 		elseif(wType1 == IUTF_WAVETYPE1_TEXT)
 
-			WAVE/T wGeneratorStr = wGenerator
-			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR = $func
+			WAVE/T                         wGeneratorStr = wGenerator
+			FUNCREF TEST_CASE_PROTO_MD_STR fTCMD_STR     = $func
 			if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_STR)))
 				sprintf msg, "Reentry function %s does not meet required format for string argument.", func
 				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
-			fTCMD_STR(str=wGeneratorStr[s.dgenIndex]); AbortOnRTE
+			fTCMD_STR(str = wGeneratorStr[s.dgenIndex]); AbortOnRTE
 
 		elseif(wType1 == IUTF_WAVETYPE1_DFR)
 
-			WAVE/DF wGeneratorDF = wGenerator
-			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR = $func
+			WAVE/DF                        wGeneratorDF = wGenerator
+			FUNCREF TEST_CASE_PROTO_MD_DFR fTCMD_DFR    = $func
 			if(reentry && !IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_DFR)))
 				sprintf msg, "Reentry function %s does not meet required format for data folder reference argument.", func
 				IUTF_Reporting#ReportErrorAndAbort(msg)
 			endif
-			fTCMD_DFR(dfr=wGeneratorDF[s.dgenIndex]); AbortOnRTE
+			fTCMD_DFR(dfr = wGeneratorDF[s.dgenIndex]); AbortOnRTE
 
 		elseif(wType1 == IUTF_WAVETYPE1_WREF)
 
-			WAVE/WAVE wGeneratorWV = wGenerator
-			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV = $func
+			WAVE/WAVE                     wGeneratorWV = wGenerator
+			FUNCREF TEST_CASE_PROTO_MD_WV fTCMD_WV     = $func
 			if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WV)))
-				fTCMD_WV(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+				fTCMD_WV(wv = wGeneratorWV[s.dgenIndex]); AbortOnRTE
 			else
 				wRefSubType = WaveType(wGeneratorWV[s.dgenIndex], 1)
 				if(wRefSubType == IUTF_WAVETYPE1_TEXT)
 					FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMD_WVTEXT = $func
 					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVTEXT)))
-						fTCMD_WVTEXT(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVTEXT(wv = wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_DFR)
 					FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMD_WVDFREF = $func
 					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVDFREF)))
-						fTCMD_WVDFREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVDFREF(wv = wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
 				elseif(wRefSubType == IUTF_WAVETYPE1_WREF)
 					FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMD_WVWAVEREF = $func
 					if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMD_WVWAVEREF)))
-						fTCMD_WVWAVEREF(wv=wGeneratorWV[s.dgenIndex]); AbortOnRTE
+						fTCMD_WVWAVEREF(wv = wGeneratorWV[s.dgenIndex]); AbortOnRTE
 					else
 						err = 1
 					endif
@@ -1198,7 +1197,7 @@ static Function CallTestCase(s, reentry)
 			endif
 
 		endif
-	elseif(s.mdMode  == TC_MODE_MMD)
+	elseif(s.mdMode == TC_MODE_MMD)
 		origTCName = testRunData[tcIndex][%FULLFUNCNAME]
 		IUTF_Test_MD_MMD#SetupMMDStruct(mData, origTCName)
 		FUNCREF TEST_CASE_PROTO_MD fTCMD = $func
@@ -1206,9 +1205,9 @@ static Function CallTestCase(s, reentry)
 			sprintf msg, "Reentry function %s does not meet required format for multi-multi-data test case.", func
 			IUTF_Reporting#ReportErrorAndAbort(msg)
 		else
-			fTCMD(md=mData); AbortOnRTE
+			fTCMD(md = mData); AbortOnRTE
 		endif
-	elseif(s.mdMode  == TC_MODE_NORMAL)
+	elseif(s.mdMode == TC_MODE_NORMAL)
 		FUNCREF TEST_CASE_PROTO TestCaseFunc = $func
 		TestCaseFunc(); AbortOnRTE
 	else
@@ -1222,12 +1221,12 @@ static Function InitStrRunTest(s)
 	STRUCT strRunTest &s
 
 	s.procWinList = ""
-	s.name = ""
-	s.testCase = ""
+	s.name        = ""
+	s.testCase    = ""
 
 	s.coberturaSources = ""
-	s.coberturaOut = ""
-	s.tcSuffix = ""
+	s.coberturaOut     = ""
+	s.tcSuffix         = ""
 
 	IUTF_Hooks#InitHooks(s.hooks)
 	IUTF_Hooks#InitHooks(s.procHooks)
@@ -1270,9 +1269,9 @@ EndStructure
 /// @copydoc REGISTER_IUTF_MONITOR_DOCU
 /// @deprecated use RegisterIUTFMonitor instead
 Function RegisterUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
-	string taskList
+	string   taskList
 	variable mode
-	string reentryFunc
+	string   reentryFunc
 	variable timeout, failOnTimeout
 
 	if(ParamIsDefault(timeout))
@@ -1324,9 +1323,9 @@ End
 ///                        A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
 /// @param   failOnTimeout (optional) default to false. If the test case should be failed on reaching the timeout.
 Function RegisterIUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeout])
-	string taskList
+	string   taskList
 	variable mode
-	string reentryFunc
+	string   reentryFunc
 	variable timeout, failOnTimeout
 
 	string procWinList, rFunc
@@ -1356,18 +1355,18 @@ Function RegisterIUTFMonitor(taskList, mode, reentryFunc, [timeout, failOnTimeou
 	if(GrepString(reentryFunc, PROCNAME_NOT_REENTRY))
 		IUTF_Reporting#ReportErrorAndAbort("Name of Reentry function must end with _REENTRY")
 	endif
-	FUNCREF TEST_CASE_PROTO rFuncRef = $reentryFunc
+	FUNCREF TEST_CASE_PROTO    rFuncRef    = $reentryFunc
 	FUNCREF TEST_CASE_PROTO_MD rFuncRefMMD = $reentryFunc
 	if(!IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRef)) && !IUTF_FuncRefIsAssigned(FuncRefInfo(rFuncRefMMD)) && !IUTF_Test_MD#GetFunctionSignatureTCMD(reentryFunc, tmpVar, tmpVar, tmpVar))
 		IUTF_Reporting#ReportErrorAndAbort("Specified reentry procedure has wrong format. The format must be function_REENTRY() or for multi data function_REENTRY([type]).")
 	endif
 
-	string/G dfr:BCKG_TaskList = taskList
-	string/G dfr:BCKG_ReentryFunc = reentryFunc
-	variable/G dfr:BCKG_Mode = mode
+	string/G   dfr:BCKG_TaskList    = taskList
+	string/G   dfr:BCKG_ReentryFunc = reentryFunc
+	variable/G dfr:BCKG_Mode        = mode
 
-	variable/G dfr:BCKG_EndTime = timeout
-	variable/G dfr:BCKG_Registered = 1
+	variable/G dfr:BCKG_EndTime       = timeout
+	variable/G dfr:BCKG_Registered    = 1
 	variable/G dfr:BCKG_FailOnTimeout = failOnTimeout
 
 	CtrlNamedBackground $BACKGROUNDMONTASK, proc=IUTFBackgroundMonitor, period=10, start
@@ -1376,10 +1375,10 @@ End
 /// @brief Unregisters the IUTF background monitor task
 Function UnRegisterIUTFMonitor()
 
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr                 = GetPackageFolder()
 	variable/G dfr:BCKG_Registered = 0
 
-	CtrlNamedBackground $BACKGROUNDMONTASK stop
+	CtrlNamedBackground $BACKGROUNDMONTASK, stop
 End
 
 // Checks if a test case can be retried with the given conditions. Returns 1 if the test case can be
@@ -1387,7 +1386,7 @@ End
 static Function CanRetry(skip, s, fullFuncName, tcResultIndex)
 	variable skip, tcResultIndex
 	STRUCT strRunTest &s
-	string fullFuncName
+	string             fullFuncName
 
 	// if the test case is marked as skipped, the maximum retries are reached the test case will
 	// no longer be retried or if retry is not enabled
@@ -1417,7 +1416,7 @@ End
 
 static Function CleanupRetry(s, tcResultIndex)
 	STRUCT strRunTest &s
-	variable tcResultIndex
+	variable           tcResultIndex
 
 	// increment retry counter
 	s.retryIndex += 1
@@ -1426,7 +1425,7 @@ static Function CleanupRetry(s, tcResultIndex)
 	wvTestCaseResults[tcResultIndex][%STATUS] = IUTF_STATUS_RETRY
 	// remove errors from test suite
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
-	wvTestSuite[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) - 1)
+	wvTestSuite[%CURRENT][%NUM_ERROR]        = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ERROR]) - 1)
 	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) - str2num(wvTestCaseResults[tcResultIndex][%NUM_ASSERT_ERROR]))
 	// cleanup test summary
 	WAVE/T wvFailedProc = IUTF_Reporting#GetFailedProcWave()
@@ -1436,16 +1435,15 @@ static Function CleanupRetry(s, tcResultIndex)
 	InitAbortFlag()
 End
 
-
 static Function ClearTestSetupWaves()
 
-	WAVE/T testRunData = GetTestRunData()
-	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
-	WAVE/T dgenRefs = IUTF_Test_MD_Gen#GetDataGeneratorRefs()
-	WAVE/WAVE ftagWaves = IUTF_FunctionTags#GetFunctionTagWaves()
-	WAVE/WAVE ftagRefs = IUTF_FunctionTags#GetFunctionTagRefs()
-	WAVE/WAVE mdState = IUTF_Test_MD_MMD#GetMMDataState()
-	WAVE/T mdStateRefs = IUTF_Test_MD_MMD#GetMMDataStateRefs()
+	WAVE/T    testRunData = GetTestRunData()
+	WAVE/WAVE dgenWaves   = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/T    dgenRefs    = IUTF_Test_MD_Gen#GetDataGeneratorRefs()
+	WAVE/WAVE ftagWaves   = IUTF_FunctionTags#GetFunctionTagWaves()
+	WAVE/WAVE ftagRefs    = IUTF_FunctionTags#GetFunctionTagRefs()
+	WAVE/WAVE mdState     = IUTF_Test_MD_MMD#GetMMDataState()
+	WAVE/T    mdStateRefs = IUTF_Test_MD_MMD#GetMMDataStateRefs()
 
 	KillWaves testRunData, dgenWaves, dgenRefs, ftagWaves, ftagRefs, mdState, mdStateRefs
 End
@@ -1630,7 +1628,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable var, err
 	string msg, errMsg
 
-	fixLogName = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
+	fixLogName       = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
 	waveTrackingMode = ParamIsDefault(waveTrackingMode) ? UTF_WAVE_TRACKING_NONE : waveTrackingMode
 
 	reentry = IsBckgRegistered()
@@ -1641,7 +1639,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		if(!DataFolderExists(PKG_FOLDER_SAVE))
 			IUTF_Reporting#ReportErrorAndAbort("No saved test state found, aborting. (Did you RegisterIUTFMonitor in an End Hook?)")
 		endif
-		DFREF dfr = GetPackageFolder()
+		DFREF  dfr      = GetPackageFolder()
 		NVAR/Z compMode = dfr:COMP_Mode
 		// check if the reentry call originates from our own background monitor or compilation tester
 		if(!NVAR_Exists(compMode) && CmpStr(GetRTStackInfo(2), BACKGROUNDMONFUNC))
@@ -1656,7 +1654,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		// no early return/abort above this point
 		DetectDeprecation()
 		IUTF_Utils_Paths#ClearHomePath()
-		DFREF dfr = GetPackageFolder()
+		DFREF    dfr                       = GetPackageFolder()
 		string/G dfr:baseFilenameOverwrite = SelectString(fixLogName, "", FIXED_LOG_FILENAME)
 		ClearTestSetupWaves()
 		IUTF_Reporting#ClearTestResultWaves()
@@ -1669,16 +1667,16 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
 
 		// transfer parameters to s. variables
-		s.enableRegExp = enableRegExp
+		s.enableRegExp   = enableRegExp
 		s.enableRegExpTC = ParamIsDefault(enableRegExp) ? 0 : !!enableRegExp
 		s.enableRegExpTS = s.enableRegExpTC
-		s.enableJU = ParamIsDefault(enableJU) ? 0 : !!enableJU
-		s.enableTAP = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
-		s.debugMode = ParamIsDefault(debugMode) ? 0 : debugMode
+		s.enableJU       = ParamIsDefault(enableJU) ? 0 : !!enableJU
+		s.enableTAP      = ParamIsDefault(enableTAP) ? 0 : !!enableTAP
+		s.debugMode      = ParamIsDefault(debugMode) ? 0 : debugMode
 		s.keepDataFolder = ParamIsDefault(keepDataFolder) ? 0 : !!keepDataFolder
-		s.retryMode = ParamIsDefault(retry) ? IUTF_RETRY_NORETRY : retry
-		s.retryCount = ParamIsDefault(retryMaxCount) ? IUTF_MAX_SUPPORTED_RETRY : retryMaxCount
-		s.shuffle = ParamIsDefault(shuffle) ? IUTF_SHUFFLE_NONE : shuffle
+		s.retryMode      = ParamIsDefault(retry) ? IUTF_RETRY_NORETRY : retry
+		s.retryCount     = ParamIsDefault(retryMaxCount) ? IUTF_MAX_SUPPORTED_RETRY : retryMaxCount
+		s.shuffle        = ParamIsDefault(shuffle) ? IUTF_SHUFFLE_NONE : shuffle
 
 		s.tracingEnabled = !ParamIsDefault(traceWinList) && !IUTF_Utils#IsEmpty(traceWinList)
 
@@ -1745,7 +1743,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		endif
 
 		if(ParamIsDefault(testCase))
-			s.testCase = ".*"
+			s.testCase       = ".*"
 			s.enableRegExpTC = 1
 		else
 			s.testCase = testCase
@@ -1761,13 +1759,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			else
 				ClearReentrytoIUTF()
 
-				var = NumberByKey(UTF_KEY_HTMLCREATION, traceOptions)
+				var            = NumberByKey(UTF_KEY_HTMLCREATION, traceOptions)
 				s.htmlCreation = IUTF_Utils#IsNaN(var) ? 1 : var
 
-				var = NumberByKey(UTF_KEY_COBERTURA, traceOptions)
-				s.cobertura = IUTF_Utils#IsNaN(var) ? 0 : !!var
+				var                = NumberByKey(UTF_KEY_COBERTURA, traceOptions)
+				s.cobertura        = IUTF_Utils#IsNaN(var) ? 0 : !!var
 				s.coberturaSources = StringByKey(UTF_KEY_COBERTURA_SOURCES, traceOptions)
-				s.coberturaOut = StringByKey(UTF_KEY_COBERTURA_OUT, traceOptions)
+				s.coberturaOut     = StringByKey(UTF_KEY_COBERTURA_OUT, traceOptions)
 
 				NewDataFolder $PKG_FOLDER_SAVE
 				DFREF dfSave = $PKG_FOLDER_SAVE
@@ -1796,7 +1794,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			return NaN
 		endif
 
-		err = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode, shuffle)
+		err     = CreateTestRunSetup(s.procWinList, s.testCase, s.enableRegExpTC, errMsg, s.enableTAP, s.debugMode, shuffle)
 		tcCount = GetTestCaseCount()
 
 		if(err != TC_MATCH_OK)
@@ -1820,12 +1818,12 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		IUTF_Hooks#getGlobalHooks(s.hooks)
 
 		// Reinitializes
-		IUTF_Hooks#ExecuteHooks(IUTF_TEST_BEGIN_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+		IUTF_Hooks#ExecuteHooks(IUTF_TEST_BEGIN_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 
 		// TAP Handling, find out if all should be skipped and number of all test cases
 		if(s.enableTAP)
 			if(IUTF_TAP#TAP_AreAllFunctionsSkip())
-				IUTF_Hooks#ExecuteHooks(IUTF_TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param=s.debugMode)
+				IUTF_Hooks#ExecuteHooks(IUTF_TEST_END_CONST, s.hooks, s.enableTAP, s.enableJU, s.name, NO_SOURCE_PROCEDURE, s.i, param = s.debugMode)
 				return 0
 			endif
 		endif
@@ -1833,13 +1831,13 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	endif
 
 	// The Test Run itself is split into Test Suites for each Procedure File
-	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
-	WAVE/T testRunData = GetTestRunData()
+	WAVE/WAVE dgenWaves   = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/T    testRunData = GetTestRunData()
 	tcFuncCount = DimSize(testRunData, UTF_ROW)
 	for(i = 0; i < tcFuncCount; i += 1)
 		s.i = i
 
-		procWin = testRunData[i][%PROCWIN]
+		procWin      = testRunData[i][%PROCWIN]
 		fullFuncName = testRunData[i][%FULLFUNCNAME]
 		if(s.i > 0)
 			previousProcWin = testRunData[s.i - 1][%PROCWIN]
@@ -1873,19 +1871,19 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
-			skip = str2num(testRunData[s.i][%SKIP])
+			skip        = str2num(testRunData[s.i][%SKIP])
 			s.dgenIndex = 0
-			s.tcSuffix = ""
-			FUNCREF TEST_CASE_PROTO TestCaseFunc = $fullFuncName
+			s.tcSuffix  = ""
+			FUNCREF TEST_CASE_PROTO    TestCaseFunc    = $fullFuncName
 			FUNCREF TEST_CASE_PROTO_MD TestCaseFuncMMD = $fullFuncName
 			if(IUTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFunc)))
 				s.mdMode = TC_MODE_NORMAL
 			elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(TestCaseFuncMMD)))
 				s.mdMode = TC_MODE_MMD
 			else
-				s.mdMode = TC_MODE_MD
+				s.mdMode     = TC_MODE_MD
 				dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
-				var = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+				var          = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
 				WAVE wGenerator = dgenWaves[var]
 				s.dgenSize = DimSize(wGenerator, UTF_ROW)
 			endif
@@ -1900,7 +1898,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 				if(s.mdMode == TC_MODE_MD)
 					dgenFuncName = StringFromList(0, testRunData[s.i][%DGENLIST])
-					var = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
+					var          = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgenFuncName)
 					WAVE wGenerator = dgenWaves[var]
 					s.tcSuffix = ":" + GetDimLabel(wGenerator, UTF_ROW, s.dgenIndex)
 					if(strlen(s.tcSuffix) == 1)
@@ -1919,10 +1917,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				DFREF dfSave = $""
 				ClearReentrytoIUTF()
 				// restore all loop counters and end loop locals
-				i = s.i
-				procWin = testRunData[s.i][%PROCWIN]
+				i            = s.i
+				procWin      = testRunData[s.i][%PROCWIN]
 				fullFuncName = testRunData[s.i][%FULLFUNCNAME]
-				skip = str2num(testRunData[s.i][%SKIP])
+				skip         = str2num(testRunData[s.i][%SKIP])
 
 			endif
 
@@ -1941,10 +1939,10 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				try
 					CallTestCase(s, reentry)
 				catch
-					msg = GetRTErrMessage()
+					msg   = GetRTErrMessage()
 					s.err = GetRTError(1)
 					// clear the abort code from setAbortFlag()
-					V_AbortCode = shouldDoAbort()  || IsAbortFromSkip() ? 0 : V_AbortCode
+					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() ? 0 : V_AbortCode
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
@@ -1982,8 +1980,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					if(!V_flag)
 						variable numThreads = NumberByKey("Index", note(wvAllStorage))
 						for(j = 0; j < numThreads; ++j)
-							Wave/WAVE wvStorage = wvAllStorage[j]
-							Wave/T data = wvStorage[0]
+							WAVE/WAVE wvStorage = wvAllStorage[j]
+							WAVE/T    data      = wvStorage[0]
 							IUTF_Reporting#ReportError(data[0])
 						endfor
 					endif

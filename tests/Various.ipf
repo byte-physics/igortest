@@ -1,16 +1,15 @@
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=UTF_Various
-
 
 static Constant MMD_COMBO_COUNT = 32
 
 // this is used for checking warnings in the history
 Function TriggerWarningToHistory()
 	DoWindow/K HistoryCarbonCopy
-	NewNotebook/V=0/F=0 /N=HistoryCarbonCopy
+	NewNotebook/V=0/F=0/N=HistoryCarbonCopy
 	INFO("This warning is intended to fail. The next testcase will search for it.")
 	WARN(0)
 End
@@ -55,14 +54,14 @@ Function CheckTAPTags()
 	INFO("Search result of the function name")
 	CHECK_GE_VAR(index, 0)
 	WAVE/WAVE ftags = IUTF_FunctionTags#GetFunctionTagWaves()
-	WAVE/T tags = ftags[index]
+	WAVE/T    tags  = ftags[index]
 
 	expected = "TODO just a valid directive"
-	value = tags[%TAPDirective]
+	value    = tags[%TAPDirective]
 	CHECK_EQUAL_STR(expected, value)
 
 	expected = "This function tests if the TAP function tags work correctly"
-	value = tags[%TAPDescription]
+	value    = tags[%TAPDescription]
 	CHECK_EQUAL_STR(expected, value)
 End
 
@@ -84,7 +83,7 @@ Function GetWavePointerWorks()
 	pointer = str2num(IUTF_Utils#GetWavePointer(content))
 	CHECK_GT_VAR(pointer, 0)
 
-	Make/N=(inf) data
+	Make/N=(Inf) data
 
 	// check that lingering RTE's are not changed
 	err = GetRTError(0)
@@ -208,7 +207,7 @@ static Function TC_MMD_Part1([md])
 	cc += 1
 	if(cc == MMD_COMBO_COUNT)
 		Make/FREE/N=(MMD_COMBO_COUNT, numVars) dataRef = mod(trunc(p / 2^q), 2)
-		CHECK_EQUAL_WAVES(dataRef, wv, mode=WAVE_DATA)
+		CHECK_EQUAL_WAVES(dataRef, wv, mode = WAVE_DATA)
 	endif
 	PASS()
 End
@@ -232,9 +231,9 @@ static Function TC_MMD_InitValues([md])
 	CHECK_EQUAL_VAR(DataFolderRefStatus(md.dfr0), 0)
 	CHECK_EQUAL_VAR(real(md.c0), 0)
 	CHECK_EQUAL_VAR(imag(md.c0), 0)
-	#if (IgorVersion() >= 7.0)
-		CHECK_EQUAL_INT64(md.i0, 0)
-	#endif
+#if (IgorVersion() >= 7.0)
+	CHECK_EQUAL_INT64(md.i0, 0)
+#endif
 
 End
 
@@ -268,7 +267,7 @@ End
 
 static Function/WAVE GeneratorC()
 
-	Make/FREE/C wv = {cmplx(1,1)}
+	Make/FREE/C wv = {cmplx(1, 1)}
 
 	return wv
 End
@@ -324,7 +323,7 @@ static Function TC_MMD_Types([md])
 	CHECK_EQUAL_VAR(md.v3, 1)
 	CHECK_EQUAL_VAR(md.v4, 1)
 	strRef = "IUTF"
-	str = md.s0
+	str    = md.s0
 	CHECK_EQUAL_STR(str, strRef)
 	str = md.s1
 	CHECK_EQUAL_STR(str, strRef)
@@ -432,10 +431,10 @@ Function TC_UTILS_GNSFN_Check_IGNORE(expect32, expect64, num)
 
 	string str
 
-	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=0)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble = 0)
 	REQUIRE_EQUAL_STR(expect32, str)
 
-	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble=1)
+	str = IUTF_UTILS#GetNiceStringForNumber(num, isDouble = 1)
 	REQUIRE_EQUAL_STR(expect64, str)
 End
 
@@ -467,8 +466,8 @@ static Function TC_StringDiff()
 
 	// Case sensitivity
 	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A")
-	TC_StringDiff_Check("a\nb", "A\nc", "1:0:2> b", "1:0:2> c", case_sensitive=0)
-	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A", case_sensitive=1)
+	TC_StringDiff_Check("a\nb", "A\nc", "1:0:2> b", "1:0:2> c", case_sensitive = 0)
+	TC_StringDiff_Check("a\nb", "A\nc", "0:0:0> a", "0:0:0> A", case_sensitive = 1)
 
 	// Trim context
 	TC_StringDiff_Check("0123456789abcdef.0123456789abcdef", "0123456789abcdef:0123456789abcdef", "0:16:16> 6 7 8 9 a b c d e f . 0 1 2 3 4 5 6 7 8 9", "0:16:16> 6 7 8 9 a b c d e f : 0 1 2 3 4 5 6 7 8 9")
@@ -482,11 +481,11 @@ static Function TC_StringDiff()
 
 	// Escaping
 #if (IgorVersion() >= 7.00)
-	res = IUTF_UTILS#EscapeString("a\000\n\r\t\007")
+	res      = IUTF_UTILS#EscapeString("a\000\n\r\t\007")
 	expected = " a <NUL> <LF> <CR> <TAB> <0x07>"
 #else
 	// Igor 6 is handling \000 as string termination
-	res = IUTF_UTILS#EscapeString("a\n\r\t\007")
+	res      = IUTF_UTILS#EscapeString("a\n\r\t\007")
 	expected = " a <LF> <CR> <TAB> <0x07>"
 #endif
 	CHECK_EQUAL_STR(expected, res)
@@ -499,7 +498,7 @@ static Function TC_StringDiff_Check(str1, str2, out1, out2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		TC_StringDiff_CheckRef(str1, str2, out1, out2)
 	else
-		TC_StringDiff_CheckRef(str1, str2, out1, out2, case_sensitive=case_sensitive)
+		TC_StringDiff_CheckRef(str1, str2, out1, out2, case_sensitive = case_sensitive)
 	endif
 End
 
@@ -509,14 +508,14 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 	string out1, out2
 	variable case_sensitive
 
-	Struct IUTF_StringDiffResult result
-	string str
+	STRUCT IUTF_StringDiffResult result
+	string                       str
 
 	// forward check
 	if(ParamIsDefault(case_sensitive))
 		IUTF_UTILS#DiffString(str1, str2, result)
 	else
-		IUTF_UTILS#DiffString(str1, str2, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str1, str2, result, case_sensitive = case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out1, str)
@@ -527,7 +526,7 @@ static Function TC_StringDiff_CheckRef(str1, str2, out1, out2, [case_sensitive])
 	if(ParamIsDefault(case_sensitive))
 		IUTF_UTILS#DiffString(str2, str1, result)
 	else
-		IUTF_UTILS#DiffString(str2, str1, result, case_sensitive=case_sensitive)
+		IUTF_UTILS#DiffString(str2, str1, result, case_sensitive = case_sensitive)
 	endif
 	str = result.v1
 	CHECK_EQUAL_STR(out2, str)
@@ -561,7 +560,7 @@ static Function TC_WaveMajorTypeString()
 End
 
 static Function TC_WaveMajorTypeString_Check(expected, type)
-	string expected
+	string   expected
 	variable type
 
 	string str
@@ -583,7 +582,7 @@ static Function TC_WaveMinorTypeString()
 	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE", UNSIGNED_WAVE)
 
 	// unsigned waves
-	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT8_WAVE",  UNSIGNED_WAVE | INT8_WAVE)
+	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT8_WAVE", UNSIGNED_WAVE | INT8_WAVE)
 	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT16_WAVE", UNSIGNED_WAVE | INT16_WAVE)
 	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT32_WAVE", UNSIGNED_WAVE | INT32_WAVE)
 	TC_WaveMinorTypeString_Check("UNSIGNED_WAVE, INT64_WAVE", UNSIGNED_WAVE | INT64_WAVE)
@@ -604,7 +603,7 @@ static Function TC_WaveMinorTypeString()
 End
 
 static Function TC_WaveMinorTypeString_Check(expected, type)
-	string expected
+	string   expected
 	variable type
 
 	string str
@@ -627,12 +626,12 @@ static Function TC_WaveName()
 
 	dfr = GetDataFolder(1)
 
-	str = IUTF_Utils#GetWaveNameInDFStr($"")
+	str    = IUTF_Utils#GetWaveNameInDFStr($"")
 	expect = "_null_"
 	CHECK_EQUAL_STR(expect, str)
 
 	Make namedDFWave
-	str = IUTF_Utils#GetWaveNameInDFStr(namedDFWave)
+	str    = IUTF_Utils#GetWaveNameInDFStr(namedDFWave)
 	expect = "namedDFWave in " + dfr
 	CHECK_EQUAL_STR(expect, str)
 
