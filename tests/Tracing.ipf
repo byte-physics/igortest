@@ -60,7 +60,8 @@ static Function TracingTest2()
 	Make/FREE/D/N=(max_proc_lines) logSimple, logRef
 	logSimple = logData[p][0][0] != 0
 
-	Make/FREE/D logRefGen = {12, 14, 16, 17, 19, 52, 21, 22, 24, 26, 28, 29, 31, 33, 34, 35, 37, 38, 39, 40, 42, 45, 46, 47, 49, 50, 51}
+	Make/FREE/D logRefGen = {14, 16, 18, 19, 21, 54, 23, 24, 26, 28, 30, 31, 33, 35, 36, 37, 39, 40, 41, 42, 44, 47, 48, 49, 51, 52, 53}
+
 	numRefLines = DimSize(logRefGen, UTF_ROW)
 	for(i = 0; i < numrefLines; i += 1)
 		logRef[logRefGen[i]] = 1
@@ -74,18 +75,16 @@ static Function TracingTest2()
 	// verify instrumentation marker
 	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%INSTR]
 
-	Make/FREE markerRef = {                                                                                          \
-	                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, \
-	                       1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0}
+	Make/FREE markerRef = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, \
+	                       1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0}
 
 	CHECK_EQUAL_WAVES(markerValues, markerRef)
 
 	// verify complexity marker
 	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%COMPLEX]
 
-	Make/FREE markerRef = {                                                                                          \
-	                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, \
-	                       0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	Make/FREE markerRef = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, \
+	                       1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 	CHECK_EQUAL_WAVES(markerValues, markerRef)
 End

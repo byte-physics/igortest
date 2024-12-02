@@ -20,29 +20,29 @@ endstructure
 
 // Before Function 1
 threadsafe Function Function1()
-Z_(0, 19)
-Z_(0, 20)
+Z_(0, 21)
+Z_(0, 22)
 End
 // After Function 1
 
 // Before Function 2
 threadsafe static Function Function2()
-Z_(0, 24)
-Z_(0, 25)
+Z_(0, 26)
+Z_(0, 27)
 End
 // After Function 2
 
 // Before Function 3
 Function Function3_TESTTRACING()
-Z_(0, 29)
-Z_(0, 30)
+Z_(0, 31)
+Z_(0, 32)
 End
 // After Function 3
 
 // Before Function 4
 static Function Function4()
-Z_(0, 34)
-Z_(0, 35)
+Z_(0, 36)
+Z_(0, 37)
 End
 // After Function 4
 
@@ -62,18 +62,18 @@ static Function paramTest1(val, str, w, dfr, f, s, c, wc, wt, i, i64, ui64, d, c
 	double d
 	complex comp
 
-Z_(0, 38)
-Z_(0, 57)
-Z_(0, 54)
+Z_(0, 40)
+Z_(0, 59)
+Z_(0, 56)
 	variable local
 
-Z_(0, 56)
+Z_(0, 58)
 	print "So many parameters"
 End
 
 static Function [DFREF dfr, STRUCT struct_TESTTRACING s] paramTest2()
-Z_(0, 59)
-Z_(0, 60)
+Z_(0, 61)
+Z_(0, 62)
 End
 
 #if IgorVersion() < 9
@@ -85,9 +85,9 @@ End
 #else
 // Before Function 6
 static Function Function6b()
-Z_(0, 70)
 Z_(0, 72)
-Z_(0, 71)
+Z_(0, 74)
+Z_(0, 73)
 	print "nine"
 End
 // After Function 6
@@ -95,151 +95,151 @@ End
 
 // Before Function 7
 static Function Function7()
-Z_(0, 77)
-Z_(0, 83)
-Z_(0, 78)
-#if IgorVersion() < 9
 Z_(0, 79)
+Z_(0, 85)
+Z_(0, 80)
+#if IgorVersion() < 9
+Z_(0, 81)
 	print "not nine"
 #else
-Z_(0, 80)
-Z_(0, 81)
+Z_(0, 82)
+Z_(0, 83)
 	print "nine"
 #endif
-Z_(0, 82)
+Z_(0, 84)
 End
 // After Function 7
 
 static Function iftest()
-Z_(0, 86)
-Z_(0, 105)
+Z_(0, 88)
+Z_(0, 107)
 
-	if(Z_(0, 88, c=(1 == (1 + 0))))
-Z_(0, 89)
-		print "1"
-	elseif(Z_(0, 90, c=(1)))
+	if(Z_(0, 90, c=(1 == (1 + 0))))
 Z_(0, 91)
+		print "1"
+	elseif(Z_(0, 92, c=(1)))
+Z_(0, 93)
 		print "2"
 	else
-Z_(0, 92)
-Z_(0, 93)
+Z_(0, 94)
+Z_(0, 95)
 		print "3"
 	endif
-Z_(0, 94)
+Z_(0, 96)
 
-	if (Z_(0, 96, c=(1 == (1 + 0))))
-Z_(0, 97)
-		print "4"
-	elseif (Z_(0, 98, c=(1)))
+	if (Z_(0, 98, c=(1 == (1 + 0))))
 Z_(0, 99)
+		print "4"
+	elseif (Z_(0, 100, c=(1)))
+Z_(0, 101)
 		print "5"
 	else
-Z_(0, 100)
-Z_(0, 101)
+Z_(0, 102)
+Z_(0, 103)
 		print "6"
 	endif
-Z_(0, 102)
-
 Z_(0, 104)
+
+Z_(0, 106)
 	print "7"
 End
 
 static Function switchtest()
-Z_(0, 107)
-Z_(0, 132)
-
 Z_(0, 109)
+Z_(0, 134)
+
+Z_(0, 111)
 	switch(1)
 		case 1:
-Z_(0, 110)
-Z_(0, 111)
-			print "case"
 Z_(0, 112)
+Z_(0, 113)
+			print "case"
+Z_(0, 114)
 			break
 		default:
-Z_(0, 113)
-Z_(0, 114)
-			print "default"
 Z_(0, 115)
+Z_(0, 116)
+			print "default"
+Z_(0, 117)
 			break
 	endswitch
-Z_(0, 116)
-Z_(0, 117)
+Z_(0, 118)
+Z_(0, 119)
 	print "after endswitch"
 
-Z_(0, 119)
+Z_(0, 121)
 	switch(1)
 		case 1:
-Z_(0, 120)
-Z_(0, 121)
-			print "case"
 Z_(0, 122)
+Z_(0, 123)
+			print "case"
+Z_(0, 124)
 			break
 		default :
-Z_(0, 123)
-Z_(0, 124)
-			print "default"
 Z_(0, 125)
+Z_(0, 126)
+			print "default"
+Z_(0, 127)
 			break
 	endswitch;
-Z_(0, 126)
-Z_(0, 127)
+Z_(0, 128)
+Z_(0, 129)
 	print "after endswitch"
 
-Z_(0, 129)
+Z_(0, 131)
 	switch(1)
 	endswitch ;
-Z_(0, 130)
-Z_(0, 131)
+Z_(0, 132)
+Z_(0, 133)
 	print "after endswitch"
 End
 
 static Function commenttest()
-Z_(0, 134)
-Z_(0, 141)
-
 Z_(0, 136)
-	// Here we have some
-Z_(0, 137)
-	// important comments
+Z_(0, 143)
+
 Z_(0, 138)
-	// to test the
+	// Here we have some
 Z_(0, 139)
-	// instrumentation
+	// important comments
 Z_(0, 140)
+	// to test the
+Z_(0, 141)
+	// instrumentation
+Z_(0, 142)
 	print "commenttest end"
 End
 
 // Before TraceMacroTest
 Macro TraceMacroTest()
-Z_(0, 144)
-Z_(0, 148)
-Z_(0, 145)
+Z_(0, 146)
+Z_(0, 150)
+Z_(0, 147)
 	print "1"
 
-Z_(0, 147)
+Z_(0, 149)
 	print "2"
 EndMacro
 
 // Before TraceWindowTest
 Window TraceWindowTest() : Panel
-Z_(0, 151)
-Z_(0, 155)
-Z_(0, 152)
+Z_(0, 153)
+Z_(0, 157)
+Z_(0, 154)
 	print "1"
 
-Z_(0, 154)
+Z_(0, 156)
 	print "2"
 EndMacro
 
 // Before TraceProcTest
 Proc TraceProcTest()
-Z_(0, 158)
-Z_(0, 162)
-Z_(0, 159)
+Z_(0, 160)
+Z_(0, 164)
+Z_(0, 161)
 	print "1"
 
-Z_(0, 161)
+Z_(0, 163)
 	print "2"
 EndMacro
 
@@ -251,7 +251,7 @@ Macro TraceMacroNoInstrument()
 	print "2"
 EndMacro
 #endif
-Function IUTF_TagFunc_2c4825972717351a1e6e21b29ee64c5d2572501d0f67b2d3231ce87cee9d0a9b_IGNORE()
-End
 
 // IPT_FORMAT_ON
+Function IUTF_TagFunc_2c4825972717351a1e6e21b29ee64c5d2572501d0f67b2d3231ce87cee9d0a9b_IGNORE()
+End
