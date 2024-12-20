@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Utils_Waves
+#pragma ModuleName=IUTF_Utils_Waves
 
 #if (IgorVersion() >= 9.00)
 static Constant RANDOM_NUMBER_GENERATOR = 3 // Xoshiro256
@@ -17,9 +17,9 @@ static Constant RANDOM_NUMBER_GENERATOR = 2 // Merseene Twister
 /// @param dimension The dimension to search in
 /// @param label     The label to remove
 static Function RemoveDimLabel(wv, dimension, label)
-	WAVE wv
+	WAVE     wv
 	variable dimension
-	string label
+	string   label
 
 	variable index = FindDimLabel(wv, dimension, label)
 	if(index != -2)
@@ -68,15 +68,15 @@ static Function InPlaceShuffleText1D(wv, [startIndex, endIndex])
 	string tmp
 
 	startIndex = ParamIsDefault(startIndex) ? 0 : startIndex
-	endIndex = ParamIsDefault(endIndex) ? DimSize(wv, UTF_ROW) : endIndex
+	endIndex   = ParamIsDefault(endIndex) ? DimSize(wv, UTF_ROW) : endIndex
 
 	// basic shuffle algorithm
 	for(i1 = startIndex; i1 < endIndex - 1; i1 += 1)
 		// getting second index
 		halfRange = (endIndex - i1) * 0.5
-		i2 = i1 + floor(halfRange + enoise(halfRange, RANDOM_NUMBER_GENERATOR))
+		i2        = i1 + floor(halfRange + enoise(halfRange, RANDOM_NUMBER_GENERATOR))
 		// triangle swap
-		tmp = wv[i1]
+		tmp    = wv[i1]
 		wv[i1] = wv[i2]
 		wv[i2] = tmp
 	endfor

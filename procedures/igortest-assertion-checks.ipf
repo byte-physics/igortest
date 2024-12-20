@@ -4,7 +4,6 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Checks
 
-
 /// @cond HIDDEN_SYMBOL
 
 static Constant NUMTYPE_NAN = 2
@@ -107,12 +106,12 @@ static Function IsINT64Small(int64 var, int64 tol)
 
 	comparison = tol < 0
 	if(comparison)
-		tol = - tol
+		tol = -tol
 	endif
 
 	comparison = var < 0
 	if(comparison)
-		var = - var
+		var = -var
 	endif
 
 	comparison = var < tol
@@ -160,7 +159,7 @@ static Function AreINT64Close(int64 var1, int64 var2, int64 tol)
 
 	comparison = tol < 0
 	if(comparison)
-		tol = - tol
+		tol = -tol
 	endif
 
 	comparison = var2 > var1
@@ -170,7 +169,7 @@ static Function AreINT64Close(int64 var1, int64 var2, int64 tol)
 		var2 = temp
 	endif
 
-	diff = var1 - var2
+	diff       = var1 - var2
 	comparison = diff < tol
 
 	return comparison
@@ -186,7 +185,7 @@ static Function AreUINT64Close(uint64 var1, uint64 var2, uint64 tol)
 		var2 = temp
 	endif
 
-	diff = var1 - var2
+	diff       = var1 - var2
 	comparison = diff < tol
 
 	return comparison
@@ -211,7 +210,7 @@ static Function AreStringsEqual(str1, str2, case_sensitive)
 End
 
 static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
-	Wave/Z wv1, wv2
+	WAVE/Z wv1, wv2
 	variable mode, tol
 	string &detailedMsg
 
@@ -271,13 +270,12 @@ static Function AreWavesEqual(wv1, wv2, mode, tol, detailedMsg)
 		detailedMsg = ""
 	endif
 
-
 	return result
 End
 
 static Function AddIfFlagSet(var, flag, flagString, str)
 	variable var, flag
-	string flagString
+	string  flagString
 	string &str
 
 	if((var & flag) == flag)
@@ -288,7 +286,7 @@ End
 static Function GetWaveMajorType(wv)
 	WAVE/Z wv
 
-	variable type = 0
+	variable type  = 0
 	variable type2 = WaveType(wv, 2)
 	variable type1 = WaveType(wv, 1)
 
@@ -308,7 +306,7 @@ static Function GetWaveMajorType(wv)
 End
 
 static Function HasWaveMajorType(wv, majorType)
-	WAVE/Z wv
+	WAVE/Z   wv
 	variable majorType
 
 	return (GetWaveMajorType(wv) & majorType) == majorType
@@ -322,12 +320,12 @@ static Function/S GetWaveMajorTypeString(type)
 	if((type & NULL_WAVE) == NULL_WAVE)
 		return "NULL_WAVE"
 	endif
-	AddIfFlagSet(type, NUMERIC_WAVE,    "NUMERIC_WAVE",    str)
-	AddIfFlagSet(type, TEXT_WAVE,       "TEXT_WAVE",       str)
+	AddIfFlagSet(type, NUMERIC_WAVE, "NUMERIC_WAVE", str)
+	AddIfFlagSet(type, TEXT_WAVE, "TEXT_WAVE", str)
 	AddIfFlagSet(type, DATAFOLDER_WAVE, "DATAFOLDER_WAVE", str)
-	AddIfFlagSet(type, WAVE_WAVE,       "WAVE_WAVE",       str)
-	AddIfFlagSet(type, NORMAL_WAVE,     "NORMAL_WAVE",     str)
-	AddIfFlagSet(type, FREE_WAVE,       "FREE_WAVE",       str)
+	AddIfFlagSet(type, WAVE_WAVE, "WAVE_WAVE", str)
+	AddIfFlagSet(type, NORMAL_WAVE, "NORMAL_WAVE", str)
+	AddIfFlagSet(type, FREE_WAVE, "FREE_WAVE", str)
 
 	if(!CmpStr(str, ""))
 		return num2str(type)
@@ -355,7 +353,7 @@ static Function GetWaveMinorType(wv)
 End
 
 static Function HasWaveMinorType(wv, minorType)
-	WAVE/Z wv
+	WAVE/Z   wv
 	variable minorType
 
 	return (GetWaveMinorType(wv) & minorType) == minorType
@@ -370,14 +368,14 @@ static Function/S GetWaveMinorTypeString(type)
 		return "NULL_WAVE"
 	endif
 	AddIfFlagSet(type, NON_NUMERIC_WAVE, "NON_NUMERIC_WAVE", str)
-	AddIfFlagSet(type, COMPLEX_WAVE,     "COMPLEX_WAVE",     str)
-	AddIfFlagSet(type, FLOAT_WAVE,       "FLOAT_WAVE",       str)
-	AddIfFlagSet(type, DOUBLE_WAVE,      "DOUBLE_WAVE",      str)
-	AddIfFlagSet(type, INT8_WAVE,        "INT8_WAVE",        str)
-	AddIfFlagSet(type, INT16_WAVE,       "INT16_WAVE",       str)
-	AddIfFlagSet(type, INT32_WAVE,       "INT32_WAVE",       str)
-	AddIfFlagSet(type, INT64_WAVE,       "INT64_WAVE",       str)
-	AddIfFlagSet(type, UNSIGNED_WAVE,    "UNSIGNED_WAVE",    str)
+	AddIfFlagSet(type, COMPLEX_WAVE, "COMPLEX_WAVE", str)
+	AddIfFlagSet(type, FLOAT_WAVE, "FLOAT_WAVE", str)
+	AddIfFlagSet(type, DOUBLE_WAVE, "DOUBLE_WAVE", str)
+	AddIfFlagSet(type, INT8_WAVE, "INT8_WAVE", str)
+	AddIfFlagSet(type, INT16_WAVE, "INT16_WAVE", str)
+	AddIfFlagSet(type, INT32_WAVE, "INT32_WAVE", str)
+	AddIfFlagSet(type, INT64_WAVE, "INT64_WAVE", str)
+	AddIfFlagSet(type, UNSIGNED_WAVE, "UNSIGNED_WAVE", str)
 
 	if(!CmpStr(str, ""))
 		return num2str(type)

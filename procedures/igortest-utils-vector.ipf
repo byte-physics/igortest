@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Utils_Vector
+#pragma ModuleName=IUTF_Utils_Vector
 
 // Vector is a special concept that is similar to Vec<> in Rust or List<T> in C#. It represents a
 // dynamically sized array of elements. All operation should be done using these methods. The wave
@@ -11,8 +11,8 @@
 static StrConstant LENGTH_KEY = "NOTE_LENGTH"
 
 static Function SetNumberInWaveNote(wv, key, value)
-	WAVE wv
-	string key
+	WAVE     wv
+	string   key
 	variable value
 
 	Note/K wv, ReplaceNumberByKey(key, note(wv), value)
@@ -20,7 +20,7 @@ End
 
 /// @brief Set the length of the vector. This doesn't change the capacity or size of any dimension.
 static Function SetLength(wv, value)
-	WAVE wv
+	WAVE     wv
 	variable value
 
 	SetNumberInWaveNote(wv, LENGTH_KEY, value)
@@ -41,7 +41,7 @@ End
 /// Known Limitations: Igor 32 bit has a limit of 2 GB and 64bit a limit of 200 GB a wave can be.
 static Function EnsureCapacity(wv, indexShouldExist)
 
-	WAVE wv
+	WAVE     wv
 	variable indexShouldExist
 
 	variable size = DimSize(wv, UTF_ROW)
@@ -54,7 +54,7 @@ static Function EnsureCapacity(wv, indexShouldExist)
 	// the wave is smaller than any usable chunk
 	if(size < IUTF_WAVECHUNK_SIZE && indexShouldExist < IUTF_WAVECHUNK_SIZE)
 		targetSize = IUTF_WAVECHUNK_SIZE
-	// exponential sizing for smaller waves as this behave asymptotic better
+		// exponential sizing for smaller waves as this behave asymptotic better
 	elseif(indexShouldExist < IUTF_BIGWAVECHUNK_SIZE)
 		// Calculate the target size. This is a shortcut because we need most times to increase the
 		// size only for a small amount and a single multiplication is faster then the complex
@@ -71,10 +71,10 @@ static Function EnsureCapacity(wv, indexShouldExist)
 			// => e >= log_2((m + 1) / c)
 			// => e = ceil(log_2((m + 1) / c))
 			// => n = c * 2 ^ ceil(log_2((m + 1) / c)) = c * 2 ^ ceil(ln((m + 1) / c) / ln(2))
-			targetSize = IUTF_WAVECHUNK_SIZE * 2 ^ ceil(ln((indexShouldExist + 1) / IUTF_WAVECHUNK_SIZE) / ln(2))
+			targetSize = IUTF_WAVECHUNK_SIZE * 2^ceil(ln((indexShouldExist + 1) / IUTF_WAVECHUNK_SIZE) / ln(2))
 		endif
-	// linear sizing for really large waves with high system memory impact. This is to reduce system
-	// memory stress.
+		// linear sizing for really large waves with high system memory impact. This is to reduce system
+		// memory stress.
 	else
 		// target size: n
 		// indexShouldExist: m
@@ -110,7 +110,7 @@ End
 ///              remains unchanged.
 /// @returns The row index of the last added row or -1 if the list is kept unchanged.
 static Function AddRows(wv, count)
-	WAVE wv
+	WAVE     wv
 	variable count
 
 	variable oldLength, newLength
@@ -143,7 +143,7 @@ static Function FindText(wv, text)
 
 	variable length
 
-	#if (IgorVersion() >= 8.00)
+#if (IgorVersion() >= 8.00)
 	length = GetLength(wv)
 	FindValue/Z/TEXT=(text)/TXOP=5/RMD=[0, length - 1] wv
 #else

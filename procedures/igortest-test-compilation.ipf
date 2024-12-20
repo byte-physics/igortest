@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Test_Compilation
+#pragma ModuleName=IUTF_Test_Compilation
 
 static Constant COMP_INIT       = 0x01
 static Constant COMP_UNCOMPILED = 0x02
@@ -27,7 +27,7 @@ static Function/S GetCompState(state)
 End
 
 static Function SetCompilationFlag()
-	DFREF dfr = GetPackageFolder()
+	DFREF      dfr                  = GetPackageFolder()
 	variable/G dfr:compilationState = IsProcGlobalCompiled() ? COMP_COMPILED : COMP_UNCOMPILED
 End
 
@@ -43,20 +43,20 @@ static Function TestCompilation(file, flags, defines, reentry, noCompile)
 	WAVE/T defines
 
 	variable i
-	variable length = DimSize(defines, UTF_ROW)
-	string importFile = RemoveEnding(file, ".ipf")
+	variable length     = DimSize(defines, UTF_ROW)
+	string   importFile = RemoveEnding(file, ".ipf")
 
 	// backup arguments that are needed for the reentry
-	DFREF dfr = GetPackageFolder()
-	string/G dfr:COMP_File = file
-	variable/G dfr:COMP_Flags = flags
-	string/G dfr:COMP_Reentry = reentry
+	DFREF      dfr                = GetPackageFolder()
+	string/G   dfr:COMP_File      = file
+	variable/G dfr:COMP_Flags     = flags
+	string/G   dfr:COMP_Reentry   = reentry
 	variable/G dfr:COMP_NoCompile = noCompile
-	string/G dfr:COMP_Callstack = GetRTStackInfo(3)
+	string/G   dfr:COMP_Callstack = GetRTStackInfo(3)
 
 	// setup reentry
 	variable/G dfr:BCKG_Registered = 1
-	variable/G dfr:COMP_Mode = 1
+	variable/G dfr:COMP_Mode       = 1
 
 	// set compilation state
 	variable/G dfr:compilationState = COMP_INIT
@@ -98,7 +98,7 @@ static Function TestCompilationReentry()
 	variable flags, noCompile, compilationState, success
 
 	// restore arguments
-	DFREF dfr = GetPackageFolder()
+	DFREF  dfr = GetPackageFolder()
 	SVAR/Z str = dfr:COMP_File
 	file = str
 	NVAR/Z var = dfr:COMP_Flags
@@ -118,8 +118,8 @@ static Function TestCompilationReentry()
 
 	// setup reentry
 	if(!IUTF_Utils#IsEmpty(reentry))
-		variable/G dfr:BCKG_Registered = 1
-		string/G dfr:BCKG_ReentryFunc = reentry
+		variable/G dfr:BCKG_Registered  = 1
+		string/G   dfr:BCKG_ReentryFunc = reentry
 		DoExecute(GetIndependentModuleName() + "#RunTest(\":POST_COMPILATION_REENTRY:\")")
 		variable/G dfr:COMP_Mode = 2
 	endif

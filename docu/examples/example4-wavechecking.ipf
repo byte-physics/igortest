@@ -5,7 +5,6 @@
 
 #include "igortest"
 
-
 static Function CheckMakeDouble()
 
 	CHECK_EMPTY_FOLDER()

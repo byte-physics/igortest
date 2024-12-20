@@ -1,15 +1,15 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Test_MD_MMD
+#pragma ModuleName=IUTF_Test_MD_MMD
 
 ///@cond HIDDEN_SYMBOL
 
-static StrConstant DGEN_VAR_TEMPLATE = "v"
-static StrConstant DGEN_STR_TEMPLATE = "s"
-static StrConstant DGEN_DFR_TEMPLATE = "dfr"
-static StrConstant DGEN_WAVE_TEMPLATE = "w"
+static StrConstant DGEN_VAR_TEMPLATE   = "v"
+static StrConstant DGEN_STR_TEMPLATE   = "s"
+static StrConstant DGEN_DFR_TEMPLATE   = "dfr"
+static StrConstant DGEN_WAVE_TEMPLATE  = "w"
 static StrConstant DGEN_CMPLX_TEMPLATE = "c"
 static StrConstant DGEN_INT64_TEMPLATE = "i"
 
@@ -19,8 +19,8 @@ static Function/WAVE GetMMDataState()
 
 	string name = "MMDataState"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
+	DFREF       dfr = GetPackageFolder()
+	WAVE/Z/WAVE wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -37,8 +37,8 @@ static Function/WAVE GetMMDataStateRefs()
 
 	string name = "MMDataStateRefs"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr = GetPackageFolder()
+	WAVE/Z/T wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -139,8 +139,8 @@ static Function AddMMDTestCaseData(fullFuncName, dgen, varName, genSize)
 	endif
 	mdFunState[varPos][%DATAGEN] = dgen
 	mdFunState[varPos][%GENSIZE] = num2istr(genSize)
-	mdFunState[varPos][%INDEX] = num2istr(0)
-	mdState[funPos] = mdFunState
+	mdFunState[varPos][%INDEX]   = num2istr(0)
+	mdState[funPos]              = mdFunState
 End
 
 /// Return 1 if the counting finished, 0 otherwise
@@ -154,9 +154,9 @@ static Function IncreaseMMDIndices(fullFuncName)
 	WAVE/T mdFunState = mdState[refIndex]
 	numVars = DimSize(mdFunState, UTF_ROW)
 	for(i = 0; i < numVars; i += 1)
-		index = str2num(mdFunState[i][%INDEX])
+		index   = str2num(mdFunState[i][%INDEX])
 		genSize = str2num(mdFunState[i][%GENSIZE])
-		index += 1
+		index  += 1
 		if(index < genSize)
 			mdFunState[i][%INDEX] = num2istr(index)
 			return 0
@@ -170,7 +170,7 @@ End
 
 static Function SetupMMDStruct(mData, fullFuncName)
 	STRUCT IUTF_mData &mData
-	string fullFuncName
+	string             fullFuncName
 
 	variable i, j, numTypes
 	variable funPos, varPos, index, val, refIndex
@@ -181,8 +181,8 @@ static Function SetupMMDStruct(mData, fullFuncName)
 #endif
 
 	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
-	WAVE/WAVE mdState = GetMMDataState()
-	WAVE/T templates = GetMMDVarTemplates()
+	WAVE/WAVE mdState   = GetMMDataState()
+	WAVE/T    templates = GetMMDVarTemplates()
 
 	refIndex = GetMMDataStateRef(fullFuncName)
 	WAVE/T mdFunState = mdState[refIndex]
@@ -191,14 +191,14 @@ static Function SetupMMDStruct(mData, fullFuncName)
 	for(i = 0; i < numTypes; i += 1)
 		for(j = 0; j < IUTF_DGEN_NUM_VARS; j += 1)
 			varName = templates[i] + num2istr(j)
-			varPos = FindDimLabel(mdFunState, UTF_ROW, varName)
+			varPos  = FindDimLabel(mdFunState, UTF_ROW, varName)
 			if(varPos == -2)
 				continue
 			endif
-			dgen = mdFunState[varPos][%DATAGEN]
+			dgen  = mdFunState[varPos][%DATAGEN]
 			index = str2num(mdFunState[varPos][%INDEX])
 
-			strSwitch(templates[i])
+			strswitch(templates[i])
 				case DGEN_VAR_TEMPLATE:
 					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
 					WAVE wGenerator = dgenWaves[refIndex]
@@ -254,7 +254,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 				case DGEN_DFR_TEMPLATE:
 					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
 					WAVE/DF wGeneratorDFR = dgenWaves[refIndex]
-					DFREF dfr = wGeneratorDFR[index]
+					DFREF   dfr           = wGeneratorDFR[index]
 
 					switch(j)
 						case 0:
@@ -280,7 +280,7 @@ static Function SetupMMDStruct(mData, fullFuncName)
 				case DGEN_WAVE_TEMPLATE:
 					refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
 					WAVE/WAVE wGeneratorWV = dgenWaves[refIndex]
-					WAVE wv = wGeneratorWV[index]
+					WAVE      wv           = wGeneratorWV[index]
 
 					switch(j)
 						case 0:
@@ -436,18 +436,18 @@ static Function/S GetMMDTCSuffix(tdIndex)
 	string fullFuncName, dgen, lbl
 	string tcSuffix = ""
 
-	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
-	WAVE/WAVE dgenWaves = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
-	WAVE/WAVE mdState = GetMMDataState()
+	WAVE/T    testRunData = IUTF_Basics#GetTestRunData()
+	WAVE/WAVE dgenWaves   = IUTF_Test_MD_Gen#GetDataGeneratorWaves()
+	WAVE/WAVE mdState     = GetMMDataState()
 
 	fullFuncName = testRunData[tdIndex][%FULLFUNCNAME]
-	refIndex = GetMMDataStateRef(fullFuncName)
+	refIndex     = GetMMDataStateRef(fullFuncName)
 	WAVE/T mdFunState = mdState[refIndex]
 
 	numVars = DimSize(mdFunState, UTF_ROW)
 	for(i = 0; i < numVars; i += 1)
-		dgen = mdFunState[i][%DATAGEN]
-		index = str2num(mdFunState[i][%INDEX])
+		dgen     = mdFunState[i][%DATAGEN]
+		index    = str2num(mdFunState[i][%INDEX])
 		refIndex = IUTF_Test_MD_Gen#GetDataGeneratorRef(dgen)
 		WAVE wGenerator = dgenWaves[refIndex]
 		lbl = GetDimLabel(wGenerator, UTF_ROW, index)

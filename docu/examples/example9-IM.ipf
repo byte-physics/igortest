@@ -1,4 +1,4 @@
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma version=1.10
 #pragma rtGlobals=3
 #pragma IndependentModule=Example9

@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Test_MD_Gen
+#pragma ModuleName=IUTF_Test_MD_Gen
 
 ///@cond HIDDEN_SYMBOL
 
@@ -11,8 +11,8 @@ static Function/WAVE GetDataGeneratorWaves()
 
 	string name = "DataGeneratorWaves"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
+	DFREF       dfr = GetPackageFolder()
+	WAVE/Z/WAVE wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -28,8 +28,8 @@ static Function/WAVE GetDataGeneratorRefs()
 
 	string name = "DataGeneratorRefs"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr = GetPackageFolder()
+	WAVE/Z/T wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -72,7 +72,7 @@ static Function/S GetDataGeneratorFunctionName(err, funcName, procName)
 	infoStr = FunctionInfo(funcName, procName)
 	if(!IUTF_Utils#IsEmpty(infoStr))
 		modName = StringByKey("MODULE", infoStr)
-		pName = StringByKey("NAME", infoStr)
+		pName   = StringByKey("NAME", infoStr)
 		if(!CmpStr(StringByKey("SPECIAL", infoStr), "static") && IUTF_Utils#IsEmpty(modName))
 			sprintf errMsg, "Data Generator Function %s is declared static but the procedure file %s is missing a \"#pragma ModuleName=myName\" declaration.", pName, procName
 			err = 1
@@ -183,7 +183,7 @@ static Function/S GetSingleDataGeneratorForMMD(procWin, fullFuncName, varTemplat
 
 	varName = varTemplate + num2istr(index)
 	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-	dgen = IUTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
+	dgen    = IUTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
 	if(err == UTF_TAG_NOT_FOUND)
 		return ""
 	endif
@@ -209,7 +209,7 @@ static Function CheckMDgenOutput(procWin, fullFuncName, varTemplate, index, wTyp
 
 	varName = varTemplate + num2istr(index)
 	tagName = UTF_FTAG_TD_GENERATOR + " " + varName
-	dgen = IUTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
+	dgen    = IUTF_FunctionTags#GetFunctionTagValue(fullFuncName, tagName, err)
 	if(err == UTF_TAG_NOT_FOUND)
 		return 0
 	endif
@@ -304,7 +304,7 @@ static Function ExecuteAllDataGenerators(debugMode)
 	variable DGENLIST_Index
 
 	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
-	size = DimSize(testRunData, UTF_ROW)
+	size           = DimSize(testRunData, UTF_ROW)
 	DGENLIST_Index = FindDimLabel(testRunData, UTF_COLUMN, "DGENLIST")
 
 	if(!size)
@@ -322,7 +322,7 @@ static Function ExecuteAllDataGenerators(debugMode)
 		length = DimSize(dgenWave, UTF_ROW)
 
 		for(j = 0; j < length; j += 1)
-			dgen = dgenWave[j]
+			dgen   = dgenWave[j]
 			dimPos = GetDataGeneratorRef(dgen)
 			if(dimPos != -1)
 				continue
@@ -370,14 +370,14 @@ End
 
 static Function AddDataGeneratorWave(name, generator)
 	string name
-	WAVE generator
+	WAVE   generator
 
 	variable index
 
-	WAVE/WAVE wv = GetDataGeneratorWaves()
-	WAVE/T wvRefs = GetDataGeneratorRefs()
+	WAVE/WAVE wv     = GetDataGeneratorWaves()
+	WAVE/T    wvRefs = GetDataGeneratorRefs()
 
-	index = IUTF_Utils_Vector#AddRow(wv)
+	index     = IUTF_Utils_Vector#AddRow(wv)
 	wv[index] = generator
 	IUTF_Utils_Vector#EnsureCapacity(wvRefs, index)
 	wvRefs[index] = name

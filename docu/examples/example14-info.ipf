@@ -1,7 +1,7 @@
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma version=1.10
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma ModuleName=InfoTest
 
 #include "igortest"
@@ -28,9 +28,9 @@ static Function Test1()
 	WARN(0)
 
 	// Information with string parameter wave
-	INFO("Param: %s", s = { "a" })
-	INFO("Param: %s %s %s %s %s %s %s", s = { "1", "2", "3", "4", "5", "6", "7" })
-	INFO("Param: @%s", s = { "a", "b", "c" }) // print wave at once
+	INFO("Param: %s", s = {"a"})
+	INFO("Param: %s %s %s %s %s %s %s", s = {"1", "2", "3", "4", "5", "6", "7"})
+	INFO("Param: @%s", s = {"a", "b", "c"}) // print wave at once
 	WARN(0)
 
 	// Information with numeric parameter
@@ -41,9 +41,9 @@ static Function Test1()
 	WARN(0)
 
 	// Information with numeric parameter wave
-	INFO("Param: %d", n = { 1 })
-	INFO("Param: %d %d %d %d %d %d %d", n = { 1, 2, 3, 4, 5, 6, 7 })
-	INFO("Param: @%d", n = { 1, 2, 3 })
+	INFO("Param: %d", n = {1})
+	INFO("Param: %d %d %d %d %d %d %d", n = {1, 2, 3, 4, 5, 6, 7})
+	INFO("Param: @%d", n = {1, 2, 3})
 	WARN(0)
 
 	// Mixing numeric and string parameter
@@ -52,7 +52,7 @@ static Function Test1()
 	WARN(0)
 
 	// use special formating for numeric parameter
-	INFO("Param: %.3f %g %.1W0P", n = { 3.1415, 5.01, 1e6 })
+	INFO("Param: %.3f %g %.1W0P", n = {3.1415, 5.01, 1e6})
 	WARN(0)
 
 	// no info is carried over to the next test case

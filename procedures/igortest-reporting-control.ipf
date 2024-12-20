@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Reporting_Control
+#pragma ModuleName=IUTF_Reporting_Control
 
 // This procedure file combines functions that control the output like test suite begin/end or test
 // case begin/end.
@@ -28,17 +28,17 @@ static Function SetupTestRun()
 	endswitch
 	wvTestRun[id][%USERNAME] = IgorInfo(7)
 #endif
-	wvTestRun[id][%NUM_ERROR] = "0"
-	wvTestRun[id][%NUM_SKIPPED] = "0"
-	wvTestRun[id][%NUM_TESTS] = "0"
-	wvTestRun[id][%NUM_ASSERT] = "0"
+	wvTestRun[id][%NUM_ERROR]        = "0"
+	wvTestRun[id][%NUM_SKIPPED]      = "0"
+	wvTestRun[id][%NUM_TESTS]        = "0"
+	wvTestRun[id][%NUM_ASSERT]       = "0"
 	wvTestRun[id][%NUM_ASSERT_ERROR] = "0"
-	wvTestRun[id][%SYSTEMINFO] = IgorInfo(3)
-	wvTestRun[id][%IGORINFO] = IgorInfo(0)
-	wvTestRun[id][%VERSION] = IUTF_Basics#GetVersion()
-	wvTestRun[id][%EXPERIMENT] = IgorInfo(1)
-	wvTestRun[id][%CHILD_START] = "0"
-	wvTestRun[id][%CHILD_END] = "0"
+	wvTestRun[id][%SYSTEMINFO]       = IgorInfo(3)
+	wvTestRun[id][%IGORINFO]         = IgorInfo(0)
+	wvTestRun[id][%VERSION]          = IUTF_Basics#GetVersion()
+	wvTestRun[id][%EXPERIMENT]       = IgorInfo(1)
+	wvTestRun[id][%CHILD_START]      = "0"
+	wvTestRun[id][%CHILD_END]        = "0"
 End
 
 /// @brief Begin a new test run. This test run has to be initialized with SetupTestRun first.
@@ -64,12 +64,12 @@ static Function TestSuiteBegin(testSuite)
 	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
 	id = IUTF_Utils_Vector#AddRow(wvSuite)
 
-	wvSuite[id][%PROCEDURENAME] = testSuite
-	wvSuite[id][%STARTTIME] = IUTF_Reporting#GetTimeString()
-	wvSuite[id][%NUM_ERROR] = "0"
-	wvSuite[id][%NUM_SKIPPED] = "0"
-	wvSuite[id][%NUM_TESTS] = "0"
-	wvSuite[id][%NUM_ASSERT] = "0"
+	wvSuite[id][%PROCEDURENAME]    = testSuite
+	wvSuite[id][%STARTTIME]        = IUTF_Reporting#GetTimeString()
+	wvSuite[id][%NUM_ERROR]        = "0"
+	wvSuite[id][%NUM_SKIPPED]      = "0"
+	wvSuite[id][%NUM_TESTS]        = "0"
+	wvSuite[id][%NUM_ASSERT]       = "0"
 	wvSuite[id][%NUM_ASSERT_ERROR] = "0"
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
@@ -85,10 +85,10 @@ static Function TestSuiteEnd()
 	wvTestSuite[%CURRENT][%ENDTIME] = IUTF_Reporting#GetTimeString()
 
 	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
-	wvTestRun[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]))
+	wvTestRun[%CURRENT][%NUM_ASSERT]       = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]))
 	wvTestRun[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]))
-	wvTestRun[%CURRENT][%NUM_ERROR] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ERROR]))
-	wvTestRun[%CURRENT][%NUM_SKIPPED] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_SKIPPED]) + str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]))
+	wvTestRun[%CURRENT][%NUM_ERROR]        = num2istr(str2num(wvTestRun[%CURRENT][%NUM_ERROR]) + str2num(wvTestSuite[%CURRENT][%NUM_ERROR]))
+	wvTestRun[%CURRENT][%NUM_SKIPPED]      = num2istr(str2num(wvTestRun[%CURRENT][%NUM_SKIPPED]) + str2num(wvTestSuite[%CURRENT][%NUM_SKIPPED]))
 End
 
 /// @brief Begin a new test case.
@@ -97,7 +97,7 @@ End
 /// @param skip      A value different to zero will mark this test case as skipped. No TestCaseEnd()
 ///                  call is required. Setting this to zero will start the test case normally.
 static Function TestCaseBegin(testCase, skip)
-	string testCase
+	string   testCase
 	variable skip
 
 	variable testId
@@ -105,11 +105,11 @@ static Function TestCaseBegin(testCase, skip)
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	testId = IUTF_Utils_Vector#AddRow(wvTestCase)
 
-	wvTestCase[testId][%NAME] = testCase
-	wvTestCase[testId][%STARTTIME] = IUTF_Reporting#GetTimeString()
-	wvTestCase[testId][%NUM_ASSERT] = "0"
+	wvTestCase[testId][%NAME]             = testCase
+	wvTestCase[testId][%STARTTIME]        = IUTF_Reporting#GetTimeString()
+	wvTestCase[testId][%NUM_ASSERT]       = "0"
 	wvTestCase[testId][%NUM_ASSERT_ERROR] = "0"
-	wvTestCase[testId][%STATUS] = IUTF_STATUS_RUNNING
+	wvTestCase[testId][%STATUS]           = IUTF_STATUS_RUNNING
 
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 	IUTF_Reporting#UpdateChildRange(wvTestCase, wvAssertion, init = 1)
@@ -122,11 +122,11 @@ static Function TestCaseBegin(testCase, skip)
 	wvTestRun[%CURRENT][%NUM_TESTS] = num2istr(str2num(wvTestRun[%CURRENT][%NUM_TESTS]) + 1)
 
 	if(skip)
-		wvTestCase[%CURRENT][%STATUS] = IUTF_STATUS_SKIP
-		wvTestCase[%CURRENT][%ENDTIME] = "0"
+		wvTestCase[%CURRENT][%STATUS]    = IUTF_STATUS_SKIP
+		wvTestCase[%CURRENT][%ENDTIME]   = "0"
 		wvTestCase[%CURRENT][%STARTTIME] = "0"
 	else
-		Notebook HistoryCarbonCopy, getData = 1
+		Notebook HistoryCarbonCopy, getData=1
 		wvTestCase[%CURRENT][%STDOUT] = S_Value
 	endif
 End
@@ -168,12 +168,12 @@ static Function TestCaseEnd(endTime)
 			break
 	endswitch
 
-	Notebook HistoryCarbonCopy, getData = 1
+	Notebook HistoryCarbonCopy, getData=1
 	wvTestCase[%CURRENT][%STDOUT] = S_Value[strlen(wvTestCase[%CURRENT][%STDOUT]), Inf]
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
-	wvTestSuite[%CURRENT][%STDOUT] += wvTestCase[%CURRENT][%STDOUT]
-	wvTestSuite[%CURRENT][%STDERR] += wvTestCase[%CURRENT][%STDERR]
-	wvTestSuite[%CURRENT][%NUM_ASSERT] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))
+	wvTestSuite[%CURRENT][%STDOUT]          += wvTestCase[%CURRENT][%STDOUT]
+	wvTestSuite[%CURRENT][%STDERR]          += wvTestCase[%CURRENT][%STDERR]
+	wvTestSuite[%CURRENT][%NUM_ASSERT]       = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT]))
 	wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR] = num2istr(str2num(wvTestSuite[%CURRENT][%NUM_ASSERT_ERROR]) + str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]))
 End

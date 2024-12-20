@@ -9,8 +9,8 @@ static Function/WAVE GetFunctionTagWaves()
 
 	string name = "FunctionTagWaves"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/WAVE wv = dfr:$name
+	DFREF       dfr = GetPackageFolder()
+	WAVE/Z/WAVE wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -26,8 +26,8 @@ End
 static Function/WAVE GetFunctionTagRefs()
 	string name = "FunctionTagRefs"
 
-	DFREF dfr = GetPackageFolder()
-	WAVE/Z/T wv = dfr:$name
+	DFREF    dfr = GetPackageFolder()
+	WAVE/Z/T wv  = dfr:$name
 	if(WaveExists(wv))
 		return wv
 	endif
@@ -44,13 +44,13 @@ static Function AddFunctionTagWave(fullFuncName)
 	variable index
 
 	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	WAVE/T ftagRefs = GetFunctionTagRefs()
-	WAVE/T tags = GetFunctionTagWave(fullFuncName)
+	WAVE/T    ftagRefs  = GetFunctionTagRefs()
+	WAVE/T    tags      = GetFunctionTagWave(fullFuncName)
 	if(!DimSize(tags, UTF_ROW))
 		return NaN
 	endif
 
-	index = IUTF_Utils_Vector#AddRow(ftagRefs)
+	index           = IUTF_Utils_Vector#AddRow(ftagRefs)
 	ftagRefs[index] = fullFuncName
 	IUTF_Utils_Vector#EnsureCapacity(ftagWaves, index)
 	ftagWaves[index] = tags
@@ -84,7 +84,7 @@ static Function HasFunctionTag(funcName, tagName)
 	endif
 
 	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	WAVE tagValues = ftagWaves[funcPos]
+	WAVE      tagValues = ftagWaves[funcPos]
 
 	return (FindDimLabel(tagValues, UTF_ROW, tagName) != -2)
 End
@@ -111,8 +111,8 @@ static Function/S GetFunctionTagValue(funcName, tagName, err)
 		return msg
 	endif
 
-	WAVE/WAVE ftagWaves = GetFunctionTagWaves()
-	WAVE/T tagValueWave = ftagWaves[funcPos]
+	WAVE/WAVE ftagWaves    = GetFunctionTagWaves()
+	WAVE/T    tagValueWave = ftagWaves[funcPos]
 	tagPosition = FindDimLabel(tagValueWave, UTF_ROW, tagName)
 	if(tagPosition == -2)
 		err = UTF_TAG_NOT_FOUND
@@ -191,20 +191,20 @@ static Function/WAVE GetFunctionTagWave(funcName)
 
 	numFound = 0
 
-	funcTextWithContext = ProcedureText(funcName, -1, "[" + GetIndependentModuleName() + "]")
+	funcTextWithContext    = ProcedureText(funcName, -1, "[" + GetIndependentModuleName() + "]")
 	funcTextWithoutContext = ProcedureText(funcName, 0, "[" + GetIndependentModuleName() + "]")
-	funcText = ReplaceString(funcTextWithoutContext, funcTextWithContext, "")
-	numLines = ItemsInList(funcText, "\r")
+	funcText               = ReplaceString(funcTextWithoutContext, funcTextWithContext, "")
+	numLines               = ItemsInList(funcText, "\r")
 
 	Make/FREE/T/N=(numLines) tagValueWave
 
-	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1 )
+	for(i = numLines - 1; numLines > 0 && i >= 0; i -= 1)
 		funcLine = StringFromList(i, funcText, "\r")
 		if(IUTF_Utils#IsEmpty(funcLine))
 			continue
 		endif
 
-		for(j = 0; j < numUniqueTags; j += 1 )
+		for(j = 0; j < numUniqueTags; j += 1)
 			tagName = tag_constants[j]
 			if(!IsTagMatch(tagName, funcLine, tagValue))
 				continue
@@ -217,8 +217,8 @@ static Function/WAVE GetFunctionTagWave(funcName)
 			endif
 
 			if(!CmpStr(tagName, UTF_FTAG_TD_GENERATOR) && ItemsInList(tagValue, ":") == 2)
-				varName = StringFromList(0, tagvalue, ":")
-				tagName = UTF_FTAG_TD_GENERATOR + " " + varName
+				varName    = StringFromList(0, tagvalue, ":")
+				tagName    = UTF_FTAG_TD_GENERATOR + " " + varName
 				allVarList = IUTF_Test_MD_MMD#GetMMDAllVariablesList()
 				if(WhichListItem(varName, allVarList, ";", 0, 0) == -1)
 					sprintf msg, "Test case %s uses an unknown variable name %s in the tag %s.", funcName, varName, tagValue

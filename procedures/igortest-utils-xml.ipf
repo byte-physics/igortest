@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Utils_XML
+#pragma ModuleName=IUTF_Utils_XML
 
 // Helper functions to create XML files.
 
@@ -16,7 +16,7 @@
 /// it is a subtype of xs:string, entity escapes apply here
 /// XML: Reduces a string to a xs:token
 static Function/S ToXMLToken(str)
-	string str
+	string   str
 	variable i
 
 	str = ReplaceString("\n", str, "")

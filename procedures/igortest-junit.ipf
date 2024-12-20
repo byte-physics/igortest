@@ -40,7 +40,7 @@ static Function/S JU_AssertionOut(assertionIndex)
 	variable i, startIndex, endIndex
 
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
-	WAVE/T wvInfo = IUTF_Reporting#GetTestInfoWave()
+	WAVE/T wvInfo      = IUTF_Reporting#GetTestInfoWave()
 
 	if(!CmpStr(IUTF_SEVERITY_WARN, wvAssertion[assertionIndex][%SEVERITY]))
 		// skip JUnit output for warning severity
@@ -48,14 +48,14 @@ static Function/S JU_AssertionOut(assertionIndex)
 	endif
 
 	startIndex = str2num(wvAssertion[assertionIndex][%CHILD_START])
-	endIndex = str2num(wvAssertion[assertionIndex][%CHILD_END])
-	context = ""
+	endIndex   = str2num(wvAssertion[assertionIndex][%CHILD_END])
+	context    = ""
 	for(i = startIndex; i < endIndex; i += 1)
 		context += "\t\t\t\tInfo: " + wvInfo[i][%MESSAGE] + "\n"
 	endfor
 
 	message = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%MESSAGE])
-	type = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%TYPE])
+	type    = IUTF_Utils_XML#ToXMLCharacters(wvAssertion[assertionIndex][%TYPE])
 	// we are outputing everything as error to keep the same behavior as older versions of IUTF
 
 	// strswitch(wvAssertion[i][%TYPE])
@@ -63,9 +63,9 @@ static Function/S JU_AssertionOut(assertionIndex)
 	// 		s += "\t\t\t<failure message=\"" + message + "\" type=\"" + type + "\"></failure>\n"
 	// 		break
 	// 	case IUTF_STATUS_ERROR:
-			out = "\t\t\t<error message=\"" + message + "\" type=\"" + type + "\">\n"
-			out += context
-			out += "\t\t\t</error>\n"
+	out  = "\t\t\t<error message=\"" + message + "\" type=\"" + type + "\">\n"
+	out += context
+	out += "\t\t\t</error>\n"
 	// 		break
 	// 	default:
 	// 		break
@@ -84,11 +84,11 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 	variable skip = 0
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
-	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
+	WAVE/T wvTestCase  = IUTF_Reporting#GetTestCaseWave()
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
 
 	classname = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestCase[testCaseIndex][%NAME]))
-	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	name      = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
 	sprintf name, "%s in %s (%d)", classname, name, testCaseIndex
 	timeTaken = str2num(wvTestCase[testCaseIndex][%ENDTIME]) - str2num(wvTestCase[testCaseIndex][%STARTTIME])
 
@@ -104,7 +104,7 @@ static Function/S JU_CaseToOut(testSuiteIndex, testCaseIndex)
 		out += "\t\t\t<skipped/>\n"
 	else
 		startIndex = str2num(wvTestCase[testCaseIndex][%CHILD_START])
-		endIndex = str2num(wvTestCase[testCaseIndex][%CHILD_END])
+		endIndex   = str2num(wvTestCase[testCaseIndex][%CHILD_END])
 		for(i = startIndex; i < endIndex; i += 1)
 			out += JU_AssertionOut(i)
 		endfor
@@ -150,17 +150,17 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	string package, name, timestamp, hostname, tests, failures, errors, skipped
 	variable i, timeTaken, childStart, childEnd
 
-	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
+	WAVE/T wvTestRun   = IUTF_Reporting#GetTestRunWave()
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 
-	package = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
-	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	package   = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
+	name      = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestSuite[testSuiteIndex][%PROCEDURENAME]))
 	timestamp = JU_GetISO8601TimeStamp(JU_ToAbsoluteTime(wvTestSuite[testSuiteIndex][%STARTTIME]))
-	hostname = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestRun[testRunIndex][%HOSTNAME]))
-	tests = wvTestSuite[testSuiteIndex][%NUM_TESTS]
-	failures = "0" // the number of failures are not tracked right now
-	errors = wvTestSuite[testSuiteIndex][%NUM_ERROR]
-	skipped = wvTestSuite[testSuiteIndex][%NUM_SKIPPED]
+	hostname  = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(wvTestRun[testRunIndex][%HOSTNAME]))
+	tests     = wvTestSuite[testSuiteIndex][%NUM_TESTS]
+	failures  = "0" // the number of failures are not tracked right now
+	errors    = wvTestSuite[testSuiteIndex][%NUM_ERROR]
+	skipped   = wvTestSuite[testSuiteIndex][%NUM_SKIPPED]
 	timeTaken = str2num(wvTestSuite[testSuiteIndex][%ENDTIME]) - str2num(wvTestSuite[testSuiteIndex][%STARTTIME])
 
 	format = "\t<testsuite package=\"%s\" id=\"%d\" name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%s\" failures=\"%s\" errors=\"%s\" skipped=\"%s\" time=\"%.3f\">\n"
@@ -175,7 +175,7 @@ static Function/S JU_ToTestSuiteString(testRunIndex, testSuiteIndex)
 	out += "\t\t</properties>\n"
 
 	childStart = str2num(wvTestSuite[testSuiteIndex][%CHILD_START])
-	childEnd = str2num(wvTestSuite[testSuiteIndex][%CHILD_END])
+	childEnd   = str2num(wvTestSuite[testSuiteIndex][%CHILD_END])
 	for(i = childStart; i < childEnd; i += 1)
 		out += JU_CaseToOut(testSuiteIndex, i)
 	endfor
@@ -201,7 +201,7 @@ static Function/S JU_ToPropertyString(name, value)
 		return ""
 	endif
 
-	name = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(name))
+	name  = IUTF_Utils_XML#ToXMLToken(IUTF_Utils_XML#ToXMLCharacters(name))
 	value = IUTF_Utils_XML#ToXMLCharacters(value)
 	sprintf s, "\t\t\t<property name=\"%s\" value=\"%s\"/>\n", name, value
 
@@ -213,11 +213,11 @@ static Function/S JU_UTF8Filter(str)
 	string str
 
 	string sret
-	variable i,len
+	variable i, len
 
 	sret = ""
-	len = strlen(str)
-	for(i = 0;i < len; i += 1)
+	len  = strlen(str)
+	for(i = 0; i < len; i += 1)
 		if(char2num(str[i]) < 0)
 			sret += "?"
 		else
@@ -234,7 +234,7 @@ static Function JU_WriteOutput()
 
 	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	childStart = str2num(wvTestRun[%CURRENT][%CHILD_START])
-	childEnd = str2num(wvTestRun[%CURRENT][%CHILD_END])
+	childEnd   = str2num(wvTestRun[%CURRENT][%CHILD_END])
 
 	out = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n"
 	for(i = childStart; i < childEnd; i += 1)
@@ -242,7 +242,7 @@ static Function JU_WriteOutput()
 	endfor
 	out += "</testsuites>\n"
 #if (IgorVersion() >= 7.0)
-// UTF-8 support
+	// UTF-8 support
 #else
 	out = JU_UTF8Filter(out)
 #endif

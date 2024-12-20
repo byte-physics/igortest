@@ -1,8 +1,8 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = TEST_Utils_Strings
+#pragma ModuleName=TEST_Utils_Strings
 
 static Function Test_IsPrefix()
 	INFO("Expect \"%s\" is prefix of \"%s\"", s2 = "abcde", s1 = "abcde")

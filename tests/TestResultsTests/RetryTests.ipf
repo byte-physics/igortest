@@ -1,8 +1,8 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma version=1.10
-#pragma ModuleName = TS_RetryTests
+#pragma ModuleName=TS_RetryTests
 
 #include "igortest"
 #include "TestUtils"
@@ -41,7 +41,7 @@ static Function CheckUserHooks()
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	startIndex = str2num(wvTestSuite[%CURRENT][%CHILD_START])
-	endIndex = str2num(wvTestSuite[%CURRENT][%CHILD_END])
+	endIndex   = str2num(wvTestSuite[%CURRENT][%CHILD_END])
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	for(i = startIndex + 1; i < endIndex - 1; i += 1)
@@ -84,7 +84,7 @@ static Function SetupMultiFlaky()
 End
 
 static Function/WAVE GetDG()
-	Make/FREE wv = { 1, 2, 3 }
+	Make/FREE wv = {1, 2, 3}
 	return wv
 End
 
@@ -103,7 +103,7 @@ static Function CheckUserHooksMD()
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	startIndex = str2num(wvTestSuite[%CURRENT][%CHILD_START])
-	endIndex = str2num(wvTestSuite[%CURRENT][%CHILD_END])
+	endIndex   = str2num(wvTestSuite[%CURRENT][%CHILD_END])
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	for(i = startIndex + 1; i < endIndex - 1; i += 1)
@@ -111,15 +111,15 @@ static Function CheckUserHooksMD()
 		strswitch(wvTestCase[i][%NAME])
 			case "TS_RetryTests#UnreliableStatusMD:0":
 				retries0 += 1
-				istc = 1
+				istc      = 1
 				break
 			case "TS_RetryTests#UnreliableStatusMD:1":
 				retries1 += 1
-				istc = 1
+				istc      = 1
 				break
 			case "TS_RetryTests#UnreliableStatusMD:2":
 				retries2 += 1
-				istc = 1
+				istc      = 1
 				break
 		endswitch
 
@@ -150,7 +150,7 @@ End
 // IUTF_TD_GENERATOR v0:GetDG
 // IUTF_TD_GENERATOR v1:GetDG
 static Function UnreliableStatusMMD([m])
-	STRUCT IUTF_mData& m
+	STRUCT IUTF_mData &m
 
 	INFO("MMD: %d,%d", n0 = m.v0, n1 = m.v1)
 	ExecFlaky_IGNORE()
@@ -162,7 +162,7 @@ static Function CheckUserHooksMMD()
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	startIndex = str2num(wvTestSuite[%CURRENT][%CHILD_START])
-	endIndex = str2num(wvTestSuite[%CURRENT][%CHILD_END])
+	endIndex   = str2num(wvTestSuite[%CURRENT][%CHILD_END])
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
 	for(i = startIndex + 1; i < endIndex - 1; i += 1)

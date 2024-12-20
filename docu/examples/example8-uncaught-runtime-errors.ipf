@@ -7,7 +7,7 @@
 
 Function TestWaveOp()
 
-	Wave wv = $""
+	WAVE wv = $""
 	print wv[0]
 	print "This will be printed, even if a RTE occurs."
 
@@ -17,7 +17,7 @@ End
 
 Function CheckForRTEs()
 
-	Wave wv = $""
+	WAVE wv = $""
 	print wv[0]
 	// Check if any RTE occurs. If no RTE exists at this point it will create an assertion error.
 	CHECK_ANY_RTE()

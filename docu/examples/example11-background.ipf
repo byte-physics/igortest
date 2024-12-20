@@ -27,7 +27,7 @@ End
 Function BackgroundTest2()
 
 	CtrlNamedBackGround testtask, proc=Example11#ReEntryTask, period=1, start
-	RegisterIUTFMonitor("testtask", 1, "SecondReentry_REENTRY", timeout=2)
+	RegisterIUTFMonitor("testtask", 1, "SecondReentry_REENTRY", timeout = 2)
 End
 
 // The registered reentry function from BackgroundTest()

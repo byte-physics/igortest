@@ -58,7 +58,7 @@ static Function MDTestCaseWv([wv])
 End
 
 static Function/WAVE tcDataGenDFR()
-	DFREF dfr = NewFreeDataFolder()
+	DFREF    dfr      = NewFreeDataFolder()
 	string/G dfr:data = "Damn it, Steve!"
 	Make/FREE/DF w = {dfr}
 	return w

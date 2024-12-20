@@ -1,8 +1,8 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access
+#pragma DefaultTab={3, 20, 4} // Set default tab width in Igor Pro 9 and later
 #pragma version=1.10
-#pragma ModuleName = Utils
+#pragma ModuleName=Utils
 
 #include "igortest"
 
@@ -11,7 +11,7 @@ static Function/WAVE GetGridRows(wv, y1, y2)
 	variable y1, y2
 
 	variable i
-	string label
+	string   label
 	variable columns = DimSize(wv, UTF_COLUMN)
 
 	if(y1 > y2)
@@ -29,7 +29,7 @@ static Function/WAVE GetGridRows(wv, y1, y2)
 End
 
 static Function/WAVE GetGridRow(wv, y)
-	WAVE/T wv
+	WAVE/T   wv
 	variable y
 
 	WAVE/T result = GetGridRows(wv, y, y + 1)
@@ -47,7 +47,7 @@ End
 /// @param globalSearch  If set different to 0 it will search all in test suites of the current test
 ///                run for the last test case.
 static Function LastTestCaseIndex([tcName, globalSearch])
-	string tcName
+	string   tcName
 	variable globalSearch
 
 	variable index, start, i
@@ -104,7 +104,7 @@ End
 /// @param globalSearch  If set different to 0 it will search all in test suites of the current test
 ///                run for the last test case.
 static Function/WAVE LastTestCase([tcName, globalSearch])
-	string tcName
+	string   tcName
 	variable globalSearch
 
 	variable index
@@ -122,7 +122,7 @@ static Function/WAVE LastTestCase([tcName, globalSearch])
 	endif
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
-	WAVE/T result = GetGridRow(wvTestCase, index)
+	WAVE/T result     = GetGridRow(wvTestCase, index)
 
 	return result
 End
@@ -138,7 +138,7 @@ End
 /// @param globalSearch  If set different to 0 it will search all in test suites of the current test
 ///                run for the last test case.
 static Function/WAVE LastTestCases([tcName, globalSearch])
-	string tcName
+	string   tcName
 	variable globalSearch
 
 	string name, name2
@@ -185,9 +185,9 @@ End
 /// @param tcName  If defined this function will search for the last test case in the current test
 ///                suite with this name. Leaving this parameter undefined keep the normal behavior.
 static Function ExpectTestCaseStatus(status, [offset, tcName])
-	string status
+	string   status
 	variable offset
-	string tcName
+	string   tcName
 
 	string expect, result
 	variable isFailed, numAssertError
@@ -218,14 +218,14 @@ static Function ExpectTestCaseStatus(status, [offset, tcName])
 		return NaN
 	endif
 
-	isFailed = !CmpStr(status, wvTest[tcIndex][%STATUS])
+	isFailed       = !CmpStr(status, wvTest[tcIndex][%STATUS])
 	numAssertError = str2num(wvTest[tcIndex][%NUM_ASSERT_ERROR])
 
-	wvTest[tcIndex][%STATUS] = IUTF_STATUS_SUCCESS
+	wvTest[tcIndex][%STATUS]           = IUTF_STATUS_SUCCESS
 	wvTest[tcIndex][%NUM_ASSERT_ERROR] = "0"
-	wvTest[tcIndex][%STDOUT] = ""
-	wvTest[tcIndex][%STDERR] = ""
-	wvTest[tcIndex][%CHILD_END] = wvTest[tcIndex][%CHILD_START] // trim any assertions
+	wvTest[tcIndex][%STDOUT]           = ""
+	wvTest[tcIndex][%STDERR]           = ""
+	wvTest[tcIndex][%CHILD_END]        = wvTest[tcIndex][%CHILD_START] // trim any assertions
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	if(isFailed)
@@ -242,7 +242,7 @@ static Function/WAVE GetTestAssertions(childStart, childEnd)
 	CHECK_LE_VAR(childStart, childEnd)
 
 	WAVE/T wvAssertion = IUTF_Reporting#GetTestAssertionWave()
-	WAVE/T result = GetGridRows(wvAssertion, childStart, childEnd)
+	WAVE/T result      = GetGridRows(wvAssertion, childStart, childEnd)
 
 	return result
 End

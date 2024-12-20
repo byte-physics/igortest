@@ -1,11 +1,10 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3		// Use modern global access method and strict wave access.
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tap
 
-
-static StrConstant TAP_LINEEND_STR     = "\n"
+static StrConstant TAP_LINEEND_STR = "\n"
 
 /// @brief returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
 ///
@@ -30,7 +29,7 @@ static Function TAP_IsFunctionTodo(funcName)
 	string funcName
 
 	variable err
-	string str
+	string   str
 
 	str = IUTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(!err)
@@ -48,7 +47,7 @@ static Function TAP_IsFunctionSkip(funcName)
 	string funcName
 
 	variable err
-	string str
+	string   str
 
 	str = IUTF_FunctionTags#GetFunctionTagValue(funcName, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err == UTF_TAG_OK)
@@ -79,7 +78,7 @@ static Function/S TAP_GetValidDescription(str)
 	endif
 
 	return str
-end
+End
 
 /// Converts generic diagnostic text to a valid TAP diagnostic text
 static Function/S TAP_ValidDiagnostic(diag)
@@ -112,9 +111,9 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	variable err
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
-	name = wvTestCase[testCaseIndex][%NAME]
+	name        = wvTestCase[testCaseIndex][%NAME]
 	diagnostics = wvTestCase[testCaseIndex][%STDERR]
-	directive = IUTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
+	directive   = IUTF_FunctionTags#GetFunctionTagValue(name, UTF_FTAG_TAP_DIRECTIVE, err)
 	if(err != UTF_TAG_OK)
 		directive = ""
 	endif
@@ -123,7 +122,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 		description = ""
 	endif
 
-	directive = TAP_GetValidDirective(directive)
+	directive   = TAP_GetValidDirective(directive)
 	description = TAP_GetValidDescription(description)
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
@@ -131,17 +130,17 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 
 	strswitch(wvTestCase[testCaseIndex][%STATUS])
 		case IUTF_STATUS_SKIP:
-			ok = "ok"
+			ok          = "ok"
 			diagnostics = ""
 			break
 		case IUTF_STATUS_RETRY:
 		case IUTF_STATUS_SUCCESS:
-			ok = "ok"
+			ok          = "ok"
 			diagnostics = TAP_ValidDiagnostic(diagnostics)
 			break
 		case IUTF_STATUS_ERROR:
 		case IUTF_STATUS_FAIL:
-			ok = "not ok"
+			ok          = "not ok"
 			diagnostics = TAP_ValidDiagnostic(diagnostics)
 			break
 		default:
@@ -151,7 +150,7 @@ static Function/S TAP_ToTestCaseString(testCaseIndex, caseCount)
 	endswitch
 
 	sprintf caseCountStr, "%d", caseCount
-	out = ok + " " + caseCountStr + " - " + prefix + description + directive + TAP_LINEEND_STR
+	out  = ok + " " + caseCountStr + " - " + prefix + description + directive + TAP_LINEEND_STR
 	out += diagnostics
 
 	return out
@@ -165,7 +164,7 @@ End
 ///                          suites. After this function call this parameter is updated to the new
 ///                          number of printed test cases.
 static Function/S TAP_ToSuiteString(testSuiteIndex, caseCount)
-	variable testSuiteIndex
+	variable  testSuiteIndex
 	variable &caseCount
 
 	variable childStart, childEnd, i
@@ -173,10 +172,10 @@ static Function/S TAP_ToSuiteString(testSuiteIndex, caseCount)
 
 	WAVE/T wvTestSuite = IUTF_Reporting#GetTestSuiteWave()
 	childStart = str2num(wvTestSuite[testSuiteIndex][%CHILD_START])
-	childEnd = str2num(wvTestSuite[testSuiteIndex][%CHILD_END])
+	childEnd   = str2num(wvTestSuite[testSuiteIndex][%CHILD_END])
 
 	for(i = childStart; i < childEnd; i += 1)
-		s += TAP_ToTestCaseString(i, caseCount)
+		s         += TAP_ToTestCaseString(i, caseCount)
 		caseCount += 1
 	endfor
 
@@ -200,7 +199,7 @@ static Function TAP_Write()
 
 	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 	childStart = str2num(wvTestRun[%CURRENT][%CHILD_START])
-	childEnd = str2num(wvTestRun[%CURRENT][%CHILD_END])
+	childEnd   = str2num(wvTestRun[%CURRENT][%CHILD_END])
 
 	s = "TAP version 13" + TAP_LINEEND_STR
 

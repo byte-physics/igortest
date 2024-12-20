@@ -1,40 +1,40 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Test_MD
+#pragma ModuleName=IUTF_Test_MD
 
 /// Checks functions signature of each multi data test case candidate
 /// returns 1 if ok, 0 otherwise
 /// when 1 is returned the wave type variable contain the format
 static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
-	string testCase
+	string    testCase
 	variable &wType0
 	variable &wType1
 	variable &wrefSubType
 
-	wType0 = NaN
-	wType1 = NaN
+	wType0      = NaN
+	wType1      = NaN
 	wrefSubType = NaN
 
 #if (IgorVersion() < 7.00)
 	string funcInfo = FunctionInfo(testCase)
-	if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+	if(NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
 		// test cases are required to have only optional parameter.
 		return 0
 	endif
 #endif
 
 	// Check function signature
-	FUNCREF TEST_CASE_PROTO_MD_VAR fTCMDVAR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_STR fTCMDSTR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_DFR fTCMDDFR = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WV fTCMDWV = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WVTEXT fTCMDWVTEXT = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_WVDFREF fTCMDWVDFREF = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_VAR       fTCMDVAR       = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_STR       fTCMDSTR       = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_DFR       fTCMDDFR       = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WV        fTCMDWV        = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WVTEXT    fTCMDWVTEXT    = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_WVDFREF   fTCMDWVDFREF   = $testCase
 	FUNCREF TEST_CASE_PROTO_MD_WVWAVEREF fTCMDWVWAVEREF = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_CMPL fTCMDCMPL = $testCase
-	FUNCREF TEST_CASE_PROTO_MD_INT fTCMDINT = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_CMPL      fTCMDCMPL      = $testCase
+	FUNCREF TEST_CASE_PROTO_MD_INT       fTCMDINT       = $testCase
 	if(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDVAR)))
 		wType0 = 0xff %^ IUTF_WAVETYPE0_CMPL %^ IUTF_WAVETYPE0_INT64
 		wType1 = IUTF_WAVETYPE1_NUM
@@ -45,13 +45,13 @@ static Function GetFunctionSignatureTCMD(testCase, wType0, wType1, wrefSubType)
 	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWV)))
 		wType1 = IUTF_WAVETYPE1_WREF
 	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVTEXT)))
-		wType1 = IUTF_WAVETYPE1_WREF
+		wType1      = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_TEXT
 	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVDFREF)))
-		wType1 = IUTF_WAVETYPE1_WREF
+		wType1      = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_DFR
 	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDWVWAVEREF)))
-		wType1 = IUTF_WAVETYPE1_WREF
+		wType1      = IUTF_WAVETYPE1_WREF
 		wrefSubType = IUTF_WAVETYPE1_WREF
 	elseif(IUTF_FuncRefIsAssigned(FuncRefInfo(fTCMDCMPL)))
 		wType0 = IUTF_WAVETYPE0_CMPL
@@ -110,8 +110,8 @@ End
 /// and its attributed data generator function
 /// Returns 1 on error, 0 on success
 static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
-	string procWin
-	string fullFuncName
+	string    procWin
+	string    fullFuncName
 	variable &markSkip
 
 	variable err, wType1, wType0, wRefSubType
@@ -122,7 +122,7 @@ static Function CheckFunctionSignatureTC(procWin, fullFuncName, markSkip)
 
 	// Require only optional parameter
 	funcInfo = FunctionInfo(fullFuncName)
-	if (NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
+	if(NumberByKey("N_PARAMS", funcInfo) != NumberByKey("N_OPT_PARAMS", funcInfo))
 		return 1
 	endif
 

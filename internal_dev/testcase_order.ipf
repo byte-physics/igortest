@@ -1,5 +1,5 @@
-#pragma TextEncoding = "UTF-8"
-#pragma rtGlobals=3		// Use modern global access method and strict wave access.
+#pragma TextEncoding="UTF-8"
+#pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=SortingTestcases
@@ -69,7 +69,7 @@ static Function TestSixth()
 End
 
 static Function/WAVE tcDataGenDFR()
-	DFREF dfr = NewFreeDataFolder()
+	DFREF    dfr      = NewFreeDataFolder()
 	string/G dfr:data = "Damn it, Steve!"
 	Make/FREE/DF w = {dfr}
 	return w

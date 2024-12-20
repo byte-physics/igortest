@@ -14,7 +14,7 @@ Copyright: 2013 - 2023 All contributors
 License: CC0-1.0
 
 # Configuration
-Files: Readme.md .editorconfig .pre-commit-config.yaml CODEOWNERS ctags.cnf
+Files: Readme.md .editorconfig .pre-commit-config.yaml CODEOWNERS ctags.cnf .git-blame-ignore-revs
        *Dockerfile *Doxyfile
        docu/sphinx/source/conf.py docu/sphinx/source/_templates/*.html */matomo.js
        docu/sphinx/source/_static/custom.css

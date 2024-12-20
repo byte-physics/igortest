@@ -1,16 +1,16 @@
-#pragma rtGlobals = 3
-#pragma TextEncoding = "UTF-8"
-#pragma rtFunctionErrors = 1
+#pragma rtGlobals=3
+#pragma TextEncoding="UTF-8"
+#pragma rtFunctionErrors=1
 #pragma version=1.10
-#pragma ModuleName = IUTF_Hooks
+#pragma ModuleName=IUTF_Hooks
 
 ///@cond HIDDEN_SYMBOL
 
 /// @name Hook execution level
 /// @{
-static Constant HOOK_LEVEL_TEST_RUN = 0
+static Constant HOOK_LEVEL_TEST_RUN   = 0
 static Constant HOOK_LEVEL_TEST_SUITE = 1
-static Constant HOOK_LEVEL_TEST_CASE = 2
+static Constant HOOK_LEVEL_TEST_CASE  = 2
 /// @}
 
 /// Groups all hooks which are executed at test case/suite begin/end
@@ -27,12 +27,12 @@ EndStructure
 static Function InitHooks(s)
 	STRUCT IUTF_TestHooks &s
 
-	s.testBegin = ""
-	s.testEnd = ""
+	s.testBegin      = ""
+	s.testEnd        = ""
 	s.testSuiteBegin = ""
-	s.testSuiteEnd = ""
-	s.testCaseBegin = ""
-	s.testCaseEnd = ""
+	s.testSuiteEnd   = ""
+	s.testCaseBegin  = ""
+	s.testCaseEnd    = ""
 End
 
 /// @brief Execute the provided user hook and catches all runtime errors. If the name of the hook
@@ -77,7 +77,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		userHook(name); AbortOnRTE
 	catch
 		errorMessage = GetRTErrMessage()
-		err = GetRTError(1)
+		err          = GetRTError(1)
 		IUTF_Basics#EvaluateRTE(err, errorMessage, V_AbortCode, hookName, IUTF_USER_HOOK_TYPE, procWin)
 
 		IUTF_Basics#setAbortFlag()
@@ -118,8 +118,8 @@ End
 /// Takes care of correct bracketing of user and builtin functions as well. For
 /// `begin` functions the order is builtin/user and for `end` functions user/builtin.
 static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin, tcIndex, [param])
-	variable hookType
-	Struct IUTF_TestHooks& hooks
+	variable               hookType
+	STRUCT IUTF_TestHooks &hooks
 	variable enableTAP, enableJU
 	string name, procWin
 	variable tcIndex
@@ -213,7 +213,7 @@ End
 /// Internal Setup for Testrun
 /// @param name   name of the test suite group
 static Function TestBegin(name, debugMode)
-	string name
+	string   name
 	variable debugMode
 
 	string msg
@@ -234,13 +234,13 @@ End
 /// Internal Cleanup for Testrun
 /// @param name   name of the test suite group
 static Function TestEnd(name, debugMode)
-	string name
+	string   name
 	variable debugMode
 
 	string msg
 	variable i, index
-	DFREF dfr = GetPackageFolder()
-	WAVE/T wvFailed = IUTF_Reporting#GetFailedProcWave()
+	DFREF  dfr       = GetPackageFolder()
+	WAVE/T wvFailed  = IUTF_Reporting#GetFailedProcWave()
 	WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 
 	if(str2num(wvTestRun[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
@@ -308,7 +308,7 @@ static Function TestCaseBegin(testCase)
 	string msg
 
 	// create a new unique folder as working folder
-	DFREF dfr = GetPackageFolder()
+	DFREF    dfr            = GetPackageFolder()
 	string/G dfr:lastFolder = GetDataFolder(1)
 	SetDataFolder root:
 	string/G dfr:workFolder = "root:" + UniqueName("tempFolder", 11, 0)
@@ -321,7 +321,7 @@ End
 
 /// @brief Called after the test case begin user hook and before the test case function
 static Function BeforeTestCase(name, skip)
-	string name
+	string   name
 	variable skip
 
 #if IgorVersion() >= 9.0
@@ -350,7 +350,7 @@ End
 
 /// @brief Called after the test case and after the test case end user hook
 static Function AfterTestCaseUserHook(name, keepDataFolder)
-	string name
+	string   name
 	variable keepDataFolder
 
 	string msg
@@ -362,7 +362,7 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 	if(SVAR_Exists(lastFolder) && DataFolderExists(lastFolder))
 		SetDataFolder $lastFolder
 	endif
-	if (!keepDataFolder)
+	if(!keepDataFolder)
 		if(SVAR_Exists(workFolder) && DataFolderExists(workFolder))
 			KillDataFolder/Z $workFolder
 		endif
@@ -415,7 +415,7 @@ static Function TestCaseEnd(testCase, tcIndex, endTime)
 	string testCase, endTime
 	variable tcIndex
 
-	string msg
+	string   msg
 	variable oldIndex
 
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
@@ -431,7 +431,7 @@ End
 
 /// @brief Called after the test case and before the test case end user hook
 static Function AfterTestCase(name, skip)
-	string name
+	string   name
 	variable skip
 
 	string msg
@@ -465,7 +465,7 @@ End
 
 /// Sets the hooks to the builtin defaults
 static Function setDefaultHooks(hooks)
-	Struct IUTF_TestHooks &hooks
+	STRUCT IUTF_TestHooks &hooks
 
 	hooks.testBegin      = "TEST_BEGIN"
 	hooks.testEnd        = "TEST_END"
@@ -478,7 +478,7 @@ End
 /// Check that all hook functions, default and override,
 /// have the expected signature and abort if not.
 static Function abortWithInvalidHooks(hooks)
-	Struct IUTF_TestHooks& hooks
+	STRUCT IUTF_TestHooks &hooks
 
 	variable i, numEntries
 	string msg
@@ -509,7 +509,7 @@ End
 /// Looks for global override hooks in the same indpendent module as the framework itself
 /// is running in.
 static Function getGlobalHooks(hooks)
-	Struct IUTF_TestHooks& hooks
+	STRUCT IUTF_TestHooks &hooks
 
 	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:2,WIN:[" + GetIndependentModuleName() + "]")
 
@@ -546,8 +546,8 @@ End
 
 /// Looks for local override hooks in a specific procedure file
 static Function getLocalHooks(hooks, procName)
-	string procName
-	Struct IUTF_TestHooks& hooks
+	string                 procName
+	STRUCT IUTF_TestHooks &hooks
 
 	variable err
 	string userHooks = FunctionList("*_OVERRIDE", ";", "KIND:18,WIN:" + procName)
@@ -581,38 +581,38 @@ End
 
 /// @brief Stores the state of TestHook structure to DF dfr with key as template
 static Function StoreHooks(dfr, s, key)
-	DFREF dfr
+	DFREF                  dfr
 	STRUCT IUTF_TestHooks &s
-	string key
+	string                 key
 
 	key = "S" + key
-	string/G dfr:$(key + "testBegin") = s.testBegin
-	string/G dfr:$(key + "testEnd") = s.testEnd
+	string/G dfr:$(key + "testBegin")      = s.testBegin
+	string/G dfr:$(key + "testEnd")        = s.testEnd
 	string/G dfr:$(key + "testSuiteBegin") = s.testSuiteBegin
-	string/G dfr:$(key + "testSuiteEnd") = s.testSuiteEnd
-	string/G dfr:$(key + "testCaseBegin") = s.testCaseBegin
-	string/G dfr:$(key + "testCaseEnd") = s.testCaseEnd
+	string/G dfr:$(key + "testSuiteEnd")   = s.testSuiteEnd
+	string/G dfr:$(key + "testCaseBegin")  = s.testCaseBegin
+	string/G dfr:$(key + "testCaseEnd")    = s.testCaseEnd
 End
 
 /// @brief Restores the state of TestHook structure from DF dfr with key as template
 static Function RestoreHooks(dfr, s, key)
-	DFREF dfr
+	DFREF                  dfr
 	STRUCT IUTF_TestHooks &s
-	string key
+	string                 key
 
 	key = "S" + key
-	SVAR testBegin = dfr:$(key + "testBegin")
-	SVAR testEnd = dfr:$(key + "testEnd")
+	SVAR testBegin      = dfr:$(key + "testBegin")
+	SVAR testEnd        = dfr:$(key + "testEnd")
 	SVAR testSuiteBegin = dfr:$(key + "testSuiteBegin")
-	SVAR testSuiteEnd = dfr:$(key + "testSuiteEnd")
-	SVAR testCaseBegin = dfr:$(key + "testCaseBegin")
-	SVAR testCaseEnd = dfr:$(key + "testCaseEnd")
-	s.testBegin = testBegin
-	s.testEnd = testEnd
+	SVAR testSuiteEnd   = dfr:$(key + "testSuiteEnd")
+	SVAR testCaseBegin  = dfr:$(key + "testCaseBegin")
+	SVAR testCaseEnd    = dfr:$(key + "testCaseEnd")
+	s.testBegin      = testBegin
+	s.testEnd        = testEnd
 	s.testSuiteBegin = testSuiteBegin
-	s.testSuiteEnd = testSuiteEnd
-	s.testCaseBegin = testCaseBegin
-	s.testCaseEnd = testCaseEnd
+	s.testSuiteEnd   = testSuiteEnd
+	s.testCaseBegin  = testCaseBegin
+	s.testCaseEnd    = testCaseEnd
 End
 
 ///@endcond // HIDDEN_SYMBOL

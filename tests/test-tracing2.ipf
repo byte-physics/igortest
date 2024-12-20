@@ -1,10 +1,12 @@
 #pragma rtGlobals=3
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=TestTracing2
 
 #include "igortest"
+
+// IPT_FORMAT_OFF
 
 #if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
 
@@ -54,3 +56,5 @@ End
 
 
 #endif
+
+// IPT_FORMAT_ON

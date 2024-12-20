@@ -1,9 +1,8 @@
-#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3 // Use modern global access method and strict wave access.
 #pragma rtFunctionErrors=1
 #pragma version=1.10
 #pragma ModuleName=UTF_DebugMode
-
 
 static Function FAILVerification()
 	FAIL() // Helper TC -> Previous TestCase had wrong restored Debugger Settings
@@ -13,8 +12,8 @@ static Function TestAllowDebugOff()
 
 	DebuggerOptions
 
-	V_enable = !!V_enable
-	V_debugOnError = !!V_debugOnError
+	V_enable                  = !!V_enable
+	V_debugOnError            = !!V_debugOnError
 	V_NVAR_SVAR_WAVE_Checking = !!V_NVAR_SVAR_WAVE_Checking
 
 	CHECK_EQUAL_VAR(V_enable, 0)
@@ -26,8 +25,8 @@ static Function TestAllowDebugOn()
 
 	DebuggerOptions
 
-	V_enable = !!V_enable
-	V_debugOnError = !!V_debugOnError
+	V_enable                  = !!V_enable
+	V_debugOnError            = !!V_debugOnError
 	V_NVAR_SVAR_WAVE_Checking = !!V_NVAR_SVAR_WAVE_Checking
 
 	CHECK_EQUAL_VAR(V_enable, 1)
@@ -39,8 +38,8 @@ static Function TestDebugModeEnable()
 
 	DebuggerOptions
 
-	V_enable = !!V_enable
-	V_debugOnError = !!V_debugOnError
+	V_enable                  = !!V_enable
+	V_debugOnError            = !!V_debugOnError
 	V_NVAR_SVAR_WAVE_Checking = !!V_NVAR_SVAR_WAVE_Checking
 
 	CHECK_EQUAL_VAR(V_enable, 1)
@@ -52,8 +51,8 @@ static Function TestDebugModeOnError()
 
 	DebuggerOptions
 
-	V_enable = !!V_enable
-	V_debugOnError = !!V_debugOnError
+	V_enable                  = !!V_enable
+	V_debugOnError            = !!V_debugOnError
 	V_NVAR_SVAR_WAVE_Checking = !!V_NVAR_SVAR_WAVE_Checking
 
 	CHECK_EQUAL_VAR(V_enable, 1)
@@ -65,8 +64,8 @@ static Function TestDebugModeChecking()
 
 	DebuggerOptions
 
-	V_enable = !!V_enable
-	V_debugOnError = !!V_debugOnError
+	V_enable                  = !!V_enable
+	V_debugOnError            = !!V_debugOnError
 	V_NVAR_SVAR_WAVE_Checking = !!V_NVAR_SVAR_WAVE_Checking
 
 	CHECK_EQUAL_VAR(V_enable, 1)
