@@ -277,7 +277,7 @@ deployment_staging:
   script:
     - mv report docu/sphinx/build/html/
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING $FTP_URL
   needs:
     - documentation
     - generate_reports
@@ -298,7 +298,7 @@ deployment:
   script:
     - mv report docu/sphinx/build/html/
     - cd docu/sphinx
-    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
+    - lftp -e "mirror --reverse -n -e build/html /igortest; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS $FTP_URL
   needs:
     - documentation
     - job: testing
