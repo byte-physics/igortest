@@ -4,7 +4,7 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracer
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 
 /// @brief Calls to this function are inserted into code where code coverage is logged.
 ///        These calls are auto generated and contain information about the procedure and line number

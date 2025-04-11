@@ -16,7 +16,7 @@ Function run(procedures, allowDebug, waveTrackingMode)
 	RunTest(procedures, name = "IM Unit Tests", enableJU = 1, enableRegExp = 1, allowDebug = allowDebug, waveTrackingMode = waveTrackingMode)
 End
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 
 Function TEST_END_OVERRIDE(name)
 	string name

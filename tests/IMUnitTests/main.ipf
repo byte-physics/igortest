@@ -23,7 +23,7 @@ Function run()
 
 	string msg
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 
 	// Instrument igortest files and use CallRun2 as test case
 	string traceProcedures = "igortest-(?(?=tracing\\.ipf)|.*)"
@@ -105,7 +105,7 @@ End
 
 Function cleanup()
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 	IUTF_RestoreTracing()
 #endif
 

@@ -1751,7 +1751,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = procWinList
 
 		if(s.tracingEnabled)
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 			if(!CmpStr(traceWinList, IUTF_TRACE_REENTRY_KEYWORD))
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				RestoreState(dfSave, s)
@@ -1779,7 +1779,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			IUTF_Reporting#ReportErrorAndAbort("Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.")
 #endif
 		else
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 			TUFXOP_Init/N="IUTF_Testrun"
 #endif
 		endif
@@ -1973,7 +1973,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					InitAbortFromSkipFlag()
 				endtry
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 				// check if Z_ has stored some errors
 				if(s.tracingEnabled)
 					TUFXOP_GetStorage/Z/Q/N="IUTF_Error" wvAllStorage
@@ -2042,7 +2042,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	ClearReentrytoIUTF()
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 	if(s.htmlCreation)
 		IUTF_Tracing#AnalyzeTracingResult()
 	endif
