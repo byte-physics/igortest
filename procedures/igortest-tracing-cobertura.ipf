@@ -192,7 +192,7 @@ static Function/S GetFunctionReport(string funcName, variable funcStart, variabl
 	variable err, complexity, complexIndex
 
 	complexIndex = FindDimLabel(marker, UTF_COLUMN, "COMPLEX")
-	WaveStats/M=0/Q/Z/RMD=[funcStart, funcEnd - 1][complexIndex, complexIndex] marker
+	WaveStats/M=1/Q/Z/RMD=[funcStart, funcEnd - 1][complexIndex, complexIndex] marker
 	complexity = V_sum
 
 	[linesReport, metrics] = GetLinesReport("\t\t\t\t\t\t\t", funcStart, funcEnd, procIndex, totals, marker)
@@ -236,7 +236,7 @@ static Function/S GetProcedureReport(string procName, string procPath, variable 
 	funcCount = DimSize(procFuncNames, UTF_ROW)
 
 	complexIndex = FindDimLabel(marker, UTF_COLUMN, "COMPLEX")
-	WaveStats/M=0/Q/Z/RMD=[][complexIndex, complexIndex] marker
+	WaveStats/M=1/Q/Z/RMD=[][complexIndex, complexIndex] marker
 	complexity = V_sum
 
 	[linesReport, metrics] = GetLinesReport("\t\t\t\t\t", 0, DimSize(marker, UTF_ROW), procIndex, totals, marker)
