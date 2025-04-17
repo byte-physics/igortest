@@ -4,7 +4,7 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracing
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 
 static StrConstant PROC_BACKUP_ENDING  = ".backup"
 static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"

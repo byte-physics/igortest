@@ -15,7 +15,7 @@ Function run()
 	variable allowDebug = 0
 	string   procedures = ".*Tests\\.ipf"
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"
 #else
 	string traceProcedures = ""
@@ -49,7 +49,7 @@ End
 
 Function cleanup()
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 	IUTF_RestoreTracing()
 #endif
 

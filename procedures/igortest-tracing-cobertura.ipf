@@ -4,7 +4,7 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracing_Cobertura
 
-#if (IgorVersion() >= 9.00) && Exists("TUFXOP_Version") && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
 
 // file size limit to show a warning banner. Some Cobertura consumers like Gitlab have a hardcoded
 // limit after which no cobertura files can no longer be read. The limit for Gitlab is at 10 MB but
@@ -192,7 +192,7 @@ static Function/S GetFunctionReport(string funcName, variable funcStart, variabl
 	variable err, complexity, complexIndex
 
 	complexIndex = FindDimLabel(marker, UTF_COLUMN, "COMPLEX")
-	WaveStats/M=0/Q/Z/RMD=[funcStart, funcEnd - 1][complexIndex, complexIndex] marker
+	WaveStats/M=1/Q/Z/RMD=[funcStart, funcEnd - 1][complexIndex, complexIndex] marker
 	complexity = V_sum
 
 	[linesReport, metrics] = GetLinesReport("\t\t\t\t\t\t\t", funcStart, funcEnd, procIndex, totals, marker)
@@ -236,7 +236,7 @@ static Function/S GetProcedureReport(string procName, string procPath, variable 
 	funcCount = DimSize(procFuncNames, UTF_ROW)
 
 	complexIndex = FindDimLabel(marker, UTF_COLUMN, "COMPLEX")
-	WaveStats/M=0/Q/Z/RMD=[][complexIndex, complexIndex] marker
+	WaveStats/M=1/Q/Z/RMD=[][complexIndex, complexIndex] marker
 	complexity = V_sum
 
 	[linesReport, metrics] = GetLinesReport("\t\t\t\t\t", 0, DimSize(marker, UTF_ROW), procIndex, totals, marker)
