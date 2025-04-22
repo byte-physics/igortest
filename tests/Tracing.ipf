@@ -49,7 +49,7 @@ End
 
 static Function TracingTest2()
 
-	variable numThreads, numProcs, i, numRefLines
+	variable numThreads, numProcs, i
 	variable max_proc_lines = 10000
 
 	TestTracing2#TracingTest()
@@ -61,7 +61,7 @@ static Function TracingTest2()
 	numProcs = DimSize(procNames, UTF_ROW)
 	CHECK_EQUAL_TEXTWAVES(procNames, {"test-tracing2.ipf"})
 
-	Make/FREE/D/N=(max_proc_lines, 3, numProcs) logData
+	Make/FREE=1/D/N=(max_proc_lines, 3, numProcs) logData
 
 	for(i = 0; i < numThreads; i += 1)
 		WAVE/WAVE wrefThread    = wrefMain[i]
@@ -69,15 +69,12 @@ static Function TracingTest2()
 		logdata += logdataThread[p][q][r]
 	endfor
 
-	Make/FREE/D/N=(max_proc_lines) logSimple, logRef
+	Make/FREE=1/N=(max_proc_lines) logSimple
 	logSimple = logData[p][0][0] != 0
 
-	Make/FREE/D logRefGen = {14, 16, 18, 19, 21, 54, 23, 24, 26, 28, 30, 31, 33, 35, 36, 37, 39, 40, 41, 42, 44, 47, 48, 49, 51, 52, 53}
-
-	numRefLines = DimSize(logRefGen, UTF_ROW)
-	for(i = 0; i < numrefLines; i += 1)
-		logRef[logRefGen[i]] = 1
-	endfor
+	WAVE logRef = MarkerFromLines(max_proc_lines,                                                  \
+	                              {25, 27, 29, 30, 32, 34, 35, 37, 39, 41, 42, 44, 46, 47, 48, 50, \
+	                               51, 52, 53, 55, 58, 59, 60, 65})
 
 	CHECK_EQUAL_WAVES(logSimple, logRef)
 
@@ -87,17 +84,28 @@ static Function TracingTest2()
 	// verify instrumentation marker
 	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%INSTR]
 
-	Make/FREE markerRef = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, \
-	                       1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0}
-
+	WAVE/Z markerRef = MarkerFromLines(DimSize(marker, UTF_ROW),                                \
+	                                   {25, 27, 29, 30, 32, 34, 35, 37, 38, 39, 41, 42, 43, 44, \
+	                                    46, 47, 48, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60, 65})
 	CHECK_EQUAL_WAVES(markerValues, markerRef)
 
 	// verify complexity marker
 	Make/FREE=1/N=(DimSize(marker, UTF_ROW)) markerValues = marker[p][%COMPLEX]
 
-	Make/FREE markerRef = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, \
-	                       1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
+	WAVE/Z markerRef = MarkerFromLines(DimSize(marker, UTF_ROW), {25, 32, 37, 41, 42, 46, 51, 56})
 	CHECK_EQUAL_WAVES(markerValues, markerRef)
 End
-#endif
+
+static Function/WAVE MarkerFromLines(variable numLines, WAVE/Z lines)
+
+	variable i
+	variable size = DimSize(lines, UTF_ROW)
+	Make/FREE/N=(numLines) marker
+
+	for(i = 0; i < size; i++)
+		marker[lines] = 1
+	endfor
+
+	return marker
+End
+#endif // UTF_ALLOW_TRACING

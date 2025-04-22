@@ -121,9 +121,11 @@ End
 static Function switchtest()
 
 	switch(1)
+		// cmt
 		case 1:
 			print "case"
 			break
+			// cmt
 		default:
 			print "default"
 			break
