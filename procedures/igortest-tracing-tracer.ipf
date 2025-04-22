@@ -4,7 +4,18 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracer
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
+#ifdef UTF_ALLOW_TRACING
 
 /// @brief Calls to this function are inserted into code where code coverage is logged.
 ///        These calls are auto generated and contain information about the procedure and line number
@@ -91,4 +102,4 @@ threadsafe Function Z_(variable procNum, variable lineNum, [variable c, variable
 
 	return c
 End
-#endif
+#endif // UTF_ALLOW_TRACING

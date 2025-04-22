@@ -6,6 +6,17 @@
 
 #include "igortest"
 
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
 // The setup for Instrumentation in IM are a bit complex because Igor creates a copy of the igortest
 // procedure files when launching an IM and no instrumentation does work after that. It is also a
 // bit tricky to jump right after the instrumentation only process as we need to know that all
@@ -23,7 +34,7 @@ Function run()
 
 	string msg
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 
 	// Instrument igortest files and use CallRun2 as test case
 	string traceProcedures = "igortest-(?(?=tracing\\.ipf)|.*)"
@@ -36,7 +47,7 @@ Function run()
 #else
 	string traceProcedures = ""
 	string tracingOp       = ""
-#endif
+#endif // UTF_ALLOW_TRACING
 
 	// backup and clear autorun state to prevent the first RunTest closing Igor
 	if(GetAutorunMode() == AUTORUN_FULL)
@@ -105,9 +116,9 @@ End
 
 Function cleanup()
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 	IUTF_RestoreTracing()
-#endif
+#endif // UTF_ALLOW_TRACING
 
 End
 

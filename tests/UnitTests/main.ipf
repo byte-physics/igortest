@@ -11,15 +11,26 @@
 #include ":Utils:PathsTests"
 #include ":Utils:StringsTests"
 
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
 Function run()
 	variable allowDebug = 0
 	string   procedures = ".*Tests\\.ipf"
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 	string traceProcedures = "(?:" + procedures + "|igortest-(?(?=tracing\\.ipf)|.*))"
 #else
 	string traceProcedures = ""
-#endif
+#endif // UTF_ALLOW_TRACING
 
 #if IgorVersion() >= 9.00
 	variable waveTrackingMode = UTF_WAVE_TRACKING_ALL
@@ -49,9 +60,9 @@ End
 
 Function cleanup()
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 	IUTF_RestoreTracing()
-#endif
+#endif // UTF_ALLOW_TRACING
 
 End
 

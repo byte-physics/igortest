@@ -4,6 +4,17 @@
 #pragma TextEncoding="UTF-8"
 #pragma ModuleName=IUTF_Basics
 
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
 ///@cond HIDDEN_SYMBOL
 
 static Constant FFNAME_OK        = 0x00
@@ -1751,7 +1762,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		s.procWinList = procWinList
 
 		if(s.tracingEnabled)
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 			if(!CmpStr(traceWinList, IUTF_TRACE_REENTRY_KEYWORD))
 				DFREF dfSave = $PKG_FOLDER_SAVE
 				RestoreState(dfSave, s)
@@ -1777,11 +1788,11 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 #else
 			IUTF_Reporting#ReportErrorAndAbort("Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.")
-#endif
+#endif // UTF_ALLOW_TRACING
 		else
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 			TUFXOP_Init/N="IUTF_Testrun"
-#endif
+#endif // UTF_ALLOW_TRACING
 		endif
 
 		// below here use only s. variables to keep local state in struct
@@ -1973,7 +1984,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					InitAbortFromSkipFlag()
 				endtry
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 				// check if Z_ has stored some errors
 				if(s.tracingEnabled)
 					TUFXOP_GetStorage/Z/Q/N="IUTF_Error" wvAllStorage
@@ -1986,7 +1997,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						endfor
 					endif
 				endif
-#endif
+#endif // UTF_ALLOW_TRACING
 
 			endif
 
@@ -2042,14 +2053,14 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 
 	ClearReentrytoIUTF()
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#ifdef UTF_ALLOW_TRACING
 	if(s.htmlCreation)
 		IUTF_Tracing#AnalyzeTracingResult()
 	endif
 	if(s.cobertura)
 		IUTF_Tracing_Cobertura#PrintReport(s.coberturaSources, s.coberturaOut)
 	endif
-#endif
+#endif // UTF_ALLOW_TRACING
 
 	QuitOnAutoRunFull()
 
