@@ -4,7 +4,18 @@
 #pragma version=1.10
 #pragma ModuleName=TEST_Tracing_Cobertura
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
+#ifdef UTF_ALLOW_TRACING
 
 static Function Test_FilePathToXml()
 	string result, expect
@@ -185,4 +196,4 @@ static Function Test_GetLinesReport_Empty()
 	CHECK_EQUAL_VAR(0, metrics.branchValid)
 End
 
-#endif
+#endif // UTF_ALLOW_TRACING

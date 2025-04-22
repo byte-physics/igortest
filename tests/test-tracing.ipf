@@ -8,7 +8,18 @@
 
 // IPT_FORMAT_OFF
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
+#ifdef UTF_ALLOW_TRACING
 
 // Before Constants
 static Constant NUMCONST = 1
@@ -110,9 +121,11 @@ End
 static Function switchtest()
 
 	switch(1)
+		// cmt
 		case 1:
 			print "case"
 			break
+			// cmt
 		default:
 			print "default"
 			break

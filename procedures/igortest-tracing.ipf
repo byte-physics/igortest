@@ -4,7 +4,18 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_Tracing
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
+#ifdef UTF_ALLOW_TRACING
 
 static StrConstant PROC_BACKUP_ENDING  = ".backup"
 static StrConstant FUNCTION_TAG_PREFIX = "IUTF_TagFunc_"
@@ -20,7 +31,8 @@ static Constant STAT_COVERED = 1
 static StrConstant COMPILER_DIRECTIVE_PATTERN = "^\\s*#.*$"
 
 // The pattern for comments
-static StrConstant COMMENT_PATTERN = "//.*$"
+static StrConstant COMMENT_PATTERN      = "//.*$"
+static StrConstant PURE_COMMENT_PATTERN = "^\\s*//.*$"
 
 // The pattern to find strings in the code line. This pattern consists of the following parts:
 //
@@ -44,6 +56,25 @@ static StrConstant STRING_PATTERN = "(?<=\")(?:[^\"\\\\]|\\\\.)*(?=\")"
 //
 // Remember to escape \ into \\!
 static StrConstant COMPLEX_PATTERN = "(?i)(?:(?<!\\w)(?:Function|if|elseif|while|for|case|SelectString|SelectNumber|catch)(?!\\w)|&&|\\|\\||\\?)"
+
+// This pattern checks for all switch, strswitch or break statements that create a region for which
+// no Z_ function is allowed. The pattern consists of the following constructs:
+//
+// - (?i)(?:  )*()                          Building block for global pattern. The first non capture
+//                                          group is used for exclusion.
+// - (?:[^\"\\r\\n\\/]|\\/[^\\/]|\"(?:[^\"\\\\]|\\\\.)*\")*
+//                                          This is used to prevent matching a keyword in invalid
+//                                          regions. For that we collect all known regions from the
+//                                          start of the line.
+// - [^\"\\r\\n\\/]                         Matches all characters except " (used for strings),
+//                                          / (used for comments) and line terminations
+// - \\/[^\\/]                              Allow a single / if no other / follows it (prevent comments)
+// - \"(?:[^\"\\\\]|\\\\.)*\"               Matches a whole string
+// - ((?:str)?switch|break)                 Matches strswitch, switch and break
+static StrConstant NO_Z_REGION_PATTERN = "(?i)^(?:[^\"\\r\\n\\/]|\\/[^\\/]|\"(?:[^\"\\\\]|\\\\.)*\")*((?:str)?switch|break)"
+
+// Matches a whole line consisting out of only whitespaces.
+static StrConstant SPACE_ONLY_PATTERN = "^\\w*$"
 
 static Function SetupTracing(string procWinList, string traceOptions)
 
@@ -574,6 +605,7 @@ static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(str
 
 	for(i = 0; i < numFunc; i += 1)
 		WAVE/T wFuncText = funcTexts[i]
+		[WAVE exclusionLines] = DetectExcludedLines(wFuncText)
 
 		// Add lines before function
 		preFuncLines = ""
@@ -614,7 +646,7 @@ static Function [WAVE/T w, string funcPath_, WAVE marker_] AddTraceFunctions(str
 			doNextLine      = 0
 			currProcLineNum = currFuncLineNum + funcLineStart[i]
 
-			if(funcExclusionFlag[i])
+			if(funcExclusionFlag[i] || exclusionLines[j])
 				newProcCode += AddNoZ(origLines, lineCnt)
 				continue
 			endif
@@ -779,6 +811,34 @@ static Function/S AddZ(WAVE marker, string &origLines, variable currLineNum, var
 	lineCnt   = 1
 
 	return newCode
+End
+
+static Function [WAVE/Z exclusionLines] DetectExcludedLines(WAVE/T funcText)
+	variable i, noZRegion
+
+	variable lines = DimSize(funcText, UTF_ROW)
+	Make/FREE/N=(lines) exclusionLines
+
+	for(i = 0; i < lines; i++)
+		// detect empty line or one that has only whitespaces
+		if(GrepString(funcText[i], SPACE_ONLY_PATTERN))
+			exclusionLines[i] = 1
+			continue
+		endif
+		// detect lines with compiler directives
+		if(GrepString(funcText[i], COMPILER_DIRECTIVE_PATTERN))
+			exclusionLines[i] = 1
+			continue
+		endif
+		// detect lines with pure comment
+		if(GrepString(funcText[i], PURE_COMMENT_PATTERN))
+			// if we have a no Z_ region we have to exclude this line
+			exclusionLines[i] = noZRegion
+			continue
+		endif
+		// check if we have a new no Z region pattern. If not, we discard any previous settings
+		noZRegion = GrepString(funcText[i], NO_Z_REGION_PATTERN)
+	endfor
 End
 
 /// @brief Parses a line after Function was encountered for declaration names and returns 1 if it is related to the function variable declaration
@@ -1124,4 +1184,4 @@ static Function GetCyclomaticComplexity(string codeLine)
 	return complexity
 End
 
-#endif
+#endif // UTF_ALLOW_TRACING

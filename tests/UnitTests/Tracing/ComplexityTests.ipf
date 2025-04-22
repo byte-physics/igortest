@@ -4,7 +4,18 @@
 #pragma version=1.10
 #pragma ModuleName=TEST_Tracing_Complexity
 
-#if (exists("TUFXOP_Version") && ((IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812) || (IgorVersion() >= 10.00)))
+#undef UTF_ALLOW_TRACING
+#if Exists("TUFXOP_Version")
+
+#if IgorVersion() >= 10.00
+#define UTF_ALLOW_TRACING
+#elif (IgorVersion() >= 9.00) && (NumberByKey("BUILD", IgorInfo(0)) >= 38812)
+#define UTF_ALLOW_TRACING
+#endif
+
+#endif
+
+#ifdef UTF_ALLOW_TRACING
 
 static Function Test_Complexity_Simple()
 	// statements that have no influence into the complexity
@@ -66,4 +77,4 @@ static Function Test_Complexity_Casing()
 	CHECK_EQUAL_VAR(1, IUTF_Tracing#GetCyclomaticComplexity("\tcatcH"))
 End
 
-#endif
+#endif // UTF_ALLOW_TRACING
