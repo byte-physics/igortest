@@ -5,6 +5,7 @@
 #pragma version=1.10
 #pragma ModuleName=UTF_WaveTracking
 
+// IUTF_NO_WAVE_TRACKING
 Function TC_StoreWaveInDatafolder()
 
 	Make/FREE wv
