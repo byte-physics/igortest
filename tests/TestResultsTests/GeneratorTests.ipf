@@ -109,6 +109,7 @@ static Function GeneratorSucceed_Verify([var])
 	CHECK_EQUAL_STR(expect, result)
 End
 
+// IUTF_NO_WAVE_TRACKING
 static Function TestGenAbort()
 	string   errMsg
 	variable errCode
@@ -177,6 +178,7 @@ static Function TestGen2D()
 	CHECK_EQUAL_VAR(1, aborted)
 End
 
+// IUTF_NO_WAVE_TRACKING
 static Function TestGenSignature()
 	string   errMsg
 	variable errCode
