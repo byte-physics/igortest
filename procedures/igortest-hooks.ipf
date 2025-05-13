@@ -72,6 +72,8 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 			return NaN
 	endswitch
 
+	StartWaveTracking(name)
+
 	try
 		IUTF_Basics#ClearRTError()
 		userHook(name); AbortOnRTE
@@ -84,6 +86,8 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 	endtry
 
 	endTime = IUTF_Reporting#GetTimeString()
+
+	FinishWaveTracking(name)
 
 	switch(level)
 		case HOOK_LEVEL_TEST_RUN:
@@ -326,21 +330,7 @@ static Function BeforeTestCase(name, skip)
 
 #if IgorVersion() >= 9.0
 	if(!skip)
-		DFREF dfr = GetPackageFolder()
-		NVAR/SDFR=dfr/Z waveTrackingMode
-
-		if(NVAR_Exists(waveTrackingMode))
-			WaveTracking/LOCL stop
-			WaveTracking/FREE stop
-			if(!IUTF_FunctionTags#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
-				if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
-					WaveTracking/FREE counter
-				endif
-				if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
-					WaveTracking/LOCL counter
-				endif
-			endif
-		endif
+		StartWaveTracking(name)
 	endif
 #endif
 
@@ -367,46 +357,6 @@ static Function AfterTestCaseUserHook(name, keepDataFolder)
 			KillDataFolder/Z $workFolder
 		endif
 	endif
-
-#if IgorVersion() >= 9.0
-	DFREF dfr = GetPackageFolder()
-	NVAR/SDFR=dfr waveTrackingMode
-
-	if(NVAR_Exists(waveTrackingMode))
-		if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
-			WaveTracking/LOCL count
-			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
-				if(V_numWaves)
-					sprintf msg, "Local wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					IUTF_Reporting#TestCaseFail(msg)
-				endif
-				WaveTracking/LOCL stop
-			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
-				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
-				// Most likely the user has used a tag to opt out this test case for wave tracking.
-				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
-				IUTF_Reporting#TestCaseFail(msg)
-			endif
-		endif
-
-		if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
-			WaveTracking/FREE count
-			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
-				if(V_numWaves)
-					sprintf msg, "Free wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
-					IUTF_Reporting#TestCaseFail(msg)
-				endif
-				WaveTracking/FREE stop
-			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
-				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
-				// Most likely the user has used a tag to opt out this test case for wave tracking.
-				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
-				IUTF_Reporting#TestCaseFail(msg)
-			endif
-		endif
-	endif
-#endif
-
 End
 
 /// Internal Cleanup for Test Case
@@ -443,6 +393,8 @@ static Function AfterTestCase(name, skip)
 	if(skip)
 		return NaN
 	endif
+
+	FinishWaveTracking(name)
 
 	if(IsExpectedFailure())
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
@@ -613,6 +565,73 @@ static Function RestoreHooks(dfr, s, key)
 	s.testSuiteEnd   = testSuiteEnd
 	s.testCaseBegin  = testCaseBegin
 	s.testCaseEnd    = testCaseEnd
+End
+
+static Function StartWaveTracking(name)
+	string name
+
+#if IgorVersion() >= 9.0
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr/Z waveTrackingMode
+
+	if(NVAR_Exists(waveTrackingMode))
+		WaveTracking/LOCL stop
+		WaveTracking/FREE stop
+		if(!IUTF_FunctionTags#HasFunctionTag(name, UTF_FTAG_NO_WAVE_TRACKING))
+			if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
+				WaveTracking/FREE counter
+			endif
+			if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
+				WaveTracking/LOCL counter
+			endif
+		endif
+	endif
+#endif
+End
+
+static Function FinishWaveTracking(name)
+	string name
+
+	string msg
+
+#if IgorVersion() >= 9.0
+	DFREF dfr = GetPackageFolder()
+	NVAR/SDFR=dfr waveTrackingMode
+
+	if(NVAR_Exists(waveTrackingMode))
+		if((waveTrackingMode & UTF_WAVE_TRACKING_LOCAL) == UTF_WAVE_TRACKING_LOCAL)
+			WaveTracking/LOCL count
+			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
+				if(V_numWaves)
+					sprintf msg, "Local wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
+					IUTF_Reporting#TestCaseFail(msg)
+				endif
+				WaveTracking/LOCL stop
+			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
+				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
+				// Most likely the user has used a tag to opt out this test case for wave tracking.
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
+				IUTF_Reporting#TestCaseFail(msg)
+			endif
+		endif
+
+		if((waveTrackingMode & UTF_WAVE_TRACKING_FREE) == UTF_WAVE_TRACKING_FREE)
+			WaveTracking/FREE count
+			if(V_Flag == IUTF_WVTRACK_COUNT_MODE)
+				if(V_numWaves)
+					sprintf msg, "Free wave leak detected (leaked waves: %d) in \"%s\"", V_numWaves, name
+					IUTF_Reporting#TestCaseFail(msg)
+				endif
+				WaveTracking/FREE stop
+			elseif(V_Flag != IUTF_WVTRACK_INACTIVE_MODE)
+				// do nothing for IUTF_WVTRACK_INACTIVE_MODE.
+				// Most likely the user has used a tag to opt out this test case for wave tracking.
+				sprintf msg, "Test case \"%s\" modified WaveTracking mode to %d. IUTF can not track at the same time.", name, V_Flag
+				IUTF_Reporting#TestCaseFail(msg)
+			endif
+		endif
+	endif
+#endif
 End
 
 ///@endcond // HIDDEN_SYMBOL

@@ -14,6 +14,7 @@
 
 // These tests the execution of the test case order
 
+// IUTF_NO_WAVE_TRACKING
 static Function TestDefaultTestCaseOrder()
 
 	string   procNames = "TestOrderTestsA.ipf;TestOrderTestsC.ipf;TestOrderTestsB.ipf;"
