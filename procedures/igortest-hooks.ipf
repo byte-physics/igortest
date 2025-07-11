@@ -37,11 +37,13 @@ End
 
 /// @brief Execute the provided user hook and catches all runtime errors. If the name of the hook
 /// function doesn't end in "_OVERRIDE" this hook will be considered as prototype and won't be
-/// executed. The return is still 0 as if no error happened.
+/// executed.
 ///
 /// @param name      name of the test run/suite/case
 /// @param userHook  the function reference to the user hook
 /// @param procWIn   name of the procedure window
+/// @return          Returns 1 if a user hook was executed and 0 if no user hook exists or an
+///                  invalid configuration was found.
 static Function ExecuteUserHook(name, userHook, procWin, level)
 	FUNCREF USER_HOOK_PROTO userHook
 	string name, procWin
@@ -52,7 +54,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 	string hookName = StringByKey("Name", FuncRefInfo(userHook))
 
 	if(!StringMatch(hookName, "*_OVERRIDE"))
-		return NaN
+		return 0
 	endif
 
 	switch(level)
@@ -69,7 +71,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
 			IUTF_Reporting#ReportErrorAndAbort(errorMessage)
-			return NaN
+			return 0
 	endswitch
 
 	StartWaveTracking(name)
@@ -103,8 +105,10 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 		default:
 			sprintf errorMessage, "Unknown hook level: %d", level
 			IUTF_Reporting#ReportErrorAndAbort(errorMessage)
-			return NaN
+			return 0
 	endswitch
+
+	return 1
 End
 
 /// @brief Execute the builtin and user hooks
