@@ -74,8 +74,6 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 			return 0
 	endswitch
 
-	StartWaveTracking(name)
-
 	try
 		IUTF_Basics#ClearRTError()
 		userHook(name); AbortOnRTE
@@ -89,8 +87,6 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 
 	endTime = IUTF_Reporting#GetTimeString()
 
-	FinishWaveTracking(name)
-
 	switch(level)
 		case HOOK_LEVEL_TEST_RUN:
 			IUTF_Reporting_Control#TestCaseEnd(endTime)
@@ -100,6 +96,7 @@ static Function ExecuteUserHook(name, userHook, procWin, level)
 			IUTF_Reporting_Control#TestCaseEnd(endTime)
 			break
 		case HOOK_LEVEL_TEST_CASE:
+			FinishWaveTracking(name)
 			IUTF_Reporting_Control#TestCaseEnd(endTime)
 			break
 		default:
@@ -133,7 +130,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 	variable tcIndex
 	variable param
 
-	variable err, skip, tcOutIndex
+	variable err, skip, tcOutIndex, hookExecuted
 	string errorMessage, hookName, endTime
 
 	WAVE/T testRunData = IUTF_Basics#GetTestRunData()
@@ -163,6 +160,7 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 
 			if(!skip)
 				TestCaseBegin(name)
+				StartWaveTracking(name)
 				ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
 			endif
 			BeforeTestCase(name, skip)
@@ -180,7 +178,10 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 
 			if(!skip)
 				FUNCREF USER_HOOK_PROTO userHook = $hooks.testCaseEnd
-				ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
+				hookExecuted = ExecuteUserHook(name, userHook, procWin, HOOK_LEVEL_TEST_CASE)
+				if(!hookExecuted)
+					FinishWaveTracking(name)
+				endif
 			endif
 			AfterTestCaseUserHook(name, param)
 
@@ -332,12 +333,6 @@ static Function BeforeTestCase(name, skip)
 	string   name
 	variable skip
 
-#if IgorVersion() >= 9.0
-	if(!skip)
-		StartWaveTracking(name)
-	endif
-#endif
-
 	IUTF_Reporting_Control#TestCaseBegin(name, skip)
 
 End
@@ -397,8 +392,6 @@ static Function AfterTestCase(name, skip)
 	if(skip)
 		return NaN
 	endif
-
-	FinishWaveTracking(name)
 
 	if(IsExpectedFailure())
 		if(str2num(wvTestCase[%CURRENT][%NUM_ASSERT_ERROR]) == 0)
