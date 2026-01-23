@@ -453,15 +453,14 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 				IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 				break
 			default:
+				if(abortCode != 0)
+					sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
+					IUTF_Reporting#AddFailedSummaryInfo(str)
+					IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+				endif
 				break
 		endswitch
 		message += str
-		if(abortCode > 0)
-			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
-			IUTF_Reporting#AddFailedSummaryInfo(str)
-			IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-			message += str
-		endif
 	endif
 
 	IUTF_Reporting#ReportError(message, incrGlobalErrorCounter = 0)
