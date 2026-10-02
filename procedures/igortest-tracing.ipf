@@ -961,6 +961,10 @@ static Function/S GetLineEnding(string line, [string defEndL])
 	for(i = 0; i < len && e < 2; i += 1)
 		c = char2num(line[i])
 		if(c == 0x0D || c == 0x0A)
+			if(e == 1 && char2num(endL[0]) == c)
+				// a second identical character is an empty line and not part of the line ending
+				break
+			endif
 			endL[Inf] = line[i]
 			e        += 1
 		else
@@ -970,7 +974,7 @@ static Function/S GetLineEnding(string line, [string defEndL])
 		endif
 	endfor
 
-	if(IUTF_Utils#IsEmpty(line))
+	if(IUTF_Utils#IsEmpty(endL))
 		if(!ParamIsDefault(defEndL))
 			return defEndl
 		endif

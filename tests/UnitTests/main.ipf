@@ -8,6 +8,7 @@
 #include ":Reporting:WarnTests"
 #include ":Tracing:CoberturaTests"
 #include ":Tracing:ComplexityTests"
+#include ":Tracing:LineEndingTests"
 #include ":Utils:PathsTests"
 #include ":Utils:StringsTests"
 
