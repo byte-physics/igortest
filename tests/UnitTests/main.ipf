@@ -11,6 +11,7 @@
 #include ":Tracing:LineEndingTests"
 #include ":Utils:PathsTests"
 #include ":Utils:StringsTests"
+#include ":Utils:AbortedTests"
 
 #undef UTF_ALLOW_TRACING
 #if Exists("TUFXOP_Version")
