@@ -15,6 +15,7 @@ Unreleased
   framework error.
 - Add :cpp:func:`SKIP_TESTCASE` and :cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`, which stop the current test case
   without cancelling the test run
+- Add the autorun batch scripts for Igor Pro 9, for the 32-bit and the 64-bit executable
 
 1.10 (03/30/2023)
 -----------------
