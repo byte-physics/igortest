@@ -1613,6 +1613,14 @@ End
 ///                         IUTF_SHUFFLE_ALL: A combination of IUTF_SHUFFLE_TEST_SUITES and IUTF_SHUFFLE_TEST_CASES
 ///
 /// @return                 total number of errors
+///                         Returns NaN if the test run could not be started, for example when the experiment is not
+///                         saved although JUNIT, TAP or code coverage output was requested, when the list of procedure
+///                         windows is empty or invalid, when no test case matches the given pattern, or when the test
+///                         setup is rejected. NaN is also returned when only the instrumentation for the code coverage
+///                         was requested.
+///                         Returns RUNTEST_RET_BCKG (-1) when the run was suspended because of registered background
+///                         activity and is continued on reentry. That value is not an error count and must not be
+///                         mistaken for one.
 Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode, retry, retryMaxCount, shuffle])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
