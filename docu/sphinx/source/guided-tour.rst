@@ -110,7 +110,7 @@ example we have named the procedure window :code:`"test0"`.
 
    •RunTest("test0")
      Start of test "Unnamed"
-     Entering test suite "Unnamed"
+     Entering test suite "test0"
      Entering test case "testDiameter"
      Leaving test case "testDiameter"
      Finished with no errors
@@ -154,19 +154,19 @@ The output of :cpp:func:`RunTest` will now include a warning assertion without
 failing the test case:
 
 .. code-block:: console
-   :emphasize-lines: 6,7,9
+   :emphasize-lines: 5,6,8
 
    •RunTest("test0")
      Start of test "Unnamed"
-     Entering test suite "Unnamed"
+     Entering test suite "test0"
      Entering test case "testDiameter"
-     Entering test case "testDiameter"
-     0.757368 ~ 0.757345 with strong check and tol 1e-07: is false
-     Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in line 11, procedure "test0"
+     0.7573676512581874 ~ 0.7573453 with strong check and tol 1e-07: is false.
+     Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in testDiameter (test0, line 11)
      Leaving test case "testDiameter"
      Finished with no errors
      Leaving test suite "test0"
      Test finished with no errors
+       ▶ Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in testDiameter (test0, line 11)
      End of test "Unnamed"
 
 If the program should be extended to a higher level of accuracy, this warning
