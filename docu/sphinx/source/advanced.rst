@@ -200,7 +200,11 @@ Steps to do that include:
   one of the batch files from the `helper folder
   <https://github.com/byte-physics/igortest/tree/main/helper>`__ into its own
   folder. They are named after the Igor Pro version and the architecture they
-  start, for example ``autorun-test-IP8-64bit.bat``.
+  start, for example ``autorun-test-IP8-64bit.bat``. Scripts are provided for
+  Igor Pro 6 (32-bit only) and for Igor Pro 7, 8 and 9 (both architectures). A
+  script only starts if its ``IgorPath`` exists and names that path otherwise, so
+  for a version without a script, or an installation in a non-default folder, copy
+  the closest script and adjust ``IgorPath``.
 
 - Run that batch file.
 
@@ -209,6 +213,9 @@ Steps to do that include:
 The example batch files for autorun create a file named `DO_AUTORUN.TXT` before
 starting Igor Pro. This enables autorun mode. After the `run()` function is
 executed and returned the log is saved in a file on disk and Igor Pro quits.
+The scripts for Igor Pro 9 and later also start Igor Pro with `/UNATTENDED`,
+which suppresses interactions that would block an unattended run, for example
+the About Autosave dialog.
 
 A different autorun mode is enabled if the file is named
 `DO_AUTORUN_PLAIN.TXT`. In this mode no log file is saved after the test
