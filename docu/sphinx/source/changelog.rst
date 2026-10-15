@@ -14,6 +14,8 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
   Although the old main procedure file ``unit-testing.ipf`` still exists, users are advised to switch to
   ``igortest.ipf``. This change is fully backward compatible as all, now deprecated, names are kept until the next
   major release.
+- Rename all function tags to the ``IUTF_`` prefix, for example ``UTF_SKIP`` to ``IUTF_SKIP``. Tags with the old
+  ``UTF_`` prefix are still recognised and are deprecated, they will be removed with the next major release.
 - Add a flag to allow shuffling the test suite and test case order, see :ref:`here <shuffle_test_case_order>`
 - Fix the order of test case execution: IUTF now always executes the test cases from the same test suite together
 - Add support for rerunning "flaky" tests on failure, see :ref:`here <flaky_tests>`
@@ -30,7 +32,7 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
 - Be stricter when checking for compatible reentry functions (Igor Pro 6 only)
 - Skip test case end user hook as well if the test case was skipped
 - Skip test suite end hook when we did not call the test suite begin hook at all
-- Require that test cases marked as ``UTF_EXPECTED_FAILURE`` have failing test assertions
+- Require that test cases marked as ``IUTF_EXPECTED_FAILURE`` have failing test assertions
 - Fix ``UTF_FTAG_TAP_DIRECTIVE``/``UTF_FTAG_TAP_DESCRIPTION`` in Igor Pro 9 due to now illegal characters in dimension
   labels
 - Completely revise Readme.md
