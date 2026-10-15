@@ -197,9 +197,12 @@ Steps to do that include:
   :cpp:func:`RunTest`.
 
 - Put the test experiment together with your :ref:`Test Suites<TestSuite>` and
-  the script `helper/autorun-test.bat` into its own folder.
+  one of the batch files from the `helper folder
+  <https://github.com/byte-physics/igortest/tree/main/helper>`__ into its own
+  folder. They are named after the Igor Pro version and the architecture they
+  start, for example ``autorun-test-IP8-64bit.bat``.
 
-- Run the batch file `autorun-test.bat`.
+- Run that batch file.
 
 - Inspect the created log file.
 
@@ -567,12 +570,16 @@ Before the actual tests are executed the given procedure files are modified on d
 The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
 The coverage results are output as HTML files in the experiments folder for each procedure file in the form:
 
-..
-   To create htmloutput.txt run the tests from Various.pxp. Then a file test-tracing2.htm is created in the folder of the experiment file.
-   For htmloutput.txt the content from the first function Workload is taken and from the second function TracingTest the first
-   Make/MultiThread block as well as the second if block with if/elseif/else/endif.
-
 .. literalinclude:: htmloutput.txt
+
+.. note::
+   The listing above is a checked-in snapshot, not something the documentation
+   build generates. It comes from ``test-tracing2.htm``, which the test suite in
+   ``tests/Various.pxp`` writes next to the experiment file when tracing is
+   enabled for ``test-tracing2.ipf``. From that file it shows the ``Workload``
+   function and, from ``TracingTest``, the first ``Make/MultiThread`` block plus
+   the second ``if`` block with ``if``/``elseif``/``else``/``endif``. To refresh
+   it, run that test suite with tracing enabled and copy those parts over.
 
 The code is prefixed with three columns where the number in the first column is the count how many times the line was executed.
 In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
