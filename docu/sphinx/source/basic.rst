@@ -109,7 +109,8 @@ test case fails.
 
    Function tags written with the deprecated ``UTF_`` prefix, for example
    ``UTF_EXPECTED_FAILURE``, are still recognised for backward compatibility.
-   They will be removed with the next major release.
+   They will be removed with the next major release. See :ref:`function_tags`
+   for the complete list of function tags.
 
 
 Example:
