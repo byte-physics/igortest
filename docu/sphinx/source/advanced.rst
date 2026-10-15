@@ -524,10 +524,18 @@ signature.
 Code Coverage Determination
 ---------------------------
 
-When running Igor Pro 9 or newer the Igor Pro Universal Testing Framework offers
-the feature to obtain code coverage information. When enabled the IUTF adds to
-functions in target procedure files code to track execution. At the end of the
-test run the IUTF outputs files in HTML format with coverage information.
+The Igor Pro Universal Testing Framework offers code coverage determination with
+Igor Pro 9 build 38812 or newer, and only when the Thread Utilities XOP is
+installed. The XOP is part of this framework and located in the ``xop`` folder;
+it has to be copied into the ``Igor Extensions`` folder of your Igor Pro user
+folder. Without the XOP, or with an older Igor Pro, enabling tracing aborts the
+run::
+
+   Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.
+
+When enabled the IUTF adds to functions in target procedure files code to track
+execution. At the end of the test run the IUTF outputs files in HTML format with
+coverage information.
 
 This feature is enabled when the optional parameter ``traceWinList`` is set and non-empty when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
@@ -574,6 +582,11 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// IUTF_NOINSTRUMENTATION`` before the first line of the function.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
+Procedure files with 10 000 lines or more cannot be instrumented. The run is
+aborted during the instrumentation step with::
+
+   Procedure file <name> has too many lines. (Current limit 10000)
+
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
 For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
 appear in the coverage result file with zero executions.
@@ -590,7 +603,10 @@ procedure file changes to disk before running a test with code coverage logging.
 
 At the end of a run with code coverage determination Igor Pro outputs the global coverage to stdout in the form ``Coverage: 12.3%``.
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
-``(?:^Coverage: )(\d+.\d+)(?:%$)``.
+``(?:^Coverage: )(\d+\.\d+)(?:%$)``.
+The coverage figure is reported in the same output entry as the covered and the
+total line count, so the anchors of that expression only work when the matching
+is done in multiline mode.
 
 After the test run the user can call ``IUTF_RestoreTracing()`` to restore the
 instrumented procedure files back to their original version. It is recommended

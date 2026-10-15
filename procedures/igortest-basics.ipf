@@ -1559,8 +1559,9 @@ End
 ///                         produced data.
 ///
 /// @param   traceWinList   (optional) default ""
-///                         A list of windows where execution gets traced. The universal testing framework saves a RTF document
-///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
+///                         A list of windows where execution gets traced. The universal testing framework saves an HTML document
+///                         for each traced procedure file. Code coverage determination requires Igor Pro 9 build 38812 or newer
+///                         and the Thread Utilities XOP. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
 ///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///

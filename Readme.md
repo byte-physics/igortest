@@ -56,6 +56,11 @@ and an [introduction](https://docs.byte-physics.de/igortest/basic.html) to the b
 
 Igor Pro version 6.37 or newer on Windows and MacOSX
 
+Code coverage determination additionally requires Igor Pro 9 build 38812 or
+newer and the Thread Utilities XOP. The XOP is part of this repository in the
+`xop` folder and has to be copied into the `Igor Extensions` folder of the Igor
+Pro user folder.
+
 ## Installation
 
 1. Download the zip file attached to the newest
