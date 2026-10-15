@@ -20,6 +20,10 @@ IUTF examines the comment block above the ``Function`` keyword. That block
 extends back to the end of the previous function, so it can be of any length;
 blank lines inside it are ignored. Every tag needs a line of its own.
 
+The first function of a procedure window has no preceding one, so its block
+reaches the top of the window: a tag in the file header belongs to that
+function.
+
 A tag line consists of at least two slashes, the tag name, and optionally a
 colon followed by the value::
 
