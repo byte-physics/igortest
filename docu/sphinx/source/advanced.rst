@@ -295,9 +295,12 @@ Function definition of RegisterIUTFMonitor
 The function that is registered to continue the test execution must have the
 same format as a test case function and the name has to end with `_REENTRY`.
 When the universal testing framework temporary drops to Igors command line and
-resumes later no begin/end hooks are executed. Logically the universal testing
-frame work stays in the same test case. It is allowed to register another
-monitoring in the `_REENTRY` function.
+resumes later the test case BEGIN hooks are not executed again. The test case END
+hooks are not executed at that point either, but they do run once the test case
+really ends, that is after the `_REENTRY` function returned and no further
+monitor is registered. Logically the universal testing framework stays in the
+same test case. It is allowed to register another monitoring in the `_REENTRY`
+function.
 
 Multiple subsequent calls to :cpp:func:`RegisterIUTFMonitor()` in the same
 function overwrite the previous registration.

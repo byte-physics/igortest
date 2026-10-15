@@ -1328,7 +1328,9 @@ End
 ///
 /// @param   reentryFunc   Name of the function that the universal testing framework calls when the monitored background tasks finished.
 ///                        The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
-///                        The reentry function *continues* the current test case therefore no hooks are called.
+///                        The reentry function *continues* the current test case, therefore its BEGIN hooks are
+///                        not called again. Its END hooks are skipped while the framework drops to the command
+///                        prompt as well, but they run once the test case really ends.
 ///
 /// @param   timeout       (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
 ///                        A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
