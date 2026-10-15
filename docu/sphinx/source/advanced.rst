@@ -217,6 +217,8 @@ Queue.
 
 See also :ref:`example6`.
 
+.. _independent_module:
+
 Running in an Independent Module
 --------------------------------
 
@@ -756,6 +758,50 @@ iteration with the same arguments and not all previous runs.
       // perform the real test
       // ...
    End
+
+.. _selecting_test_suites:
+
+Selecting test suites and test cases
+------------------------------------
+
+The first parameter of :cpp:func:`RunTest` is a semicolon (``;``) separated list
+of procedure window names, and the optional parameter ``testCase`` is such a list
+of test case function names. With the optional parameter ``enableRegExp`` set to
+one, each of the two takes *one* regular expression instead of a list.
+
+The framework matches that expression as ``^(?i)<expression>$`` against the
+complete procedure window names. Three consequences follow, and none of them can
+be guessed:
+
+- the expression has to cover the whole name, including the ``.ipf`` extension;
+- matching is case-insensitive;
+- the expression uses Igor Pro's own regular expression syntax, in which ``*`` is
+  a quantifier and not a shell wildcard. "Everything starting with
+  ``UTF_Upgrade``" is ``UTF_Upgrade.*``, not ``UTF_Upgrade*``.
+
+.. code-block:: igor
+
+   // runs UTF_UpgradeDataFolderLocation.ipf and UTF_UpgradeWaveLocationAndGetIt.ipf
+   RunTest("UTF_Upgrade.*", enableRegExp = 1)
+
+   // runs nothing: "UTF_Upgrad" followed by zero or more "e" matches no window
+   RunTest("UTF_Upgrade*", enableRegExp = 1)
+
+A pattern matching nothing is reported on the history and :cpp:func:`RunTest`
+returns without executing anything:
+
+.. code-block:: text
+
+   Error: A procedure window matching the pattern "^(?i)UTF_Upgrade*$" could not be found.
+   Error: The list of procedure windows is empty or invalid.
+
+The ``testCase`` expression must not contain a semicolon, as that character
+separates the list entries whenever ``enableRegExp`` is zero.
+
+When the framework runs inside an :ref:`independent module <independent_module>`,
+the names it matches against carry the module suffix
+(``<name>.ipf [<module name>]``). The framework appends that part to your
+expression itself, so you write only the file name part.
 
 .. _shuffle_test_case_order:
 

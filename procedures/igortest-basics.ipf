@@ -565,6 +565,8 @@ End
 /// @param[in]  matchStr    * List of test cases, separated by ";" (enableRegExp = 0)
 ///                         * *one* regular expression without ";" (enableRegExp = 1)
 /// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
+///                         The regular expression is wrapped as "^(?i)<matchStr>$" and
+///                         matched case-insensitively against the complete names.
 /// @param[out] errMsg error message in case of error
 /// @param[in]  enableTAP   Specify if TAP output is enabled or not
 /// @param[in]  debugMode   The current debug mode
@@ -1495,6 +1497,8 @@ End
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n The procedure name must not include Independent Module specifications.
 ///                         @n This parameter can be given as a regular expression with enableRegExp set to 1.
+///                         @n The expression is matched case-insensitively against the *whole*
+///                         @n procedure window name, including the ".ipf" extension. See enableRegExp.
 ///
 /// @param   name           (optional) default "Unnamed" @n
 ///                         descriptive name for the executed test suites. This can be
@@ -1505,6 +1509,7 @@ End
 ///                         executed in the given list of test suites (procWinList).
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n This parameter can be treated as a regular expression with enableRegExp set to 1.
+///                         @n A regular expression must not contain ";".
 ///
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
@@ -1523,6 +1528,11 @@ End
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
 ///                         The input for test suites (procWinList) and test cases (testCase) is
 ///                         treated as a regular expression.
+///                         @n The framework wraps your expression as ``^(?i)<expression>$`` and
+///                         @n matches it against the complete procedure window names. So the
+///                         @n expression has to cover the ".ipf" extension, matching is
+///                         @n case-insensitive, and "*" is a quantifier and not a shell wildcard:
+///                         @n "everything starting with example" is "example.*".
 ///                         @verbatim embed:rst:leading-slashes
 ///                             .. code-block:: igor
 ///                                :caption: Example
@@ -1534,6 +1544,10 @@ End
 ///                             * :ref:`example1-plain.ipf<example1>`
 ///                             * :ref:`example2-plain.ipf<example2>`
 ///                             * :ref:`example3-plain.ipf<example3>`
+///
+///                             A pattern that matches no procedure window is reported on the
+///                             history and :cpp:func:`RunTest` returns without executing anything.
+///                             See :ref:`selecting_test_suites` for the details.
 ///                         @endverbatim
 ///
 /// @param   allowDebug     (optional) default disabled, enabled when set to 1: @n
