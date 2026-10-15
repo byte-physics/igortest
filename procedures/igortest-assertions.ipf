@@ -29,11 +29,17 @@ Function FAIL()
 	IUTF_Wrapper#TRUE_WRAPPER(0, REQUIRE_MODE)
 End
 
-/// Skips current test case
+/// @brief Skips the current test case and reports it as SKIP instead of FAIL.
 ///
-/// The test case is aborted.
-/// Already failed assertions are treated as expected failure.
-/// Any registered reentry is automatically unregistered.
+/// The test case is aborted from within the assertion, so this must be the last
+/// statement of the test case. Only the current test case is stopped, the test
+/// run continues with the next one. The assertion counter is increased, so the
+/// requirement of at least one assertion per test case is fulfilled. Any
+/// registered background monitor for a reentry is automatically unregistered.
+///
+/// In contrast to SKIP_TESTCASE the test case is additionally marked as an
+/// expected failure: assertions which failed before the skip are treated as
+/// expected failures and do not increase the error counter.
 Function SKIP_TESTCASE_EXPECT_FAILS()
 	IUTF_Basics#SetExpectedFailure(1)
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()
@@ -41,10 +47,13 @@ Function SKIP_TESTCASE_EXPECT_FAILS()
 	SKIP_TESTCASE()
 End
 
-/// Skips current test case
+/// @brief Skips the current test case and reports it as SKIP instead of FAIL.
 ///
-/// The test case is aborted.
-/// Any registered reentry is automatically unregistered.
+/// The test case is aborted from within the assertion, so this must be the last
+/// statement of the test case. Only the current test case is stopped, the test
+/// run continues with the next one. The assertion counter is increased, so the
+/// requirement of at least one assertion per test case is fulfilled. Any
+/// registered background monitor for a reentry is automatically unregistered.
 Function SKIP_TESTCASE()
 	IUTF_Reporting#IUTF_PrintStatusMessage("Skipping test case")
 	WAVE/T wvTestCase = IUTF_Reporting#GetTestCaseWave()

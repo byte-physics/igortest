@@ -203,14 +203,33 @@ might not always be compiled.
 
 See also :ref:`example9`.
 
+.. _abort_code_handling:
+
 Handling of Abort Code
 ----------------------
 
-The universal testing framework continues with the next test case after catching
-`Abort` and logs the abort code. Currently differentiation of different abort
+An `Abort` inside a test case is caught by the framework, the abort code is
+logged and the run continues with the next test case. Differentiated abort
 conditions include manual user aborts, stack overflow and an encountered
-`Abort` in the code. The framework is terminated when manually pressing the
-Abort button.
+`Abort` in the code, see :ref:`example7`.
+
+A failed :cpp:func:`REQUIRE` assertion is the exception. The framework aborts
+the test case itself and sets the abort flag, which cancels the whole test run.
+The test case end hooks, the test suite end hooks and the test run end hooks are
+still executed, and :cpp:func:`RunTest` returns the error count of the partial
+run: the remaining test cases of the current test suite and all remaining test
+suites are not executed.
+
+To stop only the current test case use one of
+
+- :cpp:func:`SKIP_TESTCASE`, which reports the test case as ``SKIP``,
+- a plain `Abort` inside the test case, which is reported as an encountered
+  `Abort`,
+- the `IUTF_EXPECTED_FAILURE` function tag, which suppresses the cancellation of
+  the run.
+
+Pressing the Abort button in the status bar sets the abort flag as well and
+therefore terminates the run.
 
 .. note::
 

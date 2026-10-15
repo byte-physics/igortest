@@ -154,9 +154,18 @@ difference between the three assertion prefix groups:
 
 The most simple assertion is :cpp:func:`CHECK` which tests if its argument is
 true. If you do not want to increase the error count, you could use the
-corresponding :cpp:func:`WARN` function and if you want to Abort the execution
+corresponding :cpp:func:`WARN` function and if you want to abort the execution
 of the current test case if the supplied argument is false, you can use the
 :cpp:func:`REQUIRE` variant for this.
+
+.. note::
+
+   A failed :cpp:func:`REQUIRE` assertion does not only abort the current test
+   case, it cancels the whole test run: after the test case, test suite and test
+   run end hooks have been executed, the remaining test cases of the current
+   test suite and all remaining test suites are skipped. See
+   :ref:`abort_code_handling` for the details and for the alternatives which
+   stop only the current test case.
 
 Similar to these simple assertions there are many different checks for typical
 use cases. Comparing two variables, for example, can be done with
@@ -168,9 +177,29 @@ use cases. Comparing two variables, for example, can be done with
    See :ref:`group_assertions` for a complete list of all available checks. If
    in doubt use the `CHECK` variant.
 
-Assertions with only one variant are :cpp:func:`PASS` and :cpp:func:`FAIL`.
-If you want to know more about how to use these two special assertions, take a
-look at :ref:`example7`.
+Assertions with only one variant are :cpp:func:`PASS`, :cpp:func:`FAIL`,
+:cpp:func:`INFO`, :cpp:func:`SKIP_TESTCASE` and
+:cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`. If you want to know more about how to
+use the first two of these special assertions, take a look at :ref:`example7`.
+
+Skipping a test case
+^^^^^^^^^^^^^^^^^^^^
+
+:cpp:func:`SKIP_TESTCASE` aborts the current test case and reports it as
+``SKIP`` instead of ``FAIL``. Use it when the preconditions of a test case are
+not fulfilled and a failure would be misleading, for example a missing
+instrument or an optional input file. The assertion counter is increased, so a
+test case which skips does not trip the requirement of containing at least one
+assertion.
+
+The test case is aborted from within the assertion, therefore
+:cpp:func:`SKIP_TESTCASE` must be the last statement of a test case. A
+registered background monitor for a reentry is unregistered automatically.
+
+:cpp:func:`SKIP_TESTCASE_EXPECT_FAILS` does the same as
+:cpp:func:`SKIP_TESTCASE` and additionally marks the test case as an expected
+failure. Assertions which failed before the skip are treated as expected
+failures and do not increase the error counter.
 
 .. _AbortingTestRun:
 
