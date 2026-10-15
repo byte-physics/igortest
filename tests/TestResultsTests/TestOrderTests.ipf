@@ -73,6 +73,30 @@ static Function TestRandomTestCaseOrder2()
 	TestHelper(procNames, testCases, regex, shuffle, expect)
 End
 
+// The four included suites come back from WinList in reverse order, so a
+// regular expression selecting them has to be sorted before the framework
+// executes them. See the "Selecting test suites and test cases" section of
+// advanced.rst.
+static Function TestRegExpSuiteOrder()
+	string list
+
+	list = IUTF_Basics#FindProcedures("TestOrderTests[ABCD].ipf", 1)
+
+	INFO("Resolved list: %s", s0 = list)
+	CHECK_EQUAL_STR("TestOrderTestsA.ipf;TestOrderTestsB.ipf;TestOrderTestsC.ipf;TestOrderTestsD.ipf;", list)
+End
+
+// An explicit list keeps its order, which is what order-dependent suites rely
+// on.
+static Function TestExplicitSuiteOrder()
+	string list
+
+	list = IUTF_Basics#FindProcedures("TestOrderTestsC.ipf;TestOrderTestsA.ipf", 0)
+
+	INFO("Resolved list: %s", s0 = list)
+	CHECK_EQUAL_STR("TestOrderTestsC.ipf;TestOrderTestsA.ipf;", list)
+End
+
 static Function TestHelper(procNames, testCases, regex, shuffle, expect)
 	string procNames, testCases
 	variable regex, shuffle

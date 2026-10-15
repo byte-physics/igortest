@@ -819,7 +819,10 @@ End
 ///
 /// @param procWinList   a list of procedures to check
 /// @param enableRegExp  treat list items as regular expressions
-/// @returns parsed list of procedures
+/// @returns parsed list of procedures. The order is the order of @a procWinList,
+///          except for regular expressions: those are expanded against
+///          WinList(), whose order is undefined, so the result is sorted
+///          case-insensitively instead. See :ref:`selecting_test_suites`.
 static Function/S FindProcedures(procWinListIn, enableRegExp)
 	string   procWinListIn
 	variable enableRegExp
@@ -883,6 +886,10 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 			endif
 		endfor
 	endfor
+
+	if(enableRegExp)
+		procWinListOut = SortList(procWinListOut, ";", 4)
+	endif
 
 	return procWinListOut
 End
