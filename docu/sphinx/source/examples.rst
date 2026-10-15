@@ -26,7 +26,7 @@ function is also capable of handling :code:`INF` singularities.
    :caption: example1-plain.ipf
    :tab-width: 4
    :linenos:
-   :emphasize-lines: 11
+   :emphasize-lines: 11,12
 
 The test suite can be executed using the following command:
 
@@ -35,7 +35,7 @@ The test suite can be executed using the following command:
 
    RunTest("example1-plain.ipf")
 
-By looking at line 10 in this example it becomes clear that
+By looking at lines 11 and 12 in this example it becomes clear that
 :cpp:func:`CHECK_EQUAL_VAR` is a better way of comparing numeric variables then
 the plain :cpp:func:`CHECK` assertion since :code:`NaN == NaN` is false. The
 error is skipped by using the :cpp:func:`WARN` variant and will not raise the

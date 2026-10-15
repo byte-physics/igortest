@@ -134,8 +134,9 @@ with the optional parameter `enableTAP = 1` of :cpp:func:`RunTest()`.
    reference function parameters with their breathe links
 
 The output is written into a file in the experiment folder with a unique
-generated name `tap_'time'.log`. This prevents accidental overwrites of
-previous test runs. A TAP output file combines all Test Cases from all Test
+generated name `tap_<experiment name>_<date>_<time>.log`, for example
+`tap_MyExperiment_2023-04-18_09-25-01.log`. If that file already exists a
+counter is appended, so previous test runs are never overwritten. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
 and directives for each Test Case can be added in the lines preceeding the
 function of a Test Case (all lines above :code:`Function` up to the previous

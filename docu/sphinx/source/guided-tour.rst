@@ -34,8 +34,12 @@ The following formula gives the diameter :math:`d` of a carbon nanotube:
 	d = \frac{a_0}{\pi}\cdot\sqrt{n^2+m^2+nm}
 
 The natural numbers :math:`n` and :math:`m` define the carbon nanotube type.
-:math:`a_0` is the unit cell lattice constant of graphene (Understanding the
-background of the above formula is not required here).
+:math:`a_0` is the unit cell lattice constant of graphene,
+:math:`a_0 = \sqrt{3} \cdot a_\mathrm{CC} \approx 0.2494\,\mathrm{nm}`, where
+:math:`a_\mathrm{CC} = 0.144\,\mathrm{nm}` is the carbon-carbon bond distance
+(Understanding the background of the above formula is not required here). The
+procedure below therefore uses :math:`a_\mathrm{CC}` and folds the
+:math:`\sqrt{3}` into the factor three of the square root.
 
 The formula is easily translated into Igor Pro code:
 
