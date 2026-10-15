@@ -323,6 +323,28 @@ static Function InitAbortFromSkipFlag()
 	variable/G dfr:abortFromSkipFlag = 0
 End
 
+/// Returns 1 if the abortFromRequireFlag is set and zero otherwise
+static Function IsAbortFromRequire()
+	NVAR/Z/SDFR=GetPackageFolder() abortFromRequireFlag
+	if(NVAR_Exists(abortFromRequireFlag) && abortFromRequireFlag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+/// Sets the abortFromRequireFlag flag
+static Function SetAbortFromRequireFlag()
+	DFREF      dfr                     = GetPackageFolder()
+	variable/G dfr:abortFromRequireFlag = 1
+End
+
+/// Resets the abortFromRequireFlag flag
+static Function InitAbortFromRequireFlag()
+	DFREF      dfr                     = GetPackageFolder()
+	variable/G dfr:abortFromRequireFlag = 0
+End
+
 /// @brief returns 1 if the current testcase is marked as expected failure, zero otherwise
 ///
 /// @returns 1 if the current testcase is marked as expected failure, zero otherwise
@@ -1417,7 +1439,7 @@ static Function CanRetry(skip, s, fullFuncName, tcResultIndex)
 	endif
 
 	// check if the test run should be aborted and IUTF_RETRY_REQUIRES is not set
-	if(!(s.retryMode & IUTF_RETRY_REQUIRES) && shouldDoAbort())
+	if(!(s.retryMode & IUTF_RETRY_REQUIRES) && (shouldDoAbort() || IsAbortFromRequire()))
 		return 0
 	endif
 
@@ -1455,6 +1477,7 @@ static Function CleanupRetry(s, tcResultIndex)
 	IUTF_Utils_Waves#MoveDimLabel(wvFailedProc, UTF_ROW, "CURRENT", s.retryFailedProc - 1)
 	// cleanup abort flag to allow failed REQUIRE
 	InitAbortFlag()
+	InitAbortFromRequireFlag()
 End
 
 static Function ClearTestSetupWaves()
@@ -1619,8 +1642,8 @@ End
 ///                           the IUTF_RETRY_FAILED function tag.
 ///                         - IUTF_RETRY_MARK_ALL_AS_RETRY: Treats all test cases as flaky. There is no need to use the IUTF_RETRY_FAILED
 ///                           function tag. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
-///                         - IUTF_RETRY_REQUIRES: Allow to retry failed REQUIRE assertions. This option does nothing if
-///                           IUTF_RETRY_FAILED_UNTIL_PASS is not set.
+///                         - IUTF_RETRY_REQUIRES: Allow to retry test cases which aborted due to a failed REQUIRE
+///                           assertion. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
 ///
 /// @param   retryMaxCount  (optional) default IUTF_MAX_SUPPORTED_RETRY
 ///                         Sets the maximum number of retries if rerunning of flaky tests is enabled. Setting this number
@@ -1705,6 +1728,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		CreateHistoryLog()
 		InitAbortFlag()
 		InitAbortFromSkipFlag()
+		InitAbortFromRequireFlag()
 		IUTF_Reporting_Control#SetupTestRun()
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
@@ -1914,6 +1938,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
+			InitAbortFromRequireFlag()
 			skip        = str2num(testRunData[s.i][%SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix  = ""
@@ -1984,8 +2009,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				catch
 					msg   = GetRTErrMessage()
 					s.err = GetRTError(1)
-					// clear the abort code from setAbortFlag()
-					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() ? 0 : V_AbortCode
+					// clear the abort code from setAbortFlag() and from a failed REQUIRE
+					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() || IsAbortFromRequire() ? 0 : V_AbortCode
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
@@ -2014,6 +2039,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 					endif
 
 					InitAbortFromSkipFlag()
+					InitAbortFromRequireFlag()
 				endtry
 
 #ifdef UTF_ALLOW_TRACING

@@ -238,23 +238,27 @@ logged and the run continues with the next test case. Differentiated abort
 conditions include manual user aborts, stack overflow and an encountered
 `Abort` in the code, see :ref:`example7`.
 
-A failed :cpp:func:`REQUIRE` assertion is the exception. The framework aborts
-the test case itself and sets the abort flag, which cancels the whole test run.
-The test case end hooks, the test suite end hooks and the test run end hooks are
-still executed, and :cpp:func:`RunTest` returns the error count of the partial
-run: the remaining test cases of the current test suite and all remaining test
-suites are not executed.
+A failed :cpp:func:`REQUIRE` assertion behaves the same way. The framework
+aborts the test case, its end hooks are executed and the run continues with the
+next test case. What `REQUIRE` guarantees is that the remaining assertions of
+*that* test case are not executed, which is why it is the right choice for a
+precondition whose failure would make them meaningless.
 
-To stop only the current test case use one of
+The whole run is cancelled by a manual abort, by a test hook which exits with
+an abort or a pending runtime error, and by an internal framework error such as
+an invalid reentry function signature. Those count as an invalid test setup, so
+the test suites which have not started yet are not executed.
+
+To stop only the current test case you can use one of
 
 - :cpp:func:`SKIP_TESTCASE`, which reports the test case as ``SKIP``,
 - a plain `Abort` inside the test case, which is reported as an encountered
   `Abort`,
-- the `IUTF_EXPECTED_FAILURE` function tag, which suppresses the cancellation of
-  the run.
+- the `IUTF_EXPECTED_FAILURE` function tag, which additionally treats the
+  assertion failures of the test case as intended.
 
-Pressing the Abort button in the status bar sets the abort flag as well and
-therefore terminates the run.
+Pressing the Abort button in the status bar sets the abort flag and therefore
+terminates the run.
 
 .. note::
 
@@ -728,11 +732,12 @@ parameter of ``RunTest`` to rerun all failed tests in the test run. This treats
 all tests cases as if they are marked with the function tag
 ``IUTF_RETRY_FAILED``.
 
-If you want that all failed REQUIRE assertions will be retried as well you have
-to set the ``IUTF_RETRY_REQUIRES`` flag in the ``retry`` parameter of
-``RunTest``. Be careful as this will also retry other cases which would normally
-abort the test run like invalid reentry function signatures. The best thing is
-not to use REQUIRE assertions for conditions that are flaky.
+A test case which aborted due to a failed :cpp:func:`REQUIRE` assertion is not
+retried by default. If you want those to be retried as well you have to set the
+``IUTF_RETRY_REQUIRES`` flag in the ``retry`` parameter of ``RunTest``. Be
+careful as this will also retry other cases which would normally abort the test
+run like invalid reentry function signatures. The best thing is not to use
+REQUIRE assertions for conditions that are flaky.
 
 You can also change the maximum number of retries to a lower limit using the
 optional parameter ``retryMaxCount``. However it is not possible to set this

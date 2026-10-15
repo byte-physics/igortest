@@ -10,7 +10,7 @@ static Constant COUNTOBJECTS_STR        = 3
 static Constant COUNTOBJECTS_DATAFOLDER = 4
 
 static StrConstant KNOWN_WAVES     = "DataGeneratorRefs;DataGeneratorWaves;FailedProcWave;FuncLocations;FunctionTagRefs;FunctionTagWaves;InfoMsg;MMDataState;MMDataStateRefs;ProcSizes;TestAssertionResult;TestCaseResult;TestInfoResult;TestRunData;TestRunResult;TestSuiteResult;TracingAnalyticResult;"
-static StrConstant KNOWN_VARIABLES = "BCKG_EndTime;BCKG_FailOnTimeout;BCKG_Mode;BCKG_Registered;COMP_Callstack;COMP_File;COMP_Flags;COMP_Mode;COMP_NoCompile;COMP_Reentry;abortFromSkipFlag;abortFlag;expected_failure_flag;igor_debug_assertion;igor_debug_state;waveTrackingMode;"
+static StrConstant KNOWN_VARIABLES = "BCKG_EndTime;BCKG_FailOnTimeout;BCKG_Mode;BCKG_Registered;COMP_Callstack;COMP_File;COMP_Flags;COMP_Mode;COMP_NoCompile;COMP_Reentry;abortFromRequireFlag;abortFromSkipFlag;abortFlag;expected_failure_flag;igor_debug_assertion;igor_debug_state;waveTrackingMode;"
 static StrConstant KNOWN_STRINGS   = "BCKG_ReentryFunc;BCKG_TaskList;baseFilename;baseFilenameOverwrite;homePath;lastFolder;mmdAllVariablesList;workFolder;"
 
 // Objects are created on first use and kept afterwards, so the folder holds

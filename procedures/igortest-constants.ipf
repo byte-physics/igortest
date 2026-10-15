@@ -279,7 +279,7 @@ Constant IUTF_RETRY_FAILED_UNTIL_PASS = 0x01
 // Allow all tests to be retried. The default is that only test cases with the function
 // tag UTF_FTAG_RETRY_FAILED are retried.
 Constant IUTF_RETRY_MARK_ALL_AS_RETRY = 0x10
-// Allow failed REQUIREs to be retried which would normally abort the whole test run. This flag has
+// Allow test cases which aborted due to a failed REQUIRE to be retried. This flag has
 // only an effect if IUTF_RETRY_FAILED_UNTIL_PASS is set.
 Constant IUTF_RETRY_REQUIRES = 0x20
 /// @}

@@ -86,6 +86,10 @@ because the run setup clears them before building them again.
 
    * ``abortFlag``
       * if set the test run will be cancelled
+   * ``abortFromRequireFlag``
+      * set when a ``REQUIRE`` assertion failed, so that the ``Abort`` used to
+        leave the test case is recognised as coming from that assertion and does
+        not cancel the test run. Cleared before each test case.
    * ``abortFromSkipFlag``
       * set when a test case was skipped, so that the ``Abort`` used to leave it
         is recognised as coming from the skip and does not cancel the test run

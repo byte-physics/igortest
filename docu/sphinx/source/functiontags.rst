@@ -55,9 +55,9 @@ Tag reference
      - :ref:`JUNITOutput`, :ref:`tap_output`
    * - ``IUTF_EXPECTED_FAILURE``
      - not used
-     - The assertion failures of this test case are intended. They neither
-       raise the error counter nor cancel the test run, and the test case is
-       not reported as failed. The test case has to contain at least one
+     - The assertion failures of this test case are intended. They do not raise
+       the error counter, and the test case is not reported as failed. The test
+       case has to contain at least one
        failing assertion, otherwise it fails with the message ``doesn't
        contain at least one assertion error``.
      - :ref:`abort_code_handling`

@@ -169,12 +169,10 @@ of the current test case if the supplied argument is false, you can use the
 
 .. note::
 
-   A failed :cpp:func:`REQUIRE` assertion does not only abort the current test
-   case, it cancels the whole test run: after the test case, test suite and test
-   run end hooks have been executed, the remaining test cases of the current
-   test suite and all remaining test suites are skipped. See
-   :ref:`abort_code_handling` for the details and for the alternatives which
-   stop only the current test case.
+   A failed :cpp:func:`REQUIRE` assertion stops the current test case only: the
+   test case end hooks are executed and the run continues with the next test
+   case. Cancelling the whole run takes a manual abort, a failing test hook or
+   an internal framework error. See :ref:`abort_code_handling`.
 
 Similar to these simple assertions there are many different checks for typical
 use cases. Comparing two variables, for example, can be done with

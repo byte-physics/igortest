@@ -10,6 +10,9 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
 Unreleased
 ----------
 
+- **Breaking**: A failed :cpp:func:`REQUIRE` assertion now aborts only the current test case, and the test run
+  continues with the next one. Cancelling the whole run takes a manual abort, a failing test hook or an internal
+  framework error.
 - Add :cpp:func:`SKIP_TESTCASE` and :cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`, which stop the current test case
   without cancelling the test run
 
