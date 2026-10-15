@@ -323,8 +323,19 @@ an example how the user can check for RTEs and aborts at the same time.
 
 When using :code:`CHECK_RTE`, :code:`CHECK_ANY_RTE` or :code:`CHECK_NO_RTE` the
 user has to keep in mind that any :code:`INFO` has to be called before the
-critical statement as :code:`INFO` does nothing when a pending RTE exists to
-keep the error state unchanged.
+critical statement. :code:`INFO` refuses to format its output while a runtime
+error is pending, because Igor's :code:`sprintf` misbehaves in that state, and it
+reports that refusal as a failed assertion. A late :code:`INFO` therefore adds an
+error to the test case instead of the context you wanted:
+
+.. code-block:: text
+   :caption: history output of an :code:`INFO` called with a pending RTE
+
+   PrintF error "Pending RTE detected: <error> in <call stack>": is false.
+   Assertion "INFO(...)" failed in <test case> (<file>, line <n>)
+
+An :code:`INFO` inside a :code:`catch` block is unaffected: an abort is not a
+runtime error, so nothing is pending there.
 
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
