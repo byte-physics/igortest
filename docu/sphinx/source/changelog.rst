@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+Unreleased
+----------
+
+- Add :cpp:func:`SKIP_TESTCASE` and :cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`, which stop the current test case
+  without cancelling the test run
+
 1.10 (03/30/2023)
 -----------------
 
