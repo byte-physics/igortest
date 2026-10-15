@@ -23,6 +23,7 @@ Reference
    guided-tour
    basic
    advanced
+   functiontags
    examples
    code
    developer

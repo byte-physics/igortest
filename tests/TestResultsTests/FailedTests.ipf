@@ -174,3 +174,45 @@ static Function NullStringAccess_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+static Function RequireFail()
+	// increase assertion counter
+	PASS()
+	// failed REQUIRE
+	REQUIRE_EQUAL_VAR(1.0, 0.0)
+	// this code should never executed
+	PASS()
+End
+
+// The test case below is only reached if the failed REQUIRE above stopped its own
+// test case and not the whole test run. Without that the failure of the REQUIRE is
+// never neutralised and this test suite reports an error.
+static Function RequireFail_Verify()
+	string expect, result, stdErr
+	variable childStart, childEnd
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_FAIL)
+
+	childStart = str2num(tc[0][%CHILD_START])
+	childEnd   = str2num(tc[0][%CHILD_END])
+	INFO("Check if exactly one assertion was thrown")
+	CHECK_EQUAL_VAR(1, childEnd - childStart)
+
+	stdErr = tc[0][%STDERR]
+	INFO("Check if stderr is not empty")
+	CHECK_NON_EMPTY_STR(stdErr)
+
+	INFO("Check if one assertion errors is set")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the assertion counter counts the aborted assertion as well")
+	expect = "2"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End

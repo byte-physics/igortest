@@ -17,29 +17,46 @@ respectively at the end of a complete :ref:`Test Run<RunTest>`, a
 
 The following functions are reserved for user code injections:
 
-.. cpp:function:: TEST_BEGIN_OVERRIDE()
+All six hooks take one string parameter. Its content depends on the hook:
 
-Executed at the **begin** of a :cpp:func:`Test Run<RunTest>`.
+.. cpp:function:: TEST_BEGIN_OVERRIDE(name)
 
-.. cpp:function:: TEST_END_OVERRIDE()
+Executed at the **begin** of a :cpp:func:`Test Run<RunTest>`. ``name`` holds the
+name given to :cpp:func:`RunTest`.
 
-Executed at the **end** of a :cpp:func:`Test Run<RunTest>`.
+.. cpp:function:: TEST_END_OVERRIDE(name)
 
-.. cpp:function:: TEST_SUITE_BEGIN_OVERRIDE()
+Executed at the **end** of a :cpp:func:`Test Run<RunTest>`. ``name`` holds the
+name given to :cpp:func:`RunTest`.
 
-Executed at the **begin** of a :ref:`TestSuite`.
+.. cpp:function:: TEST_SUITE_BEGIN_OVERRIDE(testSuite)
 
-.. cpp:function:: TEST_SUITE_END_OVERRIDE()
+Executed at the **begin** of a :ref:`TestSuite`. ``testSuite`` holds the name of
+the procedure window of the test suite.
 
-Executed at the **end** of a :ref:`TestSuite`.
+.. cpp:function:: TEST_SUITE_END_OVERRIDE(testSuite)
 
-.. cpp:function:: TEST_CASE_BEGIN_OVERRIDE()
+Executed at the **end** of a :ref:`TestSuite`. ``testSuite`` holds the name of
+the procedure window of the test suite.
 
-Executed at the **begin** of a :ref:`TestCase`.
+.. cpp:function:: TEST_CASE_BEGIN_OVERRIDE(testCase)
 
-.. cpp:function:: TEST_CASE_END_OVERRIDE()
+Executed at the **begin** of a :ref:`TestCase`. ``testCase`` holds the full
+function name of the test case, extended with the multi data suffix for
+:ref:`multi data <multi_data_test_cases>` and :ref:`multi-multi data
+<multi_multi_data_test_cases>` test cases, for example
+``myTestCase:first``.
 
-Executed at the **end** of a :ref:`TestCase`.
+.. cpp:function:: TEST_CASE_END_OVERRIDE(testCase)
+
+Executed at the **end** of a :ref:`TestCase`. ``testCase`` holds the full
+function name of the test case, extended with the multi data suffix as for
+``TEST_CASE_BEGIN_OVERRIDE``.
+
+.. note::
+
+   A hook which does not take exactly one parameter is a runtime error. It is
+   reported and cancels the test run, as it counts as an invalid test setup.
 
 .. note::
 
@@ -102,8 +119,10 @@ and history log of each test case and test suite.
 The format reference that the IUTF uses is described in the section
 :ref:`junit_reference`.
 
-If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is in the comment block above the test case function then the test case is skipped (not executed)
 and counted for JUNIT as `skipped`.
+
+.. _tap_output:
 
 Test Anything Protocol Output
 -----------------------------
@@ -117,10 +136,11 @@ with the optional parameter `enableTAP = 1` of :cpp:func:`RunTest()`.
    reference function parameters with their breathe links
 
 The output is written into a file in the experiment folder with a unique
-generated name `tap_'time'.log`. This prevents accidental overwrites of
-previous test runs. A TAP output file combines all Test Cases from all Test
+generated name `tap_<experiment name>_<date>_<time>.log`, for example
+`tap_MyExperiment_2023-04-18_09-25-01.log`. If that file already exists a
+counter is appended, so previous test runs are never overwritten. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
-and directives for each Test Case can be added in the lines preceeding the
+and directives for each Test Case can be added in the lines preceding the
 function of a Test Case (all lines above :code:`Function` up to the previous
 :code:`Function` are considered as tags, every tag in separate line):
 
@@ -138,7 +158,7 @@ beginning of the directive message.
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
   keyword is not executed and reported always as 'ok'.
 
-If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is in the comment block above the test case function then the test case is skipped (not executed)
 and evaluated for TAP the same as if ``// TAPDirective: SKIP`` was set.
 
 Examples:
@@ -177,9 +197,17 @@ Steps to do that include:
   :cpp:func:`RunTest`.
 
 - Put the test experiment together with your :ref:`Test Suites<TestSuite>` and
-  the script `helper/autorun-test.bat` into its own folder.
+  one of the batch files from the `helper folder
+  <https://github.com/byte-physics/igortest/tree/main/helper>`__ into its own
+  folder. They are named after the Igor Pro version and the architecture they
+  start, for example ``autorun-test-IP8-64bit.bat``. Scripts are provided for
+  Igor Pro 6 (32-bit only), for Igor Pro 7, 8 and 9 (both architectures) and for
+  Igor Pro 10 (64-bit only). A
+  script only starts if its ``IgorPath`` exists and names that path otherwise, so
+  for a version without a script, or an installation in a non-default folder, copy
+  the closest script and adjust ``IgorPath``.
 
-- Run the batch file `autorun-test.bat`.
+- Run that batch file.
 
 - Inspect the created log file.
 
@@ -194,6 +222,8 @@ Queue.
 
 See also :ref:`example6`.
 
+.. _independent_module:
+
 Running in an Independent Module
 --------------------------------
 
@@ -203,14 +233,37 @@ might not always be compiled.
 
 See also :ref:`example9`.
 
+.. _abort_code_handling:
+
 Handling of Abort Code
 ----------------------
 
-The universal testing framework continues with the next test case after catching
-`Abort` and logs the abort code. Currently differentiation of different abort
+An `Abort` inside a test case is caught by the framework, the abort code is
+logged and the run continues with the next test case. Differentiated abort
 conditions include manual user aborts, stack overflow and an encountered
-`Abort` in the code. The framework is terminated when manually pressing the
-Abort button.
+`Abort` in the code, see :ref:`example7`.
+
+A failed :cpp:func:`REQUIRE` assertion behaves the same way. The framework
+aborts the test case, its end hooks are executed and the run continues with the
+next test case. What `REQUIRE` guarantees is that the remaining assertions of
+*that* test case are not executed, which is why it is the right choice for a
+precondition whose failure would make them meaningless.
+
+The whole run is cancelled by a manual abort, by a test hook which exits with
+an abort or a pending runtime error, and by an internal framework error such as
+an invalid reentry function signature. Those count as an invalid test setup, so
+the test suites which have not started yet are not executed.
+
+To stop only the current test case you can use one of
+
+- :cpp:func:`SKIP_TESTCASE`, which reports the test case as ``SKIP``,
+- a plain `Abort` inside the test case, which is reported as an encountered
+  `Abort`,
+- the `IUTF_EXPECTED_FAILURE` function tag, which additionally treats the
+  assertion failures of the test case as intended.
+
+Pressing the Abort button in the status bar sets the abort flag and therefore
+terminates the run.
 
 .. note::
 
@@ -258,9 +311,12 @@ Function definition of RegisterIUTFMonitor
 The function that is registered to continue the test execution must have the
 same format as a test case function and the name has to end with `_REENTRY`.
 When the universal testing framework temporary drops to Igors command line and
-resumes later no begin/end hooks are executed. Logically the universal testing
-frame work stays in the same test case. It is allowed to register another
-monitoring in the `_REENTRY` function.
+resumes later the test case BEGIN hooks are not executed again. The test case END
+hooks are not executed at that point either, but they do run once the test case
+really ends, that is after the `_REENTRY` function returned and no further
+monitor is registered. Logically the universal testing framework stays in the
+same test case. It is allowed to register another monitoring in the `_REENTRY`
+function.
 
 Multiple subsequent calls to :cpp:func:`RegisterIUTFMonitor()` in the same
 function overwrite the previous registration.
@@ -318,9 +374,11 @@ Supported types for `arg` are variable, string, complex, Integer64, data folder
 references and wave references. The type of the returned wave of the attributed
 data generator function must fit to the argument type that the multi data test
 case takes.
-The data generator function name must be attributed with a comment within four
-lines above the test cases Function line. The key word is `IUTF_TD_GENERATOR` with
-the data generators function name following as seen in the simple example here.
+The data generator function name must be attributed with a comment in the block
+above the test case (all lines above :code:`Function` up to the previous
+:code:`Function` are considered as tags, every tag in separate line). The key
+word is `IUTF_TD_GENERATOR` with the data generators function name following as
+seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit
 to the wave type then a error message is printed and the test run is aborted.
 
@@ -505,22 +563,34 @@ signature.
 Code Coverage Determination
 ---------------------------
 
-When running Igor Pro 9 or newer the Igor Pro Universal Testing Framework offers
-the feature to obtain code coverage information. When enabled the IUTF adds to
-functions in target procedure files code to track execution. At the end of the
-test run the IUTF outputs files in HTML format with coverage information.
+The Igor Pro Universal Testing Framework offers code coverage determination with
+Igor Pro 9 build 38812 or newer, and only when the Thread Utilities XOP is
+installed. The XOP is part of this framework and located in the ``xop`` folder;
+it has to be copied into the ``Igor Extensions`` folder of your Igor Pro user
+folder. Without the XOP, or with an older Igor Pro, enabling tracing aborts the
+run::
+
+   Tracing requires Igor Pro 9 Build 38812 (or later) and the Thread Utilities XOP.
+
+When enabled the IUTF adds to functions in target procedure files code to track
+execution. At the end of the test run the IUTF outputs files in HTML format with
+coverage information.
 
 This feature is enabled when the optional parameter ``traceWinList`` is set and non-empty when calling ``RunTest``.
 Before the actual tests are executed the given procedure files are modified on disk where additional function calls are inserted.
 The additional code does not change the execution of the original code. This step is named ``Instrumentation``.
 The coverage results are output as HTML files in the experiments folder for each procedure file in the form:
 
-..
-   To create htmloutput.txt run the tests from Various.pxp. Then a file test-tracing2.htm is created in the folder of the experiment file.
-   For htmloutput.txt the content from the first function Workload is taken and from the second function TracingTest the first
-   Make/MultiThread block as well as the second if block with if/elseif/else/endif.
-
 .. literalinclude:: htmloutput.txt
+
+.. note::
+   The listing above is a checked-in snapshot, not something the documentation
+   build generates. It comes from ``test-tracing2.htm``, which the test suite in
+   ``tests/Various.pxp`` writes next to the experiment file when tracing is
+   enabled for ``test-tracing2.ipf``. From that file it shows the ``Workload``
+   function and, from ``TracingTest``, the first ``Make/MultiThread`` block plus
+   the second ``if`` block with ``if``/``elseif``/``else``/``endif``. To refresh
+   it, run that test suite with tracing enabled and copy those parts over.
 
 The code is prefixed with three columns where the number in the first column is the count how many times the line was executed.
 In second and third column is counted, when the code contained an ``if`` conditional. For that case the second column counts
@@ -555,6 +625,11 @@ For each settings key a constant is defined in ``TraceOptionKeyStrings``. The fo
 Additionally function and macros can be excluded from instrumentation by adding the special comment ``// IUTF_NOINSTRUMENTATION`` before the first line of the function.
 Excluding basic functions or macros that are called very often can speed up the execution of instrumented code.
 
+Procedure files with 10 000 lines or more cannot be instrumented. The run is
+aborted during the instrumentation step with::
+
+   Procedure file <name> has too many lines. (Current limit 10000)
+
 Static functions in procedure files can only be instrumented, if the procedure file has the pragma ModuleName set, e.g. ``#pragma ModuleName=myUtilities``.
 For static functions that exist in a given procedure file without ModuleName a warning is printed to history. These function are not instrumented and
 appear in the coverage result file with zero executions.
@@ -571,7 +646,10 @@ procedure file changes to disk before running a test with code coverage logging.
 
 At the end of a run with code coverage determination Igor Pro outputs the global coverage to stdout in the form ``Coverage: 12.3%``.
 The following regular expression can be used in CI services (e.g. in GitLab) to retrieve the number
-``(?:^Coverage: )(\d+.\d+)(?:%$)``.
+``(?:^Coverage: )(\d+\.\d+)(?:%$)``.
+The coverage figure is reported in the same output entry as the covered and the
+total line count, so the anchors of that expression only work when the matching
+is done in multiline mode.
 
 After the test run the user can call ``IUTF_RestoreTracing()`` to restore the
 instrumented procedure files back to their original version. It is recommended
@@ -584,12 +662,12 @@ Statistics
 
 After running the code coverage the user can print a table with the most called functions to the history using
 ``ShowTopFunctions``. This function accepts as the first parameter the maximum number of entries that should be
-printed. If all entries should be printed this parameter should be set to to a large number or ``Inf``.
+printed. If all entries should be printed this parameter should be set to a large number or ``Inf``.
 
 The optional parameter ``mode`` can be set to ``UTF_ANALYTICS_LINES`` to print the statistics for each line instead of
 each function (``UTF_ANALYTICS_FUNCTIONS``). The optional parameter ``sorting`` defines the column that should be
 sorted for. Currently supported are ``UTF_ANALYTICS_CALLS`` (default) to sort for all direct calls and
-``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` can not
+``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` cannot be
 combined with the mode ``UTF_ANALYTICS_LINES``.
 
 The data is also available as a global wave in ``root:Packages:igortest:TracingAnalyticResult``.
@@ -659,11 +737,12 @@ parameter of ``RunTest`` to rerun all failed tests in the test run. This treats
 all tests cases as if they are marked with the function tag
 ``IUTF_RETRY_FAILED``.
 
-If you want that all failed REQUIRE assertions will be retried as well you have
-to set the ``IUTF_RETRY_REQUIRES`` flag in the ``retry`` parameter of
-``RunTest``. Be careful as this will also retry other cases which would normally
-abort the test run like invalid reentry function signatures. The best thing is
-not to use REQUIRE assertions for conditions that are flaky.
+A test case which aborted due to a failed :cpp:func:`REQUIRE` assertion is not
+retried by default. If you want those to be retried as well you have to set the
+``IUTF_RETRY_REQUIRES`` flag in the ``retry`` parameter of ``RunTest``. Be
+careful as this will also retry other cases which would normally abort the test
+run like invalid reentry function signatures. The best thing is not to use
+REQUIRE assertions for conditions that are flaky.
 
 You can also change the maximum number of retries to a lower limit using the
 optional parameter ``retryMaxCount``. However it is not possible to set this
@@ -690,16 +769,66 @@ iteration with the same arguments and not all previous runs.
       // ...
    End
 
+.. _selecting_test_suites:
+
+Selecting test suites and test cases
+------------------------------------
+
+The first parameter of :cpp:func:`RunTest` is a semicolon (``;``) separated list
+of procedure window names, and the optional parameter ``testCase`` is such a list
+of test case function names. With the optional parameter ``enableRegExp`` set to
+one, each of the two takes *one* regular expression instead of a list.
+
+The framework matches that expression as ``^(?i)<expression>$`` against the
+complete procedure window names. Three consequences follow, and none of them can
+be guessed:
+
+- the expression has to cover the whole name, including the ``.ipf`` extension;
+- matching is case-insensitive;
+- the expression uses Igor Pro's own regular expression syntax, in which ``*`` is
+  a quantifier and not a shell wildcard. "Everything starting with
+  ``UTF_Upgrade``" is ``UTF_Upgrade.*``, not ``UTF_Upgrade*``.
+
+.. code-block:: igor
+
+   // runs UTF_UpgradeDataFolderLocation.ipf and UTF_UpgradeWaveLocationAndGetIt.ipf
+   RunTest("UTF_Upgrade.*", enableRegExp = 1)
+
+   // runs nothing: "UTF_Upgrad" followed by zero or more "e" matches no window
+   RunTest("UTF_Upgrade*", enableRegExp = 1)
+
+A pattern matching nothing is reported on the history and :cpp:func:`RunTest`
+returns without executing anything:
+
+.. code-block:: text
+
+   Error: A procedure window matching the pattern "^(?i)UTF_Upgrade*$" could not be found.
+   Error: The list of procedure windows is empty or invalid.
+
+The ``testCase`` expression must not contain a semicolon, as that character
+separates the list entries whenever ``enableRegExp`` is zero.
+
+When the framework runs inside an :ref:`independent module <independent_module>`,
+the names it matches against carry the module suffix
+(``<name>.ipf [<module name>]``). The framework appends that part to your
+expression itself, so you write only the file name part.
+
+The suites that a regular expression selects are executed in case-insensitive
+alphabetical order. They are not executed in the order Igor reports the open
+procedure windows, because Igor does not define that order and in practice it
+follows how the windows came to be open rather than their names. An explicit
+list of procedure window names keeps its order, so a suite that depends on the
+order of other suites has to be spelled out as a list.
+
 .. _shuffle_test_case_order:
 
 Shuffle test case order
 -----------------------
 
-The Igor universal testing framework executes all test suites one by one by
-their appearance in the ``RunTest`` call. If the optional parameter
-``enableRegExp`` was set it will execute the found test suites alphabetically.
-If you want a random order each time you execute ``RunTest`` you have to set the
-flag ``IUTF_SHUFFLE_TEST_SUITES`` of the optional parameter ``shuffle`` in the
+The Igor universal testing framework executes all test suites one by one, in the
+order described under :ref:`selecting_test_suites`. If you want a random order
+each time you execute ``RunTest`` you have to set the flag
+``IUTF_SHUFFLE_TEST_SUITES`` of the optional parameter ``shuffle`` in the
 ``RunTest`` call.
 
 When a test suite is executed it will execute all of its test cases. There is no
@@ -715,12 +844,29 @@ in the file.
 .. caution::
    Procedure tags can only be placed in the first 20 lines of a file. They are
    one-line comments like function tags (e.g. ``// IUTF_SKIP``) and ignore any
-   conditional compilation with ``#if``.
+   conditional compilation with ``#if``. See :ref:`function_tags` for the
+   complete list of tags.
 
 If you want to shuffle everything you can set the optional parameter ``shuffle``
 to ``IUTF_SHUFFLE_ALL``.
 
 .. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
+
+.. _deprecated_names:
+
+Deprecated Names
+----------------
+
+Version 1.10 renamed the project and its files. The names below still work so
+that existing test setups keep running, and they will be removed with the next
+major release.
+
+- ``#include "unit-testing"`` -> ``#include "igortest"``
+- ``RegisterUTFMonitor()`` -> :cpp:func:`RegisterIUTFMonitor()`
+- ``UTFBackgroundMonitor()`` -> ``IUTFBackgroundMonitor()``
+- ``UTF_FuncRefIsAssigned()`` -> ``IUTF_FuncRefIsAssigned()``
+- function tags with the ``UTF_`` prefix -> the same tags with the ``IUTF_``
+  prefix, see :ref:`here <basic>`
 
 .. _junit_reference:
 
