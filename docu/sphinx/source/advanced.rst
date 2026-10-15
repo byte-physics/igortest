@@ -102,7 +102,7 @@ and history log of each test case and test suite.
 The format reference that the IUTF uses is described in the section
 :ref:`junit_reference`.
 
-If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is in the comment block above the test case function then the test case is skipped (not executed)
 and counted for JUNIT as `skipped`.
 
 Test Anything Protocol Output
@@ -138,7 +138,7 @@ beginning of the directive message.
 - `SKIP` indicates a Test that should be skipped. A Test with this directive
   keyword is not executed and reported always as 'ok'.
 
-If the function tag ``// IUTF_SKIP`` is preceding the test case function then the test case is skipped (not executed)
+If the function tag ``// IUTF_SKIP`` is in the comment block above the test case function then the test case is skipped (not executed)
 and evaluated for TAP the same as if ``// TAPDirective: SKIP`` was set.
 
 Examples:
@@ -337,9 +337,11 @@ Supported types for `arg` are variable, string, complex, Integer64, data folder
 references and wave references. The type of the returned wave of the attributed
 data generator function must fit to the argument type that the multi data test
 case takes.
-The data generator function name must be attributed with a comment within four
-lines above the test cases Function line. The key word is `IUTF_TD_GENERATOR` with
-the data generators function name following as seen in the simple example here.
+The data generator function name must be attributed with a comment in the block
+above the test case (all lines above :code:`Function` up to the previous
+:code:`Function` are considered as tags, every tag in separate line). The key
+word is `IUTF_TD_GENERATOR` with the data generators function name following as
+seen in the simple example here.
 If no data generator is given or the format of the test case function does not fit
 to the wave type then a error message is printed and the test run is aborted.
 

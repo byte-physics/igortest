@@ -103,6 +103,12 @@ ends due to an :code:`Abort`, :code:`AbortOnRTE` or pending RTE this is also
 considered as expected failure and neighter the error counter is increased or
 test case failed.
 
+.. note::
+
+   Function tags written with the deprecated ``UTF_`` prefix, for example
+   ``UTF_EXPECTED_FAILURE``, are still recognised for backward compatibility.
+   They will be removed with the next major release.
+
 
 Example:
 ^^^^^^^^
