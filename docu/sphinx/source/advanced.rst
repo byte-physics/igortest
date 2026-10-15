@@ -122,6 +122,8 @@ The format reference that the IUTF uses is described in the section
 If the function tag ``// IUTF_SKIP`` is in the comment block above the test case function then the test case is skipped (not executed)
 and counted for JUNIT as `skipped`.
 
+.. _tap_output:
+
 Test Anything Protocol Output
 -----------------------------
 
@@ -773,7 +775,8 @@ in the file.
 .. caution::
    Procedure tags can only be placed in the first 20 lines of a file. They are
    one-line comments like function tags (e.g. ``// IUTF_SKIP``) and ignore any
-   conditional compilation with ``#if``.
+   conditional compilation with ``#if``. See :ref:`function_tags` for the
+   complete list of tags.
 
 If you want to shuffle everything you can set the optional parameter ``shuffle``
 to ``IUTF_SHUFFLE_ALL``.
