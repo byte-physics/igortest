@@ -214,6 +214,29 @@ static Function TestAbortOnValue_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
+static Function AbortOnValueAfterCaughtRequire()
+	try
+		REQUIRE_EQUAL_VAR(1.0, 0.0)
+	catch
+	endtry
+	AbortOnValue 1, 42
+End
+
+static Function AbortOnValueAfterCaughtRequire_Verify()
+	string expect, result
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_ERROR)
+
+	INFO("Check if the AbortOnValue is reported besides the failed REQUIRE")
+	expect = "2"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+End
+
 static Function TestAbortOnRTE()
 	// increase assertion counter
 	PASS()

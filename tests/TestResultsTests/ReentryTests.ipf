@@ -58,3 +58,69 @@ static Function CheckBackgroundTask_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+static Function RequireFailWithMonitor()
+	RegisterIUTFMonitor("testtask", 1, "TS_ReentryTests#RequireFailWithMonitor_REENTRY")
+	REQUIRE_EQUAL_VAR(1.0, 0.0)
+End
+
+static Function RequireFailWithMonitor_REENTRY()
+	FAIL()
+End
+
+static Function RequireFailWithMonitor_Verify()
+	string expect, result
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_FAIL)
+
+	INFO("Check if only the failed REQUIRE is an assertion error")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the reentry function was not called")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End
+
+static Function RequireFailTask(s)
+	STRUCT WMBackgroundStruct &s
+
+	REQUIRE_EQUAL_VAR(1.0, 0.0)
+
+	return 1
+End
+
+static Function RequireFailInTask()
+	CtrlNamedBackground testtask, proc=TS_ReentryTests#RequireFailTask, period=1, start
+	RegisterIUTFMonitor("testtask", 1, "TS_ReentryTests#RequireFailInTask_REENTRY")
+End
+
+static Function RequireFailInTask_REENTRY()
+	FAIL()
+End
+
+static Function RequireFailInTask_Verify()
+	string expect, result
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_FAIL)
+
+	INFO("Check if only the failed REQUIRE is an assertion error")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the reentry function was not called")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End

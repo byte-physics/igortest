@@ -517,7 +517,7 @@ static Function ReportResults(result, str, flags, [cleanupInfo, callStack])
 
 		if(!expectedFailure && (flags & ABORT_FUNCTION))
 			IUTF_Reporting#CleanupInfoMsg()
-			IUTF_Basics#setAbortFlag()
+			IUTF_Basics#SetAbortFromRequireFlag()
 			Abort
 		endif
 	endif
