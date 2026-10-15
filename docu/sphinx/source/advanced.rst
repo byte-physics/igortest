@@ -803,16 +803,22 @@ the names it matches against carry the module suffix
 (``<name>.ipf [<module name>]``). The framework appends that part to your
 expression itself, so you write only the file name part.
 
+The suites that a regular expression selects are executed in case-insensitive
+alphabetical order. They are not executed in the order Igor reports the open
+procedure windows, because Igor does not define that order and in practice it
+follows how the windows came to be open rather than their names. An explicit
+list of procedure window names keeps its order, so a suite that depends on the
+order of other suites has to be spelled out as a list.
+
 .. _shuffle_test_case_order:
 
 Shuffle test case order
 -----------------------
 
-The Igor universal testing framework executes all test suites one by one by
-their appearance in the ``RunTest`` call. If the optional parameter
-``enableRegExp`` was set it will execute the found test suites alphabetically.
-If you want a random order each time you execute ``RunTest`` you have to set the
-flag ``IUTF_SHUFFLE_TEST_SUITES`` of the optional parameter ``shuffle`` in the
+The Igor universal testing framework executes all test suites one by one, in the
+order described under :ref:`selecting_test_suites`. If you want a random order
+each time you execute ``RunTest`` you have to set the flag
+``IUTF_SHUFFLE_TEST_SUITES`` of the optional parameter ``shuffle`` in the
 ``RunTest`` call.
 
 When a test suite is executed it will execute all of its test cases. There is no
