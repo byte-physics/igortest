@@ -17,29 +17,46 @@ respectively at the end of a complete :ref:`Test Run<RunTest>`, a
 
 The following functions are reserved for user code injections:
 
-.. cpp:function:: TEST_BEGIN_OVERRIDE()
+All six hooks take one string parameter. Its content depends on the hook:
 
-Executed at the **begin** of a :cpp:func:`Test Run<RunTest>`.
+.. cpp:function:: TEST_BEGIN_OVERRIDE(name)
 
-.. cpp:function:: TEST_END_OVERRIDE()
+Executed at the **begin** of a :cpp:func:`Test Run<RunTest>`. ``name`` holds the
+name given to :cpp:func:`RunTest`.
 
-Executed at the **end** of a :cpp:func:`Test Run<RunTest>`.
+.. cpp:function:: TEST_END_OVERRIDE(name)
 
-.. cpp:function:: TEST_SUITE_BEGIN_OVERRIDE()
+Executed at the **end** of a :cpp:func:`Test Run<RunTest>`. ``name`` holds the
+name given to :cpp:func:`RunTest`.
 
-Executed at the **begin** of a :ref:`TestSuite`.
+.. cpp:function:: TEST_SUITE_BEGIN_OVERRIDE(testSuite)
 
-.. cpp:function:: TEST_SUITE_END_OVERRIDE()
+Executed at the **begin** of a :ref:`TestSuite`. ``testSuite`` holds the name of
+the procedure window of the test suite.
 
-Executed at the **end** of a :ref:`TestSuite`.
+.. cpp:function:: TEST_SUITE_END_OVERRIDE(testSuite)
 
-.. cpp:function:: TEST_CASE_BEGIN_OVERRIDE()
+Executed at the **end** of a :ref:`TestSuite`. ``testSuite`` holds the name of
+the procedure window of the test suite.
 
-Executed at the **begin** of a :ref:`TestCase`.
+.. cpp:function:: TEST_CASE_BEGIN_OVERRIDE(testCase)
 
-.. cpp:function:: TEST_CASE_END_OVERRIDE()
+Executed at the **begin** of a :ref:`TestCase`. ``testCase`` holds the full
+function name of the test case, extended with the multi data suffix for
+:ref:`multi data <multi_data_test_cases>` and :ref:`multi-multi data
+<multi_multi_data_test_cases>` test cases, for example
+``myTestCase:first``.
 
-Executed at the **end** of a :ref:`TestCase`.
+.. cpp:function:: TEST_CASE_END_OVERRIDE(testCase)
+
+Executed at the **end** of a :ref:`TestCase`. ``testCase`` holds the full
+function name of the test case, extended with the multi data suffix as for
+``TEST_CASE_BEGIN_OVERRIDE``.
+
+.. note::
+
+   A hook which does not take exactly one parameter is a runtime error. It is
+   reported and cancels the test run, as it counts as an invalid test setup.
 
 .. note::
 

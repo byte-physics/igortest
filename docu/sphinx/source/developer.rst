@@ -30,7 +30,9 @@ Current Test Coverage
 Global Variables
 ----------------
 
-These variables are stored in ``root:Packages:igortest:``.
+These variables are stored in ``root:Packages:igortest:``. The list covers the
+ones which matter when reading the framework and is not exhaustive; the
+procedure files are the authoritative source.
 
 #. Waves
 
@@ -64,7 +66,7 @@ These variables are stored in ``root:Packages:igortest:``.
 
    * ``abortFlag``
       * if set the test run will be cancelled
-   * ``BCKG_Register``
+   * ``BCKG_Registered``
       * used to check for registered background monitor
    * ``expected_failure_flag``
       * set if the next test case is expected to fail
