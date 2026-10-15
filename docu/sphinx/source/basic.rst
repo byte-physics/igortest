@@ -68,7 +68,9 @@ A Test Case is one of the basic building blocks grouping :ref:`assertions
 fulfills all of the following properties:
 
 1. It takes no parameters.
-2. It returns a numeric value (Igor Pro default).
+2. It returns a real-valued numeric value (Igor Pro default). A function
+   declared with the :code:`/C` flag returns a complex value and is not
+   collected as a test case.
 3. Its name does not end with `_IGNORE` or `_REENTRY`.
 4. It is either non-static, or static and part of a regular module.
 
@@ -100,8 +102,8 @@ tags, every tag in separate line):
 
 All assertions in a test case are marked as expected failures. If the test case
 ends due to an :code:`Abort`, :code:`AbortOnRTE` or pending RTE this is also
-considered as expected failure and neighter the error counter is increased or
-test case failed.
+considered as expected failure: neither the error counter is increased nor the
+test case fails.
 
 .. note::
 
@@ -119,7 +121,7 @@ are defined. In Test Suite `TestSuite_2.ipf` the Test Cases `static Duplicate()`
 
 .. code-block:: igor
 
-   Runtest("TestSuite_1.ipf;TestSuite_2.ipf", testCase="Unique_1;Unique_2;Duplicate")
+   RunTest("TestSuite_1.ipf;TestSuite_2.ipf", testCase="Unique_1;Unique_2;Duplicate")
 
 The command will run the two test suites `TestSuite_1.ipf` and
 `TestSuite_2.ipf` separately. Within every test suites two test cases are

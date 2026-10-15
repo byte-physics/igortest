@@ -188,7 +188,7 @@ Here is shown how user code can be added to the Test Run at certain points. In
 this test suite, additional code can be executed at the beginning and end of
 the test cases. This is done by declaring the :code:`TEST_CASE_BEGIN_OVERRIDE`
 or :code:`TEST_CASE_END_OVERRIDE` function :code:`'static'`. Functions with
-this sepcific naming and the :code:`_OVERRIDE` suffix are automatically found
+this specific naming and the :code:`_OVERRIDE` suffix are automatically found
 and registered as hooks.
 
 Be aware that a :code:`'static'` defined hook overrides any global
@@ -499,6 +499,6 @@ context to the assertion.
 
 .. note::
 
-   Defintion for the :doc:`assertions` in this test suite:
+   Definition for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`INFO`

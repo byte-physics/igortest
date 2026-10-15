@@ -101,7 +101,7 @@ tests for a unit.
 Executing the test
 ------------------
 
-To execute the test suite we use the :cpp:func:`RunTest` directive. It accepts
+To execute the test suite we use the :cpp:func:`RunTest` function. It accepts
 the name of our test suite (the procedure window) as an argument. In our
 example we have named the procedure window :code:`"test0"`.
 
@@ -118,7 +118,7 @@ example we have named the procedure window :code:`"test0"`.
      Test finished with no errors
      End of test "Unnamed"
 
-In the cosole output above, the highlighted line indicates that all tests
+In the console output above, the highlighted line indicates that all tests
 within the current test suite have passed successfully. The unit is working
 properly. The full Igor Pro environment with our unit test should look like
 this:
@@ -135,8 +135,8 @@ function :code:`diameter()`. The calculation is only exact up to the specified
 error range. The high error is caused by a fixated value of
 :code:`pi=3.1415`. To emphasize this, we can add an assertion to the test case
 that will fail but will not affect the error counter. Such an assertion is done
-with a `WARN_*` directive. Every `REQUIRE_*` assertion also has a
-`WARN_*` variant, see:ref:`AssertionTypes` for a summary.
+with a `WARN_*` assertion. Every `REQUIRE_*` assertion also has a
+`WARN_*` variant, see :ref:`AssertionTypes` for a summary.
 
 .. code-block:: igorpro
    :emphasize-lines: 6,7

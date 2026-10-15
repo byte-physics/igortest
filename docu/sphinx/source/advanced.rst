@@ -138,7 +138,7 @@ generated name `tap_<experiment name>_<date>_<time>.log`, for example
 `tap_MyExperiment_2023-04-18_09-25-01.log`. If that file already exists a
 counter is appended, so previous test runs are never overwritten. A TAP output file combines all Test Cases from all Test
 Suites given in :cpp:func:`RunTest()`. Additional TAP compliant descriptions
-and directives for each Test Case can be added in the lines preceeding the
+and directives for each Test Case can be added in the lines preceding the
 function of a Test Case (all lines above :code:`Function` up to the previous
 :code:`Function` are considered as tags, every tag in separate line):
 
@@ -639,12 +639,12 @@ Statistics
 
 After running the code coverage the user can print a table with the most called functions to the history using
 ``ShowTopFunctions``. This function accepts as the first parameter the maximum number of entries that should be
-printed. If all entries should be printed this parameter should be set to to a large number or ``Inf``.
+printed. If all entries should be printed this parameter should be set to a large number or ``Inf``.
 
 The optional parameter ``mode`` can be set to ``UTF_ANALYTICS_LINES`` to print the statistics for each line instead of
 each function (``UTF_ANALYTICS_FUNCTIONS``). The optional parameter ``sorting`` defines the column that should be
 sorted for. Currently supported are ``UTF_ANALYTICS_CALLS`` (default) to sort for all direct calls and
-``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` can not
+``UTF_ANALYTICS_SUM`` to sort for the sum of all called lines inside the function. ``UTF_ANALYTICS_SUM`` cannot be
 combined with the mode ``UTF_ANALYTICS_LINES``.
 
 The data is also available as a global wave in ``root:Packages:igortest:TracingAnalyticResult``.
@@ -776,6 +776,22 @@ If you want to shuffle everything you can set the optional parameter ``shuffle``
 to ``IUTF_SHUFFLE_ALL``.
 
 .. _Jenkins XUnit plugin: https://github.com/jenkinsci/xunit-plugin/blob/master/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd
+
+.. _deprecated_names:
+
+Deprecated Names
+----------------
+
+Version 1.10 renamed the project and its files. The names below still work so
+that existing test setups keep running, and they will be removed with the next
+major release.
+
+- ``#include "unit-testing"`` -> ``#include "igortest"``
+- ``RegisterUTFMonitor()`` -> :cpp:func:`RegisterIUTFMonitor()`
+- ``UTFBackgroundMonitor()`` -> ``IUTFBackgroundMonitor()``
+- ``UTF_FuncRefIsAssigned()`` -> ``IUTF_FuncRefIsAssigned()``
+- function tags with the ``UTF_`` prefix -> the same tags with the ``IUTF_``
+  prefix, see :ref:`here <basic>`
 
 .. _junit_reference:
 

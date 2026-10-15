@@ -36,7 +36,7 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
 - Fix ``UTF_FTAG_TAP_DIRECTIVE``/``UTF_FTAG_TAP_DESCRIPTION`` in Igor Pro 9 due to now illegal characters in dimension
   labels
 - Completely revise Readme.md
-- Copy all history output also to stdin/stderr (Igor Pro 8 and higher)
+- Copy all history output also to stdout/stderr (Igor Pro 8 and higher)
 - Enhance the output on failed assertions to include the full test case name
 - Add the test case name on failure for TAP output
 - Allow creating TAP and JUNIT output simultaneously
@@ -61,7 +61,7 @@ Test assertions
 - Added assertions for checking runtime errors, see :cpp:func:`*_RTE <CHECK_RTE>`, :cpp:func:`*_ANY_RTE <CHECK_ANY_RTE>` and
   :cpp:func:`*_NO_RTE <CHECK_NO_RTE>`
 - Changed parameter types of :cpp:func:`*_EQUAL_STR <CHECK_EQUAL_STR>` and :cpp:func:`*_NEQ_STR <CHECK_NEQ_STR>` to be
-  bass-by-value. This might break cases where a null string was passed. For null strings the test assertions
+  pass-by-value. This might break cases where a null string was passed. For null strings the test assertions
   :cpp:func:`*_NULL_STR <CHECK_NULL_STR>` and :cpp:func:`*_PROPER_STR <CHECK_PROPER_STR>` should be used.
 - Output messages from :cpp:func:`INFO` also on stderr and in JUNIT
 - Added assertions for compilation testing, see :cpp:func:`*_COMPILATION <CHECK_COMPILATION>` and
@@ -181,7 +181,7 @@ TAP output
 - The unit testing framework is now licensed under 3-Clause BSD. All contributors agreed to this license.
 - Add option to create TAP compatible log files
 - Add option to create JUNIT compatible log files
-- Fixed edge cases with empty test suites, non-reachable test cases and similiar
+- Fixed edge cases with empty test suites, non-reachable test cases and similar
 - Overwrite check for output files
 - Add optional arguments keepDataFolder and allowDebug to RunTest
 - Split of TestBegin functions in internal and user part
@@ -243,7 +243,7 @@ Thanks to `ryotako <https://github.com/ryotako>`__ for a few patches.
 1.02 (10/31/2013)
 -----------------
 
-Fix documentaton
+Fix documentation
 
 1.01 (10/22/2013)
 -----------------
