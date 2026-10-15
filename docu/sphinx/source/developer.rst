@@ -66,8 +66,19 @@ procedure files are the authoritative source.
 
    * ``abortFlag``
       * if set the test run will be cancelled
+   * ``abortFromSkipFlag``
+      * set when a test case was skipped, so that the ``Abort`` used to leave it
+        is recognised as coming from the skip and does not cancel the test run
    * ``BCKG_Registered``
       * used to check for registered background monitor
+   * ``BCKG_TaskList``, ``BCKG_ReentryFunc``, ``BCKG_Mode``, ``BCKG_EndTime``,
+     ``BCKG_FailOnTimeout``
+      * the rest of the background monitor state written at registration: the
+        monitored tasks, the reentry function, how multiple tasks are evaluated,
+        the timeout and whether reaching it fails the test case
+   * ``COMP_Mode``, ``COMP_Callstack``, ``COMP_File``, ``COMP_Flags``,
+     ``COMP_NoCompile``, ``COMP_Reentry``
+      * state of the compilation tester behind the ``*_COMPILATION`` assertions
    * ``expected_failure_flag``
       * set if the next test case is expected to fail
    * ``igor_debug_assertion``
@@ -87,7 +98,14 @@ procedure files are the authoritative source.
       * The current data folder before the test run. This is used to set the
         current data folder back to original one after running the tests.
    * ``workFolder``
-      * The current data folder the test run.
+      * The current data folder during the test run.
+
+.. note::
+   A test case that is waiting for background activity additionally leaves its
+   loop state in the subfolder ``root:Packages:igortest:SaveState`` as
+   ``S``-prefixed variables (``Si``, ``Sname``, ``StcSuffix``, ``SretryIndex``,
+   and so on). That set follows the saved state structure and is an
+   implementation detail, so it is not listed above.
 
 .. _BehaviorReporting:
 
