@@ -209,12 +209,13 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 				continue
 			endif
 
-			if(DimSize(label1, i) != DimSize(label2, i))
-				sprintf msg, "The sizes for dimension %d don't match: %d vs %d", i, DimSize(label1, i), DimSize(label2, i)
+			// label1 and label2 are 1D waves with the labels of dimension i
+			if(DimSize(label1, UTF_ROW) != DimSize(label2, UTF_ROW))
+				sprintf msg, "The sizes for dimension %d don't match: %d vs %d", i, DimSize(label1, UTF_ROW), DimSize(label2, UTF_ROW)
 				return 0
 			endif
 
-			numEntries = DimSize(label1, i)
+			numEntries = DimSize(label1, UTF_ROW)
 			for(j = 0; j < numEntries; j += 1)
 				if(!cmpstr(label1[j], label2[j], 1))
 					continue
