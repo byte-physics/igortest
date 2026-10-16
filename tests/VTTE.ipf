@@ -496,6 +496,21 @@ static Function TestIUTF()
 	Ensure(!IUTF_Checks#AreWavesEqual(dimLabel1, dimLabel2, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
 	Ensure(strsearch(detailedMsg, "dimension 3 at index 1: abcd vs efgh", 0) >= 0)
 	Ensure(!IUTF_Basics#GenerateDimLabelDifference(dimLabel1, dimLabel2, str))
+
+	// labels of the entire dimension, which are compared case-sensitive like EqualWaves does
+	Make/FREE/N=(2, 2) dimLabel1, dimLabel2
+	SetDimLabel 0, -1, abcd, dimLabel1
+	SetDimLabel 0, -1, abcD, dimLabel2
+	Ensure(!IUTF_Checks#AreWavesEqual(dimLabel1, dimLabel2, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(strsearch(detailedMsg, "entire dimension 0 differ: abcd vs abcD", 0) >= 0)
+	Ensure(!IUTF_Basics#GenerateDimLabelDifference(dimLabel1, dimLabel2, str))
+
+	Make/FREE/N=(2, 2) dimLabel1, dimLabel2
+	SetDimLabel 1, -1, abcd, dimLabel1
+	SetDimLabel 1, -1, abcD, dimLabel2
+	Ensure(!IUTF_Checks#AreWavesEqual(dimLabel1, dimLabel2, DIMENSION_LABELS, DEFAULT_TOLERANCE, detailedMsg))
+	Ensure(strsearch(detailedMsg, "entire dimension 1 differ: abcd vs abcD", 0) >= 0)
+	Ensure(!IUTF_Basics#GenerateDimLabelDifference(dimLabel1, dimLabel2, str))
 	// @}
 
 	// HasWaveMajorType

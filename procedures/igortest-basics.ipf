@@ -198,7 +198,8 @@ Function GenerateDimLabelDifference(wv1, wv2, msg)
 			str1 = GetDimLabel(wv1, i, -1)
 			str2 = GetDimLabel(wv2, i, -1)
 
-			if(cmpstr(str1, str2))
+			// case-sensitive like EqualWaves
+			if(cmpstr(str1, str2, 1))
 				tmpStr1 = IUTF_Utils#IUTF_PrepareStringForOut(str1)
 				tmpStr2 = IUTF_Utils#IUTF_PrepareStringForOut(str2)
 				sprintf msg, "Dimension labels for the entire dimension %d differ: %s vs %s", i, tmpStr1, tmpStr2
