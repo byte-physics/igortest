@@ -8,7 +8,6 @@ static StrConstant TAP_LINEEND_STR = "\n"
 
 /// @brief returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
 ///
-/// @param testCaseList list of function names
 /// @returns 1 if all test cases are marked as SKIP and TAP is enabled, zero otherwise
 static Function TAP_AreAllFunctionsSkip()
 
