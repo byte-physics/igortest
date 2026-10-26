@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+Unreleased
+----------
+
+- **Breaking**: A failed :cpp:func:`REQUIRE` assertion now aborts only the current test case, and the test run
+  continues with the next one. Cancelling the whole run takes a manual abort, a failing test hook or an internal
+  framework error.
+- Add :cpp:func:`SKIP_TESTCASE` and :cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`, which stop the current test case
+  without cancelling the test run
+- Add the autorun batch scripts for Igor Pro 9, for the 32-bit and the 64-bit executable, and for Igor Pro 10
+
 1.10 (03/30/2023)
 -----------------
 
@@ -14,6 +24,8 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
   Although the old main procedure file ``unit-testing.ipf`` still exists, users are advised to switch to
   ``igortest.ipf``. This change is fully backward compatible as all, now deprecated, names are kept until the next
   major release.
+- Rename all function tags to the ``IUTF_`` prefix, for example ``UTF_SKIP`` to ``IUTF_SKIP``. Tags with the old
+  ``UTF_`` prefix are still recognised and are deprecated, they will be removed with the next major release.
 - Add a flag to allow shuffling the test suite and test case order, see :ref:`here <shuffle_test_case_order>`
 - Fix the order of test case execution: IUTF now always executes the test cases from the same test suite together
 - Add support for rerunning "flaky" tests on failure, see :ref:`here <flaky_tests>`
@@ -30,11 +42,11 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
 - Be stricter when checking for compatible reentry functions (Igor Pro 6 only)
 - Skip test case end user hook as well if the test case was skipped
 - Skip test suite end hook when we did not call the test suite begin hook at all
-- Require that test cases marked as ``UTF_EXPECTED_FAILURE`` have failing test assertions
+- Require that test cases marked as ``IUTF_EXPECTED_FAILURE`` have failing test assertions
 - Fix ``UTF_FTAG_TAP_DIRECTIVE``/``UTF_FTAG_TAP_DESCRIPTION`` in Igor Pro 9 due to now illegal characters in dimension
   labels
 - Completely revise Readme.md
-- Copy all history output also to stdin/stderr (Igor Pro 8 and higher)
+- Copy all history output also to stdout/stderr (Igor Pro 8 and higher)
 - Enhance the output on failed assertions to include the full test case name
 - Add the test case name on failure for TAP output
 - Allow creating TAP and JUNIT output simultaneously
@@ -59,7 +71,7 @@ Test assertions
 - Added assertions for checking runtime errors, see :cpp:func:`*_RTE <CHECK_RTE>`, :cpp:func:`*_ANY_RTE <CHECK_ANY_RTE>` and
   :cpp:func:`*_NO_RTE <CHECK_NO_RTE>`
 - Changed parameter types of :cpp:func:`*_EQUAL_STR <CHECK_EQUAL_STR>` and :cpp:func:`*_NEQ_STR <CHECK_NEQ_STR>` to be
-  bass-by-value. This might break cases where a null string was passed. For null strings the test assertions
+  pass-by-value. This might break cases where a null string was passed. For null strings the test assertions
   :cpp:func:`*_NULL_STR <CHECK_NULL_STR>` and :cpp:func:`*_PROPER_STR <CHECK_PROPER_STR>` should be used.
 - Output messages from :cpp:func:`INFO` also on stderr and in JUNIT
 - Added assertions for compilation testing, see :cpp:func:`*_COMPILATION <CHECK_COMPILATION>` and
@@ -179,7 +191,7 @@ TAP output
 - The unit testing framework is now licensed under 3-Clause BSD. All contributors agreed to this license.
 - Add option to create TAP compatible log files
 - Add option to create JUNIT compatible log files
-- Fixed edge cases with empty test suites, non-reachable test cases and similiar
+- Fixed edge cases with empty test suites, non-reachable test cases and similar
 - Overwrite check for output files
 - Add optional arguments keepDataFolder and allowDebug to RunTest
 - Split of TestBegin functions in internal and user part
@@ -241,7 +253,7 @@ Thanks to `ryotako <https://github.com/ryotako>`__ for a few patches.
 1.02 (10/31/2013)
 -----------------
 
-Fix documentaton
+Fix documentation
 
 1.01 (10/22/2013)
 -----------------

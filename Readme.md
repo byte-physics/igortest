@@ -56,11 +56,16 @@ and an [introduction](https://docs.byte-physics.de/igortest/basic.html) to the b
 
 Igor Pro version 6.37 or newer on Windows and MacOSX
 
+Code coverage determination additionally requires Igor Pro 9 build 38812 or
+newer and the Thread Utilities XOP. The XOP is part of this repository in the
+`xop` folder and has to be copied into the `Igor Extensions` folder of the Igor
+Pro user folder.
+
 ## Installation
 
 1. Download the zip file attached to the newest
    [Release](https://github.com/byte-physics/igortest/releases/latest).
-   The file name is something like `UnitTestingFramework-v1.09.zip`.
+   The file name is something like `igortest-v1.10.zip`.
 2. Extract the zip file into a folder, e. g. `alice/IgorTestingFramework`
 3. Open the Igor Pro user folder by selecting `Help/Show Igor Pro User Files`
    from the menu in Igor Pro

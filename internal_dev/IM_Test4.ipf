@@ -36,6 +36,6 @@ Function RequireTest()
 End
 
 Function CheckTest2()
-	print "CODERS FAIL: I should be never reached\r"
+	print "I'm reached, the failed REQUIRE stopped RequireTest only\r"
 	CHECK_EQUAL_VAR(1.0, 0.0)
 End

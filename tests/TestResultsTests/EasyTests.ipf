@@ -187,3 +187,20 @@ static Function TC_SkipTCFail_Check()
 	WAVE/T wvSuite = IUTF_Reporting#GetTestSuiteWave()
 	CHECK_EQUAL_STR(wvSuite[%CURRENT][%NUM_SKIPPED], "2")
 End
+
+// Discovery selects with VALTYPE:1, real-valued only, so a complex-valued
+// function is not a test case even though "numeric" in Igor includes complex.
+static Function/C ComplexReturnCase()
+	PASS()
+	return cmplx(1, 2)
+End
+
+static Function ComplexReturnNotCollected()
+	string list
+
+	list = IUTF_Basics#GetTestCaseList("EasyTests.ipf")
+	INFO("Collected: %s", s0 = list)
+
+	CHECK(strsearch(list, "ComplexReturnCase", 0) < 0)
+	CHECK(strsearch(list, "ComplexReturnNotCollected", 0) >= 0)
+End

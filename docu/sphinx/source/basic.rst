@@ -68,7 +68,9 @@ A Test Case is one of the basic building blocks grouping :ref:`assertions
 fulfills all of the following properties:
 
 1. It takes no parameters.
-2. It returns a numeric value (Igor Pro default).
+2. It returns a real-valued numeric value (Igor Pro default). A function
+   declared with the :code:`/C` flag returns a complex value and is not
+   collected as a test case.
 3. Its name does not end with `_IGNORE` or `_REENTRY`.
 4. It is either non-static, or static and part of a regular module.
 
@@ -100,8 +102,15 @@ tags, every tag in separate line):
 
 All assertions in a test case are marked as expected failures. If the test case
 ends due to an :code:`Abort`, :code:`AbortOnRTE` or pending RTE this is also
-considered as expected failure and neighter the error counter is increased or
-test case failed.
+considered as expected failure: neither the error counter is increased nor the
+test case fails.
+
+.. note::
+
+   Function tags written with the deprecated ``UTF_`` prefix, for example
+   ``UTF_EXPECTED_FAILURE``, are still recognised for backward compatibility.
+   They will be removed with the next major release. See :ref:`function_tags`
+   for the complete list of function tags.
 
 
 Example:
@@ -113,7 +122,7 @@ are defined. In Test Suite `TestSuite_2.ipf` the Test Cases `static Duplicate()`
 
 .. code-block:: igor
 
-   Runtest("TestSuite_1.ipf;TestSuite_2.ipf", testCase="Unique_1;Unique_2;Duplicate")
+   RunTest("TestSuite_1.ipf;TestSuite_2.ipf", testCase="Unique_1;Unique_2;Duplicate")
 
 The command will run the two test suites `TestSuite_1.ipf` and
 `TestSuite_2.ipf` separately. Within every test suites two test cases are
@@ -154,9 +163,16 @@ difference between the three assertion prefix groups:
 
 The most simple assertion is :cpp:func:`CHECK` which tests if its argument is
 true. If you do not want to increase the error count, you could use the
-corresponding :cpp:func:`WARN` function and if you want to Abort the execution
+corresponding :cpp:func:`WARN` function and if you want to abort the execution
 of the current test case if the supplied argument is false, you can use the
 :cpp:func:`REQUIRE` variant for this.
+
+.. note::
+
+   A failed :cpp:func:`REQUIRE` assertion stops the current test case only: the
+   test case end hooks are executed and the run continues with the next test
+   case. Cancelling the whole run takes a manual abort, a failing test hook or
+   an internal framework error. See :ref:`abort_code_handling`.
 
 Similar to these simple assertions there are many different checks for typical
 use cases. Comparing two variables, for example, can be done with
@@ -168,9 +184,29 @@ use cases. Comparing two variables, for example, can be done with
    See :ref:`group_assertions` for a complete list of all available checks. If
    in doubt use the `CHECK` variant.
 
-Assertions with only one variant are :cpp:func:`PASS` and :cpp:func:`FAIL`.
-If you want to know more about how to use these two special assertions, take a
-look at :ref:`example7`.
+Assertions with only one variant are :cpp:func:`PASS`, :cpp:func:`FAIL`,
+:cpp:func:`INFO`, :cpp:func:`SKIP_TESTCASE` and
+:cpp:func:`SKIP_TESTCASE_EXPECT_FAILS`. If you want to know more about how to
+use the first two of these special assertions, take a look at :ref:`example7`.
+
+Skipping a test case
+^^^^^^^^^^^^^^^^^^^^
+
+:cpp:func:`SKIP_TESTCASE` aborts the current test case and reports it as
+``SKIP`` instead of ``FAIL``. Use it when the preconditions of a test case are
+not fulfilled and a failure would be misleading, for example a missing
+instrument or an optional input file. The assertion counter is increased, so a
+test case which skips does not trip the requirement of containing at least one
+assertion.
+
+The test case is aborted from within the assertion, therefore
+:cpp:func:`SKIP_TESTCASE` must be the last statement of a test case. A
+registered background monitor for a reentry is unregistered automatically.
+
+:cpp:func:`SKIP_TESTCASE_EXPECT_FAILS` does the same as
+:cpp:func:`SKIP_TESTCASE` and additionally marks the test case as an expected
+failure. Assertions which failed before the skip are treated as expected
+failures and do not increase the error counter.
 
 .. _AbortingTestRun:
 

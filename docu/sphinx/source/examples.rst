@@ -26,7 +26,7 @@ function is also capable of handling :code:`INF` singularities.
    :caption: example1-plain.ipf
    :tab-width: 4
    :linenos:
-   :emphasize-lines: 11
+   :emphasize-lines: 11,12
 
 The test suite can be executed using the following command:
 
@@ -35,7 +35,7 @@ The test suite can be executed using the following command:
 
    RunTest("example1-plain.ipf")
 
-By looking at line 10 in this example it becomes clear that
+By looking at lines 11 and 12 in this example it becomes clear that
 :cpp:func:`CHECK_EQUAL_VAR` is a better way of comparing numeric variables then
 the plain :cpp:func:`CHECK` assertion since :code:`NaN == NaN` is false. The
 error is skipped by using the :cpp:func:`WARN` variant and will not raise the
@@ -110,8 +110,8 @@ This test suite emphasizes the difference between the :cpp:func:`WARN`,
 The :cpp:func:`WARN_* <WARN>` variant does not increment the error count if the
 executed assertion fails. :cpp:func:`CHECK_* <CHECK>` variants increase the
 error count. :cpp:func:`REQUIRE_* <REQUIRE>` variants also increment the error
-count but will stop the execution of the test run immediately if the assertion
-fails.
+count but will stop the execution of the current test case immediately if the
+assertion fails.
 
 Even if a test has failed, the test end hook is still executed. See
 :ref:`example5` for more details on hooks.
@@ -188,7 +188,7 @@ Here is shown how user code can be added to the Test Run at certain points. In
 this test suite, additional code can be executed at the beginning and end of
 the test cases. This is done by declaring the :code:`TEST_CASE_BEGIN_OVERRIDE`
 or :code:`TEST_CASE_END_OVERRIDE` function :code:`'static'`. Functions with
-this sepcific naming and the :code:`_OVERRIDE` suffix are automatically found
+this specific naming and the :code:`_OVERRIDE` suffix are automatically found
 and registered as hooks.
 
 Be aware that a :code:`'static'` defined hook overrides any global
@@ -323,8 +323,19 @@ an example how the user can check for RTEs and aborts at the same time.
 
 When using :code:`CHECK_RTE`, :code:`CHECK_ANY_RTE` or :code:`CHECK_NO_RTE` the
 user has to keep in mind that any :code:`INFO` has to be called before the
-critical statement as :code:`INFO` does nothing when a pending RTE exists to
-keep the error state unchanged.
+critical statement. :code:`INFO` refuses to format its output while a runtime
+error is pending, because Igor's :code:`sprintf` misbehaves in that state, and it
+reports that refusal as a failed assertion. A late :code:`INFO` therefore adds an
+error to the test case instead of the context you wanted:
+
+.. code-block:: text
+   :caption: history output of an :code:`INFO` called with a pending RTE
+
+   PrintF error "Pending RTE detected: <error> in <call stack>": is false.
+   Assertion "INFO(...)" failed in <test case> (<file>, line <n>)
+
+An :code:`INFO` inside a :code:`catch` block is unaffected: an abort is not a
+runtime error, so nothing is pending there.
 
 
 .. literalinclude:: ../../examples/example8-uncaught-runtime-errors.ipf
@@ -499,6 +510,6 @@ context to the assertion.
 
 .. note::
 
-   Defintion for the :doc:`assertions` in this test suite:
+   Definition for the :doc:`assertions` in this test suite:
 
    * :cpp:func:`INFO`

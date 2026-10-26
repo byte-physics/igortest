@@ -195,3 +195,31 @@ static Function TestGenSignature()
 	INFO("Expect to be aborted")
 	CHECK_EQUAL_VAR(1, aborted)
 End
+
+static Function/WAVE GeneratorFarTag()
+	Make/FREE data = {1337}
+
+	return data
+End
+
+// IUTF_TD_GENERATOR GeneratorFarTag
+// The tag is deliberately far above the Function line below. The framework
+// reads the whole comment block back to the previous function, so distance
+// does not matter; only a preceding function does. The filler lines below
+// keep this tag out of a four-line window, which is the limit the code does
+// not implement.
+//
+// filler
+// filler
+// filler
+// filler
+// filler
+// filler
+// filler
+// filler
+static Function GeneratorFarTag_Verify([var])
+	variable var
+
+	INFO("Check if the distant tag still supplied the data generator")
+	CHECK_EQUAL_VAR(1337, var)
+End
