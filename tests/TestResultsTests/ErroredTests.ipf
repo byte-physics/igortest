@@ -196,6 +196,58 @@ static Function TestAbortOnValueNegative_Verify()
 	CHECK_EQUAL_STR(expect, result)
 End
 
+static Function TestAbortOnValueMinus2()
+	PASS()
+	AbortOnValue 1, -2
+	FAIL()
+End
+
+static Function TestAbortOnValueMinus2_Verify()
+	string expect, result, stdErr
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	stdErr = tc[0][%STDERR]
+	expect = "Stack Overflow or encountered \"AbortOnValue\" Code -2 in test case \"TS_ErroredTests#TestAbortOnValueMinus2\""
+	INFO("Check if stderr reports the abort code")
+	CHECK_GE_VAR(strsearch(stdErr, expect, 0), 0)
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_ERROR)
+
+	INFO("Check if the assertion counter is correct")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End
+
+static Function TestAbortOnValueMinus4()
+	PASS()
+	AbortOnValue 1, -4
+	FAIL()
+End
+
+static Function TestAbortOnValueMinus4_Verify()
+	string expect, result, stdErr
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	stdErr = tc[0][%STDERR]
+	expect = "Encountered \"AbortOnValue\" Code -4 in test case \"TS_ErroredTests#TestAbortOnValueMinus4\""
+	INFO("Check if stderr reports the abort code")
+	CHECK_GE_VAR(strsearch(stdErr, expect, 0), 0)
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_ERROR)
+
+	INFO("Check if the assertion counter is correct")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End
+
 static Function TestAbortOnRTE()
 	// increase assertion counter
 	PASS()
