@@ -236,3 +236,30 @@ static Function TestAbortOnRTE_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+// IUTF_EXPECTED_FAILURE
+static Function ExpectedAbort()
+	Abort
+End
+
+static Function ExpectedAbort_Verify()
+	string expect, result
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	INFO("Check if status is success")
+	expect = IUTF_STATUS_SUCCESS
+	result = tc[0][%STATUS]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if no assertion errors are set")
+	expect = "0"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if stderr reports the abort")
+	result = tc[0][%STDERR]
+	CHECK_NON_EMPTY_STR(result)
+End
