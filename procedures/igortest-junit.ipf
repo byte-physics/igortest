@@ -10,20 +10,18 @@ static Function/S JU_TrimSOUT(input, [listSepStr])
 	string input
 	string listSepStr
 
-	variable i, numItems
-	string output = ""
-
 	if(ParamIsDefault(listSepStr))
 		listSepStr = "\r"
 	endif
 
-	numItems = ItemsInList(input, listSepStr)
-	for(i = 0; i < numItems; i += 1)
-		output += TrimString(StringFromList(i, input, listSepStr))
-		output += listSepStr
-	endfor
+	WAVE/T lines = ListToTextWave(input, listSepStr)
+	if(DimSize(lines, 0) == 0)
+		return ""
+	endif
 
-	return output
+	lines = TrimString(lines[p]) + listSepStr
+
+	return IUTF_Utils#ConcatenateTextWave(lines)
 End
 
 /// Formats the specified TimeStamp in the form yyyy-mm-ddThh:mm:ss in local time

@@ -5,6 +5,7 @@
 #pragma ModuleName=TEST_Main
 
 #include "igortest"
+#include ":Reporting:JUnitTests"
 #include ":Reporting:WarnTests"
 #include ":Tracing:CoberturaTests"
 #include ":Tracing:ComplexityTests"
