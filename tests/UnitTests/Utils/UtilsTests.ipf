@@ -72,3 +72,33 @@ static Function Test_TextWaveToList()
 		CHECK_EQUAL_STR(ReferenceTextWaveToList(wv, "\r\n"), IUTF_Utils#TextWaveToList(wv, "\r\n"))
 	endfor
 End
+
+static Function CheckListToTextWave(list, sep)
+	string list, sep
+
+	variable i, numItems
+
+	WAVE/T result = ListToTextWave(list, sep)
+
+	numItems = ItemsInList(list, sep)
+	INFO("list \"%s\"", s0 = list)
+	CHECK_EQUAL_VAR(numItems, DimSize(result, 0))
+
+	for(i = 0; i < numItems; i += 1)
+		INFO("list \"%s\", item %d", s0 = list, n0 = i)
+		CHECK_EQUAL_STR(StringFromList(i, list, sep), result[i])
+	endfor
+End
+
+static Function Test_ListToTextWave()
+	CheckListToTextWave("", ";")
+	CheckListToTextWave(";", ";")
+	CheckListToTextWave(";;", ";")
+	CheckListToTextWave("a", ";")
+	CheckListToTextWave("a;", ";")
+	CheckListToTextWave("a;b", ";")
+	CheckListToTextWave("a;;b;", ";")
+	CheckListToTextWave(";a", ";")
+	CheckListToTextWave("1ab2abab3", "ab")
+	CheckListToTextWave("1ab2ab", "ab")
+End

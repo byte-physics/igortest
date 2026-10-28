@@ -28,13 +28,31 @@ End
 #else
 /// @brief Convert a string list to a text wave
 ///
+/// The list is searched only once, as StringFromList() for every item would take quadratic time.
+///
 /// @param[in] list string list
 /// @param[in] sep separator string
 /// @returns wave reference to free wave
 Function/WAVE ListToTextWave(list, sep)
 	string list, sep
 
-	Make/T/FREE/N=(ItemsInList(list, sep)) result = StringFromList(p, list, sep)
+	variable i, numItems, start, pos, sepLength
+
+	numItems  = ItemsInList(list, sep)
+	sepLength = strlen(sep)
+
+	Make/T/FREE/N=(numItems) result
+
+	for(i = 0; i < numItems; i += 1)
+		pos = strsearch(list, sep, start)
+		if(pos < 0)
+			result[i] = list[start, Inf]
+			break
+		endif
+
+		result[i] = list[start, pos - 1]
+		start     = pos + sepLength
+	endfor
 
 	return result
 End
