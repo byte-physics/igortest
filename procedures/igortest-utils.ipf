@@ -90,6 +90,47 @@ threadsafe static Function IsInteger(var)
 	return trunc(var) == var && numtype(var) == 0
 End
 
+/// @brief Concatenate all elements of a 1D text wave
+///
+/// Neighboring elements are joined pairwise until one element is left. Every pass copies the text once, so the
+/// runtime is linear in the total length, in contrast to appending each element to a growing string.
+///
+/// @param[in] txtWave 1D text wave
+/// @returns concatenated elements
+static Function/S ConcatenateTextWave(txtWave)
+	WAVE/T txtWave
+
+	variable numRows
+
+	numRows = DimSize(txtWave, 0)
+	if(numRows == 0)
+		return ""
+	endif
+
+	Duplicate/FREE/T txtWave, joinedWave
+	WAVE/T joined = joinedWave
+
+	do
+		if(numRows == 1)
+			break
+		endif
+
+		if(mod(numRows, 2))
+			numRows += 1
+			Redimension/N=(numRows) joined
+		endif
+
+		Make/FREE/T/N=(numRows / 2) halfWave
+		WAVE/T half = halfWave
+		half = joined[2 * p] + joined[2 * p + 1]
+
+		WAVE/T joined = half
+		numRows = DimSize(joined, 0)
+	while(1)
+
+	return joined[0]
+End
+
 /// @brief Convert a text wave to string list
 ///
 /// @param[in] txtWave 1D text wave
@@ -99,15 +140,15 @@ static Function/S TextWaveToList(txtWave, sep)
 	WAVE/T txtWave
 	string sep
 
-	string list = ""
-	variable i, numRows
+	if(DimSize(txtWave, 0) == 0)
+		return ""
+	endif
 
-	numRows = DimSize(txtWave, 0)
-	for(i = 0; i < numRows; i += 1)
-		list = AddListItem(txtWave[i], list, sep, Inf)
-	endfor
+	Duplicate/FREE/T txtWave, itemsWave
+	WAVE/T items = itemsWave
+	items = txtWave[p] + sep
 
-	return list
+	return ConcatenateTextWave(items)
 End
 
 /// @brief Prepare the passed string for output
