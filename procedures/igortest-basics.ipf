@@ -436,34 +436,35 @@ static Function EvaluateRTE(err, errmessage, abortCode, funcName, funcType, proc
 		IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
 		message = str
 	endif
-	if(abortCode != -4)
-		str = ""
-		switch(abortCode)
-			case -1:
-				sprintf str, "User aborted Test Run manually in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				IUTF_Reporting#AddFailedSummaryInfo(str)
-				IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				break
-			case -2:
-				sprintf str, "Stack Overflow in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				IUTF_Reporting#AddFailedSummaryInfo(str)
-				IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				break
-			case -3:
-				sprintf str, "Encountered \"Abort\" in %s \"%s\" (%s)", funcTypeString, funcName, procWin
-				IUTF_Reporting#AddFailedSummaryInfo(str)
-				IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-				break
-			default:
-				break
-		endswitch
-		message += str
-		if(abortCode > 0)
+	// AbortOnValue can use the same codes as Igor Pro, so these can't be told apart
+	str = ""
+	switch(abortCode)
+		case 0:
+			break
+		case -1:
+			sprintf str, "User aborted Test Run manually or encountered \"AbortOnValue\" Code -1 in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+			break
+		case -2:
+			sprintf str, "Stack Overflow or encountered \"AbortOnValue\" Code -2 in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+			break
+		case -3:
+			sprintf str, "Encountered \"Abort\" or \"AbortOnValue\" Code -3 in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+			break
+		case -4:
+			// AbortOnRTE, the runtime error is already reported
+			if(!err)
+				sprintf str, "Encountered \"AbortOnValue\" Code -4 in %s \"%s\" (%s)", funcTypeString, funcName, procWin
+			endif
+			break
+		default:
 			sprintf str, "Encountered \"AbortOnValue\" Code %d in %s \"%s\" (%s)", abortCode, funcTypeString, funcName, procWin
-			IUTF_Reporting#AddFailedSummaryInfo(str)
-			IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
-			message += str
-		endif
+			break
+	endswitch
+
+	if(!IUTF_Utils#IsEmpty(str))
+		IUTF_Reporting#AddFailedSummaryInfo(str)
+		IUTF_Reporting#AddError(str, IUTF_STATUS_ERROR)
+		message += str
 	endif
 
 	IUTF_Reporting#ReportError(message, incrGlobalErrorCounter = 0)
