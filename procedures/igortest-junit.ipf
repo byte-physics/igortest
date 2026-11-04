@@ -4,23 +4,75 @@
 #pragma version=1.10
 #pragma ModuleName=IUTF_JUnit
 
+// number of bytes up to which JU_TrimLines() trims the lines in a loop instead of splitting them further in Igor Pro 6
+static Constant JU_TRIM_LOOP_BYTES = 2048
+
 /// trim leading and trailing white spaces from
 /// every line of the given string
 static Function/S JU_TrimSOUT(input, [listSepStr])
 	string input
 	string listSepStr
 
-	variable i, numItems
-	string output = ""
-
 	if(ParamIsDefault(listSepStr))
 		listSepStr = "\r"
 	endif
 
-	numItems = ItemsInList(input, listSepStr)
-	for(i = 0; i < numItems; i += 1)
-		output += TrimString(StringFromList(i, input, listSepStr))
-		output += listSepStr
+#if (IgorVersion() >= 7.0)
+	// trimming the lines in a loop is linear from Igor Pro 7 on, and faster than splitting the input
+	return JU_TrimLines(input, listSepStr, listSepStr, 0)
+#else
+	// StringFromList() of Igor Pro 6 only splits at the first character of the separator
+	return JU_TrimLines(input, listSepStr[0], listSepStr, 1)
+#endif
+End
+
+/// @brief Trim leading and trailing white spaces from every line of input and end every line with lineEnd
+///
+/// With split, a long input is split at a line separator near the middle and the halves are trimmed recursively, so
+/// that every character is copied about log2(n) times. Appending every line to the result in a single loop is
+/// quadratic in Igor Pro 6, which copies the whole string on every append. strsearch and substrings take time
+/// proportional to the length of the whole string there as well, so the halves are passed on as strings of
+/// their own instead of as ranges of input.
+/// The separator must not be one whose occurrences can overlap, e.g. ";;", for a split, as an occurrence found from
+/// the middle is not necessarily a line boundary.
+///
+/// @param[in] input   string with lines
+/// @param[in] sep     line separator
+/// @param[in] lineEnd string appended to every trimmed line
+/// @param[in] split   1 to split a long input, 0 to trim all lines in a loop
+/// @returns trimmed lines
+static Function/S JU_TrimLines(input, sep, lineEnd, split)
+	string input, sep, lineEnd
+	variable split
+
+	variable len, pos, next, mid, sepLength
+	string output = ""
+
+	len       = strlen(input)
+	sepLength = strlen(sep)
+
+	if(split && len > JU_TRIM_LOOP_BYTES)
+		mid  = trunc(len / 2)
+		next = strsearch(input, sep, mid)
+		if(next < 0 || (next + sepLength) >= len)
+			// the second half is part of the last line, split before it
+			next = strsearch(input, sep, mid, 1)
+		endif
+
+		if(next >= 0 && (next + sepLength) < len)
+			return JU_TrimLines(input[0, next + sepLength - 1], sep, lineEnd, split) + JU_TrimLines(input[next + sepLength, len - 1], sep, lineEnd, split)
+		endif
+
+		// the input is a single line
+	endif
+
+	for(pos = 0; pos < len; pos = next + sepLength)
+		next = strsearch(input, sep, pos)
+		if(next < 0)
+			next = len
+		endif
+
+		output += TrimString(input[pos, next - 1]) + lineEnd
 	endfor
 
 	return output
