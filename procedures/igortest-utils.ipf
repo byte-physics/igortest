@@ -18,6 +18,11 @@ static Constant MAX_STRING_LENGTH = 250
 static Constant UTF_DECIMAL_DIGITS_FP32 = 7
 static Constant UTF_DECIMAL_DIGITS_FP64 = 16
 
+#if IgorVersion() < 7.0
+// number of elements which ConcatenateTextWaveRange() appends in a loop instead of splitting them further
+static Constant CONCATENATE_LOOP_ELEMENTS = 16
+#endif
+
 // The range of printable ASCII characters.
 static Constant ASCII_PRINTABLE_START = 32
 static Constant ASCII_PRINTABLE_END   = 126
@@ -90,6 +95,42 @@ threadsafe static Function IsInteger(var)
 	return trunc(var) == var && numtype(var) == 0
 End
 
+#if IgorVersion() < 7.0
+
+/// @brief Concatenate the elements first to last - 1 of a 1D text wave, each followed by a separator
+///
+/// The range is split into halves down to a few elements, which are appended in a loop, and the halves are
+/// concatenated. Every character is copied about log2(n) times. Appending all elements in a single loop is
+/// quadratic in Igor Pro 6, which copies the whole string on every append, and so is writing into a text wave.
+///
+/// @param[in] txtWave 1D text wave
+/// @param[in] first   index of the first element
+/// @param[in] last    index after the last element
+/// @param[in] sep     separator string
+/// @returns concatenated elements
+static Function/S ConcatenateTextWaveRange(txtWave, first, last, sep)
+	WAVE/T txtWave
+	variable first, last
+	string sep
+
+	variable i, mid
+	string result = ""
+
+	if(last - first <= CONCATENATE_LOOP_ELEMENTS)
+		for(i = first; i < last; i += 1)
+			result += txtWave[i] + sep
+		endfor
+
+		return result
+	endif
+
+	mid = trunc((first + last) / 2)
+
+	return ConcatenateTextWaveRange(txtWave, first, mid, sep) + ConcatenateTextWaveRange(txtWave, mid, last, sep)
+End
+
+#endif
+
 /// @brief Convert a text wave to string list
 ///
 /// @param[in] txtWave 1D text wave
@@ -99,15 +140,23 @@ static Function/S TextWaveToList(txtWave, sep)
 	WAVE/T txtWave
 	string sep
 
-	string list = ""
+#if IgorVersion() >= 7.0
 	variable i, numRows
+	string list = ""
 
+	// appending is linear from Igor Pro 7 on, and a plain loop is faster than splitting the text wave
 	numRows = DimSize(txtWave, 0)
 	for(i = 0; i < numRows; i += 1)
-		list = AddListItem(txtWave[i], list, sep, Inf)
+		list += txtWave[i] + sep
 	endfor
 
 	return list
+#else
+	// AddListItem() of Igor Pro 6 only appended the first character of the separator
+	sep = sep[0]
+
+	return ConcatenateTextWaveRange(txtWave, 0, DimSize(txtWave, 0), sep)
+#endif
 End
 
 /// @brief Prepare the passed string for output
