@@ -31,7 +31,8 @@ Function CheckForRTEs()
 
 	// If you want to test for RTEs and aborts at the same time you can do this doing this:
 	try
-		// info has to be set before the function call
+		// INFO must come before the call: with a pending RTE it refuses to
+		// format and reports a failed assertion instead
 		INFO("checks if CustomUserFunction returns with no RTE or aborts")
 		CustomUserFunction()
 		CHECK_NO_RTE()

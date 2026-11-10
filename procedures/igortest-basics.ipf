@@ -325,6 +325,28 @@ static Function InitAbortFromSkipFlag()
 	variable/G dfr:abortFromSkipFlag = 0
 End
 
+/// Returns 1 if the abortFromRequireFlag is set and zero otherwise
+static Function IsAbortFromRequire()
+	NVAR/Z/SDFR=GetPackageFolder() abortFromRequireFlag
+	if(NVAR_Exists(abortFromRequireFlag) && abortFromRequireFlag == 1)
+		return 1
+	else
+		return 0
+	endif
+End
+
+/// Sets the abortFromRequireFlag flag
+static Function SetAbortFromRequireFlag()
+	DFREF      dfr                     = GetPackageFolder()
+	variable/G dfr:abortFromRequireFlag = 1
+End
+
+/// Resets the abortFromRequireFlag flag
+static Function InitAbortFromRequireFlag()
+	DFREF      dfr                     = GetPackageFolder()
+	variable/G dfr:abortFromRequireFlag = 0
+End
+
 /// @brief returns 1 if the current testcase is marked as expected failure, zero otherwise
 ///
 /// @returns 1 if the current testcase is marked as expected failure, zero otherwise
@@ -568,6 +590,9 @@ End
 /// @param[in]  matchStr    * List of test cases, separated by ";" (enableRegExp = 0)
 ///                         * *one* regular expression without ";" (enableRegExp = 1)
 /// @param[in]  enableRegExp (0,1) defining the type of search for matchStr
+///                         The regular expression is wrapped as "^(?i)<matchStr>$" and
+///                         matched case-insensitively against the complete function names,
+///                         without the module name.
 /// @param[out] errMsg error message in case of error
 /// @param[in]  enableTAP   Specify if TAP output is enabled or not
 /// @param[in]  debugMode   The current debug mode
@@ -820,7 +845,10 @@ End
 ///
 /// @param procWinList   a list of procedures to check
 /// @param enableRegExp  treat list items as regular expressions
-/// @returns parsed list of procedures
+/// @returns parsed list of procedures. The order is the order of @a procWinList,
+///          except for regular expressions: those are expanded against
+///          WinList(), whose order is undefined, so the result is sorted
+///          case-insensitively instead. See :ref:`selecting_test_suites`.
 static Function/S FindProcedures(procWinListIn, enableRegExp)
 	string   procWinListIn
 	variable enableRegExp
@@ -884,6 +912,10 @@ static Function/S FindProcedures(procWinListIn, enableRegExp)
 			endif
 		endfor
 	endfor
+
+	if(enableRegExp)
+		procWinListOut = SortList(procWinListOut, ";", 4)
+	endif
 
 	return procWinListOut
 End
@@ -1331,7 +1363,9 @@ End
 ///
 /// @param   reentryFunc   Name of the function that the universal testing framework calls when the monitored background tasks finished.
 ///                        The function name must end with _REENTRY and it must be of the form `$fun_REENTRY()` (same format as test cases).
-///                        The reentry function *continues* the current test case therefore no hooks are called.
+///                        The reentry function *continues* the current test case, therefore its BEGIN hooks are
+///                        not called again. Its END hooks are skipped while the framework drops to the command
+///                        prompt as well, but they run once the test case really ends.
 ///
 /// @param   timeout       (optional) default 0. Timeout in seconds that the background monitor waits for the test case task(s).
 ///                        A timeout of 0 equals no timeout. If the timeout is reached the registered reentry function is called.
@@ -1409,7 +1443,7 @@ static Function CanRetry(skip, s, fullFuncName, tcResultIndex)
 	endif
 
 	// check if the test run should be aborted and IUTF_RETRY_REQUIRES is not set
-	if(!(s.retryMode & IUTF_RETRY_REQUIRES) && shouldDoAbort())
+	if(!(s.retryMode & IUTF_RETRY_REQUIRES) && (shouldDoAbort() || IsAbortFromRequire()))
 		return 0
 	endif
 
@@ -1447,6 +1481,7 @@ static Function CleanupRetry(s, tcResultIndex)
 	IUTF_Utils_Waves#MoveDimLabel(wvFailedProc, UTF_ROW, "CURRENT", s.retryFailedProc - 1)
 	// cleanup abort flag to allow failed REQUIRE
 	InitAbortFlag()
+	InitAbortFromRequireFlag()
 End
 
 static Function ClearTestSetupWaves()
@@ -1496,6 +1531,8 @@ End
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n The procedure name must not include Independent Module specifications.
 ///                         @n This parameter can be given as a regular expression with enableRegExp set to 1.
+///                         @n The expression is matched case-insensitively against the *whole*
+///                         @n procedure window name, including the ".ipf" extension. See enableRegExp.
 ///
 /// @param   name           (optional) default "Unnamed" @n
 ///                         descriptive name for the executed test suites. This can be
@@ -1506,6 +1543,7 @@ End
 ///                         executed in the given list of test suites (procWinList).
 ///                         @n The list should be given semicolon (";") separated.
 ///                         @n This parameter can be treated as a regular expression with enableRegExp set to 1.
+///                         @n A regular expression must not contain ";".
 ///
 /// @param   enableJU       (optional) default disabled, enabled when set to 1: @n
 ///                         A JUNIT compatible XML file is written at the end of the Test Run.
@@ -1524,6 +1562,14 @@ End
 /// @param   enableRegExp   (optional) default disabled, enabled when set to 1: @n
 ///                         The input for test suites (procWinList) and test cases (testCase) is
 ///                         treated as a regular expression.
+///                         @n The framework wraps each expression as ``^(?i)<expression>$`` and
+///                         @n matches it against the complete names: the procedure window names
+///                         @n for procWinList and the function names, without the module name,
+///                         @n for testCase. So the expression for procWinList has to cover the
+///                         @n ".ipf" extension and the one for testCase must not contain it,
+///                         @n matching is case-insensitive, and "*" is a quantifier and not a
+///                         @n shell wildcard:
+///                         @n "everything starting with example" is "example.*".
 ///                         @verbatim embed:rst:leading-slashes
 ///                             .. code-block:: igor
 ///                                :caption: Example
@@ -1535,6 +1581,10 @@ End
 ///                             * :ref:`example1-plain.ipf<example1>`
 ///                             * :ref:`example2-plain.ipf<example2>`
 ///                             * :ref:`example3-plain.ipf<example3>`
+///
+///                             A pattern that matches no procedure window is reported on the
+///                             history and :cpp:func:`RunTest` returns without executing anything.
+///                             See :ref:`selecting_test_suites` for the details.
 ///                         @endverbatim
 ///
 /// @param   allowDebug     (optional) default disabled, enabled when set to 1: @n
@@ -1562,8 +1612,9 @@ End
 ///                         produced data.
 ///
 /// @param   traceWinList   (optional) default ""
-///                         A list of windows where execution gets traced. The universal testing framework saves a RTF document
-///                         for each traced procedure file. When REGEXP was set in traceOptions then traceWinList is also interpreted
+///                         A list of windows where execution gets traced. The universal testing framework saves an HTML document
+///                         for each traced procedure file. Code coverage determination requires Igor Pro 9 build 38812 or newer
+///                         and the Thread Utilities XOP. When REGEXP was set in traceOptions then traceWinList is also interpreted
 ///                         as a regular expression.
 ///                         The experiment is required to be saved somewhere on the disk. (it is okay to have unsaved changes.)
 ///
@@ -1598,8 +1649,8 @@ End
 ///                           the IUTF_RETRY_FAILED function tag.
 ///                         - IUTF_RETRY_MARK_ALL_AS_RETRY: Treats all test cases as flaky. There is no need to use the IUTF_RETRY_FAILED
 ///                           function tag. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
-///                         - IUTF_RETRY_REQUIRES: Allow to retry failed REQUIRE assertions. This option does nothing if
-///                           IUTF_RETRY_FAILED_UNTIL_PASS is not set.
+///                         - IUTF_RETRY_REQUIRES: Allow to retry test cases which aborted due to a failed REQUIRE
+///                           assertion. This option does nothing if IUTF_RETRY_FAILED_UNTIL_PASS is not set.
 ///
 /// @param   retryMaxCount  (optional) default IUTF_MAX_SUPPORTED_RETRY
 ///                         Sets the maximum number of retries if rerunning of flaky tests is enabled. Setting this number
@@ -1615,6 +1666,14 @@ End
 ///                         IUTF_SHUFFLE_ALL: A combination of IUTF_SHUFFLE_TEST_SUITES and IUTF_SHUFFLE_TEST_CASES
 ///
 /// @return                 total number of errors
+///                         Returns NaN if the test run could not be started, for example when the experiment is not
+///                         saved although JUNIT, TAP or code coverage output was requested, when the list of procedure
+///                         windows is empty or invalid, when no test case matches the given pattern, or when the test
+///                         setup is rejected. NaN is also returned when only the instrumentation for the code coverage
+///                         was requested.
+///                         Returns RUNTEST_RET_BCKG (-1) when the run was suspended because of registered background
+///                         activity and is continued on reentry. That value is not an error count and must not be
+///                         mistaken for one.
 Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp, allowDebug, debugMode, keepDataFolder, traceWinList, traceOptions, fixLogName, waveTrackingMode, retry, retryMaxCount, shuffle])
 	string procWinList, name, testCase
 	variable enableJU, enableTAP, enableRegExp
@@ -1676,6 +1735,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 		CreateHistoryLog()
 		InitAbortFlag()
 		InitAbortFromSkipFlag()
+		InitAbortFromRequireFlag()
 		IUTF_Reporting_Control#SetupTestRun()
 
 		allowDebug = ParamIsDefault(allowDebug) ? 0 : !!allowDebug
@@ -1885,6 +1945,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 			endif
 
 			SetExpectedFailure(str2num(testRunData[s.i][%EXPECTFAIL]))
+			InitAbortFromRequireFlag()
 			skip        = str2num(testRunData[s.i][%SKIP])
 			s.dgenIndex = 0
 			s.tcSuffix  = ""
@@ -1955,8 +2016,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				catch
 					msg   = GetRTErrMessage()
 					s.err = GetRTError(1)
-					// clear the abort code from setAbortFlag()
-					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() ? 0 : V_AbortCode
+					// clear the abort code from setAbortFlag() and from a failed REQUIRE
+					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() || IsAbortFromRequire() ? 0 : V_AbortCode
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
@@ -2028,6 +2089,8 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				continue
 			else
 				s.retryIndex = 0
+				// kept up to here as CanRetry needs it
+				InitAbortFromRequireFlag()
 			endif
 
 			if(shouldDoAbort())

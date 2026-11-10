@@ -26,8 +26,9 @@ static Function BackgroundTesta()
 	Abort
 End
 
-// We issue a REQUIRE after the registration where the IUTF should abort further testing
-// The (internal) IUTF background monitor is stopped and the reentry function NOT called.
+// We issue a REQUIRE after the registration. It stops this test case only and the run
+// continues with the next one.
+// The (internal) IUTF background monitor is unregistered and the reentry function NOT called.
 static Function BackgroundTestb()
 
 	CtrlNamedBackGround testtask, proc=ExampleXX#ReEntryTask, period=1, start

@@ -34,8 +34,12 @@ The following formula gives the diameter :math:`d` of a carbon nanotube:
 	d = \frac{a_0}{\pi}\cdot\sqrt{n^2+m^2+nm}
 
 The natural numbers :math:`n` and :math:`m` define the carbon nanotube type.
-:math:`a_0` is the unit cell lattice constant of graphene (Understanding the
-background of the above formula is not required here).
+:math:`a_0` is the unit cell lattice constant of graphene,
+:math:`a_0 = \sqrt{3} \cdot a_\mathrm{CC} \approx 0.2494\,\mathrm{nm}`, where
+:math:`a_\mathrm{CC} = 0.144\,\mathrm{nm}` is the carbon-carbon bond distance
+(Understanding the background of the above formula is not required here). The
+procedure below therefore uses :math:`a_\mathrm{CC}` and folds the
+:math:`\sqrt{3}` into the factor three of the square root.
 
 The formula is easily translated into Igor Pro code:
 
@@ -97,7 +101,7 @@ tests for a unit.
 Executing the test
 ------------------
 
-To execute the test suite we use the :cpp:func:`RunTest` directive. It accepts
+To execute the test suite we use the :cpp:func:`RunTest` function. It accepts
 the name of our test suite (the procedure window) as an argument. In our
 example we have named the procedure window :code:`"test0"`.
 
@@ -106,7 +110,7 @@ example we have named the procedure window :code:`"test0"`.
 
    •RunTest("test0")
      Start of test "Unnamed"
-     Entering test suite "Unnamed"
+     Entering test suite "test0"
      Entering test case "testDiameter"
      Leaving test case "testDiameter"
      Finished with no errors
@@ -114,7 +118,7 @@ example we have named the procedure window :code:`"test0"`.
      Test finished with no errors
      End of test "Unnamed"
 
-In the cosole output above, the highlighted line indicates that all tests
+In the console output above, the highlighted line indicates that all tests
 within the current test suite have passed successfully. The unit is working
 properly. The full Igor Pro environment with our unit test should look like
 this:
@@ -131,8 +135,8 @@ function :code:`diameter()`. The calculation is only exact up to the specified
 error range. The high error is caused by a fixated value of
 :code:`pi=3.1415`. To emphasize this, we can add an assertion to the test case
 that will fail but will not affect the error counter. Such an assertion is done
-with a `WARN_*` directive. Every `REQUIRE_*` assertion also has a
-`WARN_*` variant, see:ref:`AssertionTypes` for a summary.
+with a `WARN_*` assertion. Every `REQUIRE_*` assertion also has a
+`WARN_*` variant, see :ref:`AssertionTypes` for a summary.
 
 .. code-block:: igorpro
    :emphasize-lines: 6,7
@@ -150,19 +154,19 @@ The output of :cpp:func:`RunTest` will now include a warning assertion without
 failing the test case:
 
 .. code-block:: console
-   :emphasize-lines: 6,7,9
+   :emphasize-lines: 5,6,8
 
    •RunTest("test0")
      Start of test "Unnamed"
-     Entering test suite "Unnamed"
+     Entering test suite "test0"
      Entering test case "testDiameter"
-     Entering test case "testDiameter"
-     0.757368 ~ 0.757345 with strong check and tol 1e-07: is false
-     Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in line 11, procedure "test0"
+     0.7573676512581874 ~ 0.7573453 with strong check and tol 1e-07: is false.
+     Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in testDiameter (test0, line 11)
      Leaving test case "testDiameter"
      Finished with no errors
      Leaving test suite "test0"
      Test finished with no errors
+       ▶ Assertion "WARN_CLOSE_VAR(diameter(6, 5), 0.7573453, tol=1e-7)" failed in testDiameter (test0, line 11)
      End of test "Unnamed"
 
 If the program should be extended to a higher level of accuracy, this warning
