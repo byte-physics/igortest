@@ -152,9 +152,6 @@ static Function/S TextWaveToList(txtWave, sep)
 
 	return list
 #else
-	// AddListItem() of Igor Pro 6 only appended the first character of the separator
-	sep = sep[0]
-
 	return ConcatenateTextWaveRange(txtWave, 0, DimSize(txtWave, 0), sep)
 #endif
 End

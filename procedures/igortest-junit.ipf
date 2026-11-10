@@ -19,14 +19,37 @@ static Function/S JU_TrimSOUT(input, [listSepStr])
 
 #if (IgorVersion() >= 7.0)
 	// trimming the lines in a loop is linear from Igor Pro 7 on, and faster than splitting the input
-	return JU_TrimLines(input, listSepStr, listSepStr, 0)
+	return JU_TrimLines(input, listSepStr, 0)
 #else
-	// StringFromList() of Igor Pro 6 only splits at the first character of the separator
-	return JU_TrimLines(input, listSepStr[0], listSepStr, 1)
+	return JU_TrimLines(input, listSepStr, !JU_CanOverlap(listSepStr))
 #endif
 End
 
-/// @brief Trim leading and trailing white spaces from every line of input and end every line with lineEnd
+#if (IgorVersion() < 7.0)
+
+/// @brief Return 1 if two occurrences of sep can overlap, e.g. for ";;", 0 otherwise
+///
+/// An occurrence of such a separator found from the middle of a string is not necessarily one which a search from its
+/// start finds.
+static Function JU_CanOverlap(sep)
+	string sep
+
+	variable i, len
+
+	len = strlen(sep)
+	for(i = 1; i < len; i += 1)
+		// a prefix of sep which is also a suffix of it
+		if(!cmpstr(sep[0, len - i - 1], sep[i, len - 1], 1))
+			return 1
+		endif
+	endfor
+
+	return 0
+End
+
+#endif
+
+/// @brief Trim leading and trailing white spaces from every line of input and end every line with sep
 ///
 /// With split, a long input is split at a line separator near the middle and the halves are trimmed recursively, so
 /// that every character is copied about log2(n) times. Appending every line to the result in a single loop is
@@ -34,15 +57,14 @@ End
 /// proportional to the length of the whole string there as well, so the halves are passed on as strings of
 /// their own instead of as ranges of input.
 /// The separator must not be one whose occurrences can overlap, e.g. ";;", for a split, as an occurrence found from
-/// the middle is not necessarily a line boundary.
+/// the middle is not necessarily a line boundary, see JU_CanOverlap().
 ///
-/// @param[in] input   string with lines
-/// @param[in] sep     line separator
-/// @param[in] lineEnd string appended to every trimmed line
-/// @param[in] split   1 to split a long input, 0 to trim all lines in a loop
+/// @param[in] input string with lines
+/// @param[in] sep   line separator
+/// @param[in] split 1 to split a long input, 0 to trim all lines in a loop
 /// @returns trimmed lines
-static Function/S JU_TrimLines(input, sep, lineEnd, split)
-	string input, sep, lineEnd
+static Function/S JU_TrimLines(input, sep, split)
+	string input, sep
 	variable split
 
 	variable len, pos, next, mid, sepLength
@@ -60,7 +82,7 @@ static Function/S JU_TrimLines(input, sep, lineEnd, split)
 		endif
 
 		if(next >= 0 && (next + sepLength) < len)
-			return JU_TrimLines(input[0, next + sepLength - 1], sep, lineEnd, split) + JU_TrimLines(input[next + sepLength, len - 1], sep, lineEnd, split)
+			return JU_TrimLines(input[0, next + sepLength - 1], sep, split) + JU_TrimLines(input[next + sepLength, len - 1], sep, split)
 		endif
 
 		// the input is a single line
@@ -72,7 +94,7 @@ static Function/S JU_TrimLines(input, sep, lineEnd, split)
 			next = len
 		endif
 
-		output += TrimString(input[pos, next - 1]) + lineEnd
+		output += TrimString(input[pos, next - 1]) + sep
 	endfor
 
 	return output

@@ -59,15 +59,18 @@ static Function Test_TrimSOUT_SameAsBefore()
 
 	CheckTrimSOUT("a ; b;; c", listSepStr = ";")
 
-	CheckTrimSOUT(" a \r\n b\r\n\r\n", listSepStr = "\r\n")
-
 	// separators whose occurrences can overlap, longer than the limit for splitting in Igor Pro 6
 	overlap = ""
 	for(i = 0; i < 500; i += 1)
 		overlap += " x ;;;"
 	endfor
-	CheckTrimSOUT(PadString("", 2050, char2num(";")), listSepStr = ";;")
-	CheckTrimSOUT(overlap, listSepStr = ";;")
+
+	// the reference uses StringFromList(), which only splits at the first character of the separator in Igor Pro 6
+	if(IgorVersion() >= 7)
+		CheckTrimSOUT(" a \r\n b\r\n\r\n", listSepStr = "\r\n")
+		CheckTrimSOUT(PadString("", 2050, char2num(";")), listSepStr = ";;")
+		CheckTrimSOUT(overlap, listSepStr = ";;")
+	endif
 
 	// long inputs, which Igor Pro 6 splits into halves, also before the middle if a long line follows it
 	longLine = " " + PadString("", 5000, char2num("x")) + " "
@@ -84,6 +87,18 @@ static Function Test_TrimSOUT_SameAsBefore()
 	CheckTrimSOUT(lines + longLine)
 	CheckTrimSOUT(lines + longLine + "\r" + lines + "\r")
 	CheckTrimSOUT(longLine + "\r" + lines + longLine)
+End
+
+static Function Test_TrimSOUT_LongSeparator()
+	string semicolons
+
+	CHECK_EQUAL_STR("a;;b;;;;c;;", IUTF_JUnit#JU_TrimSOUT("  a  ;; b ;;;;  c;;", listSepStr = ";;"))
+	CHECK_EQUAL_STR("a\r\nb\r\n", IUTF_JUnit#JU_TrimSOUT(" a \r\n b", listSepStr = "\r\n"))
+
+	// occurrences of the separator which overlap, longer than the limit for splitting
+	semicolons = PadString("", 2050, char2num(";"))
+	CHECK_EQUAL_STR(semicolons, IUTF_JUnit#JU_TrimSOUT(semicolons, listSepStr = ";;"))
+	CHECK_EQUAL_STR("x;;;;;", IUTF_JUnit#JU_TrimSOUT(" x ;;;", listSepStr = ";;"))
 End
 
 static Function Test_TrimSOUT_IsLinear()

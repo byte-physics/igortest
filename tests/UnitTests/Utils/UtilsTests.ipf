@@ -29,8 +29,11 @@ static Function CheckTextWaveToList(numRows)
 	INFO("number of elements %d", n0 = numRows)
 	CHECK_EQUAL_STR(ReferenceTextWaveToList(wv, ";"), IUTF_Utils#TextWaveToList(wv, ";"))
 
-	INFO("number of elements %d", n0 = numRows)
-	CHECK_EQUAL_STR(ReferenceTextWaveToList(wv, "\r\n"), IUTF_Utils#TextWaveToList(wv, "\r\n"))
+	// the reference uses AddListItem(), which only appends the first character of the separator in Igor Pro 6
+	if(IgorVersion() >= 7)
+		INFO("number of elements %d", n0 = numRows)
+		CHECK_EQUAL_STR(ReferenceTextWaveToList(wv, "\r\n"), IUTF_Utils#TextWaveToList(wv, "\r\n"))
+	endif
 End
 
 static Function Test_TextWaveToList()
@@ -42,4 +45,11 @@ static Function Test_TextWaveToList()
 	endfor
 
 	CheckTextWaveToList(1001)
+End
+
+static Function Test_TextWaveToList_LongSep()
+	Make/FREE/T wvWave = {"a", "", "b"}
+	WAVE/T wv = wvWave
+
+	CHECK_EQUAL_STR("a\r\n\r\nb\r\n", IUTF_Utils#TextWaveToList(wv, "\r\n"))
 End
