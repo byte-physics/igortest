@@ -212,6 +212,8 @@ static Function ExecuteHooks(hookType, hooks, enableTAP, enableJU, name, procWin
 			if(enableTAP)
 				IUTF_TAP#TAP_Write()
 			endif
+			// after the reports, so that they are complete when the line is printed
+			PrintTestEnd(name)
 			break
 		default:
 			IUTF_Reporting#ReportErrorAndAbort("Unknown hookType")
@@ -266,11 +268,19 @@ static Function TestEnd(name, debugMode)
 		IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 	endfor
 
-	sprintf msg, "End of test \"%s\"", name
-	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
-
 	IUTF_Reporting_Control#TestEnd()
 	IUTF_Debug#RestoreDebugger()
+End
+
+/// Print the last line of the testrun
+/// @param name   name of the test suite group
+static Function PrintTestEnd(name)
+	string name
+
+	string msg
+
+	sprintf msg, "End of test \"%s\"", name
+	IUTF_Reporting#IUTF_PrintStatusMessage(msg)
 End
 
 /// Internal Setup for Test Suite
