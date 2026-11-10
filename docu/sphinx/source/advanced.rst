@@ -324,9 +324,10 @@ monitor is registered. Logically the universal testing framework stays in the
 same test case. It is allowed to register another monitoring in the `_REENTRY`
 function.
 
-A failed :cpp:func:`REQUIRE` assertion in a monitored background task stops that
-background task with its `Abort`. Once the monitor resumes the run, the test
-case ends without calling the `_REENTRY` function.
+A failed :cpp:func:`REQUIRE` assertion or :cpp:func:`SKIP_TESTCASE` in a
+monitored background task stops that background task with its `Abort`. Once
+the monitor resumes the run, the test case ends without calling the `_REENTRY`
+function.
 
 Multiple subsequent calls to :cpp:func:`RegisterIUTFMonitor()` in the same
 function overwrite the previous registration.

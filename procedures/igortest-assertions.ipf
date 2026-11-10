@@ -54,6 +54,9 @@ End
 /// run continues with the next one. The assertion counter is increased, so the
 /// requirement of at least one assertion per test case is fulfilled. Any
 /// registered background monitor for a reentry is automatically unregistered.
+/// Called in a monitored background task it stops that task, and once the
+/// monitor resumes the run the test case ends without calling the reentry
+/// function.
 ///
 /// A test case with an assertion which failed already keeps its FAIL or ERROR
 /// status and its errors, use SKIP_TESTCASE_EXPECT_FAILS to report it as SKIP.
@@ -68,8 +71,6 @@ Function SKIP_TESTCASE()
 
 	IUTF_Reporting#ShowInfoMsg()
 	IUTF_Reporting#CleanupInfoMsg()
-
-	UnRegisterIUTFMonitor()
 
 	IUTF_Basics#SetAbortFromSkipFlag()
 	Abort

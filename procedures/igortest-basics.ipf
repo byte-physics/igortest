@@ -1695,7 +1695,7 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 	variable i, j, tcFuncCount, startNextTS, skip, tcCount, reqSave, tcResultIndex
 	string procWin, fullFuncName, previousProcWin, dgenFuncName
 	// used as temporal locals
-	variable var, err, requireAbort
+	variable var, err, frameworkAbort
 	string msg, errMsg
 
 	fixLogName       = ParamIsDefault(fixLogName) ? 0 : !!fixLogName
@@ -2009,21 +2009,21 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 				endif
 
 				try
-					// a failed REQUIRE in a monitored background task ended the test case already
-					if(!(reentry && IsAbortFromRequire()))
+					// a failed REQUIRE or SKIP_TESTCASE in a monitored background task ended the test case already
+					if(!(reentry && (IsAbortFromRequire() || IsAbortFromSkip())))
 						CallTestCase(s, reentry)
 					endif
 				catch
 					msg   = GetRTErrMessage()
 					s.err = GetRTError(1)
-					// -3 is the Abort of the REQUIRE, a test case which caught it can still abort otherwise
-					requireAbort = IsAbortFromRequire() && V_AbortCode == -3
-					if(requireAbort)
-						// not done by the REQUIRE, as from a background task the run has to resume through the monitor
+					// -3 is the Abort of the REQUIRE or SKIP_TESTCASE, a test case which caught it can still abort otherwise
+					frameworkAbort = (IsAbortFromRequire() || IsAbortFromSkip()) && V_AbortCode == -3
+					if(frameworkAbort)
+						// not done by the assertion, as from a background task the run has to resume through the monitor
 						UnRegisterIUTFMonitor()
 					endif
-					// clear the abort code from setAbortFlag() and from a failed REQUIRE
-					V_AbortCode = shouldDoAbort() || IsAbortFromSkip() || requireAbort ? 0 : V_AbortCode
+					// clear the abort code from setAbortFlag(), from SKIP_TESTCASE and from a failed REQUIRE
+					V_AbortCode = shouldDoAbort() || frameworkAbort ? 0 : V_AbortCode
 					EvaluateRTE(s.err, msg, V_AbortCode, fullFuncName, IUTF_TEST_CASE_TYPE, procWin)
 
 					if(shouldDoAbort() && !(s.enableTAP && IUTF_TAP#TAP_IsFunctionTodo(fullFuncName)))
@@ -2050,9 +2050,9 @@ Function RunTest(procWinList, [name, testCase, enableJU, enableTAP, enableRegExp
 						WAVE/T wvTestRun = IUTF_Reporting#GetTestRunWave()
 						return str2num(wvTestRun[%CURRENT][%NUM_ERROR])
 					endif
-
-					InitAbortFromSkipFlag()
 				endtry
+
+				InitAbortFromSkipFlag()
 
 #ifdef UTF_ALLOW_TRACING
 				// check if Z_ has stored some errors

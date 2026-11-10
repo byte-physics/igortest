@@ -124,3 +124,40 @@ static Function RequireFailInTask_Verify()
 	result = tc[0][%NUM_ASSERT]
 	CHECK_EQUAL_STR(expect, result)
 End
+
+static Function SkipTask(s)
+	STRUCT WMBackgroundStruct &s
+
+	SKIP_TESTCASE()
+
+	return 1
+End
+
+static Function SkipInTask()
+	CtrlNamedBackground testtask, proc=TS_ReentryTests#SkipTask, period=1, start
+	RegisterIUTFMonitor("testtask", 1, "TS_ReentryTests#SkipInTask_REENTRY")
+End
+
+static Function SkipInTask_REENTRY()
+	FAIL()
+End
+
+static Function SkipInTask_Verify()
+	string expect, result
+
+	WAVE/Z/T tc = Utils#LastTestCase()
+	INFO("BUG: test case not found")
+	REQUIRE(WaveExists(tc))
+
+	Utils#ExpectTestCaseStatus(IUTF_STATUS_SKIP)
+
+	INFO("Check if no assertion error is set")
+	expect = "0"
+	result = tc[0][%NUM_ASSERT_ERROR]
+	CHECK_EQUAL_STR(expect, result)
+
+	INFO("Check if the reentry function was not called")
+	expect = "1"
+	result = tc[0][%NUM_ASSERT]
+	CHECK_EQUAL_STR(expect, result)
+End
